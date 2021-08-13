@@ -1,6 +1,7 @@
 #!/bin/zsh
+CWD="`pwd`"
 mkdir build
 cd build
-../configure --prefix=/Users/ogataslab/Desktop/Maude/dist
+../configure --prefix="${CWD}/dist"
 make
 make install
