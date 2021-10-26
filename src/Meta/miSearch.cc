@@ -24,125 +24,115 @@
 //      MetaInterpreters: search messages.
 //
 
-RewriteSequenceSearch*
-InterpreterManagerSymbol::makeRewriteSequenceSearch(ImportModule* m,
-						    FreeDagNode* message,
-						    RewritingContext& context) const
-{
-  RewriteSequenceSearch::SearchType searchType;
-  int maxDepth;
-  if (metaLevel->downSearchType(message->getArgument(6), searchType) &&
-      metaLevel->downBound(message->getArgument(7), maxDepth))
-    {
-      Term* s;
-      Term* g;
-      if (metaLevel->downTermPair(message->getArgument(3), message->getArgument(4), s, g, m))
-	{
-	  Vector<ConditionFragment*> condition;
-	  if (metaLevel->downCondition(message->getArgument(5), m, condition))
-	    {
-	      m->protect();
-	      Pattern* goal = new Pattern(g, false, condition);
-	      RewritingContext* subContext = term2RewritingContext(s, context);
-	      return new RewriteSequenceSearch(subContext,
-					       searchType,
-					       goal,
-					       maxDepth);
-	    }
-	  g->deepSelfDestruct();
-	  s->deepSelfDestruct();
-	}
+RewriteSequenceSearch *
+InterpreterManagerSymbol::makeRewriteSequenceSearch(ImportModule *m,
+                                                    FreeDagNode *message,
+                                                    RewritingContext &context) const {
+    RewriteSequenceSearch::SearchType searchType;
+    int maxDepth;
+    if (metaLevel->downSearchType(message->getArgument(6), searchType) &&
+        metaLevel->downBound(message->getArgument(7), maxDepth)) {
+        Term *s;
+        Term *g;
+        if (metaLevel->downTermPair(message->getArgument(3), message->getArgument(4), s, g, m)) {
+            Vector<ConditionFragment *> condition;
+            if (metaLevel->downCondition(message->getArgument(5), m, condition)) {
+                m->protect();
+                Pattern *goal = new Pattern(g, false, condition);
+                RewritingContext *subContext = term2RewritingContext(s, context);
+                return new RewriteSequenceSearch(subContext,
+                                                 searchType,
+                                                 goal,
+                                                 maxDepth);
+            }
+            g->deepSelfDestruct();
+            s->deepSelfDestruct();
+        }
     }
-  return 0;
+    return 0;
 }
 
-DagNode*
-InterpreterManagerSymbol::getSearchResult(FreeDagNode* message,
-					  ObjectSystemRewritingContext& context,
-					  Interpreter* interpreter)
-{
-  //
-  //	op getSearchResult : Oid Oid Qid Term Term Condition Qid Bound Nat -> Msg .
-  //                          0   1   2   3    4       5      6    7    8
-  //
-  //	op getSearchResultAndPath : Oid Oid Qid Term Term Condition Qid Bound Nat -> Msg .
-  //                                 0   1   2   3    4       5      6    7    8
-  //
-  Int64 solutionNr;
-  if (metaLevel->downSaturate64(message->getArgument(8), solutionNr) && solutionNr >= 0)
-    {
-      DagNode* errorMessage;
-      if (MetaModule* mm = getMetaModule(message, 2, interpreter, errorMessage))
-	{
-	  RewriteSequenceSearch* state;
-	  Int64 lastSolutionNr;
-	  if (mm->getCachedStateObject(message,
-				       context,
-				       solutionNr,
-				       state,
-				       lastSolutionNr))
-	    mm->protect();  // use cached state so protect the module
-	  else if ((state = makeRewriteSequenceSearch(mm, message, context)))
-	    lastSolutionNr = -1;
-	  else
-	    return makeErrorReply("Bad search.", message);
+DagNode *
+InterpreterManagerSymbol::getSearchResult(FreeDagNode *message,
+                                          ObjectSystemRewritingContext &context,
+                                          Interpreter *interpreter) {
+    //
+    //	op getSearchResult : Oid Oid Qid Term Term Condition Qid Bound Nat -> Msg .
+    //                          0   1   2   3    4       5      6    7    8
+    //
+    //	op getSearchResultAndPath : Oid Oid Qid Term Term Condition Qid Bound Nat -> Msg .
+    //                                 0   1   2   3    4       5      6    7    8
+    //
+    Int64 solutionNr;
+    if (metaLevel->downSaturate64(message->getArgument(8), solutionNr) && solutionNr >= 0) {
+        DagNode *errorMessage;
+        if (MetaModule *mm = getMetaModule(message, 2, interpreter, errorMessage)) {
+            RewriteSequenceSearch *state;
+            Int64 lastSolutionNr;
+            if (mm->getCachedStateObject(message,
+                                         context,
+                                         solutionNr,
+                                         state,
+                                         lastSolutionNr))
+                mm->protect();  // use cached state so protect the module
+            else if ((state = makeRewriteSequenceSearch(mm, message, context)))
+                lastSolutionNr = -1;
+            else
+                return makeErrorReply("Bad search.", message);
 
-	  DagNode* target = message->getArgument(1);
-	  while (lastSolutionNr < solutionNr)
-	    {
-	      bool success = state->findNextMatch();
-	      if (!success)
-		{
-		  Vector<DagNode*> args(3);
-		  args[0] = target;
-		  args[1] = message->getArgument(0);
-		  args[2] = upRewriteCount(state->getContext());
-		  //
-		  //	Account for any remaining rewrites.
-		  //
-		  context.addInCount(*(state->getContext())); 
-		  delete state;
-		  return noSuchResultMsg->makeDagNode(args);
-		}
-	      ++lastSolutionNr;
-	    }
-	  //
-	  //	Desired solution found. Cache new state and generate reply.
-	  //
-	  //	op gotSearchResult : Oid Oid RewriteCount Term Type Substitution -> Msg .
-	  //	                      0   1       2        3    4        5
-	  //
-	  //	op gotSearchResultAndPath : Oid Oid RewriteCount Term Type Substitution Trace -> Msg .
-	  //	                             0   1       2        3    4        5         6
-	  //
-	  mm->insert(message, state, solutionNr);
+            DagNode *target = message->getArgument(1);
+            while (lastSolutionNr < solutionNr) {
+                bool success = state->findNextMatch();
+                if (!success) {
+                    Vector<DagNode *> args(3);
+                    args[0] = target;
+                    args[1] = message->getArgument(0);
+                    args[2] = upRewriteCount(state->getContext());
+                    //
+                    //	Account for any remaining rewrites.
+                    //
+                    context.addInCount(*(state->getContext()));
+                    delete state;
+                    return noSuchResultMsg->makeDagNode(args);
+                }
+                ++lastSolutionNr;
+            }
+            //
+            //	Desired solution found. Cache new state and generate reply.
+            //
+            //	op gotSearchResult : Oid Oid RewriteCount Term Type Substitution -> Msg .
+            //	                      0   1       2        3    4        5
+            //
+            //	op gotSearchResultAndPath : Oid Oid RewriteCount Term Type Substitution Trace -> Msg .
+            //	                             0   1       2        3    4        5         6
+            //
+            mm->insert(message, state, solutionNr);
 
-	  bool includeTrace = (message->symbol() == getSearchResultAndPathMsg);
-	  Vector<DagNode*> args(includeTrace ? 7 : 6);
-	  args[0] = target;
-	  args[1] = message->getArgument(0);
-	  args[2] = upRewriteCount(state->getContext());
+            bool includeTrace = (message->symbol() == getSearchResultAndPathMsg);
+            Vector<DagNode *> args(includeTrace ? 7 : 6);
+            args[0] = target;
+            args[1] = message->getArgument(0);
+            args[2] = upRewriteCount(state->getContext());
 
-	  DagNode* dagNode = state->getStateDag(state->getStateNr());
-	  PointerMap qidMap;
-	  PointerMap dagNodeMap;
-	  args[3] = metaLevel->upDagNode(dagNode, mm, qidMap, dagNodeMap);
-	  args[4] = metaLevel->upType(dagNode->getSort(), qidMap);
-	  args[5] = metaLevel->upSubstitution(*(state->getSubstitution()),
-					      *(state->getGoal()),
-					      mm,
-					      qidMap,
-					      dagNodeMap);
-	  state->transferCountTo(context);
-	  (void) mm->unprotect();
-	  if (includeTrace)
-	    {
-	      args[6] = metaLevel->upTrace(*state, mm);
-	      return gotSearchResultAndPathMsg->makeDagNode(args);
-	    }
-	  return gotSearchResultMsg->makeDagNode(args);
-	}
-      return errorMessage;
+            DagNode *dagNode = state->getStateDag(state->getStateNr());
+            PointerMap qidMap;
+            PointerMap dagNodeMap;
+            args[3] = metaLevel->upDagNode(dagNode, mm, qidMap, dagNodeMap);
+            args[4] = metaLevel->upType(dagNode->getSort(), qidMap);
+            args[5] = metaLevel->upSubstitution(*(state->getSubstitution()),
+                                                *(state->getGoal()),
+                                                mm,
+                                                qidMap,
+                                                dagNodeMap);
+            state->transferCountTo(context);
+            (void) mm->unprotect();
+            if (includeTrace) {
+                args[6] = metaLevel->upTrace(*state, mm);
+                return gotSearchResultAndPathMsg->makeDagNode(args);
+            }
+            return gotSearchResultMsg->makeDagNode(args);
+        }
+        return errorMessage;
     }
-  return makeErrorReply("Bad solution number.", message);
+    return makeErrorReply("Bad solution number.", message);
 }

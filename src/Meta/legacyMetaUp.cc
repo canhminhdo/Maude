@@ -24,88 +24,83 @@
 //	Code for legacy up functions.
 //
 
-DagNode*
-MetaLevel::upUnificationPair(const Substitution& substitution,
-			     const VariableInfo& variableInfo,
-			     const mpz_class& variableIndex,
-			     MixfixModule* m)
-{
-  PointerMap qidMap;
-  PointerMap dagNodeMap;
-  Vector<DagNode*> args(2);
-  args[0] = upSubstitution(substitution, variableInfo, m, qidMap, dagNodeMap);
-  args[1] = succSymbol->makeNatDag(variableIndex);
-  return legacyUnificationPairSymbol->makeDagNode(args);
+DagNode *
+MetaLevel::upUnificationPair(const Substitution &substitution,
+                             const VariableInfo &variableInfo,
+                             const mpz_class &variableIndex,
+                             MixfixModule *m) {
+    PointerMap qidMap;
+    PointerMap dagNodeMap;
+    Vector<DagNode *> args(2);
+    args[0] = upSubstitution(substitution, variableInfo, m, qidMap, dagNodeMap);
+    args[1] = succSymbol->makeNatDag(variableIndex);
+    return legacyUnificationPairSymbol->makeDagNode(args);
 }
 
-DagNode*
-MetaLevel::upUnificationPair(const Vector<DagNode*>& unifier,
-			     const NarrowingVariableInfo& variableInfo,
-			     const mpz_class& variableIndex,
-			     MixfixModule* m)
-{
-  PointerMap qidMap;
-  PointerMap dagNodeMap;
-  Vector<DagNode*> args(2);
+DagNode *
+MetaLevel::upUnificationPair(const Vector<DagNode *> &unifier,
+                             const NarrowingVariableInfo &variableInfo,
+                             const mpz_class &variableIndex,
+                             MixfixModule *m) {
+    PointerMap qidMap;
+    PointerMap dagNodeMap;
+    Vector<DagNode *> args(2);
 
-  args[0] = upSubstitution(unifier, variableInfo, unifier.size(), m, qidMap, dagNodeMap);
-  args[1] = succSymbol->makeNatDag(variableIndex);
-  return legacyUnificationPairSymbol->makeDagNode(args);
+    args[0] = upSubstitution(unifier, variableInfo, unifier.size(), m, qidMap, dagNodeMap);
+    args[1] = succSymbol->makeNatDag(variableIndex);
+    return legacyUnificationPairSymbol->makeDagNode(args);
 }
 
-DagNode*
-MetaLevel::upUnificationTriple(const Substitution& substitution,
-			       const VariableInfo& variableInfo,
-			       const mpz_class& variableIndex,
-			       MixfixModule* m)
-{
-  PointerMap qidMap;
-  PointerMap dagNodeMap;
-  Vector<DagNode*> args(3);
-  upDisjointSubstitutions(substitution,
-			  variableInfo,
-			  m,
-			  qidMap,
-			  dagNodeMap,
-			  args[0],
-			  args[1]);
-  args[2] = succSymbol->makeNatDag(variableIndex);
-  return legacyUnificationTripleSymbol->makeDagNode(args);
+DagNode *
+MetaLevel::upUnificationTriple(const Substitution &substitution,
+                               const VariableInfo &variableInfo,
+                               const mpz_class &variableIndex,
+                               MixfixModule *m) {
+    PointerMap qidMap;
+    PointerMap dagNodeMap;
+    Vector<DagNode *> args(3);
+    upDisjointSubstitutions(substitution,
+                            variableInfo,
+                            m,
+                            qidMap,
+                            dagNodeMap,
+                            args[0],
+                            args[1]);
+    args[2] = succSymbol->makeNatDag(variableIndex);
+    return legacyUnificationTripleSymbol->makeDagNode(args);
 }
 
-DagNode*
-MetaLevel::upUnificationTriple(const Vector<DagNode*>& unifier,
-			       const NarrowingVariableInfo& variableInfo,
-			       const mpz_class& variableIndex,
-			       MixfixModule* m)
-{
-  PointerMap qidMap;
-  PointerMap dagNodeMap;
-  Vector<DagNode*> args(3);
+DagNode *
+MetaLevel::upUnificationTriple(const Vector<DagNode *> &unifier,
+                               const NarrowingVariableInfo &variableInfo,
+                               const mpz_class &variableIndex,
+                               MixfixModule *m) {
+    PointerMap qidMap;
+    PointerMap dagNodeMap;
+    Vector<DagNode *> args(3);
 
-  upDisjointSubstitutions(unifier, variableInfo, m, qidMap, dagNodeMap, args[0], args[1]);
-  args[2] = succSymbol->makeNatDag(variableIndex);
-  return legacyUnificationTripleSymbol->makeDagNode(args);
+    upDisjointSubstitutions(unifier, variableInfo, m, qidMap, dagNodeMap, args[0], args[1]);
+    args[2] = succSymbol->makeNatDag(variableIndex);
+    return legacyUnificationTripleSymbol->makeDagNode(args);
 }
 
-DagNode*
-MetaLevel::upVariant(const Vector<DagNode*>& variant, 
-		     const NarrowingVariableInfo& variableInfo,
-		     const mpz_class& variableIndex,
-		     const mpz_class& parentIndex,
-		     bool moreInLayer,
-		     MixfixModule* m)
-{
-  PointerMap qidMap;
-  PointerMap dagNodeMap;
-  Vector<DagNode*> args(5);
+DagNode *
+MetaLevel::upVariant(const Vector<DagNode *> &variant,
+                     const NarrowingVariableInfo &variableInfo,
+                     const mpz_class &variableIndex,
+                     const mpz_class &parentIndex,
+                     bool moreInLayer,
+                     MixfixModule *m) {
+    PointerMap qidMap;
+    PointerMap dagNodeMap;
+    Vector<DagNode *> args(5);
 
-  int nrVariables = variant.size() - 1;
-  args[0] = upDagNode(variant[nrVariables], m, qidMap, dagNodeMap);
-  args[1] = upSubstitution(variant, variableInfo, nrVariables, m, qidMap, dagNodeMap);
-  args[2] = succSymbol->makeNatDag(variableIndex);
-  args[3] = (parentIndex >= 0) ? succSymbol->makeNatDag(parentIndex) :
-    noParentSymbol->makeDagNode();
-  args[4] = upBool(moreInLayer);
-  return legacyVariantSymbol->makeDagNode(args);
+    int nrVariables = variant.size() - 1;
+    args[0] = upDagNode(variant[nrVariables], m, qidMap, dagNodeMap);
+    args[1] = upSubstitution(variant, variableInfo, nrVariables, m, qidMap, dagNodeMap);
+    args[2] = succSymbol->makeNatDag(variableIndex);
+    args[3] = (parentIndex >= 0) ? succSymbol->makeNatDag(parentIndex) :
+              noParentSymbol->makeDagNode();
+    args[4] = upBool(moreInLayer);
+    return legacyVariantSymbol->makeDagNode(args);
 }

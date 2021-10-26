@@ -40,34 +40,29 @@
 #include "dagNodeSet.hh"
 
 int
-DagNodeSet::insert(DagNode* d)
-{
-  return PointerSet::insert(d, d->getHashValue());
+DagNodeSet::insert(DagNode *d) {
+    return PointerSet::insert(d, d->getHashValue());
 }
 
 int
-DagNodeSet::dagNode2Index(DagNode* d) const
-{
-  return pointer2Index(d, d->getHashValue());
+DagNodeSet::dagNode2Index(DagNode *d) const {
+    return pointer2Index(d, d->getHashValue());
 }
 
-DagNode*
-DagNodeSet::index2DagNode(int i) const
-{
-  return static_cast<DagNode*>(index2Pointer(i));
+DagNode *
+DagNodeSet::index2DagNode(int i) const {
+    return static_cast<DagNode *>(index2Pointer(i));
 }
 
 unsigned int
-DagNodeSet::hash(void* /* pointer */) const
-{
-  CantHappen("should never be called");
-  return 0;
+DagNodeSet::hash(void * /* pointer */) const {
+    CantHappen("should never be called");
+    return 0;
 }
 
 bool
-DagNodeSet::isEqual(void* pointer1, void* pointer2) const
-{
-  DagNode* d1 = static_cast<DagNode*>(pointer1);
-  DagNode* d2 = static_cast<DagNode*>(pointer2);
-  return d1->equal(d2);
+DagNodeSet::isEqual(void *pointer1, void *pointer2) const {
+    DagNode *d1 = static_cast<DagNode *>(pointer1);
+    DagNode *d2 = static_cast<DagNode *>(pointer2);
+    return d1->equal(d2);
 }

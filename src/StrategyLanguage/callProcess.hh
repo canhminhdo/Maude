@@ -25,33 +25,33 @@
 //
 #ifndef _callProcess_hh_
 #define _callProcess_hh_
+
 #include "strategicProcess.hh"
 
-class CallProcess : public StrategicProcess
-{
-  NO_COPYING(CallProcess);
+class CallProcess : public StrategicProcess {
+    NO_COPYING(CallProcess);
 
 public:
-  CallProcess(RewriteStrategy* namedStrategy,
-	      RewritingContext* callContext,
-	      int subjectDagIndex,
-	      StrategyStackManager::StackId pending,
-	      bool tailCall,
-	      StrategicExecution* taskSibling,
-	      StrategicProcess* insertionPoint);
+    CallProcess(RewriteStrategy *namedStrategy,
+                RewritingContext *callContext,
+                int subjectDagIndex,
+                StrategyStackManager::StackId pending,
+                bool tailCall,
+                StrategicExecution *taskSibling,
+                StrategicProcess *insertionPoint);
 
-  Survival run(StrategicSearch& searchObject);
+    Survival run(StrategicSearch &searchObject);
 
 private:
-  RewriteStrategy* strategy;
-  RewritingContext* callContext;
-  SearchState search;
-  int subjectDagIndex;
-  StrategyStackManager::StackId pending;
+    RewriteStrategy *strategy;
+    RewritingContext *callContext;
+    SearchState search;
+    int subjectDagIndex;
+    StrategyStackManager::StackId pending;
 
-  int defIndex;
-  bool first;
-  const bool tailCall;
+    int defIndex;
+    bool first;
+    const bool tailCall;
 };
 
 #endif

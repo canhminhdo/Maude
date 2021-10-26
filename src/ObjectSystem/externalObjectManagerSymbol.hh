@@ -25,41 +25,45 @@
 //
 #ifndef _ExternalObjectManagerSymbol_hh_
 #define _ExternalObjectManagerSymbol_hh_
+
 #include "freeSymbol.hh"
 
-class ExternalObjectManagerSymbol : public FreeSymbol
-{
-  NO_COPYING(ExternalObjectManagerSymbol);
+class ExternalObjectManagerSymbol : public FreeSymbol {
+    NO_COPYING(ExternalObjectManagerSymbol);
 
 public:
-  ExternalObjectManagerSymbol(int id);
-  //
-  //	This member function is used to handle messages sent to the
-  //	manager object itself.
-  //
-  virtual bool handleManagerMessage(DagNode* message, ObjectSystemRewritingContext& context) = 0;
-  //
-  //	This member function is used to handle messages sent to the
-  //	external objects created by the manager object.
-  //
-  virtual bool handleMessage(DagNode* message, ObjectSystemRewritingContext& context) = 0;
-  //
-  //	This member function is used to quietly free up any resources
-  //	allocated to an external object.
-  //
-  virtual void cleanUp(DagNode* objectId) = 0;
-  //
-  //	This member function is used to quietly free up any resources
-  //	that are associated with a ObjectSystemRewritingContext that is in
-  //	the process of being destructed. This is a much less common case
-  //	where the resources are not associated with some ephemeral external
-  //	object, but are directly controlled by the manager object.
-  //
-  virtual void cleanUpManager(ObjectSystemRewritingContext& context);
+    ExternalObjectManagerSymbol(int id);
 
-  void trivialReply(Symbol* replySymbol, 
-		    FreeDagNode* originalMessage,
-		    ObjectSystemRewritingContext& context);
+    //
+    //	This member function is used to handle messages sent to the
+    //	manager object itself.
+    //
+    virtual bool handleManagerMessage(DagNode *message, ObjectSystemRewritingContext &context) = 0;
+
+    //
+    //	This member function is used to handle messages sent to the
+    //	external objects created by the manager object.
+    //
+    virtual bool handleMessage(DagNode *message, ObjectSystemRewritingContext &context) = 0;
+
+    //
+    //	This member function is used to quietly free up any resources
+    //	allocated to an external object.
+    //
+    virtual void cleanUp(DagNode *objectId) = 0;
+
+    //
+    //	This member function is used to quietly free up any resources
+    //	that are associated with a ObjectSystemRewritingContext that is in
+    //	the process of being destructed. This is a much less common case
+    //	where the resources are not associated with some ephemeral external
+    //	object, but are directly controlled by the manager object.
+    //
+    virtual void cleanUpManager(ObjectSystemRewritingContext &context);
+
+    void trivialReply(Symbol *replySymbol,
+                      FreeDagNode *originalMessage,
+                      ObjectSystemRewritingContext &context);
 };
 
 #endif

@@ -26,106 +26,102 @@
 //
 #ifndef _rewriteStrategy_hh_
 #define _rewriteStrategy_hh_
+
 #include "macros.hh"
 #include "sort.hh"
 
-class RewriteStrategy : public NamedEntity, public LineNumber, public ModuleItem
-{
-  NO_COPYING(RewriteStrategy);
+class RewriteStrategy : public NamedEntity, public LineNumber, public ModuleItem {
+    NO_COPYING(RewriteStrategy);
 
 public:
-  RewriteStrategy(int id, const Vector<Sort*>& domain, Sort* subjectSort, Symbol* auxSymbol);
+    RewriteStrategy(int id, const Vector<Sort *> &domain, Sort *subjectSort, Symbol *auxSymbol);
 
-  //
-  // Get the auxiliary tuple symbol which is used for matching strategy calls
-  // in definitions.
-  //
-  // Explicit access to this symbol is not needed but it is used for eficency
-  // when strategies are created or imported.
-  //
-  Symbol* getSymbol() const;
+    //
+    // Get the auxiliary tuple symbol which is used for matching strategy calls
+    // in definitions.
+    //
+    // Explicit access to this symbol is not needed but it is used for eficency
+    // when strategies are created or imported.
+    //
+    Symbol *getSymbol() const;
 
-  //
-  // The strategy is intented to rewrite terms of the this sort.
-  // This information is not used and no checks are done.
-  //
-  Sort* getSubjectSort() const;
+    //
+    // The strategy is intented to rewrite terms of the this sort.
+    // This information is not used and no checks are done.
+    //
+    Sort *getSubjectSort() const;
 
-  const Vector<Sort*>& getDomain() const;
-  int arity() const;
+    const Vector<Sort *> &getDomain() const;
 
-  //
-  // Functions for the auxiliary term
-  //
-  Term* makeAuxiliaryTerm(const Vector<Term*>& args) const;
-  Term* copyAuxiliaryTerm(Term* term, SymbolMap* translation) const;
+    int arity() const;
 
-  //
-  // Functions for a table of definitions
-  //
-  void addDefinition(StrategyDefinition* sdef);
-  const Vector<StrategyDefinition*>& getDefinitions() const;
+    //
+    // Functions for the auxiliary term
+    //
+    Term *makeAuxiliaryTerm(const Vector<Term *> &args) const;
 
-  //
-  // A strategy is simple if it has no arguments and is defined by a single
-  // unconditional definition.
-  //
-  bool isSimple() const;
+    Term *copyAuxiliaryTerm(Term *term, SymbolMap *translation) const;
+
+    //
+    // Functions for a table of definitions
+    //
+    void addDefinition(StrategyDefinition *sdef);
+
+    const Vector<StrategyDefinition *> &getDefinitions() const;
+
+    //
+    // A strategy is simple if it has no arguments and is defined by a single
+    // unconditional definition.
+    //
+    bool isSimple() const;
 
 private:
-  Vector<Sort*> domain;
-  Sort* subjectSort;
+    Vector<Sort *> domain;
+    Sort *subjectSort;
 
-  Symbol* symbol;
-  Vector<StrategyDefinition*> definitions;
-  bool simple;
+    Symbol *symbol;
+    Vector<StrategyDefinition *> definitions;
+    bool simple;
 };
 
-inline Symbol*
-RewriteStrategy::getSymbol() const
-{
-  return symbol;
+inline Symbol *
+RewriteStrategy::getSymbol() const {
+    return symbol;
 }
 
-inline Sort*
-RewriteStrategy::getSubjectSort() const
-{
-  return subjectSort;
+inline Sort *
+RewriteStrategy::getSubjectSort() const {
+    return subjectSort;
 }
 
-inline Term*
-RewriteStrategy::makeAuxiliaryTerm(const Vector<Term*>& args) const
-{
-  return symbol->makeTerm(args);
+inline Term *
+RewriteStrategy::makeAuxiliaryTerm(const Vector<Term *> &args) const {
+    return symbol->makeTerm(args);
 }
 
 inline int
-RewriteStrategy::arity() const
-{
-  return domain.length();
+RewriteStrategy::arity() const {
+    return domain.length();
 }
 
-inline const Vector<Sort*>&
-RewriteStrategy::getDomain() const
-{
-  return domain;
+inline const Vector<Sort *> &
+RewriteStrategy::getDomain() const {
+    return domain;
 }
 
-inline const Vector<StrategyDefinition*>&
-RewriteStrategy::getDefinitions() const
-{
-  return definitions;
+inline const Vector<StrategyDefinition *> &
+RewriteStrategy::getDefinitions() const {
+    return definitions;
 }
 
 inline bool
-RewriteStrategy::isSimple() const
-{
-  return simple;
+RewriteStrategy::isSimple() const {
+    return simple;
 }
 
 //
 //      Output function for RewriteStrategy must be defined by library user.
 //
-ostream& operator<<(ostream& s, const RewriteStrategy* rs);
+ostream &operator<<(ostream &s, const RewriteStrategy *rs);
 
 #endif

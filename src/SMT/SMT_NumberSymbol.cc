@@ -51,78 +51,67 @@
 #include "SMT_NumberDagNode.hh"
 
 SMT_NumberSymbol::SMT_NumberSymbol(int id)
-  : NA_Symbol(id)
-{
-  numberSystem = NONE;
+        : NA_Symbol(id) {
+    numberSystem = NONE;
 }
 
 bool
-SMT_NumberSymbol::attachData(const Vector<Sort*>& opDeclaration,
-			     const char* purpose,
-			     const Vector<const char*>& data)
-{
-  BIND_OP(purpose, SMT_NumberSymbol, numberSystem, data);
-  return NA_Symbol::attachData(opDeclaration, purpose, data);
+SMT_NumberSymbol::attachData(const Vector<Sort *> &opDeclaration,
+                             const char *purpose,
+                             const Vector<const char *> &data) {
+    BIND_OP(purpose, SMT_NumberSymbol, numberSystem, data);
+    return NA_Symbol::attachData(opDeclaration, purpose, data);
 }
 
 void
-SMT_NumberSymbol::copyAttachments(Symbol* original, SymbolMap* map)
-{
-  SMT_NumberSymbol* orig = safeCast(SMT_NumberSymbol*, original);
-  numberSystem = orig->numberSystem;
-  NA_Symbol::copyAttachments(original, map);
+SMT_NumberSymbol::copyAttachments(Symbol *original, SymbolMap *map) {
+    SMT_NumberSymbol *orig = safeCast(SMT_NumberSymbol*, original);
+    numberSystem = orig->numberSystem;
+    NA_Symbol::copyAttachments(original, map);
 }
 
 void
-SMT_NumberSymbol::getDataAttachments(const Vector<Sort*>& opDeclaration,
-				     Vector<const char*>& purposes,
-				     Vector<Vector<const char*> >& data)
-{
-  if (numberSystem != NONE)
-    {
-      int nrDataAttachments = purposes.length();
-      purposes.resize(nrDataAttachments + 1);
-      purposes[nrDataAttachments] = "SMT_NumberSymbol";
-      data.resize(nrDataAttachments + 1);
-      data[nrDataAttachments].resize(1);
-      const char*& d = data[nrDataAttachments][0];
-  
-      switch (numberSystem)
-	{
-	  CODE_CASE(d, 'i', 'n', "integers");
-	  CODE_CASE(d, 'r', 'e', "reals");
-	  default:
-	    CantHappen("bad SMT number system");
-	}
+SMT_NumberSymbol::getDataAttachments(const Vector<Sort *> &opDeclaration,
+                                     Vector<const char *> &purposes,
+                                     Vector<Vector<const char *> > &data) {
+    if (numberSystem != NONE) {
+        int nrDataAttachments = purposes.length();
+        purposes.resize(nrDataAttachments + 1);
+        purposes[nrDataAttachments] = "SMT_NumberSymbol";
+        data.resize(nrDataAttachments + 1);
+        data[nrDataAttachments].resize(1);
+        const char *&d = data[nrDataAttachments][0];
+
+        switch (numberSystem) {
+            CODE_CASE(d, 'i', 'n', "integers");
+            CODE_CASE(d, 'r', 'e', "reals");
+            default:
+                CantHappen("bad SMT number system");
+        }
     }
-  NA_Symbol::getDataAttachments(opDeclaration, purposes, data);
+    NA_Symbol::getDataAttachments(opDeclaration, purposes, data);
 }
 
 void
-SMT_NumberSymbol::fillOutSMT_Info(SMT_Info& info)
-{
-  //
-  //	If we are the construction operator for some SMT type, fill out that information.
-  //
-  switch (numberSystem)
-    {
-    case CODE('i', 'n'):
-      {
-	info.setType(getRangeSort(), SMT_Info::INTEGER);
-	break;
-      }
-    case CODE('r', 'e'):
-      {
-	info.setType(getRangeSort(), SMT_Info::REAL);
-	break;
-      }
-    default:
-      break;
+SMT_NumberSymbol::fillOutSMT_Info(SMT_Info &info) {
+    //
+    //	If we are the construction operator for some SMT type, fill out that information.
+    //
+    switch (numberSystem) {
+        case CODE('i', 'n'): {
+            info.setType(getRangeSort(), SMT_Info::INTEGER);
+            break;
+        }
+        case CODE('r', 'e'): {
+            info.setType(getRangeSort(), SMT_Info::REAL);
+            break;
+        }
+        default:
+            break;
     }
 }
 
-Term*
-SMT_NumberSymbol::termify(DagNode* dagNode)
-{
-  return new SMT_NumberTerm(this, safeCast(SMT_NumberDagNode*, dagNode)->getValue());
+Term *
+SMT_NumberSymbol::termify(DagNode *dagNode) {
+    return new SMT_NumberTerm(this, safeCast(SMT_NumberDagNode*, dagNode)->getValue());
 }

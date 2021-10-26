@@ -25,24 +25,25 @@
 //
 #ifndef _variableAbstractionSubproblem_hh_
 #define _variableAbstractionSubproblem_hh_
+
 #include "subproblem.hh"
 
-class VariableAbstractionSubproblem : public Subproblem
-{
+class VariableAbstractionSubproblem : public Subproblem {
 public:
-  VariableAbstractionSubproblem(LhsAutomaton* abstractedPattern,
-				int abstractionVariable,
-				int nrVariables);
-  ~VariableAbstractionSubproblem();
+    VariableAbstractionSubproblem(LhsAutomaton *abstractedPattern,
+                                  int abstractionVariable,
+                                  int nrVariables);
 
-  bool solve(bool findFirst, RewritingContext& solution);
+    ~VariableAbstractionSubproblem();
+
+    bool solve(bool findFirst, RewritingContext &solution);
 
 private:
-  LhsAutomaton* abstractedPattern;
-  int abstractionVariable;
-  LocalBinding* difference;
-  Subproblem* subproblem;
-  Substitution local;
+    LhsAutomaton *abstractedPattern;
+    int abstractionVariable;
+    LocalBinding *difference;
+    Subproblem *subproblem;
+    Substitution local;
 };
 
 #endif

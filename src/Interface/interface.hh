@@ -29,37 +29,49 @@
 //
 //	These classes must be derived from for all equational theories.
 //
-class Symbol;		// or
-class BinarySymbol;	// or
+class Symbol;        // or
+class BinarySymbol;    // or
 class AssociativeSymbol;
+
 class Term;
+
 class RawArgumentIterator;
+
 class DagNode;
+
 class RawDagArgumentIterator;
+
 class LhsAutomaton;
+
 class RhsAutomaton;
+
 //
 //	These classes must be derived from for equational theories that
 //	need to generate matching or unification subproblems  or
 //	pass back extension information respectively.
 //
 class Subproblem;
+
 class ExtensionInfo;
+
 //
 //	This class must be derived from for equational theories that generate
 //	unification subproblems.
 //
 class UnificationSubproblem;
+
 //
 //	This class can be derived from for equational theories that want to
 //	delay and batch	subproblems in the hope of reducing the search space.
 //
 class DelayedSubproblem;
+
 //
 //	These classes can be should be derived from for theories supported by
 //	the stack based interpreter.
 //
 class Instruction;
+
 class RegularInstruction;  // instruction with regular GC handling
 class NonFinalInstruction;  // regular instruction that is not the last instruction in its sequence
 class NonFinalCtor;  // regular ctor that is not the last instruction in its sequence

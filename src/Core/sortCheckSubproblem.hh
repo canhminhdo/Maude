@@ -25,19 +25,19 @@
 //
 #ifndef _sortCheckSubproblem_hh_
 #define _sortCheckSubproblem_hh_
+
 #include "subproblem.hh"
 
-class SortCheckSubproblem : public Subproblem
-{
+class SortCheckSubproblem : public Subproblem {
 public:
-  SortCheckSubproblem(DagNode* subject, const Sort* sort);
+    SortCheckSubproblem(DagNode *subject, const Sort *sort);
 
-  bool solve(bool findFirst, RewritingContext& solution);
+    bool solve(bool findFirst, RewritingContext &solution);
 
 private:
-  DagNode* subject;
-  const Sort* sort;
-  int result;
+    DagNode *subject;
+    const Sort *sort;
+    int result;
 };
 
 #endif

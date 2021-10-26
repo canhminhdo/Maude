@@ -25,44 +25,55 @@
 //
 #ifndef _branchSymbol_hh_
 #define _branchSymbol_hh_
+
 #include "freeSymbol.hh"
 
-class BranchSymbol : public FreeSymbol
-{
+class BranchSymbol : public FreeSymbol {
 public:
-  BranchSymbol(int id, int nrArgs);
-  ~BranchSymbol();
+    BranchSymbol(int id, int nrArgs);
 
-  bool attachData(const Vector<Sort*>& opDeclaration,
-		  const char* purpose,
-		  const Vector<const char*>& data);
-  bool attachTerm(const char* purpose, Term* term);
-  void copyAttachments(Symbol* original, SymbolMap* map);
-  void getDataAttachments(const Vector<Sort*>& opDeclaration,
-			  Vector<const char*>& purposes,
-			  Vector<Vector<const char*> >& data);
-  void getTermAttachments(Vector<const char*>& purposes,
-			  Vector<Term*>& terms);
-  //
-  //	Built in equational rewriting semantics and strategy.
-  //
-  bool eqRewrite(DagNode* subject, RewritingContext& context);
-  void stackArguments(DagNode* subject,
-		      Vector<RedexPosition>& stack,
-		      int parentIndex,
-		      bool respectFrozen,
-		      bool eagerContext);
-  //
-  //	We need to insert some fake declarations to encode our sort
-  //	structure and we disable sort based optimizations.
-  //
-  void compileOpDeclarations();
-  bool rangeSortNeverLeqThan(Sort* sort);
-  bool rangeSortAlwaysLeqThan(Sort* sort);
-  bool domainSortAlwaysLeqThan(Sort* sort, int argNr);
+    ~BranchSymbol();
+
+    bool attachData(const Vector<Sort *> &opDeclaration,
+                    const char *purpose,
+                    const Vector<const char *> &data);
+
+    bool attachTerm(const char *purpose, Term *term);
+
+    void copyAttachments(Symbol *original, SymbolMap *map);
+
+    void getDataAttachments(const Vector<Sort *> &opDeclaration,
+                            Vector<const char *> &purposes,
+                            Vector<Vector<const char *> > &data);
+
+    void getTermAttachments(Vector<const char *> &purposes,
+                            Vector<Term *> &terms);
+
+    //
+    //	Built in equational rewriting semantics and strategy.
+    //
+    bool eqRewrite(DagNode *subject, RewritingContext &context);
+
+    void stackArguments(DagNode *subject,
+                        Vector<RedexPosition> &stack,
+                        int parentIndex,
+                        bool respectFrozen,
+                        bool eagerContext);
+
+    //
+    //	We need to insert some fake declarations to encode our sort
+    //	structure and we disable sort based optimizations.
+    //
+    void compileOpDeclarations();
+
+    bool rangeSortNeverLeqThan(Sort *sort);
+
+    bool rangeSortAlwaysLeqThan(Sort *sort);
+
+    bool domainSortAlwaysLeqThan(Sort *sort, int argNr);
 
 private:
-  Vector<Term*> testTerms;
+    Vector<Term *> testTerms;
 };
 
 #endif

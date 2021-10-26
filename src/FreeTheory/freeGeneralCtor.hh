@@ -25,25 +25,25 @@
 //
 #ifndef _freeGeneralCtor_hh_
 #define _freeGeneralCtor_hh_
+
 #include "nonFinalCtor.hh"
 
-class FreeGeneralCtor : public NonFinalCtor
-{
-  NO_COPYING(FreeGeneralCtor);
+class FreeGeneralCtor : public NonFinalCtor {
+    NO_COPYING(FreeGeneralCtor);
 
 public:
-  FreeGeneralCtor(FreeSymbol* symbol, const Vector<int>& argumentSlots, int destIndex, Instruction* nextInstruction);
+    FreeGeneralCtor(FreeSymbol *symbol, const Vector<int> &argumentSlots, int destIndex, Instruction *nextInstruction);
 
-  void execute(StackMachine* machine) const;
+    void execute(StackMachine *machine) const;
 
 #ifdef DUMP
-  //void dump(ostream& s, int indentLevel);
+    //void dump(ostream& s, int indentLevel);
 #endif
 
 private:
-  FreeSymbol* const symbol;
+    FreeSymbol *const symbol;
 
-  Vector<SlotIndex> args;
+    Vector<SlotIndex> args;
 };
 
 #endif

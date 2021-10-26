@@ -26,19 +26,18 @@
 //
 #ifndef _cacheableRewritingContext_hh_
 #define _cacheableRewritingContext_hh_
+
 #include "userLevelRewritingContext.hh"
 #include "cacheableState.hh"
 
-class CacheableRewritingContext : public UserLevelRewritingContext, public CacheableState
-{
+class CacheableRewritingContext : public UserLevelRewritingContext, public CacheableState {
 public:
-  CacheableRewritingContext(DagNode* root);
+    CacheableRewritingContext(DagNode *root);
 };
 
 inline
-CacheableRewritingContext::CacheableRewritingContext(DagNode* root)
-  : UserLevelRewritingContext(root)
-{
+CacheableRewritingContext::CacheableRewritingContext(DagNode *root)
+        : UserLevelRewritingContext(root) {
 }
 
 #endif

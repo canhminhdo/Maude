@@ -26,23 +26,22 @@
 #ifndef _lhsAutomaton_hh_
 #define _lhsAutomaton_hh_
 
-class LhsAutomaton
-{
+class LhsAutomaton {
 public:
-  virtual ~LhsAutomaton() {}
+    virtual ~LhsAutomaton() {}
 
-  //
-  //	If match() returns true, returnedSubproblem is set to remaining subproblem
-  //	to be solved or 0 if matching is complete.
-  //	If match() returns false, returnedSubproblem is not touched.
-  //
-  virtual bool match(DagNode* subject,
-		     Substitution& solution,
-		     Subproblem*& returnedSubproblem,
-		     ExtensionInfo* extensionInfo = 0) = 0;
+    //
+    //	If match() returns true, returnedSubproblem is set to remaining subproblem
+    //	to be solved or 0 if matching is complete.
+    //	If match() returns false, returnedSubproblem is not touched.
+    //
+    virtual bool match(DagNode *subject,
+                       Substitution &solution,
+                       Subproblem *&returnedSubproblem,
+                       ExtensionInfo *extensionInfo = 0) = 0;
 
 #ifdef DUMP
-  virtual void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel = 0) = 0;
+    virtual void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel = 0) = 0;
 #endif
 
 };

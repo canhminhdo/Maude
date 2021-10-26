@@ -28,6 +28,7 @@
 //
 #ifndef _CUI_UnificationSubproblem2_hh_
 #define _CUI_UnificationSubproblem2_hh_
+
 #include "unificationSubproblem.hh"
 #include "simpleRootContainer.hh"
 #include "substitution.hh"
@@ -36,108 +37,110 @@
 #include "variableDagNode.hh"
 #include "unificationContext.hh"
 
-class CUI_UnificationSubproblem2 : public UnificationSubproblem, private SimpleRootContainer
-{
-  NO_COPYING(CUI_UnificationSubproblem2);
+class CUI_UnificationSubproblem2 : public UnificationSubproblem, private SimpleRootContainer {
+    NO_COPYING(CUI_UnificationSubproblem2);
 
 public:
-  CUI_UnificationSubproblem2();
-  ~CUI_UnificationSubproblem2();
+    CUI_UnificationSubproblem2();
 
-  void addUnification(DagNode* lhs, DagNode* rhs, bool marked, UnificationContext& solution);
-  bool solve(bool findFirst, UnificationContext& solution, PendingUnificationStack& pending);
+    ~CUI_UnificationSubproblem2();
+
+    void addUnification(DagNode *lhs, DagNode *rhs, bool marked, UnificationContext &solution);
+
+    bool solve(bool findFirst, UnificationContext &solution, PendingUnificationStack &pending);
 
 #ifdef DUMP
-  //void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
+    //void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
 #endif
 
 private:
-  enum Alternatives
-    {
-      FORWARDS,
-      REVERSE,
-      LHS_ARG0_TAKES_ID,
-      LHS_ARG1_TAKES_ID,
-      RHS_ARG0_TAKES_ID,
-      RHS_ARG1_TAKES_ID,
-      RHS_VARIABLE_TAKES_ALL,
-      NO_MORE_ALTERNATIVES
+    enum Alternatives {
+        FORWARDS,
+        REVERSE,
+        LHS_ARG0_TAKES_ID,
+        LHS_ARG1_TAKES_ID,
+        RHS_ARG0_TAKES_ID,
+        RHS_ARG1_TAKES_ID,
+        RHS_VARIABLE_TAKES_ALL,
+        NO_MORE_ALTERNATIVES
     };
 
-  struct Problem
-  {
-    Problem(CUI_DagNode* lhs, DagNode* rhs, const NatSet& legalAlternatives);
-    Problem(const Problem& original);
+    struct Problem {
+        Problem(CUI_DagNode *lhs, DagNode *rhs, const NatSet &legalAlternatives);
 
-    bool findAlternative(bool first, UnificationContext& solution, PendingUnificationStack& pending);
-    bool tryAlternative(UnificationContext& solution, PendingUnificationStack& pending);
+        Problem(const Problem &original);
 
-    CUI_DagNode* const lhs;
-    DagNode* const rhs;
-    NatSet legalAlternatives;
+        bool findAlternative(bool first, UnificationContext &solution, PendingUnificationStack &pending);
 
-    Substitution savedSubstitution;
-    PendingUnificationStack::Marker savedPendingState;
-    int alternative;
-  };
+        bool tryAlternative(UnificationContext &solution, PendingUnificationStack &pending);
 
-  void markReachableNodes();
-  static bool leftCollapse(DagNode* leftArg,
-			   CUI_Symbol* topSymbol,
-			   UnificationContext& solution);
-  static bool rightCollapse(DagNode* rightArg,
-			    CUI_Symbol* topSymbol,
-			    UnificationContext& solution);
-  static bool equivalent(DagNode* first,
-			 DagNode* second,
-			 UnificationContext& solution);
-  static bool equivalentToGroundDag(DagNode* dag,
-				    DagNode* groundDag,
-				    UnificationContext& solution);
-  Vector<Problem> problems;
+        CUI_DagNode *const lhs;
+        DagNode *const rhs;
+        NatSet legalAlternatives;
+
+        Substitution savedSubstitution;
+        PendingUnificationStack::Marker savedPendingState;
+        int alternative;
+    };
+
+    void markReachableNodes();
+
+    static bool leftCollapse(DagNode *leftArg,
+                             CUI_Symbol *topSymbol,
+                             UnificationContext &solution);
+
+    static bool rightCollapse(DagNode *rightArg,
+                              CUI_Symbol *topSymbol,
+                              UnificationContext &solution);
+
+    static bool equivalent(DagNode *first,
+                           DagNode *second,
+                           UnificationContext &solution);
+
+    static bool equivalentToGroundDag(DagNode *dag,
+                                      DagNode *groundDag,
+                                      UnificationContext &solution);
+
+    Vector<Problem> problems;
 };
 
 inline bool
-CUI_UnificationSubproblem2::equivalentToGroundDag(DagNode* dag,
-						  DagNode* groundDag,
-						  UnificationContext& solution)
-{
-  if (dag->equal(groundDag))
-    return true;
-  if (VariableDagNode* var = dynamic_cast<VariableDagNode*>(dag))
-    {
-      VariableDagNode* rep = var->lastVariableInChain(solution);
-      DagNode* binding = solution.value(rep->getIndex());
-      if (binding != 0 && binding->equal(groundDag))
-	return true;
+CUI_UnificationSubproblem2::equivalentToGroundDag(DagNode *dag,
+                                                  DagNode *groundDag,
+                                                  UnificationContext &solution) {
+    if (dag->equal(groundDag))
+        return true;
+    if (VariableDagNode *var = dynamic_cast<VariableDagNode *>(dag)) {
+        VariableDagNode *rep = var->lastVariableInChain(solution);
+        DagNode *binding = solution.value(rep->getIndex());
+        if (binding != 0 && binding->equal(groundDag))
+            return true;
     }
-  return false;
+    return false;
 }
 
 inline
-CUI_UnificationSubproblem2::Problem::Problem(CUI_DagNode* lhs,
-					     DagNode* rhs,
-					     const NatSet& legalAlternatives)
-  : lhs(lhs),
-    rhs(rhs),
-    legalAlternatives(legalAlternatives),
-    savedSubstitution(0)
-{
+CUI_UnificationSubproblem2::Problem::Problem(CUI_DagNode *lhs,
+                                             DagNode *rhs,
+                                             const NatSet &legalAlternatives)
+        : lhs(lhs),
+          rhs(rhs),
+          legalAlternatives(legalAlternatives),
+          savedSubstitution(0) {
 }
 
 inline
-CUI_UnificationSubproblem2::Problem::Problem(const Problem& original)
-  : lhs(original.lhs),
-    rhs(original.rhs),
-    legalAlternatives(original.legalAlternatives),
-    savedSubstitution(0)
-{
-  //
-  //	This is only a partial copy constructor - it copies the first three
-  //	data members, which is what is needed for addUnification(). We also
-  //	need to initialize saveSubstitution because Substitution has no
-  //	default constructor.
-  //
+CUI_UnificationSubproblem2::Problem::Problem(const Problem &original)
+        : lhs(original.lhs),
+          rhs(original.rhs),
+          legalAlternatives(original.legalAlternatives),
+          savedSubstitution(0) {
+    //
+    //	This is only a partial copy constructor - it copies the first three
+    //	data members, which is what is needed for addUnification(). We also
+    //	need to initialize saveSubstitution because Substitution has no
+    //	default constructor.
+    //
 }
 
 #endif

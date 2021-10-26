@@ -25,13 +25,16 @@
 //
 #ifndef _variableGenerator_hh_
 #define _variableGenerator_hh_
+
 #include "SMT_Info.hh"
 #include "SMT_EngineWrapper.hh"
 
 #ifdef USE_CVC4
 #include "cvc4_Bindings.hh"
-#elif defined(USE_YICES2) 
+#elif defined(USE_YICES2)
+
 #include "yices2_Bindings.hh"
+
 #else
 
 //

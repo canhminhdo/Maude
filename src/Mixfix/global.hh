@@ -26,24 +26,25 @@
 extern int lineNumber;
 extern FileTable fileTable;
 extern DirectoryManager directoryManager;
-extern Interpreter& interpreter;
+extern Interpreter &interpreter;
 
 #include "IO_Manager.hh"  // HACK
+
 extern IO_Manager ioManager;
 
 extern string executableDirectory;
 
 extern bool alwaysAdviseFlag;
 
-#define PRELUDE_NAME	"prelude.maude"
-#define MAUDE_LIB	"MAUDE_LIB"
+#define PRELUDE_NAME    "prelude.maude"
+#define MAUDE_LIB    "MAUDE_LIB"
 
 bool
-findPrelude(string& directory, string& fileName);
+findPrelude(string &directory, string &fileName);
 
 bool
-findFile(const string& userFileName, string& directory, string& fileName, int lineNr);
+findFile(const string &userFileName, string &directory, string &fileName, int lineNr);
 
-bool findExecutableDirectory(string& directory, string& executable);
+bool findExecutableDirectory(string &directory, string &executable);
 
 void setDebugMode(bool polarity);

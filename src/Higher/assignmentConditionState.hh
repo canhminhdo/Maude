@@ -25,24 +25,25 @@
 //
 #ifndef _assignmentConditionState_hh_
 #define _assignmentConditionState_hh_
+
 #include "conditionState.hh"
 #include "substitution.hh"
 
-class AssignmentConditionState : public ConditionState
-{
+class AssignmentConditionState : public ConditionState {
 public:
-  AssignmentConditionState(RewritingContext& original,
-			   LhsAutomaton* matcher,
-			   DagNode* rhsInstance);
-  ~AssignmentConditionState();
+    AssignmentConditionState(RewritingContext &original,
+                             LhsAutomaton *matcher,
+                             DagNode *rhsInstance);
 
-  bool solve(bool findFirst, RewritingContext& solution);
+    ~AssignmentConditionState();
+
+    bool solve(bool findFirst, RewritingContext &solution);
 
 private:
-  Substitution saved;
-  RewritingContext* rhsContext;
-  Subproblem* subproblem;
-  bool succeeded;
+    Substitution saved;
+    RewritingContext *rhsContext;
+    Subproblem *subproblem;
+    bool succeeded;
 };
 
 #endif

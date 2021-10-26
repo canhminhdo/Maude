@@ -25,86 +25,98 @@
 //
 #ifndef _directoryManagerSymbol_hh_
 #define _directoryManagerSymbol_hh_
+
 #include <sys/types.h>
 #include <dirent.h>
 #include <map>
 #include "externalObjectManagerSymbol.hh"
 
-class DirectoryManagerSymbol : public ExternalObjectManagerSymbol
-{
-  NO_COPYING(DirectoryManagerSymbol);
+class DirectoryManagerSymbol : public ExternalObjectManagerSymbol {
+    NO_COPYING(DirectoryManagerSymbol);
 
 public:
-  DirectoryManagerSymbol(int id);
+    DirectoryManagerSymbol(int id);
 
-  bool attachData(const Vector<Sort*>& opDeclaration,
-		  const char* purpose,
-		  const Vector<const char*>& data);
-  bool attachSymbol(const char* purpose, Symbol* symbol);
+    bool attachData(const Vector<Sort *> &opDeclaration,
+                    const char *purpose,
+                    const Vector<const char *> &data);
 
-  void copyAttachments(Symbol* original, SymbolMap* map);
+    bool attachSymbol(const char *purpose, Symbol *symbol);
 
-  void getDataAttachments(const Vector<Sort*>& opDeclaration,
-			  Vector<const char*>& purposes,
-			  Vector<Vector<const char*> >& data);
-  void getSymbolAttachments(Vector<const char*>& purposes, Vector<Symbol*>& symbols);
-  //
-  //	Overridden methods from ExternalObjectManagerSymbol.
-  //
-  bool handleManagerMessage(DagNode* message, ObjectSystemRewritingContext& context);
-  bool handleMessage(DagNode* message, ObjectSystemRewritingContext& context);
-  void cleanUp(DagNode* objectId);
-  
-  static void setAllowDir(bool flag);
+    void copyAttachments(Symbol *original, SymbolMap *map);
+
+    void getDataAttachments(const Vector<Sort *> &opDeclaration,
+                            Vector<const char *> &purposes,
+                            Vector<Vector<const char *> > &data);
+
+    void getSymbolAttachments(Vector<const char *> &purposes, Vector<Symbol *> &symbols);
+
+    //
+    //	Overridden methods from ExternalObjectManagerSymbol.
+    //
+    bool handleManagerMessage(DagNode *message, ObjectSystemRewritingContext &context);
+
+    bool handleMessage(DagNode *message, ObjectSystemRewritingContext &context);
+
+    void cleanUp(DagNode *objectId);
+
+    static void setAllowDir(bool flag);
 
 private:
-  struct OpenDirectory
-  {
-    Rope path;
-    DIR* dir;
-  };
+    struct OpenDirectory {
+        Rope path;
+        DIR *dir;
+    };
 
-  typedef map<int, OpenDirectory> DirectoryMap;
-  //
-  //	Shared flag to disable the functionality of this class.
-  //
-  static bool allowDir;
+    typedef map<int, OpenDirectory> DirectoryMap;
+    //
+    //	Shared flag to disable the functionality of this class.
+    //
+    static bool allowDir;
 
-  void getOpenDirectory(DagNode* directoryArg, int& fd, OpenDirectory*& ofp);
-  void handleSymbolicLink(Rope path,
-			  Rope name,
-			  FreeDagNode* message,
-			  ObjectSystemRewritingContext& context);
+    void getOpenDirectory(DagNode *directoryArg, int &fd, OpenDirectory *&ofp);
 
-  void openDirectory(FreeDagNode* message, ObjectSystemRewritingContext& context);
-  void makeDirectory(FreeDagNode* message, ObjectSystemRewritingContext& context);
-  void removeDirectory(FreeDagNode* message, ObjectSystemRewritingContext& context);
-  void getDirectoryEntry(FreeDagNode* message, ObjectSystemRewritingContext& context);
-  void closeDirectory(FreeDagNode* message, ObjectSystemRewritingContext& context);
+    void handleSymbolicLink(Rope path,
+                            Rope name,
+                            FreeDagNode *message,
+                            ObjectSystemRewritingContext &context);
 
-  void errorReply(const char* errorMessage,
-		  FreeDagNode* originalMessage,
-		  ObjectSystemRewritingContext& context);
-  void openedDirectoryReply(int fd,
-			    FreeDagNode* originalMessage,
-			    ObjectSystemRewritingContext& context);
-  void gotDirectoryEntryReply(const Rope& name,
-			      DagNode* typeDag,
-			      FreeDagNode* originalMessage,
-			      ObjectSystemRewritingContext& context);
+    void openDirectory(FreeDagNode *message, ObjectSystemRewritingContext &context);
+
+    void makeDirectory(FreeDagNode *message, ObjectSystemRewritingContext &context);
+
+    void removeDirectory(FreeDagNode *message, ObjectSystemRewritingContext &context);
+
+    void getDirectoryEntry(FreeDagNode *message, ObjectSystemRewritingContext &context);
+
+    void closeDirectory(FreeDagNode *message, ObjectSystemRewritingContext &context);
+
+    void errorReply(const char *errorMessage,
+                    FreeDagNode *originalMessage,
+                    ObjectSystemRewritingContext &context);
+
+    void openedDirectoryReply(int fd,
+                              FreeDagNode *originalMessage,
+                              ObjectSystemRewritingContext &context);
+
+    void gotDirectoryEntryReply(const Rope &name,
+                                DagNode *typeDag,
+                                FreeDagNode *originalMessage,
+                                ObjectSystemRewritingContext &context);
 
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   SymbolClass* SymbolName;
+
 #include "directorySignature.cc"
+
 #undef MACRO
 
-  DirectoryMap openDirectories;
+    DirectoryMap openDirectories;
 };
 
 inline void
-DirectoryManagerSymbol::setAllowDir(bool flag)
-{
-  allowDir = flag;
+DirectoryManagerSymbol::setAllowDir(bool flag) {
+    allowDir = flag;
 }
 
 #endif

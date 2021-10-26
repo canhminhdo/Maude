@@ -28,14 +28,15 @@
 //
 #ifndef _rawTransitionSet_hh_
 #define _rawTransitionSet_hh_
+
 #include <set>
 #include "transitionSet.hh"
 
-class RawTransitionSet : public set<Transition>
-{
+class RawTransitionSet : public set<Transition> {
 public:
-  RawTransitionSet(const TransitionSet& transitionSet);
-  RawTransitionSet(const RawTransitionSet& ts1, const RawTransitionSet& ts2);
+    RawTransitionSet(const TransitionSet &transitionSet);
+
+    RawTransitionSet(const RawTransitionSet &ts1, const RawTransitionSet &ts2);
 };
 
 #endif

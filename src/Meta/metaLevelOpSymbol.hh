@@ -25,150 +25,175 @@
 //
 #ifndef _metaLevelOpSymbol_hh_
 #define _metaLevelOpSymbol_hh_
+
 #include "freeSymbol.hh"
 #include "sequenceSearch.hh"
 #include "metaModule.hh"
 #include "userLevelRewritingContext.hh"
 
-class MetaLevelOpSymbol : public FreeSymbol
-{
-  NO_COPYING(MetaLevelOpSymbol);
+class MetaLevelOpSymbol : public FreeSymbol {
+    NO_COPYING(MetaLevelOpSymbol);
 
 public:
-  //
-  //	This class exists so that we can cache a variable alias
-  //	map together with a corresponding parser in a MetaLevelOpCache.
-  //
-  class AliasMapParserPair : public CacheableState
-  {
-    AliasMapParserPair();
-    ~AliasMapParserPair();
+    //
+    //	This class exists so that we can cache a variable alias
+    //	map together with a corresponding parser in a MetaLevelOpCache.
+    //
+    class AliasMapParserPair : public CacheableState {
+        AliasMapParserPair();
 
-    MixfixModule::AliasMap aliasMap;
-    MixfixParser* parser;
-    friend class MetaLevelOpSymbol;
-    friend class InterpreterManagerSymbol;
-  };
+        ~AliasMapParserPair();
 
-  MetaLevelOpSymbol(int id, int nrArgs, const Vector<int>& strategy);
-  ~MetaLevelOpSymbol();
+        MixfixModule::AliasMap aliasMap;
+        MixfixParser *parser;
 
-  bool attachData(const Vector<Sort*>& opDeclaration,
-		  const char* purpose,
-		  const Vector<const char*>& data);
-  bool attachSymbol(const char* purpose, Symbol* symbol);
-  bool attachTerm(const char* purpose, Term* term);
-  void copyAttachments(Symbol* original, SymbolMap* map);
-  void getDataAttachments(const Vector<Sort*>& opDeclaration,
-			  Vector<const char*>& purposes,
-			  Vector<Vector<const char*> >& data);
-  void getSymbolAttachments(Vector<const char*>& purposes,
-			    Vector<Symbol*>& symbols);
-  void getTermAttachments(Vector<const char*>& purposes,
-			  Vector<Term*>& terms);
+        friend class MetaLevelOpSymbol;
 
-  void postInterSymbolPass();
-  void reset();
-  bool eqRewrite(DagNode* subject, RewritingContext& context);
+        friend class InterpreterManagerSymbol;
+    };
 
-  MetaLevel* getMetaLevel() const;
+    MetaLevelOpSymbol(int id, int nrArgs, const Vector<int> &strategy);
+
+    ~MetaLevelOpSymbol();
+
+    bool attachData(const Vector<Sort *> &opDeclaration,
+                    const char *purpose,
+                    const Vector<const char *> &data);
+
+    bool attachSymbol(const char *purpose, Symbol *symbol);
+
+    bool attachTerm(const char *purpose, Term *term);
+
+    void copyAttachments(Symbol *original, SymbolMap *map);
+
+    void getDataAttachments(const Vector<Sort *> &opDeclaration,
+                            Vector<const char *> &purposes,
+                            Vector<Vector<const char *> > &data);
+
+    void getSymbolAttachments(Vector<const char *> &purposes,
+                              Vector<Symbol *> &symbols);
+
+    void getTermAttachments(Vector<const char *> &purposes,
+                            Vector<Term *> &terms);
+
+    void postInterSymbolPass();
+
+    void reset();
+
+    bool eqRewrite(DagNode *subject, RewritingContext &context);
+
+    MetaLevel *getMetaLevel() const;
 
 private:
-  typedef bool (MetaLevelOpSymbol::*DescentFunctionPtr)
-    (FreeDagNode* subject, RewritingContext& context);
+    typedef bool (MetaLevelOpSymbol::*DescentFunctionPtr)
+            (FreeDagNode *subject, RewritingContext &context);
 
-  static RewritingContext* term2RewritingContext(Term* term, RewritingContext& context);
+    static RewritingContext *term2RewritingContext(Term *term, RewritingContext &context);
 
-  PreModule* getPreModule(int name);
+    PreModule *getPreModule(int name);
 
-  MatchSearchState* makeMatchSearchState(MetaModule* m,
-					 FreeDagNode* subject,
-					 RewritingContext& context) const;
-  MatchSearchState* makeMatchSearchState2(MetaModule* m,
-					  FreeDagNode* subject,
-					  RewritingContext& context) const;
-  RewriteSequenceSearch* makeRewriteSequenceSearch(MetaModule* m,
-						   FreeDagNode* subject,
-						   RewritingContext& context) const;
-  SMT_RewriteSequenceSearch* makeSMT_RewriteSequenceSearch(MetaModule* m,
-							   FreeDagNode* subject,
-							   RewritingContext& context) const;
-  NarrowingSearchState2* makeNarrowingSearchState2(MetaModule* m,
-						   FreeDagNode* subject,
-						   RewritingContext& context,
-						   int variantFlags) const;
+    MatchSearchState *makeMatchSearchState(MetaModule *m,
+                                           FreeDagNode *subject,
+                                           RewritingContext &context) const;
 
-  StrategicSearch* makeStrategicSearch(MetaModule* m,
-				       FreeDagNode* subject,
-				       RewritingContext& context,
-				       bool depthSearch) const;
+    MatchSearchState *makeMatchSearchState2(MetaModule *m,
+                                            FreeDagNode *subject,
+                                            RewritingContext &context) const;
 
-  bool metaUnify2(FreeDagNode* subject,
-		  RewritingContext& context,
-		  bool disjoint,
-		  bool irredundant);
-  bool metaGetVariant2(FreeDagNode* subject, RewritingContext& context, bool irredundant);
-  bool metaVariantUnify2(FreeDagNode* subject, RewritingContext& context, bool disjoint);
-  bool okToBind();
-  bool downSearchType(DagNode* arg, SequenceSearch::SearchType& searchType) const;
+    RewriteSequenceSearch *makeRewriteSequenceSearch(MetaModule *m,
+                                                     FreeDagNode *subject,
+                                                     RewritingContext &context) const;
 
-  NarrowingSequenceSearch* makeNarrowingSequenceSearch(MetaModule* m,
-						       FreeDagNode* subject,
-						       RewritingContext& context) const;
-  NarrowingSequenceSearch* makeNarrowingSequenceSearchAlt(MetaModule* m,
-							  FreeDagNode* subject,
-							  RewritingContext& context) const;
+    SMT_RewriteSequenceSearch *makeSMT_RewriteSequenceSearch(MetaModule *m,
+                                                             FreeDagNode *subject,
+                                                             RewritingContext &context) const;
 
-  NarrowingSequenceSearch3* makeNarrowingSequenceSearch3(MetaModule* m,
-							 FreeDagNode* subject,
-							 RewritingContext& context,
-							 int variantFlags) const;
-  DagNode* makeNarrowingSearchPathResult(MetaModule* m, NarrowingSequenceSearch3* state) const;
+    NarrowingSearchState2 *makeNarrowingSearchState2(MetaModule *m,
+                                                     FreeDagNode *subject,
+                                                     RewritingContext &context,
+                                                     int variantFlags) const;
 
-  bool complexStrategy(DagNode* subject, RewritingContext& context);
+    StrategicSearch *makeStrategicSearch(MetaModule *m,
+                                         FreeDagNode *subject,
+                                         RewritingContext &context,
+                                         bool depthSearch) const;
 
-  bool metaStratRewrite(FreeDagNode* subject, RewritingContext& context,
-			DagNode* (StrategicSearch::*func)(void));
+    bool metaUnify2(FreeDagNode *subject,
+                    RewritingContext &context,
+                    bool disjoint,
+                    bool irredundant);
 
-  //
-  //	Descent signature (generated by macro expansion).
-  //
+    bool metaGetVariant2(FreeDagNode *subject, RewritingContext &context, bool irredundant);
+
+    bool metaVariantUnify2(FreeDagNode *subject, RewritingContext &context, bool disjoint);
+
+    bool okToBind();
+
+    bool downSearchType(DagNode *arg, SequenceSearch::SearchType &searchType) const;
+
+    NarrowingSequenceSearch *makeNarrowingSequenceSearch(MetaModule *m,
+                                                         FreeDagNode *subject,
+                                                         RewritingContext &context) const;
+
+    NarrowingSequenceSearch *makeNarrowingSequenceSearchAlt(MetaModule *m,
+                                                            FreeDagNode *subject,
+                                                            RewritingContext &context) const;
+
+    NarrowingSequenceSearch3 *makeNarrowingSequenceSearch3(MetaModule *m,
+                                                           FreeDagNode *subject,
+                                                           RewritingContext &context,
+                                                           int variantFlags) const;
+
+    DagNode *makeNarrowingSearchPathResult(MetaModule *m, NarrowingSequenceSearch3 *state) const;
+
+    bool complexStrategy(DagNode *subject, RewritingContext &context);
+
+    bool metaStratRewrite(FreeDagNode *subject, RewritingContext &context,
+                          DagNode *(StrategicSearch::*func)(void));
+
+    //
+    //	Descent signature (generated by macro expansion).
+    //
 #define MACRO(SymbolName, NrArgs) \
   bool SymbolName(FreeDagNode* subject, RewritingContext& context);
+
 #include "descentSignature.cc"
+
 #undef MACRO
 
-  bool dagifySubstitution(const Vector<Term*>& variables,
-			  Vector<Term*>& values,
-			  Vector<DagRoot*>& dags,
-			  RewritingContext& context);
-  void initializeSubstitution(Vector<Symbol*>& variables,
-			      Vector<Term*>& values,
-			      VariableInfo& rule,
-			      Substitution& substitution);
-  //
-  //	Legacy stuff.
-  //
-  bool legacyMetaUnify2(FreeDagNode* subject, RewritingContext& context, bool disjoint);
-  bool legacyMetaGetVariant2(FreeDagNode* subject, RewritingContext& context, bool irredundant);
-  bool legacyMetaVariantUnify2(FreeDagNode* subject, RewritingContext& context, bool disjoint);
+    bool dagifySubstitution(const Vector<Term *> &variables,
+                            Vector<Term *> &values,
+                            Vector<DagRoot *> &dags,
+                            RewritingContext &context);
 
-  DescentFunctionPtr descentFunction;
-  MetaLevel* metaLevel;
-  MetaLevelOpSymbol* shareWith;
+    void initializeSubstitution(Vector<Symbol *> &variables,
+                                Vector<Term *> &values,
+                                VariableInfo &rule,
+                                Substitution &substitution);
+
+    //
+    //	Legacy stuff.
+    //
+    bool legacyMetaUnify2(FreeDagNode *subject, RewritingContext &context, bool disjoint);
+
+    bool legacyMetaGetVariant2(FreeDagNode *subject, RewritingContext &context, bool irredundant);
+
+    bool legacyMetaVariantUnify2(FreeDagNode *subject, RewritingContext &context, bool disjoint);
+
+    DescentFunctionPtr descentFunction;
+    MetaLevel *metaLevel;
+    MetaLevelOpSymbol *shareWith;
 };
 
-inline MetaLevel*
-MetaLevelOpSymbol::getMetaLevel() const
-{
-  Assert(metaLevel != 0, "null metaLevel");
-  return metaLevel;
+inline MetaLevel *
+MetaLevelOpSymbol::getMetaLevel() const {
+    Assert(metaLevel != 0, "null metaLevel");
+    return metaLevel;
 }
 
 inline
-MetaLevelOpSymbol::AliasMapParserPair::AliasMapParserPair()
-{
-  parser = 0;
+MetaLevelOpSymbol::AliasMapParserPair::AliasMapParserPair() {
+    parser = 0;
 }
 
 #endif

@@ -25,6 +25,7 @@
 //
 #ifndef _freeSymbol_hh_
 #define _freeSymbol_hh_
+
 #include "symbol.hh"
 #include "freeNet.hh"
 
@@ -32,75 +33,91 @@
 #define DISC_NET discriminationNet
 #define FREE_NET FreeNet
 
-class FreeSymbol : public Symbol
-{
-  NO_COPYING(FreeSymbol);
+class FreeSymbol : public Symbol {
+    NO_COPYING(FreeSymbol);
 
 public:
-  FreeSymbol(int id, int arity, const Vector<int>& strategy = standard, bool memoFlag = false);
-  static FreeSymbol* newFreeSymbol(int id,
-				   int arity,
-				   const Vector<int>& strategy = standard,
-				   bool memoFlag = false);
+    FreeSymbol(int id, int arity, const Vector<int> &strategy = standard, bool memoFlag = false);
 
-  Term* makeTerm(const Vector<Term*>& args);
-  DagNode* makeDagNode(const Vector<DagNode*>& args);
-  void compileEquations();
-  bool eqRewrite(DagNode* subject, RewritingContext& context);
-  void computeBaseSort(DagNode* subject);
-  void normalizeAndComputeTrueSort(DagNode* subject, RewritingContext& context);
-  void stackArguments(DagNode* subject,
-		      Vector<RedexPosition>& stack,
-		      int parentIndex,
-		      bool respectFrozen,
-		      bool eagerContext);
-  Term* termify(DagNode* dagNode);
-  //
-  //	Unification stuff.
-  //
-  int unificationPriority() const;
-  void computeGeneralizedSort(const SortBdds& sortBdds,
-			      const Vector<int>& realToBdd,
-			      DagNode* subject,
-			      Vector<Bdd>& generalizedSort);
-  void computeGeneralizedSort2(const SortBdds& sortBdds,
-			       const Vector<int>& realToBdd,
-			       DagNode* subject,
-			       Vector<Bdd>& outputBdds);
-  bool isStable() const;
-  //
-  //	Hash cons stuff.
-  //
-  DagNode* makeCanonical(DagNode* original, HashConsSet* hcs);
-  DagNode* makeCanonicalCopy(DagNode* original, HashConsSet* hcs);
-  //
-  //	Stack machine stuff.
-  //
-  Instruction* generateFinalInstruction(const Vector<int>& argumentSlots);
-  Instruction* generateInstruction(int destination, const Vector<int>& argumentSlots, Instruction* nextInstruction);
-  FreeNet& getNet();
+    static FreeSymbol *newFreeSymbol(int id,
+                                     int arity,
+                                     const Vector<int> &strategy = standard,
+                                     bool memoFlag = false);
+
+    Term *makeTerm(const Vector<Term *> &args);
+
+    DagNode *makeDagNode(const Vector<DagNode *> &args);
+
+    void compileEquations();
+
+    bool eqRewrite(DagNode *subject, RewritingContext &context);
+
+    void computeBaseSort(DagNode *subject);
+
+    void normalizeAndComputeTrueSort(DagNode *subject, RewritingContext &context);
+
+    void stackArguments(DagNode *subject,
+                        Vector<RedexPosition> &stack,
+                        int parentIndex,
+                        bool respectFrozen,
+                        bool eagerContext);
+
+    Term *termify(DagNode *dagNode);
+
+    //
+    //	Unification stuff.
+    //
+    int unificationPriority() const;
+
+    void computeGeneralizedSort(const SortBdds &sortBdds,
+                                const Vector<int> &realToBdd,
+                                DagNode *subject,
+                                Vector<Bdd> &generalizedSort);
+
+    void computeGeneralizedSort2(const SortBdds &sortBdds,
+                                 const Vector<int> &realToBdd,
+                                 DagNode *subject,
+                                 Vector<Bdd> &outputBdds);
+
+    bool isStable() const;
+
+    //
+    //	Hash cons stuff.
+    //
+    DagNode *makeCanonical(DagNode *original, HashConsSet *hcs);
+
+    DagNode *makeCanonicalCopy(DagNode *original, HashConsSet *hcs);
+
+    //
+    //	Stack machine stuff.
+    //
+    Instruction *generateFinalInstruction(const Vector<int> &argumentSlots);
+
+    Instruction *generateInstruction(int destination, const Vector<int> &argumentSlots, Instruction *nextInstruction);
+
+    FreeNet &getNet();
 
 #ifdef COMPILER
-  void generateCode(CompilationContext& context) const;
-  void generateCons(CompilationContext& context, int indentLevel) const;
+    void generateCode(CompilationContext& context) const;
+    void generateCons(CompilationContext& context, int indentLevel) const;
 #endif
 
 #ifdef DUMP
-  void dump(ostream& s, int indentLevel = 0);
+    void dump(ostream& s, int indentLevel = 0);
 #endif
 
 private:
-  bool complexStrategy(DagNode* subject, RewritingContext& context);
-  void memoStrategy(MemoTable::SourceSet& from, DagNode* subject, RewritingContext& context);
+    bool complexStrategy(DagNode *subject, RewritingContext &context);
+
+    void memoStrategy(MemoTable::SourceSet &from, DagNode *subject, RewritingContext &context);
 
 protected:
-  FreeNet discriminationNet;
+    FreeNet discriminationNet;
 };
 
-inline FreeNet&
-FreeSymbol::getNet()
-{
-  return discriminationNet;
+inline FreeNet &
+FreeSymbol::getNet() {
+    return discriminationNet;
 }
 
 #endif

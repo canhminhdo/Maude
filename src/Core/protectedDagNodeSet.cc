@@ -40,9 +40,8 @@
 #include "protectedDagNodeSet.hh"
 
 void
-ProtectedDagNodeSet::markReachableNodes()
-{
-  int nrDagNodes = cardinality();
-  for (int i = 0; i < nrDagNodes; ++i)
-    index2DagNode(i)->mark();
+ProtectedDagNodeSet::markReachableNodes() {
+    int nrDagNodes = cardinality();
+    for (int i = 0; i < nrDagNodes; ++i)
+        index2DagNode(i)->mark();
 }

@@ -42,73 +42,62 @@
 #include "localBinding.hh"
 #include "subproblemDisjunction.hh"
 
-SubproblemDisjunction::SubproblemDisjunction()
-{
-  realExtensionInfo = 0;
+SubproblemDisjunction::SubproblemDisjunction() {
+    realExtensionInfo = 0;
 }
 
-SubproblemDisjunction::~SubproblemDisjunction()
-{
-  int nrOptions = options.length();
-  for (int i = 0; i < nrOptions; i++)
-    {
-      Option& op = options[i];
-      delete op.difference;
-      delete op.subproblem;
-      delete op.extensionInfo;
+SubproblemDisjunction::~SubproblemDisjunction() {
+    int nrOptions = options.length();
+    for (int i = 0; i < nrOptions; i++) {
+        Option &op = options[i];
+        delete op.difference;
+        delete op.subproblem;
+        delete op.extensionInfo;
     }
 }
 
 void
-SubproblemDisjunction::addOption(LocalBinding* difference,
-				 Subproblem* subproblem,
-				 ExtensionInfo* extensionInfo)
-{
-  int nrOptions = options.length();
-  options.expandBy(1);
-  Option& op = options[nrOptions];
-  op.difference = difference;
-  op.subproblem = subproblem;
-  op.extensionInfo = extensionInfo;
-  if (extensionInfo != 0)
-    {
-      Assert(realExtensionInfo == 0 || realExtensionInfo == extensionInfo,
-	     "extension info clash");
-      realExtensionInfo = extensionInfo;
+SubproblemDisjunction::addOption(LocalBinding *difference,
+                                 Subproblem *subproblem,
+                                 ExtensionInfo *extensionInfo) {
+    int nrOptions = options.length();
+    options.expandBy(1);
+    Option &op = options[nrOptions];
+    op.difference = difference;
+    op.subproblem = subproblem;
+    op.extensionInfo = extensionInfo;
+    if (extensionInfo != 0) {
+        Assert(realExtensionInfo == 0 || realExtensionInfo == extensionInfo,
+               "extension info clash");
+        realExtensionInfo = extensionInfo;
     }
 }
 
 bool
-SubproblemDisjunction::solve(bool findFirst, RewritingContext& solution)
-{
-  int nrOptions = options.length();
-  if (findFirst)
-    selectedOption = 0;
-  for (; selectedOption < nrOptions; selectedOption++)
-    {
-      Option& so = options[selectedOption];
-      if (findFirst)
-	{
-	  if (so.difference != 0 && !(so.difference->assert(solution)))
-	    continue;
-	  ExtensionInfo* extensionInfo = so.extensionInfo;
-	  if (extensionInfo != 0)
-	    realExtensionInfo->copy(extensionInfo);
-	}
-      Subproblem* subproblem = so.subproblem;
-      if (subproblem == 0)
-        {
-          if (findFirst)
-            return true;
+SubproblemDisjunction::solve(bool findFirst, RewritingContext &solution) {
+    int nrOptions = options.length();
+    if (findFirst)
+        selectedOption = 0;
+    for (; selectedOption < nrOptions; selectedOption++) {
+        Option &so = options[selectedOption];
+        if (findFirst) {
+            if (so.difference != 0 && !(so.difference->assert(solution)))
+                continue;
+            ExtensionInfo *extensionInfo = so.extensionInfo;
+            if (extensionInfo != 0)
+                realExtensionInfo->copy(extensionInfo);
         }
-      else
-        {
-          if (subproblem->solve(findFirst, solution))
-            return true;
+        Subproblem *subproblem = so.subproblem;
+        if (subproblem == 0) {
+            if (findFirst)
+                return true;
+        } else {
+            if (subproblem->solve(findFirst, solution))
+                return true;
         }
-      if (so.difference != 0)
-        so.difference->retract(solution);
-      findFirst = true;
+        if (so.difference != 0)
+            so.difference->retract(solution);
+        findFirst = true;
     }
-  return false;
+    return false;
 }

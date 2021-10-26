@@ -27,6 +27,7 @@
 #define _fullCompiler_hh_
 
 class CompilationContext;
+
 class VariableName;
 
 #endif

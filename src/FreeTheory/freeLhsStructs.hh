@@ -26,36 +26,31 @@
 #ifndef _freeLhsStructs_hh_
 #define _freeLhsStructs_hh_
 
-class FreeLhsStructs
-{
+class FreeLhsStructs {
 protected:
-  struct FreeVariable
-    {
-      short position;
-      short argIndex;
-      int varIndex;
-      Sort* sort;
+    struct FreeVariable {
+        short position;
+        short argIndex;
+        int varIndex;
+        Sort *sort;
     };
- 
-  struct BoundVariable
-    {
-      short position;
-      short argIndex;
-      int varIndex;
+
+    struct BoundVariable {
+        short position;
+        short argIndex;
+        int varIndex;
     };
- 
-  struct GroundAlien
-    {
-      short position;
-      short argIndex;
-      Term* alien;
+
+    struct GroundAlien {
+        short position;
+        short argIndex;
+        Term *alien;
     };
- 
-  struct NonGroundAlien
-    {
-      short position;
-      short argIndex;
-      LhsAutomaton* automaton;
+
+    struct NonGroundAlien {
+        short position;
+        short argIndex;
+        LhsAutomaton *automaton;
     };
 };
 

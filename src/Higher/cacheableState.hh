@@ -26,13 +26,12 @@
 #ifndef _cacheableState_hh_
 #define _cacheableState_hh_
 
-class CacheableState
-{
+class CacheableState {
 public:
-  //
-  //	A cache needs to be able to delete a state.
-  //
-  virtual ~CacheableState() {}
+    //
+    //	A cache needs to be able to delete a state.
+    //
+    virtual ~CacheableState() {}
 };
 
 #endif

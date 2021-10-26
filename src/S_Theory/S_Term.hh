@@ -25,79 +25,94 @@
 //
 #ifndef _S_Term_hh_
 #define _S_Term_hh_
+
 #include <gmpxx.h>
 #include "term.hh"
 
-class S_Term : public Term
-{
-  NO_COPYING(S_Term);
+class S_Term : public Term {
+    NO_COPYING(S_Term);
 
 public:
-  S_Term(S_Symbol* symbol, const mpz_class& number, Term* arg);
-  //
-  //    Functions required by theory interface.
-  //
-  RawArgumentIterator* arguments();
-  void deepSelfDestruct();
-  Term* deepCopy2(SymbolMap* map) const;
-  Term* normalize(bool full, bool& changed);
-  int compareArguments(const Term* other) const;
-  int compareArguments(const DagNode* other) const;
-  void findEagerVariables(bool atTop, NatSet& eagerVariables) const;
-  void analyseConstraintPropagation(NatSet& boundUniquely) const;
-  void insertAbstractionVariables(VariableInfo& variableInfo);
-  LhsAutomaton* compileLhs2(bool matchAtTop,
-			    const VariableInfo& variableInfo,
-			    NatSet& boundUniquely,
-			    bool& subproblemLikely);
-  void markEagerArguments(int nrVariables,
-                          const NatSet& eagerVariables,
-                          Vector<int>& problemVariables);
-  DagNode* dagify2();
-  void findAvailableTerms(TermBag& availableTerms, bool eagerContext, bool atTop);
-  int compileRhs2(RhsBuilder& rhsBuilder,
-		  VariableInfo& variableInfo,
-		  TermBag& availableTerms,
-		  bool eagerContext);
-  //
-  //	Needed because we have hidden data.
-  //
-  Term* instantiate2(const Vector<Term*>& varBindings, SymbolMap* translator);
+    S_Term(S_Symbol *symbol, const mpz_class &number, Term *arg);
+
+    //
+    //    Functions required by theory interface.
+    //
+    RawArgumentIterator *arguments();
+
+    void deepSelfDestruct();
+
+    Term *deepCopy2(SymbolMap *map) const;
+
+    Term *normalize(bool full, bool &changed);
+
+    int compareArguments(const Term *other) const;
+
+    int compareArguments(const DagNode *other) const;
+
+    void findEagerVariables(bool atTop, NatSet &eagerVariables) const;
+
+    void analyseConstraintPropagation(NatSet &boundUniquely) const;
+
+    void insertAbstractionVariables(VariableInfo &variableInfo);
+
+    LhsAutomaton *compileLhs2(bool matchAtTop,
+                              const VariableInfo &variableInfo,
+                              NatSet &boundUniquely,
+                              bool &subproblemLikely);
+
+    void markEagerArguments(int nrVariables,
+                            const NatSet &eagerVariables,
+                            Vector<int> &problemVariables);
+
+    DagNode *dagify2();
+
+    void findAvailableTerms(TermBag &availableTerms, bool eagerContext, bool atTop);
+
+    int compileRhs2(RhsBuilder &rhsBuilder,
+                    VariableInfo &variableInfo,
+                    TermBag &availableTerms,
+                    bool eagerContext);
+
+    //
+    //	Needed because we have hidden data.
+    //
+    Term *instantiate2(const Vector<Term *> &varBindings, SymbolMap *translator);
 
 #ifdef DUMP
-  void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
+    void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
 #endif
-  //
-  //    Functions specific to S_Term.
-  //
-  S_Symbol* symbol() const;
-  const mpz_class& getNumber() const;
-  Term* getArgument() const;
+
+    //
+    //    Functions specific to S_Term.
+    //
+    S_Symbol *symbol() const;
+
+    const mpz_class &getNumber() const;
+
+    Term *getArgument() const;
 
 private:
-  S_Term(const S_Term& original, S_Symbol* symbol, SymbolMap* translator);
+    S_Term(const S_Term &original, S_Symbol *symbol, SymbolMap *translator);
 
-  mpz_class number;
-  Term* arg;
-  int abstractionVariableIndex;
+    mpz_class number;
+    Term *arg;
+    int abstractionVariableIndex;
 };
 
-inline S_Symbol*
-S_Term::symbol() const
-{
-  return safeCast(S_Symbol*, Term::symbol());
+inline S_Symbol *
+S_Term::symbol() const {
+    return safeCast(S_Symbol*, Term::symbol());
 }
 
-inline const mpz_class&
-S_Term::getNumber() const
-{
-  return number;
+inline const mpz_class &
+S_Term::getNumber() const {
+    return number;
 }
 
-inline Term*
-S_Term::getArgument() const
-{
-  return arg;
+inline Term *
+S_Term::getArgument() const {
+    return arg;
 }
 
 #endif

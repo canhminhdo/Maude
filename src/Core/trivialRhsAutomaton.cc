@@ -44,36 +44,31 @@
 #include "trivialRhsAutomaton.hh"
 
 TrivialRhsAutomaton::TrivialRhsAutomaton(int index)
-  : index(index)
-{
+        : index(index) {
 }
 
 void
-TrivialRhsAutomaton::remapIndices(VariableInfo& variableInfo)
-{
-  index = variableInfo.remapIndex(index);
+TrivialRhsAutomaton::remapIndices(VariableInfo &variableInfo) {
+    index = variableInfo.remapIndex(index);
 }
 
 bool
-TrivialRhsAutomaton::recordInfo(StackMachineRhsCompiler& compiler)
-{
-  Vector<int> sources(1);
-  sources[0] = index;
-  compiler.recordFunctionEval(0, -1, sources);
-  return true;
+TrivialRhsAutomaton::recordInfo(StackMachineRhsCompiler &compiler) {
+    Vector<int> sources(1);
+    sources[0] = index;
+    compiler.recordFunctionEval(0, -1, sources);
+    return true;
 }
 
 
-DagNode*
-TrivialRhsAutomaton::construct(Substitution& matcher)
-{
-  return matcher.value(index);
+DagNode *
+TrivialRhsAutomaton::construct(Substitution &matcher) {
+    return matcher.value(index);
 }
 
 void
-TrivialRhsAutomaton::replace(DagNode* old, Substitution& matcher)
-{
-  matcher.value(index)->overwriteWithClone(old);
+TrivialRhsAutomaton::replace(DagNode *old, Substitution &matcher) {
+    matcher.value(index)->overwriteWithClone(old);
 }
 
 #ifdef DUMP

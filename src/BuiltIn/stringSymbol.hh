@@ -25,22 +25,26 @@
 //
 #ifndef _stringSymbol_hh_
 #define _stringSymbol_hh_
+
 #include "NA_Symbol.hh"
 
-class StringSymbol : public NA_Symbol
-{
+class StringSymbol : public NA_Symbol {
 public:
-  StringSymbol(int id);
+    StringSymbol(int id);
 
-  void fillInSortInfo(Term* subject);
-  void computeBaseSort(DagNode* subject);
-  bool isConstructor(DagNode* subject);
-  void compileOpDeclarations();
-  Term* termify(DagNode* dagNode);
+    void fillInSortInfo(Term *subject);
+
+    void computeBaseSort(DagNode *subject);
+
+    bool isConstructor(DagNode *subject);
+
+    void compileOpDeclarations();
+
+    Term *termify(DagNode *dagNode);
 
 private:
-  Sort* sort;
-  Sort* charSort;
+    Sort *sort;
+    Sort *charSort;
 };
 
 #endif

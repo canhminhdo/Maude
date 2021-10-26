@@ -25,32 +25,35 @@
 //
 #ifndef _SMT_NumberDagNode_hh_
 #define _SMT_NumberDagNode_hh_
+
 #include <gmpxx.h>
 #include "NA_DagNode.hh"
 
-class SMT_NumberDagNode : public NA_DagNode
-{
+class SMT_NumberDagNode : public NA_DagNode {
 public:
-  SMT_NumberDagNode(SMT_NumberSymbol* symbol, const mpq_class& value);
-  ~SMT_NumberDagNode();
+    SMT_NumberDagNode(SMT_NumberSymbol *symbol, const mpq_class &value);
 
-  size_t getHashValue();
-  int compareArguments(const DagNode* other) const;
-  void overwriteWithClone(DagNode* old);
-  DagNode* makeClone();
+    ~SMT_NumberDagNode();
 
-  const mpq_class& getValue() const;
+    size_t getHashValue();
+
+    int compareArguments(const DagNode *other) const;
+
+    void overwriteWithClone(DagNode *old);
+
+    DagNode *makeClone();
+
+    const mpq_class &getValue() const;
 
 private:
-  mpq_class *value;
+    mpq_class *value;
 
-  friend class SMT_NumberTerm;		// for comparison
+    friend class SMT_NumberTerm;        // for comparison
 };
 
-inline const mpq_class&
-SMT_NumberDagNode::getValue() const
-{
-  return *value;
+inline const mpq_class &
+SMT_NumberDagNode::getValue() const {
+    return *value;
 }
 
 #endif

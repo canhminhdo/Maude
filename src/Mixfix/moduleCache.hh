@@ -25,33 +25,38 @@
 //
 #ifndef _moduleCache_hh_
 #define _moduleCache_hh_
+
 #include <map>
 #include "importModule.hh"
 
-class ModuleCache : public Entity::User
-{
-  NO_COPYING(ModuleCache);
+class ModuleCache : public Entity::User {
+    NO_COPYING(ModuleCache);
 
 public:
-  ModuleCache();
-  ~ModuleCache();
+    ModuleCache();
 
-  ImportModule* makeRenamedCopy(ImportModule* module, Renaming* renaming);
-  ImportModule* makeSummation(const Vector<ImportModule*>& modules);
-  ImportModule* makeParameterCopy(int parameterName, ImportModule* module);
-  ImportModule* makeModuleInstantiation(ImportModule* module, const Vector<Argument*>& arguments);
+    ~ModuleCache();
 
-  void destructUnusedModules();
-  void showCreatedModules(ostream& s) const;
+    ImportModule *makeRenamedCopy(ImportModule *module, Renaming *renaming);
+
+    ImportModule *makeSummation(const Vector<ImportModule *> &modules);
+
+    ImportModule *makeParameterCopy(int parameterName, ImportModule *module);
+
+    ImportModule *makeModuleInstantiation(ImportModule *module, const Vector<Argument *> &arguments);
+
+    void destructUnusedModules();
+
+    void showCreatedModules(ostream &s) const;
 
 private:
-  typedef map<int, ImportModule*> ModuleMap;
+    typedef map<int, ImportModule *> ModuleMap;
 
-  static bool moduleCompare(const ImportModule* m1, const ImportModule* m2);
+    static bool moduleCompare(const ImportModule *m1, const ImportModule *m2);
 
-  void regretToInform(Entity* doomedEntity);
+    void regretToInform(Entity *doomedEntity);
 
-  ModuleMap moduleMap;
+    ModuleMap moduleMap;
 };
 
 #endif

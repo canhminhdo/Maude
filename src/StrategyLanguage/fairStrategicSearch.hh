@@ -25,26 +25,26 @@
 //
 #ifndef _fairStrategicSearch_hh_
 #define _fairStrategicSearch_hh_
+
 #include "strategicSearch.hh"
 
 class FairStrategicSearch
- : public StrategicSearch
-{
-  NO_COPYING(FairStrategicSearch);
+        : public StrategicSearch {
+    NO_COPYING(FairStrategicSearch);
 
 public:
-  //
-  //	FairStrategicSearch is constructed like StrategicSearch
-  //
-  FairStrategicSearch(RewritingContext* initial, StrategyExpression* strategy);
+    //
+    //	FairStrategicSearch is constructed like StrategicSearch
+    //
+    FairStrategicSearch(RewritingContext *initial, StrategyExpression *strategy);
 
-  //
-  //	Find the next solution using a fair (Round Robin) search
-  //
-  DagNode* findNextSolution();
+    //
+    //	Find the next solution using a fair (Round Robin) search
+    //
+    DagNode *findNextSolution();
 
 private:
-  StrategicProcess* nextToRun;
+    StrategicProcess *nextToRun;
 };
 
 #endif

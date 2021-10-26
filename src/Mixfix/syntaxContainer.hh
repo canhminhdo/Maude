@@ -25,31 +25,32 @@
 //
 #ifndef _syntaxContainer_hh_
 #define _syntaxContainer_hh_
+
 #include "token.hh"
 
-class SyntaxContainer
-{
+class SyntaxContainer {
 public:
-  //
-  //	Subclasses SyntacticPreModule and SyntacticView recieve parameters and
-  //	variable declarations.
-  //
-  virtual void addParameter2(Token name, ModuleExpression* theory) = 0;
-  virtual void addVarDecl(Token varName) = 0;
-  //
-  //	Subclasses SyntacticPreModule, SyntacticView and Renaming receive
-  //	types.
-  //
-  virtual void addType(bool kind, const Vector<Token>& tokens) = 0;
+    //
+    //	Subclasses SyntacticPreModule and SyntacticView recieve parameters and
+    //	variable declarations.
+    //
+    virtual void addParameter2(Token name, ModuleExpression *theory) = 0;
+
+    virtual void addVarDecl(Token varName) = 0;
+
+    //
+    //	Subclasses SyntacticPreModule, SyntacticView and Renaming receive
+    //	types.
+    //
+    virtual void addType(bool kind, const Vector<Token> &tokens) = 0;
 
 protected:
-  struct Type
-  {
-    bool kind;
-    Vector<Token> tokens;
-  };
+    struct Type {
+        bool kind;
+        Vector<Token> tokens;
+    };
 
-  friend ostream& operator<<(ostream& s, const Type& type);
+    friend ostream &operator<<(ostream &s, const Type &type);
 };
 
 #endif

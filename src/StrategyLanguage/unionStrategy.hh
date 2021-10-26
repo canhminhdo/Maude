@@ -25,29 +25,30 @@
 //
 #ifndef _unionStrategy_hh_
 #define _unionStrategy_hh_
+
 #include "strategyExpression.hh"
 
-class UnionStrategy : public StrategyExpression
-{
+class UnionStrategy : public StrategyExpression {
 public:
-  UnionStrategy(const Vector<StrategyExpression*>& strategies);
-  ~UnionStrategy();
+    UnionStrategy(const Vector<StrategyExpression *> &strategies);
 
-  const Vector<StrategyExpression*>& getStrategies() const;
+    ~UnionStrategy();
 
-  bool check(VariableInfo& indices, const TermSet& boundVars);
-  void process();
+    const Vector<StrategyExpression *> &getStrategies() const;
 
-  StrategicExecution::Survival decompose(StrategicSearch& searchObject, DecompositionProcess* remainder);
+    bool check(VariableInfo &indices, const TermSet &boundVars);
+
+    void process();
+
+    StrategicExecution::Survival decompose(StrategicSearch &searchObject, DecompositionProcess *remainder);
 
 private:
-  const Vector<StrategyExpression*> strategies;
+    const Vector<StrategyExpression *> strategies;
 };
 
-inline const Vector<StrategyExpression*>&
-UnionStrategy::getStrategies() const
-{
-  return strategies;
+inline const Vector<StrategyExpression *> &
+UnionStrategy::getStrategies() const {
+    return strategies;
 }
 
 #endif

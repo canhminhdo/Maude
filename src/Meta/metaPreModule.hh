@@ -25,40 +25,44 @@
 //
 #ifndef _metaPreModule_hh_
 #define _metaPreModule_hh_
+
 #include "preModule.hh"
 #include "dagRoot.hh"
 #include "moduleDatabase.hh"
 
-class MetaPreModule : public PreModule
-{
-  NO_COPYING(MetaPreModule);
+class MetaPreModule : public PreModule {
+    NO_COPYING(MetaPreModule);
 
 public:
-  MetaPreModule(int name, DagNode* moduleDag, MetaLevel* metaLevel, MetaModule* module, Interpreter* owner);
-  ~MetaPreModule();
-  //
-  //	Virtual functions we need to define.
-  //
-  const ModuleDatabase::ImportMap* getAutoImports() const;
-  VisibleModule* getFlatSignature();
-  VisibleModule* getFlatModule();
-  //
-  //	Specific to MetaPreModule.
-  //
-  DagNode* getMetaRepresentation() const;
+    MetaPreModule(int name, DagNode *moduleDag, MetaLevel *metaLevel, MetaModule *module, Interpreter *owner);
+
+    ~MetaPreModule();
+
+    //
+    //	Virtual functions we need to define.
+    //
+    const ModuleDatabase::ImportMap *getAutoImports() const;
+
+    VisibleModule *getFlatSignature();
+
+    VisibleModule *getFlatModule();
+
+    //
+    //	Specific to MetaPreModule.
+    //
+    DagNode *getMetaRepresentation() const;
 
 private:
-  void regretToInform(Entity* doomedEntity);
+    void regretToInform(Entity *doomedEntity);
 
-  DagRoot moduleDag;
-  MetaLevel* const metaLevel;
-  MetaModule* flatModule;
+    DagRoot moduleDag;
+    MetaLevel *const metaLevel;
+    MetaModule *flatModule;
 };
 
-inline DagNode*
-MetaPreModule::getMetaRepresentation() const
-{
-  return moduleDag.getNode();
+inline DagNode *
+MetaPreModule::getMetaRepresentation() const {
+    return moduleDag.getNode();
 }
 
 #endif

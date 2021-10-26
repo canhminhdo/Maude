@@ -25,6 +25,7 @@
 //
 #ifndef _objectSystemRewritingContext_hh_
 #define _objectSystemRewritingContext_hh_
+
 #include <map>
 #include <list>
 #include <set>
@@ -32,92 +33,90 @@
 #include "simpleRootContainer.hh"
 #include "objectSystem.hh"
 
-class ObjectSystemRewritingContext : public RewritingContext
-{
-  NO_COPYING(ObjectSystemRewritingContext);
+class ObjectSystemRewritingContext : public RewritingContext {
+    NO_COPYING(ObjectSystemRewritingContext);
 
 public:
-  enum Mode
-  {
-    STANDARD,	// use standard rewriting
-    FAIR,	// use object-message fair rewriting
-    EXTERNAL	// as above, but allow interactions with external objects
-  };
+    enum Mode {
+        STANDARD,    // use standard rewriting
+        FAIR,    // use object-message fair rewriting
+        EXTERNAL    // as above, but allow interactions with external objects
+    };
 
-  ObjectSystemRewritingContext(DagNode* root);
-  ~ObjectSystemRewritingContext();
+    ObjectSystemRewritingContext(DagNode *root);
 
-  void addExternalObject(DagNode* name, ExternalObjectManagerSymbol* manager);
-  void deleteExternalObject(DagNode* name);
-  void bufferMessage(DagNode* target, DagNode* message);
-  //
-  //	A manager can make this request multiple times so it doen't need
-  //	to explicitly track which contexts it has already requested a
-  //	clean up callback from.
-  //
-  void requestCleanUpOnDestruction(ExternalObjectManagerSymbol* manager);
+    ~ObjectSystemRewritingContext();
 
-  bool getExternalMessages(DagNode* target, list<DagNode*>& messages);
-  bool offerMessageExternally(DagNode* target, DagNode* message);
+    void addExternalObject(DagNode *name, ExternalObjectManagerSymbol *manager);
 
-  void setObjectMode(Mode m);
-  Mode getObjectMode() const;
+    void deleteExternalObject(DagNode *name);
 
-  void externalRewrite();
+    void bufferMessage(DagNode *target, DagNode *message);
+
+    //
+    //	A manager can make this request multiple times so it doen't need
+    //	to explicitly track which contexts it has already requested a
+    //	clean up callback from.
+    //
+    void requestCleanUpOnDestruction(ExternalObjectManagerSymbol *manager);
+
+    bool getExternalMessages(DagNode *target, list<DagNode *> &messages);
+
+    bool offerMessageExternally(DagNode *target, DagNode *message);
+
+    void setObjectMode(Mode m);
+
+    Mode getObjectMode() const;
+
+    void externalRewrite();
 
 protected:
-  void markReachableNodes();
+    void markReachableNodes();
 
 private:
-  
-  struct dagNodeLt
-  {
-    bool operator()(const DagNode* d1, const DagNode* d2) const
-    {
-      return d1->compare(d2) < 0;
-    }
-  };
 
-  typedef map<DagNode*, ExternalObjectManagerSymbol*, dagNodeLt> ObjectMap;
-  typedef map<DagNode*, list<DagNode*>, dagNodeLt> MessageMap;
-  //
-  //	A set of pointers looks a bit dubious but implementations
-  //	that don't provide a total ordering on pointers have to specialize
-  //	std::less so that associative containers work.
-  //
-  typedef set<ExternalObjectManagerSymbol*> ManagerSet;
+    struct dagNodeLt {
+        bool operator()(const DagNode *d1, const DagNode *d2) const {
+            return d1->compare(d2) < 0;
+        }
+    };
 
-  bool interleave();
+    typedef map<DagNode *, ExternalObjectManagerSymbol *, dagNodeLt> ObjectMap;
+    typedef map<DagNode *, list<DagNode *>, dagNodeLt> MessageMap;
+    //
+    //	A set of pointers looks a bit dubious but implementations
+    //	that don't provide a total ordering on pointers have to specialize
+    //	std::less so that associative containers work.
+    //
+    typedef set<ExternalObjectManagerSymbol *> ManagerSet;
 
-  Mode mode;
-  ObjectMap externalObjects;
-  MessageMap incomingMessages;
-  ManagerSet managersNeedingCleanUp;
+    bool interleave();
+
+    Mode mode;
+    ObjectMap externalObjects;
+    MessageMap incomingMessages;
+    ManagerSet managersNeedingCleanUp;
 };
 
 inline
-ObjectSystemRewritingContext::ObjectSystemRewritingContext(DagNode* root)
-  : RewritingContext(root)
-{
-  mode = STANDARD;
+ObjectSystemRewritingContext::ObjectSystemRewritingContext(DagNode *root)
+        : RewritingContext(root) {
+    mode = STANDARD;
 }
 
 inline void
-ObjectSystemRewritingContext::setObjectMode(Mode m)
-{
-  mode = m;
+ObjectSystemRewritingContext::setObjectMode(Mode m) {
+    mode = m;
 }
 
 inline ObjectSystemRewritingContext::Mode
-ObjectSystemRewritingContext::getObjectMode() const
-{
-  return mode;
+ObjectSystemRewritingContext::getObjectMode() const {
+    return mode;
 }
 
 inline void
-ObjectSystemRewritingContext::requestCleanUpOnDestruction(ExternalObjectManagerSymbol* manager)
-{
-  managersNeedingCleanUp.insert(manager);
+ObjectSystemRewritingContext::requestCleanUpOnDestruction(ExternalObjectManagerSymbol *manager) {
+    managersNeedingCleanUp.insert(manager);
 }
 
 #endif

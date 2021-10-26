@@ -27,113 +27,99 @@
 #include <map>
 //#include <iterator>
 
-struct SortTable::Node
-{
-  mpz_class pathCount;
-  int parent;
-  int sortIndex;
+struct SortTable::Node {
+    mpz_class pathCount;
+    int parent;
+    int sortIndex;
 };
 
 void
 SortTable::sortErrorAnalysis(bool preregProblem,
-			     const set<int>& badTerminals)
-{
-  //copy(badTerminals.begin(), badTerminals.end(), ostream_iterator<const int>(cout, " "));   
-  //cout << endl;
-  //
-  //	First we build a spanning tree with a path count, parent node and sort index
-  //	(from parent) for each node. Nonterminal nodes are named by their start index
-  //	in the diagram vector while terminals are named by the absolute index of the
-  //	terminal in the diagram vector.
-  //
-  const Vector<int>& diagram = preregProblem ? sortDiagram : ctorDiagram;
-  typedef map<int, Node> SpanningTree;
-  SpanningTree spanningTree;
-  spanningTree[0].pathCount = 1;
-  spanningTree[0].parent = NONE;
-  spanningTree[0].sortIndex = NONE;
-  mpz_class product = 1;
-  mpz_class badCount = 0;
-  Vector<int> firstBad(nrArgs);
+                             const set<int> &badTerminals) {
+    //copy(badTerminals.begin(), badTerminals.end(), ostream_iterator<const int>(cout, " "));
+    //cout << endl;
+    //
+    //	First we build a spanning tree with a path count, parent node and sort index
+    //	(from parent) for each node. Nonterminal nodes are named by their start index
+    //	in the diagram vector while terminals are named by the absolute index of the
+    //	terminal in the diagram vector.
+    //
+    const Vector<int> &diagram = preregProblem ? sortDiagram : ctorDiagram;
+    typedef map<int, Node> SpanningTree;
+    SpanningTree spanningTree;
+    spanningTree[0].pathCount = 1;
+    spanningTree[0].parent = NONE;
+    spanningTree[0].sortIndex = NONE;
+    mpz_class product = 1;
+    mpz_class badCount = 0;
+    Vector<int> firstBad(nrArgs);
 
-  set<int> currentNodes;
-  currentNodes.insert(0);
+    set<int> currentNodes;
+    currentNodes.insert(0);
 
-  for (int i = 0; i < nrArgs; ++i)
-    {
-      set<int> nextNodes;
-      const ConnectedComponent* component = componentVector[i];
-      int nrSorts = component->nrSorts();
-      product *= nrSorts;
-      
-      for (int parent : currentNodes)
-	{
-	  mpz_class& pathCount = spanningTree[parent].pathCount;
-	  for (int k = 0; k < nrSorts; ++k)
-	    {
-	      int index = parent + k;
-	      if (i == nrArgs - 1)
-		{
-		  //
-		  //	Terminal node - see if it is bad.
-		  //
-		  if (badTerminals.find(index) != badTerminals.end())
-		    {
-		      //cerr << " pathCount = " << pathCount << endl;
-		      if (badCount == 0)
-			{
-			  badCount = pathCount;
-			  firstBad[nrArgs - 1] = k;
-			  int n = parent;
-			  for (int l = nrArgs - 2; l >= 0; --l)
-			    {
-			      SpanningTree::const_iterator t = spanningTree.find(n);
-			      Assert(t != spanningTree.end(), "missing node");
-			      firstBad[l] = t->second.sortIndex;
-			      n = t->second.parent;
-			    }
-			  //copy(firstBad.begin(), firstBad.end(), ostream_iterator<const int>(cout, " "));   
-			  //cout << endl;
+    for (int i = 0; i < nrArgs; ++i) {
+        set<int> nextNodes;
+        const ConnectedComponent *component = componentVector[i];
+        int nrSorts = component->nrSorts();
+        product *= nrSorts;
 
-			}
-		      else
-			badCount += pathCount;
-		    }
-		}
-	      else
-		{
-		  //
-		  //	Nonterminal node - generate next nodes.
-		  //
-		  int target = diagram[index];
-		  pair<SpanningTree::iterator, bool> p =
-		    spanningTree.insert(SpanningTree::value_type(target, Node()));
-		  if (p.second)
-		    {
-		      p.first->second.pathCount = pathCount;
-		      p.first->second.parent = parent;
-		      p.first->second.sortIndex = k;
-		      nextNodes.insert(target);
-		    }
-		  else
-		    p.first->second.pathCount += pathCount;
-		}
-	    }
-	}
-      currentNodes.swap(nextNodes);
+        for (int parent : currentNodes) {
+            mpz_class &pathCount = spanningTree[parent].pathCount;
+            for (int k = 0; k < nrSorts; ++k) {
+                int index = parent + k;
+                if (i == nrArgs - 1) {
+                    //
+                    //	Terminal node - see if it is bad.
+                    //
+                    if (badTerminals.find(index) != badTerminals.end()) {
+                        //cerr << " pathCount = " << pathCount << endl;
+                        if (badCount == 0) {
+                            badCount = pathCount;
+                            firstBad[nrArgs - 1] = k;
+                            int n = parent;
+                            for (int l = nrArgs - 2; l >= 0; --l) {
+                                SpanningTree::const_iterator t = spanningTree.find(n);
+                                Assert(t != spanningTree.end(), "missing node");
+                                firstBad[l] = t->second.sortIndex;
+                                n = t->second.parent;
+                            }
+                            //copy(firstBad.begin(), firstBad.end(), ostream_iterator<const int>(cout, " "));
+                            //cout << endl;
+
+                        } else
+                            badCount += pathCount;
+                    }
+                } else {
+                    //
+                    //	Nonterminal node - generate next nodes.
+                    //
+                    int target = diagram[index];
+                    pair<SpanningTree::iterator, bool> p =
+                            spanningTree.insert(SpanningTree::value_type(target, Node()));
+                    if (p.second) {
+                        p.first->second.pathCount = pathCount;
+                        p.first->second.parent = parent;
+                        p.first->second.sortIndex = k;
+                        nextNodes.insert(target);
+                    } else
+                        p.first->second.pathCount += pathCount;
+                }
+            }
+        }
+        currentNodes.swap(nextNodes);
     }
 
-  ComplexWarning((preregProblem ? "sort" : "constructor") <<
-	       " declarations for operator " <<
-		 QUOTE(safeCastNonNull<Symbol*>(this)) << " failed " <<
-	       (preregProblem ? "preregularity" : "constructor consistency") <<
-	       " check on " << badCount << " out of " << product <<
-	       " sort tuples. First such tuple is (");
-  for (int i = 0; i < nrArgs; ++i)
-    {
-      cerr << QUOTE(componentVector[i]->sort(firstBad[i]));
-      if (i != nrArgs - 1)
-	cerr << ", ";
+    ComplexWarning((preregProblem ? "sort" : "constructor") <<
+                                                            " declarations for operator " <<
+                                                            QUOTE(safeCastNonNull<Symbol *>(this)) << " failed " <<
+                                                            (preregProblem ? "preregularity"
+                                                                           : "constructor consistency") <<
+                                                            " check on " << badCount << " out of " << product <<
+                                                            " sort tuples. First such tuple is (");
+    for (int i = 0; i < nrArgs; ++i) {
+        cerr << QUOTE(componentVector[i]->sort(firstBad[i]));
+        if (i != nrArgs - 1)
+            cerr << ", ";
     }
-  cerr << ")." << endl;
+    cerr << ")." << endl;
 }

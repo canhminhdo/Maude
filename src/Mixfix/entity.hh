@@ -26,53 +26,52 @@
 //
 #ifndef _entity_hh_
 #define _entity_hh_
+
 #include <set>
 
-class Entity
-{
+class Entity {
 public:
 #ifndef NO_ASSERT
-  //
-  //	We give ourself a virtual destructor so that debugging code can
-  //	use dynamic_cast<>s to figure out what derived object we are.
-  //
-  virtual ~Entity() {}
+    //
+    //	We give ourself a virtual destructor so that debugging code can
+    //	use dynamic_cast<>s to figure out what derived object we are.
+    //
+    virtual ~Entity() {}
 #endif
 
-  class User
-  {
-  public:
-    virtual void regretToInform(Entity* doomedEntity) = 0;
-  };
+    class User {
+    public:
+        virtual void regretToInform(Entity *doomedEntity) = 0;
+    };
 
-  void addUser(User* user);
-  void removeUser(User* user);
-  int getNrUsers() const;
-  void informUsers();
+    void addUser(User *user);
+
+    void removeUser(User *user);
+
+    int getNrUsers() const;
+
+    void informUsers();
 
 private:
-  struct UserLt
-  {
-    bool operator()(const User* user1, const User* user2) const
-    {
-      //
-      //	Direct < comparison of unrelated pointers is undefined. But since the casting
-      //	to a large enough integer is invertable, it must be injective and so we can
-      //	get a total ordering by comparing the integers.
-      //
-      return reinterpret_cast<size_t>(user1) < reinterpret_cast<size_t>(user2);
-    }
-  };
+    struct UserLt {
+        bool operator()(const User *user1, const User *user2) const {
+            //
+            //	Direct < comparison of unrelated pointers is undefined. But since the casting
+            //	to a large enough integer is invertable, it must be injective and so we can
+            //	get a total ordering by comparing the integers.
+            //
+            return reinterpret_cast<size_t>(user1) < reinterpret_cast<size_t>(user2);
+        }
+    };
 
-  typedef set<User*, UserLt> UserSet;
+    typedef set<User *, UserLt> UserSet;
 
-  UserSet users;
+    UserSet users;
 };
 
 inline int
-Entity::getNrUsers() const
-{
-  return users.size();  // inefficient
+Entity::getNrUsers() const {
+    return users.size();  // inefficient
 }
 
 #ifndef NO_ASSERT

@@ -25,27 +25,29 @@
 //
 #ifndef _S_DagArgumentIterator_hh_
 #define _S_DagArgumentIterator_hh_
+
 #include "rawDagArgumentIterator.hh"
 
-class S_DagArgumentIterator : public RawDagArgumentIterator
-{
+class S_DagArgumentIterator : public RawDagArgumentIterator {
 public:
-  S_DagArgumentIterator(DagNode* arg);
-  //
-  //    Functions required by theory interface.
-  //
-  bool valid() const;
-  DagNode* argument() const;
-  void next();
- 
+    S_DagArgumentIterator(DagNode *arg);
+
+    //
+    //    Functions required by theory interface.
+    //
+    bool valid() const;
+
+    DagNode *argument() const;
+
+    void next();
+
 private:
-  DagNode* arg;
+    DagNode *arg;
 };
 
 inline
-S_DagArgumentIterator::S_DagArgumentIterator(DagNode* arg)
-  : arg(arg)
-{
+S_DagArgumentIterator::S_DagArgumentIterator(DagNode *arg)
+        : arg(arg) {
 }
- 
+
 #endif

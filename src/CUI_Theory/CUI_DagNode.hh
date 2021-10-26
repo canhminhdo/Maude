@@ -25,103 +25,125 @@
 //
 #ifndef _CUI_DagNode_hh_
 #define _CUI_DagNode_hh_
+
 #include "dagNode.hh"
 #include "variable.hh"
 
-class CUI_DagNode : public DagNode
-{
+class CUI_DagNode : public DagNode {
 public:
-  CUI_DagNode(CUI_Symbol* symbol);
-  //
-  //	Member functions required by theory interface.
-  //
-  RawDagArgumentIterator* arguments();
-  size_t getHashValue();
-  int compareArguments(const DagNode* other) const;
-  void overwriteWithClone(DagNode* old);
-  DagNode* makeClone();
-  DagNode* copyWithReplacement(int argIndex, DagNode* replacement);
-  DagNode* copyWithReplacement(Vector<RedexPosition>& redexStack,
-			       int first,
-			       int last);
-  //
-  //	Unification member functions.
-  //
-  ReturnResult computeBaseSortForGroundSubterms(bool warnAboutUnimplemented);
-  bool computeSolvedForm2(DagNode* rhs,  UnificationContext& solution, PendingUnificationStack& pending);
-  void insertVariables2(NatSet& occurs);
-  DagNode* instantiate2(const Substitution& substitution, bool maintainInvariants);
-  //
-  //	Interface for narrowing.
-  //
-  bool indexVariables2(NarrowingVariableInfo& indices, int baseIndex);
-  DagNode* instantiateWithReplacement(const Substitution& substitution,
-				      const Vector<DagNode*>* eagerCopies,
-				      int argIndex,
-				      DagNode* newDag);
-  DagNode* instantiateWithCopies2(const Substitution& substitution, const Vector<DagNode*>& eagerCopies);
-  //
-  //    Functions particular to CUI_DagNode.
-  //
-  CUI_Symbol* symbol() const;
-  DagNode* getArgument(int i) const;
+    CUI_DagNode(CUI_Symbol *symbol);
 
-  bool indirectOccursCheck(VariableDagNode* repVar, UnificationContext& solution);
-  CUI_DagNode* makePurifiedVersion(UnificationContext& solution, PendingUnificationStack& pending);
+    //
+    //	Member functions required by theory interface.
+    //
+    RawDagArgumentIterator *arguments();
+
+    size_t getHashValue();
+
+    int compareArguments(const DagNode *other) const;
+
+    void overwriteWithClone(DagNode *old);
+
+    DagNode *makeClone();
+
+    DagNode *copyWithReplacement(int argIndex, DagNode *replacement);
+
+    DagNode *copyWithReplacement(Vector<RedexPosition> &redexStack,
+                                 int first,
+                                 int last);
+
+    //
+    //	Unification member functions.
+    //
+    ReturnResult computeBaseSortForGroundSubterms(bool warnAboutUnimplemented);
+
+    bool computeSolvedForm2(DagNode *rhs, UnificationContext &solution, PendingUnificationStack &pending);
+
+    void insertVariables2(NatSet &occurs);
+
+    DagNode *instantiate2(const Substitution &substitution, bool maintainInvariants);
+
+    //
+    //	Interface for narrowing.
+    //
+    bool indexVariables2(NarrowingVariableInfo &indices, int baseIndex);
+
+    DagNode *instantiateWithReplacement(const Substitution &substitution,
+                                        const Vector<DagNode *> *eagerCopies,
+                                        int argIndex,
+                                        DagNode *newDag);
+
+    DagNode *instantiateWithCopies2(const Substitution &substitution, const Vector<DagNode *> &eagerCopies);
+
+    //
+    //    Functions particular to CUI_DagNode.
+    //
+    CUI_Symbol *symbol() const;
+
+    DagNode *getArgument(int i) const;
+
+    bool indirectOccursCheck(VariableDagNode *repVar, UnificationContext &solution);
+
+    CUI_DagNode *makePurifiedVersion(UnificationContext &solution, PendingUnificationStack &pending);
 
 private:
-  //
-  //	Theory interface functions.
-  //
-  DagNode* markArguments();
-  DagNode* copyEagerUptoReduced2();
-  DagNode* copyAll2();
-  void clearCopyPointers2();
-  //
-  //	Normalization functions.
-  //
-  void collapseTo(int argNr);
-  bool normalizeAtTop();
-  //
-  //	Private unification stuff.
-  //
-  bool computeSolvedFormCommutativeCase(CUI_DagNode* rhs,
-					UnificationContext& solution,
-					PendingUnificationStack& pending);
-  //
-  //	Arguments under CUI symbol.
-  //
-  DagNode* argArray[2];
-  //
-  //	Slot for caching hash value.
-  //
-  size_t hashCache;
-  //
-  //	Most related classes need direct access to our argument list for efficiency.
-  //
-  friend class CUI_Symbol;		// to reduce subterms prior to rewrite, normalization
-  friend class CUI_Term;		// for term->DAG conversion & comparison
-  friend class CUI_LhsAutomaton;	// for matching DAG subject
-  friend class CUI_RhsAutomaton;	// for constructing replacement DAG
+    //
+    //	Theory interface functions.
+    //
+    DagNode *markArguments();
+
+    DagNode *copyEagerUptoReduced2();
+
+    DagNode *copyAll2();
+
+    void clearCopyPointers2();
+
+    //
+    //	Normalization functions.
+    //
+    void collapseTo(int argNr);
+
+    bool normalizeAtTop();
+
+    //
+    //	Private unification stuff.
+    //
+    bool computeSolvedFormCommutativeCase(CUI_DagNode *rhs,
+                                          UnificationContext &solution,
+                                          PendingUnificationStack &pending);
+
+    //
+    //	Arguments under CUI symbol.
+    //
+    DagNode *argArray[2];
+    //
+    //	Slot for caching hash value.
+    //
+    size_t hashCache;
+
+    //
+    //	Most related classes need direct access to our argument list for efficiency.
+    //
+    friend class CUI_Symbol;        // to reduce subterms prior to rewrite, normalization
+    friend class CUI_Term;        // for term->DAG conversion & comparison
+    friend class CUI_LhsAutomaton;    // for matching DAG subject
+    friend class CUI_RhsAutomaton;    // for constructing replacement DAG
 };
 
 inline
-CUI_DagNode::CUI_DagNode(CUI_Symbol* symbol)
-  : DagNode(symbol)
-{ 
+CUI_DagNode::CUI_DagNode(CUI_Symbol *symbol)
+        : DagNode(symbol) {
 }
 
-inline CUI_Symbol*
-CUI_DagNode::symbol() const
-{
-  return static_cast<CUI_Symbol*>(DagNode::symbol());
+inline CUI_Symbol *
+CUI_DagNode::symbol() const {
+    return static_cast<CUI_Symbol *>(DagNode::symbol());
 }
 
-inline DagNode*
-CUI_DagNode::getArgument(int i) const
-{
-  Assert(i == 0 || i == 1, "bad argument index");
-  return argArray[i];
+inline DagNode *
+CUI_DagNode::getArgument(int i) const {
+    Assert(i == 0 || i == 1, "bad argument index");
+    return argArray[i];
 }
 
 #endif

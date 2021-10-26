@@ -25,20 +25,24 @@
 //
 #ifndef _dagNodeSet_hh_
 #define _dagNodeSet_hh_
+
 #include "pointerSet.hh"
 
-class DagNodeSet : private PointerSet
-{
+class DagNodeSet : private PointerSet {
 public:
-  int insert(DagNode* d);
-  int dagNode2Index(DagNode* d) const;
-  using PointerSet::cardinality;
-  using PointerSet::makeEmpty;
-  DagNode* index2DagNode(int i) const;
+    int insert(DagNode *d);
+
+    int dagNode2Index(DagNode *d) const;
+
+    using PointerSet::cardinality;
+    using PointerSet::makeEmpty;
+
+    DagNode *index2DagNode(int i) const;
 
 private:
-  unsigned int hash(void* pointer) const;
-  bool isEqual(void* pointer1, void* pointer2) const;
+    unsigned int hash(void *pointer) const;
+
+    bool isEqual(void *pointer1, void *pointer2) const;
 };
 
 #endif

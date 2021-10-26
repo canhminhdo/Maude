@@ -27,23 +27,41 @@
 #define _ACU_Theory_hh_
 
 class ACU_Symbol;
+
 class ACU_Term;
+
 class ACU_ArgumentIterator;
+
 class ACU_BaseDagNode;
+
 class ACU_DagNode;
+
 class ACU_DagArgumentIterator;
+
 class ACU_TreeDagNode;
+
 class ACU_TreeDagArgumentIterator;
+
 class ACU_LhsAutomaton;
+
 class ACU_CollectorLhsAutomaton;
+
 class ACU_NGA_LhsAutomaton;
+
 class ACU_VarLhsAutomaton;
+
 class ACU_BndVarLhsAutomaton;
+
 class ACU_GndLhsAutomaton;
+
 class ACU_NonLinearLhsAutomaton;
+
 class ACU_RhsAutomaton;
+
 class ACU_Subproblem;
+
 class ACU_ExtensionInfo;
+
 class ACU_UnificationSubproblem2;
 
 #endif

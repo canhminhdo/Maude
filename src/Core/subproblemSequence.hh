@@ -25,33 +25,33 @@
 //
 #ifndef _subproblemSequence_hh_
 #define _subproblemSequence_hh_
+
 #include "subproblem.hh"
 
-class SubproblemSequence : public Subproblem
-{
+class SubproblemSequence : public Subproblem {
 public:
-  SubproblemSequence(Subproblem* first, Subproblem* second);
-  ~SubproblemSequence();
+    SubproblemSequence(Subproblem *first, Subproblem *second);
 
-  void append(Subproblem* sp);
-  bool solve(bool findFirst, RewritingContext& solution);
+    ~SubproblemSequence();
+
+    void append(Subproblem *sp);
+
+    bool solve(bool findFirst, RewritingContext &solution);
 
 private:
-  Vector<Subproblem*> sequence;
+    Vector<Subproblem *> sequence;
 };
 
 inline
-SubproblemSequence::SubproblemSequence(Subproblem* first, Subproblem* second)
-  : sequence(2)
-{
-  sequence[0] = first;
-  sequence[1] = second;
+SubproblemSequence::SubproblemSequence(Subproblem *first, Subproblem *second)
+        : sequence(2) {
+    sequence[0] = first;
+    sequence[1] = second;
 }
 
-inline void 
-SubproblemSequence::append(Subproblem* sp)
-{
-  sequence.append(sp);
+inline void
+SubproblemSequence::append(Subproblem *sp) {
+    sequence.append(sp);
 }
 
 #endif

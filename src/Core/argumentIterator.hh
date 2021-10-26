@@ -25,49 +25,48 @@
 //
 #ifndef _argumentIterator_hh_
 #define _argumentIterator_hh_
+
 #include "rawArgumentIterator.hh"
 
-class ArgumentIterator
-{
+class ArgumentIterator {
 public:
-  ArgumentIterator(Term& t);
-  ~ArgumentIterator();
-  bool valid() const;
-  Term* argument() const;
-  void next();
+    ArgumentIterator(Term &t);
+
+    ~ArgumentIterator();
+
+    bool valid() const;
+
+    Term *argument() const;
+
+    void next();
 
 private:
-  RawArgumentIterator* argumentIterator;
+    RawArgumentIterator *argumentIterator;
 };
 
 inline
-ArgumentIterator::ArgumentIterator(Term& t)
-{
-  argumentIterator = t.arguments();
+ArgumentIterator::ArgumentIterator(Term &t) {
+    argumentIterator = t.arguments();
 }
 
 inline
-ArgumentIterator::~ArgumentIterator()
-{
-  delete argumentIterator;
+ArgumentIterator::~ArgumentIterator() {
+    delete argumentIterator;
 }
 
 inline bool
-ArgumentIterator::valid() const
-{
-  return (argumentIterator != 0) && argumentIterator->valid();
+ArgumentIterator::valid() const {
+    return (argumentIterator != 0) && argumentIterator->valid();
 }
 
-inline Term*
-ArgumentIterator::argument() const
-{
-  return argumentIterator->argument();
+inline Term *
+ArgumentIterator::argument() const {
+    return argumentIterator->argument();
 }
 
 inline void
-ArgumentIterator::next()
-{
-  argumentIterator->next();
+ArgumentIterator::next() {
+    argumentIterator->next();
 }
 
 #endif

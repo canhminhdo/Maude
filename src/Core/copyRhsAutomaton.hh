@@ -26,27 +26,30 @@
 //
 #ifndef _copyRhsAutomaton_hh_
 #define _copyRhsAutomaton_hh_
+
 #include "rhsAutomaton.hh"
 
-class CopyRhsAutomaton : public RhsAutomaton
-{
-  NO_COPYING(CopyRhsAutomaton);
+class CopyRhsAutomaton : public RhsAutomaton {
+    NO_COPYING(CopyRhsAutomaton);
 
 public:
-  CopyRhsAutomaton(int originalIndex, int copyIndex);
-  void remapIndices(VariableInfo& variableInfo);
-  DagNode* construct(Substitution& matcher);
-  void replace(DagNode* old, Substitution& matcher);
+    CopyRhsAutomaton(int originalIndex, int copyIndex);
 
-  bool recordInfo(StackMachineRhsCompiler& compiler);
+    void remapIndices(VariableInfo &variableInfo);
+
+    DagNode *construct(Substitution &matcher);
+
+    void replace(DagNode *old, Substitution &matcher);
+
+    bool recordInfo(StackMachineRhsCompiler &compiler);
 
 #ifdef DUMP
-  void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel = 0);
+    void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel = 0);
 #endif
 
 private:
-  int originalIndex;
-  int copyIndex;
+    int originalIndex;
+    int copyIndex;
 };
 
 #endif

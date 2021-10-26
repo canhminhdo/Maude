@@ -25,6 +25,7 @@
 //
 #ifndef _strategicSearch_hh_
 #define _strategicSearch_hh_
+
 #include "cacheableState.hh"
 #include "hashConsSet.hh"
 #include "strategicTask.hh"
@@ -32,50 +33,51 @@
 #include "variableBindingsManager.hh"
 
 class StrategicSearch
- : public CacheableState,
-   public HashConsSet,
-   public StrategyStackManager,
-   public VariableBindingsManager,
-   protected StrategicTask
-{
-  NO_COPYING(StrategicSearch);
+        : public CacheableState,
+          public HashConsSet,
+          public StrategyStackManager,
+          public VariableBindingsManager,
+          protected StrategicTask {
+    NO_COPYING(StrategicSearch);
 
 public:
-  //
-  //	We take ownership of initial and strategy and delete them in our dtor.
-  //
-  StrategicSearch(RewritingContext* initial, StrategyExpression* strategy);
-  ~StrategicSearch();
+    //
+    //	We take ownership of initial and strategy and delete them in our dtor.
+    //
+    StrategicSearch(RewritingContext *initial, StrategyExpression *strategy);
 
-  virtual DagNode* findNextSolution() = 0;
-  DagNode* lastSolution() const;
-  RewritingContext* getContext();
+    ~StrategicSearch();
+
+    virtual DagNode *findNextSolution() = 0;
+
+    DagNode *lastSolution() const;
+
+    RewritingContext *getContext();
 
 private:
-  //
-  //	Virtual in StrategicTask.
-  //
-  Survival executionSucceeded(int resultIndex, StrategicProcess* insertionPoint);
-  Survival executionsExhausted(StrategicProcess* insertionPoint);
+    //
+    //	Virtual in StrategicTask.
+    //
+    Survival executionSucceeded(int resultIndex, StrategicProcess *insertionPoint);
 
-  StrategyExpression* strategy;
+    Survival executionsExhausted(StrategicProcess *insertionPoint);
+
+    StrategyExpression *strategy;
 
 protected:
-  RewritingContext* initial;
-  bool exhausted;
-  int solutionIndex;
+    RewritingContext *initial;
+    bool exhausted;
+    int solutionIndex;
 };
 
-inline DagNode*
-StrategicSearch::lastSolution() const
-{
-  return solutionIndex != NONE ? getCanonical(solutionIndex) : 0;
+inline DagNode *
+StrategicSearch::lastSolution() const {
+    return solutionIndex != NONE ? getCanonical(solutionIndex) : 0;
 }
 
-inline RewritingContext*
-StrategicSearch::getContext()
-{
-  return initial;
+inline RewritingContext *
+StrategicSearch::getContext() {
+    return initial;
 }
 
 #endif

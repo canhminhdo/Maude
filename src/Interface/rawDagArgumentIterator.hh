@@ -26,13 +26,15 @@
 #ifndef _rawDagArgumentIterator_hh_
 #define _rawDagArgumentIterator_hh_
 
-class RawDagArgumentIterator
-{
+class RawDagArgumentIterator {
 public:
-  virtual ~RawDagArgumentIterator() {}
-  virtual bool valid() const = 0;
-  virtual DagNode* argument() const = 0;
-  virtual void next() = 0;
+    virtual ~RawDagArgumentIterator() {}
+
+    virtual bool valid() const = 0;
+
+    virtual DagNode *argument() const = 0;
+
+    virtual void next() = 0;
 };
 
 #endif

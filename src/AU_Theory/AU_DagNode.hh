@@ -25,131 +25,156 @@
 //
 #ifndef _AU_DagNode_hh_
 #define _AU_DagNode_hh_
+
 #include "AU_BaseDagNode.hh"
 #include "argVec.hh"
 
-class AU_DagNode : public AU_BaseDagNode
-{
-  NO_COPYING(AU_DagNode);
+class AU_DagNode : public AU_BaseDagNode {
+    NO_COPYING(AU_DagNode);
 
 public:
-  AU_DagNode(AU_Symbol* symbol, int size);
-  //
-  //	Functions required by theory interface.
-  //
-  RawDagArgumentIterator* arguments();
-  size_t getHashValue();
-  int compareArguments(const DagNode* other) const;
-  void overwriteWithClone(DagNode* old);
-  DagNode* makeClone();
-  DagNode* copyWithReplacement(int argIndex, DagNode* replacement);
-  DagNode* copyWithReplacement(Vector<RedexPosition>& redexStack,
-			       int first,
-			       int last);
-  //
-  //	Functions required to handle extension information.
-  //
-  bool matchVariableWithExtension(int index,
-				  const Sort* sort,
-				  Substitution& solution,
-				  Subproblem*& returnedSubproblem,
-				  ExtensionInfo* extensionInfo);
-  void partialReplace(DagNode* replacement, ExtensionInfo* extensionInfo);
-  DagNode* partialConstruct(DagNode* replacement, ExtensionInfo* extensionInfo);
-  ExtensionInfo* makeExtensionInfo();
-  //
-  //	Although we currently don't support unification or narrowing in AU nodes
-  //	we still need some functionality from the unification and narrowing interfaces
-  //	to allow narrowing to happen below us or in a sibling branch.
-  //
-  //	Unification member functions.
-  //
-  DagNode* instantiate2(const Substitution& substitution, bool maintainInvariants);
-  //
-  //	Supported for A only.
-  //
-  ReturnResult computeBaseSortForGroundSubterms(bool warnAboutUnimplemented);
-  bool computeSolvedForm2(DagNode* rhs, UnificationContext& solution, PendingUnificationStack& pending);
-  void insertVariables2(NatSet& occurs);
+    AU_DagNode(AU_Symbol *symbol, int size);
 
-  //
-  //	Interface for narrowing.
-  //
-  bool indexVariables2(NarrowingVariableInfo& indices, int baseIndex);
-  DagNode* instantiateWithReplacement(const Substitution& substitution,
-				      const Vector<DagNode*>* eagerCopies,
-				      int argIndex,
-				      DagNode* newDag);
-  DagNode* instantiateWithCopies2(const Substitution& substitution, const Vector<DagNode*>& eagerCopies);
-  //
-  //	Functions particular to AU_DagNode.
-  //
-  void setProducedByAssignment();
+    //
+    //	Functions required by theory interface.
+    //
+    RawDagArgumentIterator *arguments();
+
+    size_t getHashValue();
+
+    int compareArguments(const DagNode *other) const;
+
+    void overwriteWithClone(DagNode *old);
+
+    DagNode *makeClone();
+
+    DagNode *copyWithReplacement(int argIndex, DagNode *replacement);
+
+    DagNode *copyWithReplacement(Vector<RedexPosition> &redexStack,
+                                 int first,
+                                 int last);
+
+    //
+    //	Functions required to handle extension information.
+    //
+    bool matchVariableWithExtension(int index,
+                                    const Sort *sort,
+                                    Substitution &solution,
+                                    Subproblem *&returnedSubproblem,
+                                    ExtensionInfo *extensionInfo);
+
+    void partialReplace(DagNode *replacement, ExtensionInfo *extensionInfo);
+
+    DagNode *partialConstruct(DagNode *replacement, ExtensionInfo *extensionInfo);
+
+    ExtensionInfo *makeExtensionInfo();
+
+    //
+    //	Although we currently don't support unification or narrowing in AU nodes
+    //	we still need some functionality from the unification and narrowing interfaces
+    //	to allow narrowing to happen below us or in a sibling branch.
+    //
+    //	Unification member functions.
+    //
+    DagNode *instantiate2(const Substitution &substitution, bool maintainInvariants);
+
+    //
+    //	Supported for A only.
+    //
+    ReturnResult computeBaseSortForGroundSubterms(bool warnAboutUnimplemented);
+
+    bool computeSolvedForm2(DagNode *rhs, UnificationContext &solution, PendingUnificationStack &pending);
+
+    void insertVariables2(NatSet &occurs);
+
+    //
+    //	Interface for narrowing.
+    //
+    bool indexVariables2(NarrowingVariableInfo &indices, int baseIndex);
+
+    DagNode *instantiateWithReplacement(const Substitution &substitution,
+                                        const Vector<DagNode *> *eagerCopies,
+                                        int argIndex,
+                                        DagNode *newDag);
+
+    DagNode *instantiateWithCopies2(const Substitution &substitution, const Vector<DagNode *> &eagerCopies);
+
+    //
+    //	Functions particular to AU_DagNode.
+    //
+    void setProducedByAssignment();
 
 private:
-  enum NormalizationResult
-  {
-    COLLAPSED,
-    DEQUED,
-    NORMAL,
-    FLATTENED
-  };
-  //
-  //	Functions required by theory interface.
-  //
-  DagNode* markArguments();
-  DagNode* copyEagerUptoReduced2();
-  DagNode* copyAll2();
-  void clearCopyPointers2();
-  //
-  //	Functions particular to AU_DagNode.
-  //
-  bool disappear(AU_Symbol* s, ArgVec<DagNode*>::const_iterator i);
-  NormalizationResult normalizeAtTop(bool dumb = false);
-  bool eliminateForward(DagNode* target, int& pos, int limit) const;
-  bool eliminateBackward(DagNode* target, int& pos, int limit) const;
-  DagNode* makeFragment(int start, int nrSubterms, bool extraId) const;
+    enum NormalizationResult {
+        COLLAPSED,
+        DEQUED,
+        NORMAL,
+        FLATTENED
+    };
 
-  ArgVec<DagNode*> argArray;
+    //
+    //	Functions required by theory interface.
+    //
+    DagNode *markArguments();
 
-  friend class AU_Symbol;           	// to reduce subterms prior to rewriting
-  friend class AU_Term;          	// for term->DAG conversion & comparison
-  friend class AU_LhsAutomaton;	      	// for matching DAG subject
-  friend class AU_RhsAutomaton;		// for constructing replacement DAG
-  friend class AU_Layer;		// for constructing substitution
-  friend class AU_Subproblem;		// for constructing substitution
-  friend class AU_ExtensionInfo;	// for constructing matched portion
-  friend class AU_DequeDagNode;		// for conversion & comparison
-  friend class AU_UnificationSubproblem;
-  friend class AU_UnificationSubproblem2;
+    DagNode *copyEagerUptoReduced2();
+
+    DagNode *copyAll2();
+
+    void clearCopyPointers2();
+
+    //
+    //	Functions particular to AU_DagNode.
+    //
+    bool disappear(AU_Symbol *s, ArgVec<DagNode *>::const_iterator i);
+
+    NormalizationResult normalizeAtTop(bool dumb = false);
+
+    bool eliminateForward(DagNode *target, int &pos, int limit) const;
+
+    bool eliminateBackward(DagNode *target, int &pos, int limit) const;
+
+    DagNode *makeFragment(int start, int nrSubterms, bool extraId) const;
+
+    ArgVec<DagNode *> argArray;
+
+    friend class AU_Symbol;            // to reduce subterms prior to rewriting
+    friend class AU_Term;            // for term->DAG conversion & comparison
+    friend class AU_LhsAutomaton;            // for matching DAG subject
+    friend class AU_RhsAutomaton;        // for constructing replacement DAG
+    friend class AU_Layer;        // for constructing substitution
+    friend class AU_Subproblem;        // for constructing substitution
+    friend class AU_ExtensionInfo;    // for constructing matched portion
+    friend class AU_DequeDagNode;        // for conversion & comparison
+    friend class AU_UnificationSubproblem;
+
+    friend class AU_UnificationSubproblem2;
 };
 
-AU_DagNode* getAU_DagNode(DagNode* dagNode);
+AU_DagNode *getAU_DagNode(DagNode *dagNode);
 
 inline
-AU_DagNode::AU_DagNode(AU_Symbol* symbol, int size)
-  : AU_BaseDagNode(symbol),
-    argArray(size)
-{
-  setNormalizationStatus(FRESH);
+AU_DagNode::AU_DagNode(AU_Symbol *symbol, int size)
+        : AU_BaseDagNode(symbol),
+          argArray(size) {
+    setNormalizationStatus(FRESH);
 }
 
 inline void
-AU_DagNode::setProducedByAssignment()
-{
-  setNormalizationStatus(ASSIGNMENT);
+AU_DagNode::setProducedByAssignment() {
+    setNormalizationStatus(ASSIGNMENT);
 
 #ifndef NO_ASSERT
-  //
-  //	Look for Riesco 1/18/10 bug.
-  //
-  for (int i = 0; i < argArray.length(); ++i)
-    {
-      DagNode* d = argArray[i];
-      Assert(d->getSortIndex() != Sort::SORT_UNKNOWN,
-	     "AU_DagNode::setProducedByAssignment(): unknown sort for AU argument " << d <<
-	     " at index " << i << " in subject " << this);
-    }
+    //
+    //	Look for Riesco 1/18/10 bug.
+    //
+    for (int i = 0; i < argArray.length(); ++i)
+      {
+        DagNode* d = argArray[i];
+        Assert(d->getSortIndex() != Sort::SORT_UNKNOWN,
+           "AU_DagNode::setProducedByAssignment(): unknown sort for AU argument " << d <<
+           " at index " << i << " in subject " << this);
+      }
 #endif
 
 }

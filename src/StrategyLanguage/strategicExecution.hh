@@ -26,51 +26,50 @@
 #ifndef _strategicExecution_hh_
 #define _strategicExecution_hh_
 
-class StrategicExecution
-{
-  NO_COPYING(StrategicExecution);
+class StrategicExecution {
+    NO_COPYING(StrategicExecution);
 
 public:
-  //
-  //	Return values to indicate whether the StrategicExecution object
-  //	called should be deleted, possibly after some book-keeping.
-  //
-  enum Survival
-    {
-      DIE,
-      SURVIVE
+    //
+    //	Return values to indicate whether the StrategicExecution object
+    //	called should be deleted, possibly after some book-keeping.
+    //
+    enum Survival {
+        DIE,
+        SURVIVE
     };
 
-  StrategicExecution(StrategicTask* owner);
-  StrategicExecution(StrategicExecution* other);
-  //
-  //	Needed so that things can be deleted through a StrategicExecution*.
-  //
-  virtual ~StrategicExecution();
+    StrategicExecution(StrategicTask *owner);
 
-  StrategicExecution* getNextSlave() const;
+    StrategicExecution(StrategicExecution *other);
 
-  void finished(StrategicProcess* insertionPoint);
-  void succeeded(int resultIndex, StrategicProcess* insertionPoint);
+    //
+    //	Needed so that things can be deleted through a StrategicExecution*.
+    //
+    virtual ~StrategicExecution();
 
-  StrategicTask* getOwner() const;
+    StrategicExecution *getNextSlave() const;
+
+    void finished(StrategicProcess *insertionPoint);
+
+    void succeeded(int resultIndex, StrategicProcess *insertionPoint);
+
+    StrategicTask *getOwner() const;
 
 private:
-  StrategicTask* const owner;	// our owner
-  StrategicExecution* prev;	// previous execution belonging to owner
-  StrategicExecution* next;	// next exectution belonging to owner
+    StrategicTask *const owner;    // our owner
+    StrategicExecution *prev;    // previous execution belonging to owner
+    StrategicExecution *next;    // next exectution belonging to owner
 };
 
-inline StrategicExecution*
-StrategicExecution::getNextSlave() const
-{
-  return next;
+inline StrategicExecution *
+StrategicExecution::getNextSlave() const {
+    return next;
 }
 
-inline StrategicTask*
-StrategicExecution::getOwner() const
-{
-  return owner;
+inline StrategicTask *
+StrategicExecution::getOwner() const {
+    return owner;
 }
 
 #endif

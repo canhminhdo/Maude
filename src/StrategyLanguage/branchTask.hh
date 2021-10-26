@@ -26,43 +26,45 @@
 //
 #ifndef _branchTask_hh_
 #define _branchTask_hh_
+
 #include "strategicTask.hh"
 #include "branchStrategy.hh"
 
-class BranchTask : public StrategicTask
-{
-  NO_COPYING(BranchTask);
+class BranchTask : public StrategicTask {
+    NO_COPYING(BranchTask);
 
 
 public:
-  BranchTask(StrategyStackManager& strategyStackManager,
-	     StrategicExecution* sibling,
-	     int startIndex,
-	     StrategyExpression* initialStrategy,
-	     BranchStrategy::Action successAction,
-	     StrategyExpression* successStrategy,
-	     BranchStrategy::Action failureAction,
-	     StrategyExpression* failureStrategy,
-	     StrategyStackManager::StackId pending,
-	     StrategyStackManager::StackId iterationCheckPoint,
-	     StrategicProcess* insertionPoint);
-  //
-  //	Call-backs for interesting events.
-  //
-  virtual Survival executionSucceeded(int resultIndex, StrategicProcess* insertionPoint);
-  virtual Survival executionsExhausted(StrategicProcess* insertionPoint);
+    BranchTask(StrategyStackManager &strategyStackManager,
+               StrategicExecution *sibling,
+               int startIndex,
+               StrategyExpression *initialStrategy,
+               BranchStrategy::Action successAction,
+               StrategyExpression *successStrategy,
+               BranchStrategy::Action failureAction,
+               StrategyExpression *failureStrategy,
+               StrategyStackManager::StackId pending,
+               StrategyStackManager::StackId iterationCheckPoint,
+               StrategicProcess *insertionPoint);
+
+    //
+    //	Call-backs for interesting events.
+    //
+    virtual Survival executionSucceeded(int resultIndex, StrategicProcess *insertionPoint);
+
+    virtual Survival executionsExhausted(StrategicProcess *insertionPoint);
 
 private:
-  StrategyStackManager& strategyStackManager;
-  const int startIndex;
-  StrategyStackManager::StackId iterationCheckpoint;
-  StrategyExpression* const initialStrategy;
-  BranchStrategy::Action successAction;
-  StrategyExpression* const successStrategy;
-  BranchStrategy::Action failureAction;
-  StrategyExpression* const failureStrategy;
-  StrategyStackManager::StackId pending;
-  bool success;
+    StrategyStackManager &strategyStackManager;
+    const int startIndex;
+    StrategyStackManager::StackId iterationCheckpoint;
+    StrategyExpression *const initialStrategy;
+    BranchStrategy::Action successAction;
+    StrategyExpression *const successStrategy;
+    BranchStrategy::Action failureAction;
+    StrategyExpression *const failureStrategy;
+    StrategyStackManager::StackId pending;
+    bool success;
 };
 
 #endif

@@ -29,23 +29,24 @@
 //
 #ifndef _parameterDatabase_hh_
 #define _parameterDatabase_hh_
+
 #include <map>
 #include "parameter.hh"
 
-class ParameterDatabase
-{
-  NO_COPYING(ParameterDatabase);
+class ParameterDatabase {
+    NO_COPYING(ParameterDatabase);
 
 public:
-  ParameterDatabase(){}
-  ~ParameterDatabase();
+    ParameterDatabase() {}
 
-  Parameter* getParameter(int parameterName);
+    ~ParameterDatabase();
+
+    Parameter *getParameter(int parameterName);
 
 private:
-  typedef map<int, Parameter*> ParameterMap;
+    typedef map<int, Parameter *> ParameterMap;
 
-  ParameterMap parameterMap;
+    ParameterMap parameterMap;
 };
 
 #endif

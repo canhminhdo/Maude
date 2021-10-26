@@ -25,31 +25,32 @@
 //
 #ifndef _pattern_hh_
 #define _pattern_hh_
+
 #include "preEquation.hh"
 
-class Pattern : public PreEquation
-{
+class Pattern : public PreEquation {
 public:
-  /**
-   * Patterns can be defined lazy to postpone their sort information filling
-   * and compilation after the theory has been closed (pattern appear in strategy
-   * definitions within a module).
-   *
-   * Pattern::prepare must be called before using the pattern.
-   */
-  Pattern(Term* patternTerm,
-	  bool withExtension,
-	  const Vector<ConditionFragment*>& condition = noCondition,
-	  bool lazy = false);
+    /**
+     * Patterns can be defined lazy to postpone their sort information filling
+     * and compilation after the theory has been closed (pattern appear in strategy
+     * definitions within a module).
+     *
+     * Pattern::prepare must be called before using the pattern.
+     */
+    Pattern(Term *patternTerm,
+            bool withExtension,
+            const Vector<ConditionFragment *> &condition = noCondition,
+            bool lazy = false);
 
-  void prepare();
+    void prepare();
 
-  void print(ostream& s) const;
+    void print(ostream &s) const;
 
 private:
-  int traceBeginTrial(DagNode* subject, RewritingContext& context) const;
-  bool withExtension;
-  bool prepared;
+    int traceBeginTrial(DagNode *subject, RewritingContext &context) const;
+
+    bool withExtension;
+    bool prepared;
 };
 
 #endif

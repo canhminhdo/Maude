@@ -46,22 +46,20 @@
 #include "SMT_Info.hh"
 
 void
-SMT_Info::setEqualityOperator(Symbol* symbol)
-{
-  int kindIndex = symbol->domainComponent(0)->getIndexWithinModule();
-  Assert(kindIndex == symbol->domainComponent(1)->getIndexWithinModule(),
-	 "domain kind mismatch for SMT equality symbol");
-  DebugAdvisory("added equality operator for kindIndex = " << kindIndex);
-  equalityOperatorMap[kindIndex] = symbol;
+SMT_Info::setEqualityOperator(Symbol *symbol) {
+    int kindIndex = symbol->domainComponent(0)->getIndexWithinModule();
+    Assert(kindIndex == symbol->domainComponent(1)->getIndexWithinModule(),
+           "domain kind mismatch for SMT equality symbol");
+    DebugAdvisory("added equality operator for kindIndex = " << kindIndex);
+    equalityOperatorMap[kindIndex] = symbol;
 }
 
-Symbol*
-SMT_Info::getEqualityOperator(DagNode* lhs, DagNode* rhs) const
-{
-  DebugAdvisory("number of equality operator =  " << equalityOperatorMap.size());
-  int kindIndex = lhs->symbol()->rangeComponent()->getIndexWithinModule();
-  Assert(kindIndex == rhs->symbol()->rangeComponent()->getIndexWithinModule(),
-	 "kind mis-match for " << lhs << " and " << rhs);
-  EqualityOperatorMap::const_iterator i = equalityOperatorMap.find(kindIndex);
-  return (i == equalityOperatorMap.end()) ? 0 : i->second;
+Symbol *
+SMT_Info::getEqualityOperator(DagNode *lhs, DagNode *rhs) const {
+    DebugAdvisory("number of equality operator =  " << equalityOperatorMap.size());
+    int kindIndex = lhs->symbol()->rangeComponent()->getIndexWithinModule();
+    Assert(kindIndex == rhs->symbol()->rangeComponent()->getIndexWithinModule(),
+           "kind mis-match for " << lhs << " and " << rhs);
+    EqualityOperatorMap::const_iterator i = equalityOperatorMap.find(kindIndex);
+    return (i == equalityOperatorMap.end()) ? 0 : i->second;
 }

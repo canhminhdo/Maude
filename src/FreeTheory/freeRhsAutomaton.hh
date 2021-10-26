@@ -25,43 +25,45 @@
 //
 #ifndef _freeRhsAutomaton_hh_
 #define _freeRhsAutomaton_hh_
+
 #include "rhsAutomaton.hh"
 
-class FreeRhsAutomaton : public RhsAutomaton
-{
+class FreeRhsAutomaton : public RhsAutomaton {
 public:
-  void addFree(Symbol* symbol,
-	       int destination,
-	       const Vector<int>& sources);
-  void remapIndices(VariableInfo& variableInfo);
-  DagNode* construct(Substitution& matcher);
-  void replace(DagNode* old, Substitution& matcher);
+    void addFree(Symbol *symbol,
+                 int destination,
+                 const Vector<int> &sources);
 
-  bool recordInfo(StackMachineRhsCompiler& compiler);
+    void remapIndices(VariableInfo &variableInfo);
+
+    DagNode *construct(Substitution &matcher);
+
+    void replace(DagNode *old, Substitution &matcher);
+
+    bool recordInfo(StackMachineRhsCompiler &compiler);
 
 #ifdef DUMP
-  void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
+    void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
 #endif
 
-  //#define FREE_DAG_NODE_LOOP(s)	FreeDagNode(s)
-#define FREE_DAG_NODE_LOOP(s)	FreeDagNode(s, '\0')
-#define FREE_DAG_NODE(s)	FreeDagNode(s, '\0')
+    //#define FREE_DAG_NODE_LOOP(s)	FreeDagNode(s)
+#define FREE_DAG_NODE_LOOP(s)    FreeDagNode(s, '\0')
+#define FREE_DAG_NODE(s)    FreeDagNode(s, '\0')
 
 protected:
-  struct Instruction
-    {
-      Symbol* symbol;
-      int destination;
-      Vector<int> sources;
+    struct Instruction {
+        Symbol *symbol;
+        int destination;
+        Vector<int> sources;
     };
 
 private:
-  static void fillOutArgs(const Instruction& instr,
-			  Substitution& matcher,
-			  FreeDagNode* d);
+    static void fillOutArgs(const Instruction &instr,
+                            Substitution &matcher,
+                            FreeDagNode *d);
 
 protected:
-  Vector<Instruction> instructions;
+    Vector<Instruction> instructions;
 };
 
 #endif

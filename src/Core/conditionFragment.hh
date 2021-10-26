@@ -25,31 +25,35 @@
 //
 #ifndef _conditionFragment_hh_
 #define _conditionFragment_hh_
+
 #include "stack.hh"
 #include "rhsBuilder.hh"
 #include "conditionState.hh"
 
-class ConditionFragment
-{
+class ConditionFragment {
 public:
-  virtual ~ConditionFragment() {}
+    virtual ~ConditionFragment() {}
 
-  virtual void check(VariableInfo& varInfo, NatSet& boundVariables) = 0;
-  virtual void preprocess() = 0;
-  virtual void compileBuild(VariableInfo& variableInfo, TermBag& availableTerms) = 0;
-  virtual void compileMatch(VariableInfo& variableInfo, NatSet& boundUniquely) = 0;
-  virtual bool solve(bool findFirst,
-		     RewritingContext& solution,
-		     Stack<ConditionState*>& state) = 0;
+    virtual void check(VariableInfo &varInfo, NatSet &boundVariables) = 0;
+
+    virtual void preprocess() = 0;
+
+    virtual void compileBuild(VariableInfo &variableInfo, TermBag &availableTerms) = 0;
+
+    virtual void compileMatch(VariableInfo &variableInfo, NatSet &boundUniquely) = 0;
+
+    virtual bool solve(bool findFirst,
+                       RewritingContext &solution,
+                       Stack<ConditionState *> &state) = 0;
 
 #ifdef DUMP
-  virtual void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel) {}
+    virtual void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel) {}
 #endif
 };
 
 //
 //      Output function for ConditionFragment must be defined by library user.
 //
-ostream& operator<<(ostream& s, const ConditionFragment* c);
+ostream &operator<<(ostream &s, const ConditionFragment *c);
 
 #endif

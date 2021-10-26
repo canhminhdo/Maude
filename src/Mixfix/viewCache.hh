@@ -25,30 +25,32 @@
 //
 #ifndef _viewCache_hh_
 #define _viewCache_hh_
+
 #include <map>
 #include "view.hh"
 
-class ViewCache : public Entity::User
-{
-  NO_COPYING(ViewCache);
+class ViewCache : public Entity::User {
+    NO_COPYING(ViewCache);
 
 public:
-  ViewCache();
-  ~ViewCache();
+    ViewCache();
 
-  View* makeViewInstantiation(View* view, const Vector<Argument*>& arguments);
+    ~ViewCache();
 
-  void destructUnusedViews();
-  void showCreatedViews(ostream& s) const;
+    View *makeViewInstantiation(View *view, const Vector<Argument *> &arguments);
+
+    void destructUnusedViews();
+
+    void showCreatedViews(ostream &s) const;
 
 private:
-  typedef map<int, View*> ViewMap;
+    typedef map<int, View *> ViewMap;
 
-  static bool viewCompare(const View* v1, const View* v2);
+    static bool viewCompare(const View *v1, const View *v2);
 
-  void regretToInform(Entity* doomedEntity);
+    void regretToInform(Entity *doomedEntity);
 
-  ViewMap viewMap;
+    ViewMap viewMap;
 };
 
 #endif

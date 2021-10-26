@@ -28,63 +28,60 @@
 //
 #ifndef _ACU_SlowIter_hh_
 #define _ACU_SlowIter_hh_
+
 #include "ACU_Stack.hh"
 #include "ACU_Tree.hh"
 
-class ACU_SlowIter : public ACU_Stack
-{
-  NO_COPYING(ACU_SlowIter);
+class ACU_SlowIter : public ACU_Stack {
+    NO_COPYING(ACU_SlowIter);
 
 public:
-  ACU_SlowIter();
-  ACU_SlowIter(const ACU_Tree& tree);
-  
-  bool valid() const;
-  DagNode* getDagNode() const;
-  int getMultiplicity() const;
-  void next();
+    ACU_SlowIter();
+
+    ACU_SlowIter(const ACU_Tree &tree);
+
+    bool valid() const;
+
+    DagNode *getDagNode() const;
+
+    int getMultiplicity() const;
+
+    void next();
 };
 
 inline
-ACU_SlowIter::ACU_SlowIter()
-{
+ACU_SlowIter::ACU_SlowIter() {
 }
 
 inline
-ACU_SlowIter::ACU_SlowIter(const ACU_Tree& tree)
-{
-  stackLeftmostPath(tree.root);
+ACU_SlowIter::ACU_SlowIter(const ACU_Tree &tree) {
+    stackLeftmostPath(tree.root);
 }
 
 inline bool
-ACU_SlowIter::valid() const
-{
-  return !empty();
+ACU_SlowIter::valid() const {
+    return !empty();
 }
 
-inline DagNode*
-ACU_SlowIter::getDagNode() const
-{
-  return top()->getDagNode();
+inline DagNode *
+ACU_SlowIter::getDagNode() const {
+    return top()->getDagNode();
 }
 
 inline int
-ACU_SlowIter::getMultiplicity() const
-{
-  return top()->getMultiplicity();
+ACU_SlowIter::getMultiplicity() const {
+    return top()->getMultiplicity();
 }
 
 inline void
-ACU_SlowIter::next()
-{
-  ACU_RedBlackNode* t = top()->getRight();
-  if (t != 0)
-    stackLeftmostPath(t);
-  else
-    {
-      do
-	t = pop();
-      while (!empty() && top()->getRight() == t);
+ACU_SlowIter::next() {
+    ACU_RedBlackNode *t = top()->getRight();
+    if (t != 0)
+        stackLeftmostPath(t);
+    else {
+        do
+            t = pop();
+        while (!empty() && top()->getRight() == t);
     }
 }
 

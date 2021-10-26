@@ -25,30 +25,31 @@
 //
 #ifndef _depthFirstStrategicSearch_hh_
 #define _depthFirstStrategicSearch_hh_
+
 #include "strategicSearch.hh"
 
 class DepthFirstStrategicSearch
- : public StrategicSearch
-{
-  NO_COPYING(DepthFirstStrategicSearch);
+        : public StrategicSearch {
+    NO_COPYING(DepthFirstStrategicSearch);
 
 public:
-  //
-  //	DepthFirstStrategicSearch is constructed as StrategicSearch
-  //
-  DepthFirstStrategicSearch(RewritingContext* initial, StrategyExpression* strategy);
-  ~DepthFirstStrategicSearch();
+    //
+    //	DepthFirstStrategicSearch is constructed as StrategicSearch
+    //
+    DepthFirstStrategicSearch(RewritingContext *initial, StrategyExpression *strategy);
 
-  //
-  //	Find the next solution using a depth-first search
-  //
-  DagNode* findNextSolution();
+    ~DepthFirstStrategicSearch();
+
+    //
+    //	Find the next solution using a depth-first search
+    //
+    DagNode *findNextSolution();
 
 private:
-  //
-  //	Ghost node that gives access to the process stack's top
-  //
-  StrategicProcess* stackTop;
+    //
+    //	Ghost node that gives access to the process stack's top
+    //
+    StrategicProcess *stackTop;
 };
 
 #endif

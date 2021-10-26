@@ -25,87 +25,90 @@
 //
 #ifndef _narrowingSearchState_hh_
 #define _narrowingSearchState_hh_
+
 #include "positionState.hh"
 #include "narrowingVariableInfo.hh"
 
-class NarrowingSearchState : public PositionState
-{
-  NO_COPYING(NarrowingSearchState);
+class NarrowingSearchState : public PositionState {
+    NO_COPYING(NarrowingSearchState);
 
 public:
-  enum Flags
-  {
-    ALLOW_NONEXEC = 32,		// allow narrowing with nonexecutable rules, unbound variables being treated as fresh
-    SINGLE_POSITION = 64	// once we've found a position to narrow, don't consider other positions
-  };
+    enum Flags {
+        ALLOW_NONEXEC = 32,        // allow narrowing with nonexecutable rules, unbound variables being treated as fresh
+        SINGLE_POSITION = 64    // once we've found a position to narrow, don't consider other positions
+    };
 
-  //
-  //
-  //	label may be UNDEFINED to make any rule usable.
-  //
-  //	maxDepth may be NONE to force at top narrowing steps without extension;
-  //	otherwise narrowing is done with extension and maxDepth may be
-  //	UNBOUNDED to indicate no bound.
-  //
-  //	FIXME: need to handle variable names and substitution slots
-  //
-  NarrowingSearchState(RewritingContext* context,
-		       FreshVariableGenerator* freshVariableGenerator,
-		       bool odd,
-		       int label = UNDEFINED,
-		       int flags = ALLOW_NONEXEC,
-		       int minDepth = 0,
-		       int maxDepth = UNBOUNDED);
-  ~NarrowingSearchState();
+    //
+    //
+    //	label may be UNDEFINED to make any rule usable.
+    //
+    //	maxDepth may be NONE to force at top narrowing steps without extension;
+    //	otherwise narrowing is done with extension and maxDepth may be
+    //	UNBOUNDED to indicate no bound.
+    //
+    //	FIXME: need to handle variable names and substitution slots
+    //
+    NarrowingSearchState(RewritingContext *context,
+                         FreshVariableGenerator *freshVariableGenerator,
+                         bool odd,
+                         int label = UNDEFINED,
+                         int flags = ALLOW_NONEXEC,
+                         int minDepth = 0,
+                         int maxDepth = UNBOUNDED);
 
-  RewritingContext* getContext() const;
-  Rule* getRule() const;
-  DagNode* getNarrowedDag(DagNode*& replacement) const;
-  bool findNextNarrowing();
-  const Substitution& getSubstitution() const;
-  const NarrowingVariableInfo& getVariableInfo() const;
-  bool isOdd() const;
-  bool isIncomplete() const;
+    ~NarrowingSearchState();
+
+    RewritingContext *getContext() const;
+
+    Rule *getRule() const;
+
+    DagNode *getNarrowedDag(DagNode *&replacement) const;
+
+    bool findNextNarrowing();
+
+    const Substitution &getSubstitution() const;
+
+    const NarrowingVariableInfo &getVariableInfo() const;
+
+    bool isOdd() const;
+
+    bool isIncomplete() const;
 
 private:
-  RewritingContext* context;
-  FreshVariableGenerator* freshVariableGenerator;
-  const bool odd;
-  const int label;
-  const bool withExtension;
+    RewritingContext *context;
+    FreshVariableGenerator *freshVariableGenerator;
+    const bool odd;
+    const int label;
+    const bool withExtension;
 
-  NarrowingVariableInfo variableInfo;
-  int ruleIndex;  // index of current rule being tried
-  NarrowingUnificationProblem* unificationProblem;
-  bool noFurtherPositions;
-  bool incompleteFlag;
+    NarrowingVariableInfo variableInfo;
+    int ruleIndex;  // index of current rule being tried
+    NarrowingUnificationProblem *unificationProblem;
+    bool noFurtherPositions;
+    bool incompleteFlag;
 };
 
 inline bool
-NarrowingSearchState::isOdd() const
-{
-  return odd;
+NarrowingSearchState::isOdd() const {
+    return odd;
 }
 
-inline RewritingContext*
-NarrowingSearchState::getContext() const
-{
-  return context;
+inline RewritingContext *
+NarrowingSearchState::getContext() const {
+    return context;
 }
 
-inline const NarrowingVariableInfo&
-NarrowingSearchState::getVariableInfo() const
-{
-  return variableInfo;
+inline const NarrowingVariableInfo &
+NarrowingSearchState::getVariableInfo() const {
+    return variableInfo;
 }
 
 inline bool
-NarrowingSearchState::isIncomplete() const
-{
-  //
-  //	Returns true if any incompleteness has been encountered so far.
-  //
-  return incompleteFlag;
+NarrowingSearchState::isIncomplete() const {
+    //
+    //	Returns true if any incompleteness has been encountered so far.
+    //
+    return incompleteFlag;
 }
 
 #endif

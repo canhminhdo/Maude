@@ -26,34 +26,34 @@
 //
 #ifndef _allSat_hh_
 #define _allSat_hh_
+
 #include "bdd.hh"
 
-class AllSat
-{
+class AllSat {
 public:
-  AllSat(Bdd formula, int firstVariable, int lastVariable);
+    AllSat(Bdd formula, int firstVariable, int lastVariable);
 
-  bool nextAssignment();
-  const Vector<Byte>& getCurrentAssignment() const;
+    bool nextAssignment();
+
+    const Vector<Byte> &getCurrentAssignment() const;
 
 private:
-  void forward(Bdd b);
+    void forward(Bdd b);
 
-  const Bdd formula;
-  const int firstVariable;
-  const int lastVariable;
+    const Bdd formula;
+    const int firstVariable;
+    const int lastVariable;
 
-  Vector<Bdd> nodeStack;	// current path to true through BDD
-  Vector<int> dontCareSet;	// set of variables of interest not mentioned on current path
-  Vector<Byte> assignment;	// current assignment
+    Vector<Bdd> nodeStack;    // current path to true through BDD
+    Vector<int> dontCareSet;    // set of variables of interest not mentioned on current path
+    Vector<Byte> assignment;    // current assignment
 
-  bool firstAssignment;
+    bool firstAssignment;
 };
 
-inline const Vector<Byte>&
-AllSat::getCurrentAssignment() const
-{
-  return assignment;
+inline const Vector<Byte> &
+AllSat::getCurrentAssignment() const {
+    return assignment;
 }
 
 #endif

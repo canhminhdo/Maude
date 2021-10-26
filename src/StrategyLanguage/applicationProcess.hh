@@ -25,54 +25,54 @@
 //
 #ifndef _applicationProcess_hh_
 #define _applicationProcess_hh_
+
 #include "strategicProcess.hh"
 #include "rewriteSearchState.hh"
 #include "sharedValue.hh"
 #include "strategyStackManager.hh"
 
-class ApplicationProcess : public StrategicProcess
-{
-  NO_COPYING(ApplicationProcess);
+class ApplicationProcess : public StrategicProcess {
+    NO_COPYING(ApplicationProcess);
 
 public:
-  ApplicationProcess(StrategicSearch& searchObject,
-		     int startIndex,
-		     ApplicationStrategy* strategy,
-		     StrategyStackManager::StackId pending,
-		     StrategicExecution* taskSibling,
-		     StrategicProcess* insertionPoint);
+    ApplicationProcess(StrategicSearch &searchObject,
+                       int startIndex,
+                       ApplicationStrategy *strategy,
+                       StrategyStackManager::StackId pending,
+                       StrategicExecution *taskSibling,
+                       StrategicProcess *insertionPoint);
 
-  ~ApplicationProcess();
+    ~ApplicationProcess();
 
-  Survival run(StrategicSearch& searchObject);
+    Survival run(StrategicSearch &searchObject);
 
-  static StrategicExecution::Survival
-    resolveRemainingConditionFragments(StrategicSearch& searchObject,
-				       SharedValue<RewriteSearchState> rewriteState,
-				       PositionState::PositionIndex redexIndex,
-				       ExtensionInfo* extensionInfo,
-				       Substitution* substitutionSoFar,
-				       Rule* rule,
-				       int fragmentNr,
-				       const Vector<StrategyExpression*>& strategies,
-				       int strategyNr,
-				       StrategyStackManager::StackId pending,
-				       StrategicExecution* taskSibling,
-				       StrategicProcess* other);
+    static StrategicExecution::Survival
+    resolveRemainingConditionFragments(StrategicSearch &searchObject,
+                                       SharedValue<RewriteSearchState> rewriteState,
+                                       PositionState::PositionIndex redexIndex,
+                                       ExtensionInfo *extensionInfo,
+                                       Substitution *substitutionSoFar,
+                                       Rule *rule,
+                                       int fragmentNr,
+                                       const Vector<StrategyExpression *> &strategies,
+                                       int strategyNr,
+                                       StrategyStackManager::StackId pending,
+                                       StrategicExecution *taskSibling,
+                                       StrategicProcess *other);
 
 private:
-  static int doRewrite(StrategicSearch& searchObject,
-		       SharedValue<RewriteSearchState> rewriteState,
-		       PositionState::PositionIndex redexIndex,
-		       ExtensionInfo* extensionInfo,
-		       Substitution* substitution,
-		       Rule* rule);
+    static int doRewrite(StrategicSearch &searchObject,
+                         SharedValue<RewriteSearchState> rewriteState,
+                         PositionState::PositionIndex redexIndex,
+                         ExtensionInfo *extensionInfo,
+                         Substitution *substitution,
+                         Rule *rule);
 
-  SharedValue<RewriteSearchState> rewriteState;
-  StrategyStackManager::StackId pending;
-  ApplicationStrategy* strategy;
+    SharedValue<RewriteSearchState> rewriteState;
+    StrategyStackManager::StackId pending;
+    ApplicationStrategy *strategy;
 
-  Vector<DagRoot*> instedSubstitution;
+    Vector<DagRoot *> instedSubstitution;
 };
 
 #endif

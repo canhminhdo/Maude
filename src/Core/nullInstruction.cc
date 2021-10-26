@@ -41,32 +41,27 @@
 //#include "stackMachine.hh"
 #include "nullInstruction.hh"
 
-NullInstruction::NullInstruction()
-{
+NullInstruction::NullInstruction() {
 }
 
-const Instruction*
-NullInstruction::getNullInstruction()
-{
-  static const NullInstruction nullInstruction;
+const Instruction *
+NullInstruction::getNullInstruction() {
+    static const NullInstruction nullInstruction;
 
-  return &nullInstruction;
-}
-
-void 
-NullInstruction::execute(StackMachine* /* machine */) const
-{
+    return &nullInstruction;
 }
 
 void
-NullInstruction::setActiveSlots(const NatSet& /* slots */)
-{
-  CantHappen("shouldn't be called");
+NullInstruction::execute(StackMachine * /* machine */) const {
 }
 
 void
-NullInstruction::markActiveSlots(const Frame* /* frame*/) const
-{
+NullInstruction::setActiveSlots(const NatSet & /* slots */) {
+    CantHappen("shouldn't be called");
+}
+
+void
+NullInstruction::markActiveSlots(const Frame * /* frame*/) const {
 }
 
 #ifdef DUMP

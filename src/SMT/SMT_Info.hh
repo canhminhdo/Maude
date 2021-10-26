@@ -25,92 +25,90 @@
 //
 #ifndef _SMT_Info_hh_
 #define _SMT_Info_hh_
+
 #include <map>
 
-class SMT_Info
-{
+class SMT_Info {
 public:
-  enum SMT_Type
-    {
-      NOT_SMT = -1,
-      BOOLEAN = 0,
-      INTEGER = 1,
-      REAL = 2
+    enum SMT_Type {
+        NOT_SMT = -1,
+        BOOLEAN = 0,
+        INTEGER = 1,
+        REAL = 2
     };
 
-  SMT_Info();
+    SMT_Info();
 
-  void setType(const Sort* sort, SMT_Type type);
-  SMT_Type getType(const Sort* sort) const;
+    void setType(const Sort *sort, SMT_Type type);
 
-  void setConjunctionOperator(Symbol* symbol);
-  Symbol* getConjunctionOperator() const;
-  void setTrueSymbol(Symbol* symbol);
-  Symbol* getTrueSymbol() const;
-  void setEqualityOperator(Symbol* symbol);
-  Symbol* getEqualityOperator(DagNode* lhs, DagNode* rhs) const;
- 
+    SMT_Type getType(const Sort *sort) const;
+
+    void setConjunctionOperator(Symbol *symbol);
+
+    Symbol *getConjunctionOperator() const;
+
+    void setTrueSymbol(Symbol *symbol);
+
+    Symbol *getTrueSymbol() const;
+
+    void setEqualityOperator(Symbol *symbol);
+
+    Symbol *getEqualityOperator(DagNode *lhs, DagNode *rhs) const;
+
 private:
-  //
-  //	We keep track of which Maude sort corresponds to which SMT type
-  //	by mapping the index of the sort within its module to our enum.
-  //
-  typedef map<int, SMT_Type> SortIndexToSMT_TypeMap;
-  //
-  //	We keep track of Maude symbols that correspond to equality
-  //	operators on various kinds by mapping the index of the kind
-  //	within  its module to the symbol pointer.
-  //
-  typedef map<int, Symbol*> EqualityOperatorMap;
+    //
+    //	We keep track of which Maude sort corresponds to which SMT type
+    //	by mapping the index of the sort within its module to our enum.
+    //
+    typedef map<int, SMT_Type> SortIndexToSMT_TypeMap;
+    //
+    //	We keep track of Maude symbols that correspond to equality
+    //	operators on various kinds by mapping the index of the kind
+    //	within  its module to the symbol pointer.
+    //
+    typedef map<int, Symbol *> EqualityOperatorMap;
 
-  SortIndexToSMT_TypeMap typeMap;
-  EqualityOperatorMap equalityOperatorMap;
-  Symbol* conjunctionOperator;
-  Symbol* trueSymbol;
+    SortIndexToSMT_TypeMap typeMap;
+    EqualityOperatorMap equalityOperatorMap;
+    Symbol *conjunctionOperator;
+    Symbol *trueSymbol;
 };
 
 inline
-SMT_Info::SMT_Info()
-{
-  conjunctionOperator = 0;
-  trueSymbol = 0;
+SMT_Info::SMT_Info() {
+    conjunctionOperator = 0;
+    trueSymbol = 0;
 }
 
 inline void
-SMT_Info::setType(const Sort* sort, SMT_Type type)
-{
-  typeMap.insert(SortIndexToSMT_TypeMap::value_type(sort->getIndexWithinModule(), type));
+SMT_Info::setType(const Sort *sort, SMT_Type type) {
+    typeMap.insert(SortIndexToSMT_TypeMap::value_type(sort->getIndexWithinModule(), type));
 }
 
 inline SMT_Info::SMT_Type
-SMT_Info::getType(const Sort* sort) const
-{
-  SortIndexToSMT_TypeMap::const_iterator i = typeMap.find(sort->getIndexWithinModule());
-  return (i == typeMap.end()) ? NOT_SMT : i->second;
+SMT_Info::getType(const Sort *sort) const {
+    SortIndexToSMT_TypeMap::const_iterator i = typeMap.find(sort->getIndexWithinModule());
+    return (i == typeMap.end()) ? NOT_SMT : i->second;
 }
 
 inline void
-SMT_Info::setConjunctionOperator(Symbol* symbol)
-{
-  conjunctionOperator = symbol;
+SMT_Info::setConjunctionOperator(Symbol *symbol) {
+    conjunctionOperator = symbol;
 }
 
-inline Symbol*
-SMT_Info::getConjunctionOperator() const
-{
-  return conjunctionOperator;
+inline Symbol *
+SMT_Info::getConjunctionOperator() const {
+    return conjunctionOperator;
 }
 
 inline void
-SMT_Info::setTrueSymbol(Symbol* symbol)
-{
-  trueSymbol = symbol;
+SMT_Info::setTrueSymbol(Symbol *symbol) {
+    trueSymbol = symbol;
 }
 
-inline Symbol*
-SMT_Info::getTrueSymbol() const
-{
-  return trueSymbol;
+inline Symbol *
+SMT_Info::getTrueSymbol() const {
+    return trueSymbol;
 }
 
 #endif

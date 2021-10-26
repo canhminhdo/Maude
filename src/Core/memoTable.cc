@@ -43,49 +43,45 @@
 #include "memoTable.hh"
 
 bool
-MemoTable::memoRewrite(SourceSet& sourceSet, DagNode* subject, RewritingContext& context)
-{
+MemoTable::memoRewrite(SourceSet &sourceSet, DagNode *subject, RewritingContext &context) {
 #if 0
-  DebugAdvisory("memoRewrite()  subject " << subject <<
-		" at " << ((void*) subject) <<
-		" has sort index " << subject->getSortIndex());
+    DebugAdvisory("memoRewrite()  subject " << subject <<
+          " at " << ((void*) subject) <<
+          " has sort index " << subject->getSortIndex());
 #endif
-  MemoMap* memoMap = getModule()->getMemoMap();
-  int subjectIndex = memoMap->getFromIndex(subject);
+    MemoMap *memoMap = getModule()->getMemoMap();
+    int subjectIndex = memoMap->getFromIndex(subject);
 
-  if (DagNode* toDag = memoMap->getToDag(subjectIndex))
-    {
+    if (DagNode *toDag = memoMap->getToDag(subjectIndex)) {
 #if 0
-      DebugAdvisory("memoRewrite()  toDag " << subject << 
-		    " at " << ((void*) toDag) <<
-		    " has sort index " << subject->getSortIndex());
+        DebugAdvisory("memoRewrite()  toDag " << subject <<
+              " at " << ((void*) toDag) <<
+              " has sort index " << subject->getSortIndex());
 #endif
-      bool trace = RewritingContext::getTraceStatus();
-      if (trace)
-	{
-	  context.tracePreEqRewrite(subject, 0, RewritingContext::MEMOIZED);
-	  if (context.traceAbort())
-	    return false;
-	}
-      toDag->overwriteWithClone(subject);
-      context.incrementEqCount();
-      if (trace)
-	context.tracePostEqRewrite(subject);
-      return true;
+        bool trace = RewritingContext::getTraceStatus();
+        if (trace) {
+            context.tracePreEqRewrite(subject, 0, RewritingContext::MEMOIZED);
+            if (context.traceAbort())
+                return false;
+        }
+        toDag->overwriteWithClone(subject);
+        context.incrementEqCount();
+        if (trace)
+            context.tracePostEqRewrite(subject);
+        return true;
     }
-  sourceSet.append(subjectIndex);
-  return false;
+    sourceSet.append(subjectIndex);
+    return false;
 }
 
 void
-MemoTable::memoEnter(SourceSet& sourceSet, DagNode* destination)
-{
+MemoTable::memoEnter(SourceSet &sourceSet, DagNode *destination) {
 #if 0
-  DebugAdvisory("memoEnter()  destination " << destination <<
-		" at " << ((void*) destination) <<
-		" has sort index " << destination->getSortIndex());
+    DebugAdvisory("memoEnter()  destination " << destination <<
+          " at " << ((void*) destination) <<
+          " has sort index " << destination->getSortIndex());
 #endif
-  MemoMap* memoMap = getModule()->getMemoMap();
-  for (int index : sourceSet)
-    memoMap->assignToDag(index, destination);
+    MemoMap *memoMap = getModule()->getMemoMap();
+    for (int index : sourceSet)
+        memoMap->assignToDag(index, destination);
 }

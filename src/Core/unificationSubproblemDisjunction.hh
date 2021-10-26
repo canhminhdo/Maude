@@ -29,43 +29,42 @@
 //
 #ifndef _unificationSubproblemDisjunction_hh_
 #define _unificationSubproblemDisjunction_hh_
+
 #include "unificationSubproblem.hh"
 //#include "simpleRootContainer.hh"
 //#include "substitution.hh"
 #include "pendingUnificationStack.hh"
 
-class UnificationSubproblemDisjunction : public UnificationSubproblem
-{
+class UnificationSubproblemDisjunction : public UnificationSubproblem {
 public:
-  UnificationSubproblemDisjunction();
+    UnificationSubproblemDisjunction();
 
-  void addUnification(DagNode* lhs, DagNode* rhs, bool marked, UnificationContext& solution);
-  bool solve(bool findFirst, UnificationContext& solution, PendingUnificationStack& pending);
+    void addUnification(DagNode *lhs, DagNode *rhs, bool marked, UnificationContext &solution);
+
+    bool solve(bool findFirst, UnificationContext &solution, PendingUnificationStack &pending);
 
 #ifdef DUMP
-  /*
-  virtual void dump(ostream& s,
-		    const VariableInfo& variableInfo,
-		    int indentLevel = 0);
-  */
+    /*
+    virtual void dump(ostream& s,
+              const VariableInfo& variableInfo,
+              int indentLevel = 0);
+    */
 #endif
 
 private:
-  struct TheoryClash
-  {
-    DagNode* lhs;
-    DagNode* rhs;
-    PendingUnificationStack::Marker savedPendingState;
-    bool lhsControlling;
-  };
+    struct TheoryClash {
+        DagNode *lhs;
+        DagNode *rhs;
+        PendingUnificationStack::Marker savedPendingState;
+        bool lhsControlling;
+    };
 
-  Vector<TheoryClash> problems;
+    Vector<TheoryClash> problems;
 };
 
 inline
-UnificationSubproblemDisjunction::UnificationSubproblemDisjunction()
-{
-  DebugAdvisory("Created  UnificationSubproblemDisjunction");
+UnificationSubproblemDisjunction::UnificationSubproblemDisjunction() {
+    DebugAdvisory("Created  UnificationSubproblemDisjunction");
 }
 
 #endif

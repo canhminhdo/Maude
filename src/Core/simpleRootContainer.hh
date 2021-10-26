@@ -26,25 +26,24 @@
 //
 #ifndef _simpleRootContainer_hh_
 #define _simpleRootContainer_hh_
+
 #include "rootContainer.hh"
 
-class SimpleRootContainer : protected RootContainer
-{
+class SimpleRootContainer : protected RootContainer {
 protected:
-  SimpleRootContainer();
-  ~SimpleRootContainer();
+    SimpleRootContainer();
+
+    ~SimpleRootContainer();
 };
 
 inline
-SimpleRootContainer::SimpleRootContainer()
-{
-  link();
+SimpleRootContainer::SimpleRootContainer() {
+    link();
 }
 
 inline
-SimpleRootContainer::~SimpleRootContainer()
-{
-  unlink();
+SimpleRootContainer::~SimpleRootContainer() {
+    unlink();
 }
 
 #endif

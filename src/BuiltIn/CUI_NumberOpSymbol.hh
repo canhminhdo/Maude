@@ -25,29 +25,33 @@
 //
 #ifndef _CUI_NumberOpSymbol_hh_
 #define _CUI_NumberOpSymbol_hh_
+
 #include "CUI_Symbol.hh"
 
-class CUI_NumberOpSymbol : public CUI_Symbol
-{
+class CUI_NumberOpSymbol : public CUI_Symbol {
 public:
-  CUI_NumberOpSymbol(int id, Axioms axioms);
+    CUI_NumberOpSymbol(int id, Axioms axioms);
 
-  bool attachData(const Vector<Sort*>& opDeclaration,
-		  const char* purpose,
-		  const Vector<const char*>& data);
-  bool attachSymbol(const char* purpose, Symbol* symbol);
-  void copyAttachments(Symbol* original, SymbolMap* map);
-  void getDataAttachments(const Vector<Sort*>& opDeclaration,
-			  Vector<const char*>& purposes,
-			  Vector<Vector<const char*> >& data);
-  void getSymbolAttachments(Vector<const char*>& purposes,
-			    Vector<Symbol*>& symbols);
+    bool attachData(const Vector<Sort *> &opDeclaration,
+                    const char *purpose,
+                    const Vector<const char *> &data);
 
-  bool eqRewrite(DagNode* subject, RewritingContext& context);
+    bool attachSymbol(const char *purpose, Symbol *symbol);
+
+    void copyAttachments(Symbol *original, SymbolMap *map);
+
+    void getDataAttachments(const Vector<Sort *> &opDeclaration,
+                            Vector<const char *> &purposes,
+                            Vector<Vector<const char *> > &data);
+
+    void getSymbolAttachments(Vector<const char *> &purposes,
+                              Vector<Symbol *> &symbols);
+
+    bool eqRewrite(DagNode *subject, RewritingContext &context);
 
 private:
-  int op;
-  SuccSymbol* succSymbol;
+    int op;
+    SuccSymbol *succSymbol;
 };
 
 #endif

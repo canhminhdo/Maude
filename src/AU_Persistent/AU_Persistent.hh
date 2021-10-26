@@ -28,7 +28,9 @@
 #define _AU_Persistent_hh_
 
 class AU_StackNode;
+
 class AU_Deque;
+
 class AU_DequeIter;
 
 #endif

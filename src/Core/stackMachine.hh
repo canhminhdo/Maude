@@ -25,148 +25,147 @@
 //
 #ifndef _stackMachine_hh_
 #define _stackMachine_hh_
+
 #include "simpleRootContainer.hh"
 #include "frame.hh"
 
-class StackMachine : private SimpleRootContainer
-{
-  NO_COPYING(StackMachine);
+class StackMachine : private SimpleRootContainer {
+    NO_COPYING(StackMachine);
 
 public:
-  typedef size_t FrameLift;
+    typedef size_t FrameLift;
 
-  StackMachine();
-  ~StackMachine();
+    StackMachine();
 
-  Frame* getTopFrame() const;
-  static FrameLift makeFrameLift(int nrSlotsToPreserve);
-  Frame* pushFrame(FrameLift frameLift);
-  void popDeadFrames();
-  void popFrame(Frame* frame);
-  void setTopFrame(Frame* frame);
-  //
-  //	To quit the top frame when it is not yet complete.
-  //
-  void popToFrame(Frame* frame);
+    ~StackMachine();
 
-  void execute();
-  DagNode* execute(Instruction* instructionSequence);
-  void incrementEqCount(Int64 amount = 1);
-  Int64 getEqCount();
+    Frame *getTopFrame() const;
 
-  static Frame* fastPushFrame(Frame* oldFrame, FrameLift frameLift);
-  //
-  //	Scratchpad manipulation.
-  //
-  DagNode** getProtectedScratchpad() const;
-  //DagNode*** getRawScratchpad() const;
+    static FrameLift makeFrameLift(int nrSlotsToPreserve);
+
+    Frame *pushFrame(FrameLift frameLift);
+
+    void popDeadFrames();
+
+    void popFrame(Frame *frame);
+
+    void setTopFrame(Frame *frame);
+
+    //
+    //	To quit the top frame when it is not yet complete.
+    //
+    void popToFrame(Frame *frame);
+
+    void execute();
+
+    DagNode *execute(Instruction *instructionSequence);
+
+    void incrementEqCount(Int64 amount = 1);
+
+    Int64 getEqCount();
+
+    static Frame *fastPushFrame(Frame *oldFrame, FrameLift frameLift);
+
+    //
+    //	Scratchpad manipulation.
+    //
+    DagNode **getProtectedScratchpad() const;
+    //DagNode*** getRawScratchpad() const;
 
 private:
-  enum Private
-    {
-      STACK_SIZE = 1000000000
+    enum Private {
+        STACK_SIZE = 1000000000
     };
 
-  typedef DagNode** DAGP_POINTER;
-  typedef DagNode* DAG_POINTER;
+    typedef DagNode **DAGP_POINTER;
+    typedef DagNode *DAG_POINTER;
 
-  void markReachableNodes();
+    void markReachableNodes();
 
-  Frame* topFrame;
-  char* memoryBase;
+    Frame *topFrame;
+    char *memoryBase;
 
-  Int64 rewriteCount;
+    Int64 rewriteCount;
 
-  DagNode* realResult;  // so we can protect it from GC
-  //
-  //	Scratchpads.
-  //
-  DAG_POINTER* protectedScratchpad;
-  //DAGP_POINTER* rawScratchpad;
-  //
-  //	stack statistics
-  //
-  //Int64 nrFramesMade;
-  //size_t maxFrameUse;
+    DagNode *realResult;  // so we can protect it from GC
+    //
+    //	Scratchpads.
+    //
+    DAG_POINTER *protectedScratchpad;
+    //DAGP_POINTER* rawScratchpad;
+    //
+    //	stack statistics
+    //
+    //Int64 nrFramesMade;
+    //size_t maxFrameUse;
 };
 
-inline Frame*
-StackMachine::getTopFrame() const
-{
-  return topFrame;
+inline Frame *
+StackMachine::getTopFrame() const {
+    return topFrame;
 }
 
 inline StackMachine::FrameLift
-StackMachine::makeFrameLift(int nrSlotsToPreserve)
-{
-  return sizeof(Frame) + sizeof(DagNode*) * nrSlotsToPreserve;
+StackMachine::makeFrameLift(int nrSlotsToPreserve) {
+    return sizeof(Frame) + sizeof(DagNode *) * nrSlotsToPreserve;
 }
 
-inline Frame*
-StackMachine::pushFrame(FrameLift frameLift)
-{
-  topFrame = reinterpret_cast<Frame*>(reinterpret_cast<char*>(topFrame) + frameLift);
+inline Frame *
+StackMachine::pushFrame(FrameLift frameLift) {
+    topFrame = reinterpret_cast<Frame *>(reinterpret_cast<char *>(topFrame) + frameLift);
 #if 0
-  for (int i = 0; i < 64; ++i)
-	 (reinterpret_cast<char*>(topFrame))[i] = 0x33;  // fill new frame with garbage
+    for (int i = 0; i < 64; ++i)
+       (reinterpret_cast<char*>(topFrame))[i] = 0x33;  // fill new frame with garbage
 #endif
-  return topFrame;
+    return topFrame;
 }
 
-inline Frame*
-StackMachine::fastPushFrame(Frame* oldFrame, FrameLift frameLift)
-{
-  //
-  //	Static function that creates a new frame from the old frame without updating underlying machine.
-  //
-  return reinterpret_cast<Frame*>(reinterpret_cast<char*>(oldFrame) + frameLift);
-}
-
-inline void
-StackMachine::popDeadFrames()
-{
-  topFrame = topFrame->getAncestorWithValidNextInstruction();
+inline Frame *
+StackMachine::fastPushFrame(Frame *oldFrame, FrameLift frameLift) {
+    //
+    //	Static function that creates a new frame from the old frame without updating underlying machine.
+    //
+    return reinterpret_cast<Frame *>(reinterpret_cast<char *>(oldFrame) + frameLift);
 }
 
 inline void
-StackMachine::popFrame(Frame* frame)
-{
-  //
-  //	This function exists simply to avoid reloading topFrame, when the caller already has
-  //	it in a register.
-  //
-  Assert(frame == topFrame, "frame clash");
-  topFrame = frame->getAncestorWithValidNextInstruction();
+StackMachine::popDeadFrames() {
+    topFrame = topFrame->getAncestorWithValidNextInstruction();
 }
 
 inline void
-StackMachine::popToFrame(Frame* frame)
-{
-  topFrame = frame;
+StackMachine::popFrame(Frame *frame) {
+    //
+    //	This function exists simply to avoid reloading topFrame, when the caller already has
+    //	it in a register.
+    //
+    Assert(frame == topFrame, "frame clash");
+    topFrame = frame->getAncestorWithValidNextInstruction();
 }
 
 inline void
-StackMachine::setTopFrame(Frame* frame)
-{
-  topFrame = frame;
+StackMachine::popToFrame(Frame *frame) {
+    topFrame = frame;
 }
 
 inline void
-StackMachine::incrementEqCount(Int64 amount)
-{
-  rewriteCount += amount;
+StackMachine::setTopFrame(Frame *frame) {
+    topFrame = frame;
+}
+
+inline void
+StackMachine::incrementEqCount(Int64 amount) {
+    rewriteCount += amount;
 }
 
 inline Int64
-StackMachine::getEqCount()
-{
-  return rewriteCount;
+StackMachine::getEqCount() {
+    return rewriteCount;
 }
 
-inline DagNode**
-StackMachine::getProtectedScratchpad() const
-{
-  return protectedScratchpad;
+inline DagNode **
+StackMachine::getProtectedScratchpad() const {
+    return protectedScratchpad;
 }
 
 /*

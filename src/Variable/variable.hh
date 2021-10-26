@@ -27,8 +27,11 @@
 #define _variable_hh_
 
 class VariableSymbol;
+
 class VariableTerm;
+
 class VariableDagNode;
+
 class VariableLhsAutomaton;
 
 #endif

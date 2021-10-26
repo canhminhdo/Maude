@@ -43,83 +43,88 @@
 //
 #ifndef _narrowingUnificationProblem_hh_
 #define _narrowingUnificationProblem_hh_
+
 #include "variableInfo.hh"
 #include "substitution.hh"
 #include "simpleRootContainer.hh"
 #include "pendingUnificationStack.hh"
 
-class NarrowingUnificationProblem : private SimpleRootContainer
-{
-  NO_COPYING(NarrowingUnificationProblem);
+class NarrowingUnificationProblem : private SimpleRootContainer {
+    NO_COPYING(NarrowingUnificationProblem);
 
 public:
-  //
-  //	The usual case is that we are unifying the lhs of a rule or variant equation against a DagNode* target.
-  //
-  NarrowingUnificationProblem(PreEquation* preEquation,
-			      DagNode* target,
-			      const NarrowingVariableInfo& variableInfo,
-			      FreshVariableGenerator* freshVariableGenerator,
-			      int variableFamily = 0);
-  //
-  //	However for variant unification, we also need to unify a pair of DagNode* arguments.
-  //
-  NarrowingUnificationProblem(DagNode* lhs,
-			      DagNode* rhs,
-			      const NarrowingVariableInfo& variableInfo,
-			      FreshVariableGenerator* freshVariableGenerator,
-			      int variableFamily);
+    //
+    //	The usual case is that we are unifying the lhs of a rule or variant equation against a DagNode* target.
+    //
+    NarrowingUnificationProblem(PreEquation *preEquation,
+                                DagNode *target,
+                                const NarrowingVariableInfo &variableInfo,
+                                FreshVariableGenerator *freshVariableGenerator,
+                                int variableFamily = 0);
 
-  ~NarrowingUnificationProblem();
+    //
+    //	However for variant unification, we also need to unify a pair of DagNode* arguments.
+    //
+    NarrowingUnificationProblem(DagNode *lhs,
+                                DagNode *rhs,
+                                const NarrowingVariableInfo &variableInfo,
+                                FreshVariableGenerator *freshVariableGenerator,
+                                int variableFamily);
 
-  bool findNextUnifier();
-  Substitution& getSolution() const;
-  int getNrFreeVariables() const;
-  bool isIncomplete() const;
+    ~NarrowingUnificationProblem();
+
+    bool findNextUnifier();
+
+    Substitution &getSolution() const;
+
+    int getNrFreeVariables() const;
+
+    bool isIncomplete() const;
 
 private:
-  void markReachableNodes();
-  Sort* variableIndexToSort(int index);
-  void bindFreeVariables();
-  bool findOrderSortedUnifiers();
-  void classifyVariables();
+    void markReachableNodes();
 
-  PreEquation* const preEquation;
-  const int nrPreEquationVariables;
-  const NarrowingVariableInfo& variableInfo;
-  FreshVariableGenerator* const freshVariableGenerator;
-  const int variableFamily;
+    Sort *variableIndexToSort(int index);
 
-  int firstTargetSlot;			// start of slots for variables in target
-  int substitutionSize;			// initial substitution size (before any fresh variables are added)
-  const SortBdds* sortBdds;		// sort computation BDDs for our module
+    void bindFreeVariables();
 
-  UnificationContext* unsortedSolution;	// for accumulating solved forms and constructing unsorted unifiers
-  PendingUnificationStack pendingStack;
-  bool viable;				// true if problem didn't fail computeSolvedForm() pass
-  NatSet freeVariables;	     		// indices (slots) of unbound variables in unsorted unifier
-  NatSet sortConstrainedVariables;	// subset of the above whose sorts are constrained by their appearence in bindings of other variables
-  AllSat* orderSortedUnifiers;		// satisfiability problem encoding sorts for order-sorted unifiers
-  Substitution* sortedSolution;		// for construction order-sorted unifiers
+    bool findOrderSortedUnifiers();
+
+    void classifyVariables();
+
+    PreEquation *const preEquation;
+    const int nrPreEquationVariables;
+    const NarrowingVariableInfo &variableInfo;
+    FreshVariableGenerator *const freshVariableGenerator;
+    const int variableFamily;
+
+    int firstTargetSlot;            // start of slots for variables in target
+    int substitutionSize;            // initial substitution size (before any fresh variables are added)
+    const SortBdds *sortBdds;        // sort computation BDDs for our module
+
+    UnificationContext *unsortedSolution;    // for accumulating solved forms and constructing unsorted unifiers
+    PendingUnificationStack pendingStack;
+    bool viable;                // true if problem didn't fail computeSolvedForm() pass
+    NatSet freeVariables;                // indices (slots) of unbound variables in unsorted unifier
+    NatSet sortConstrainedVariables;    // subset of the above whose sorts are constrained by their appearence in bindings of other variables
+    AllSat *orderSortedUnifiers;        // satisfiability problem encoding sorts for order-sorted unifiers
+    Substitution *sortedSolution;        // for construction order-sorted unifiers
 };
 
-inline Substitution&
-NarrowingUnificationProblem::getSolution() const
-{
-  return *sortedSolution;
+inline Substitution &
+NarrowingUnificationProblem::getSolution() const {
+    return *sortedSolution;
 }
 
 inline int
-NarrowingUnificationProblem::getNrFreeVariables() const
-{
-  return freeVariables.size();
+NarrowingUnificationProblem::getNrFreeVariables() const {
+    return freeVariables.size();
 }
 
 inline bool
-NarrowingUnificationProblem::isIncomplete() const
-{
-  //cout << "NarrowingUnificationProblem::isIncomplete() returned " << pendingStack.isIncomplete() << endl;
-  return pendingStack.isIncomplete();
+NarrowingUnificationProblem::isIncomplete() const {
+    //cout << "NarrowingUnificationProblem::isIncomplete() returned " << pendingStack.isIncomplete() << endl;
+    return pendingStack.isIncomplete();
 }
 
 #endif

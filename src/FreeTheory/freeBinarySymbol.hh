@@ -27,13 +27,14 @@
 //
 #ifndef _freeBinarySymbol_hh_
 #define _freeBinarySymbol_hh_
+
 #include "freeSymbol.hh"
 
-class FreeBinarySymbol : public FreeSymbol
-{
+class FreeBinarySymbol : public FreeSymbol {
 public:
-  FreeBinarySymbol(int id);
-  bool eqRewrite(DagNode* subject, RewritingContext& context);
+    FreeBinarySymbol(int id);
+
+    bool eqRewrite(DagNode *subject, RewritingContext &context);
 };
 
 #endif

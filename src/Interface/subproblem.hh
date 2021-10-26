@@ -26,28 +26,32 @@
 #ifndef _subproblem_hh_
 #define _subproblem_hh_
 
-class Subproblem
-{
+class Subproblem {
 public:
 #if 0
-  Subproblem()
-  {
-    cout << "BaseSubproblem " << ((void*) this) << " created" << endl;
-  }
+    Subproblem()
+    {
+      cout << "BaseSubproblem " << ((void*) this) << " created" << endl;
+    }
 
-  virtual ~Subproblem()
-  {
-    cout << "BaseSubproblem " << ((void*) this) << " destroyed" << endl;
-  }
+    virtual ~Subproblem()
+    {
+      cout << "BaseSubproblem " << ((void*) this) << " destroyed" << endl;
+    }
 #else
-  virtual ~Subproblem() {}  // deep
+
+    virtual ~Subproblem() {}  // deep
 #endif
-  virtual bool solve(bool findFirst, RewritingContext& solution) { CantHappen("Not implemented"); return false; }
+
+    virtual bool solve(bool findFirst, RewritingContext &solution) {
+        CantHappen("Not implemented");
+        return false;
+    }
 
 #ifdef DUMP
-  virtual void dump(ostream& s,
-		    const VariableInfo& variableInfo,
-		    int indentLevel = 0) {}  // HACK
+    virtual void dump(ostream& s,
+              const VariableInfo& variableInfo,
+              int indentLevel = 0) {}  // HACK
 #endif
 
 };

@@ -25,72 +25,76 @@
 //
 #ifndef _strategyDefinition_hh_
 #define _strategyDefinition_hh_
+
 #include "strategyLanguage.hh"
 #include "preEquation.hh"
 
-class StrategyDefinition : public PreEquation
-{
+class StrategyDefinition : public PreEquation {
 public:
-  StrategyDefinition(int label,
-		     RewriteStrategy* strategy,
-		     Term* lhs,
-		     StrategyExpression* rhs,
-		     const Vector<ConditionFragment*>& condition = noCondition);
-  ~StrategyDefinition();
+    StrategyDefinition(int label,
+                       RewriteStrategy *strategy,
+                       Term *lhs,
+                       StrategyExpression *rhs,
+                       const Vector<ConditionFragment *> &condition = noCondition);
 
-  using PreEquation::getLhs;
-  StrategyExpression* getRhs() const;
-  RewriteStrategy* getStrategy() const;
+    ~StrategyDefinition();
 
-  //
-  // Gets the strategy definition context specification.
-  //
-  // The vector includes as many entries as variables in the context,
-  // each containing the index of the left-hand side variable to be
-  // initialized with.
-  //
-  // This context specification is calculated by check().
-  //
-  const Vector<int>& getContextSpec() const;
+    using PreEquation::getLhs;
 
-  void check();
-  void preprocess();
-  void compile(bool compileLhs = true);
-  long fastNrVariables() const;
-  void print(ostream& s) const;
+    StrategyExpression *getRhs() const;
 
-  // void stackMachineCompile();
-  // Instruction* getInstructionSequence() const;
+    RewriteStrategy *getStrategy() const;
+
+    //
+    // Gets the strategy definition context specification.
+    //
+    // The vector includes as many entries as variables in the context,
+    // each containing the index of the left-hand side variable to be
+    // initialized with.
+    //
+    // This context specification is calculated by check().
+    //
+    const Vector<int> &getContextSpec() const;
+
+    void check();
+
+    void preprocess();
+
+    void compile(bool compileLhs = true);
+
+    long fastNrVariables() const;
+
+    void print(ostream &s) const;
+
+    // void stackMachineCompile();
+    // Instruction* getInstructionSequence() const;
 
 private:
-  int traceBeginTrial(DagNode* subject, RewritingContext& context) const;
+    int traceBeginTrial(DagNode *subject, RewritingContext &context) const;
 
-  RewriteStrategy* strategy;
-  StrategyExpression* rhs;
-  Vector<int> contextSpec;
+    RewriteStrategy *strategy;
+    StrategyExpression *rhs;
+    Vector<int> contextSpec;
 };
 
-inline StrategyExpression*
-StrategyDefinition::getRhs() const
-{
-  return rhs;
+inline StrategyExpression *
+StrategyDefinition::getRhs() const {
+    return rhs;
 }
 
-inline RewriteStrategy*
-StrategyDefinition::getStrategy() const
-{
-  return strategy;
+inline RewriteStrategy *
+StrategyDefinition::getStrategy() const {
+    return strategy;
 }
 
-inline const Vector<int>&
-StrategyDefinition::getContextSpec() const
-{
-  return contextSpec;
+inline const Vector<int> &
+StrategyDefinition::getContextSpec() const {
+    return contextSpec;
 }
 
 //
 //      Output function for StrategyDefinition must be defined by library user.
 //
-ostream& operator<<(ostream& s, const StrategyDefinition* equation);
+ostream &operator<<(ostream &s, const StrategyDefinition *equation);
 
 #endif

@@ -26,19 +26,21 @@
 #ifndef _rhsAutomaton_hh_
 #define _rhsAutomaton_hh_
 
-class RhsAutomaton
-{
+class RhsAutomaton {
 public:
-  virtual ~RhsAutomaton() {}
+    virtual ~RhsAutomaton() {}
 
-  virtual void remapIndices(VariableInfo& variableInfo) = 0;
-  virtual DagNode* construct(Substitution& matcher) = 0;
-  virtual void replace(DagNode* old, Substitution& matcher) = 0;
+    virtual void remapIndices(VariableInfo &variableInfo) = 0;
 
-  virtual bool recordInfo(StackMachineRhsCompiler& compiler) { return false;  /* HACK until new engine is supported by all theories */ }
+    virtual DagNode *construct(Substitution &matcher) = 0;
+
+    virtual void replace(DagNode *old, Substitution &matcher) = 0;
+
+    virtual bool recordInfo(
+            StackMachineRhsCompiler &compiler) { return false;  /* HACK until new engine is supported by all theories */ }
 
 #ifdef DUMP
-  virtual void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel = 0) = 0;
+    virtual void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel = 0) = 0;
 #endif
 
 };

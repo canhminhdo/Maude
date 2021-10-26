@@ -25,46 +25,46 @@
 //
 #ifndef _nonFinalInstruction_hh_
 #define _nonFinalInstruction_hh_
+
 #include "regularInstruction.hh"
 //#include "stackMachine.hh"
 //#include "frame.hh"
 
-class NonFinalInstruction : public RegularInstruction
-{
-  NO_COPYING(NonFinalInstruction);
+class NonFinalInstruction : public RegularInstruction {
+    NO_COPYING(NonFinalInstruction);
 
 public:
-  //
-  //	Non-final instructions have a destination slot to deposit their result in and a
-  //	pointer to the next instruction.
-  //
-  NonFinalInstruction(int destinationIndex, Instruction* nextInstruction);
-  ~NonFinalInstruction();
-   Instruction* getNextInstruction() const;
-  SlotIndex getDestinationIndex() const;
+    //
+    //	Non-final instructions have a destination slot to deposit their result in and a
+    //	pointer to the next instruction.
+    //
+    NonFinalInstruction(int destinationIndex, Instruction *nextInstruction);
+
+    ~NonFinalInstruction();
+
+    Instruction *getNextInstruction() const;
+
+    SlotIndex getDestinationIndex() const;
 
 private:
-  const SlotIndex destinationIndex;
-  Instruction* nextInstruction;
+    const SlotIndex destinationIndex;
+    Instruction *nextInstruction;
 };
 
 inline
-NonFinalInstruction::NonFinalInstruction(int destinationIndex, Instruction* nextInstruction)
-  : destinationIndex(destinationIndex),
-    nextInstruction(nextInstruction)
-{
+NonFinalInstruction::NonFinalInstruction(int destinationIndex, Instruction *nextInstruction)
+        : destinationIndex(destinationIndex),
+          nextInstruction(nextInstruction) {
 }
 
-inline Instruction*
-NonFinalInstruction::getNextInstruction() const
-{
-  return nextInstruction;
+inline Instruction *
+NonFinalInstruction::getNextInstruction() const {
+    return nextInstruction;
 }
 
 inline Instruction::SlotIndex
-NonFinalInstruction::getDestinationIndex() const
-{
-  return destinationIndex;
+NonFinalInstruction::getDestinationIndex() const {
+    return destinationIndex;
 }
 
 #endif

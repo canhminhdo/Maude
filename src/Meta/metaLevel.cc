@@ -152,97 +152,94 @@
 #include "metaDownSignature.cc"
 #include "legacyMetaUp.cc"
 
-MetaLevel::MetaLevel()
-{
+MetaLevel::MetaLevel() {
 #define MACRO(SymbolName, SymbolClass, RequiredFlags, NrArgs) \
   SymbolName = 0;
+
 #include "metaLevelSignature.cc"
+
 #undef MACRO
-  flagVariables = false;
-  variableGenerator = 0;
+    flagVariables = false;
+    variableGenerator = 0;
 }
 
-MetaLevel::~MetaLevel()
-{
+MetaLevel::~MetaLevel() {
 }
 
-MetaLevel::MetaLevel(const MetaLevel* original, SymbolMap* map)
-{
+MetaLevel::MetaLevel(const MetaLevel *original, SymbolMap *map) {
 #define MACRO(SymbolName, SymbolClass, RequiredFlags, NrArgs) \
   SymbolName = (map == 0 || original->SymbolName == 0) ? original->SymbolName : \
     static_cast<SymbolClass*>(map->translate(original->SymbolName));
+
 #include "metaLevelSignature.cc"
+
 #undef MACRO
-  Term* tt = original->trueTerm.getTerm();
-  trueTerm.setTerm((tt == 0) ? 0 : tt->deepCopy(map));
-  Term* ft = original->falseTerm.getTerm();
-  falseTerm.setTerm((ft == 0) ? 0 : ft->deepCopy(map));
-  flagVariables = false;
-  variableGenerator = 0;
+    Term *tt = original->trueTerm.getTerm();
+    trueTerm.setTerm((tt == 0) ? 0 : tt->deepCopy(map));
+    Term *ft = original->falseTerm.getTerm();
+    falseTerm.setTerm((ft == 0) ? 0 : ft->deepCopy(map));
+    flagVariables = false;
+    variableGenerator = 0;
 }
 
 bool
-MetaLevel::bind(const char* name, Term* term)
-{
-  Assert(term != 0, "null term for " << name);
-  BIND_TERM(name, term, trueTerm);
-  BIND_TERM(name, term, falseTerm);
-  IssueWarning("unrecognized term hook name " << QUOTE(name) << '.');
-  return false;
+MetaLevel::bind(const char *name, Term *term) {
+    Assert(term != 0, "null term for " << name);
+    BIND_TERM(name, term, trueTerm);
+    BIND_TERM(name, term, falseTerm);
+    IssueWarning("unrecognized term hook name " << QUOTE(name) << '.');
+    return false;
 }
 
 bool
-MetaLevel::bind(const char* name, Symbol* symbol)
-{
-  Assert(symbol != 0, "null symbol for " << name);
+MetaLevel::bind(const char *name, Symbol *symbol) {
+    Assert(symbol != 0, "null symbol for " << name);
 #define MACRO(SymbolName, SymbolClass, RequiredFlags, NrArgs) \
   if (strcmp(name, #SymbolName) == 0) SymbolName = static_cast<SymbolClass*>(symbol); else
+
 #include "metaLevelSignature.cc"
+
 #undef MACRO
     {
-      IssueWarning("unrecognized symbol hook name " << QUOTE(name) << '.');
-      return false;
+        IssueWarning("unrecognized symbol hook name " << QUOTE(name) << '.');
+        return false;
     }
-  return true;
+    return true;
 }
 
 void
-MetaLevel::getSymbolAttachments(Vector<const char*>& purposes,
-				Vector<Symbol*>& symbols)
-{
+MetaLevel::getSymbolAttachments(Vector<const char *> &purposes,
+                                Vector<Symbol *> &symbols) {
 #define MACRO(SymbolName, SymbolClass, RequiredFlags, NrArgs) \
   APPEND_SYMBOL(purposes, symbols, SymbolName);
+
 #include "metaLevelSignature.cc"
+
 #undef MACRO
 }
 
 void
-MetaLevel::getTermAttachments(Vector<const char*>& purposes,
-			      Vector<Term*>& terms)
-{
-  APPEND_TERM(purposes, terms, trueTerm);
-  APPEND_TERM(purposes, terms, falseTerm);
+MetaLevel::getTermAttachments(Vector<const char *> &purposes,
+                              Vector<Term *> &terms) {
+    APPEND_TERM(purposes, terms, trueTerm);
+    APPEND_TERM(purposes, terms, falseTerm);
 }
 
 void
-MetaLevel::postInterSymbolPass()
-{
-  if (trueTerm.getTerm() != 0)
-    {
-      (void) trueTerm.normalize();
-      trueTerm.prepare();
+MetaLevel::postInterSymbolPass() {
+    if (trueTerm.getTerm() != 0) {
+        (void) trueTerm.normalize();
+        trueTerm.prepare();
     }
-  if (falseTerm.getTerm() != 0)
-    {
-      (void) falseTerm.normalize();
-      falseTerm.prepare();
+    if (falseTerm.getTerm() != 0) {
+        (void) falseTerm.normalize();
+        falseTerm.prepare();
     }
 }
 
 void
-MetaLevel::reset()
-{
-  trueTerm.reset();  // so true dag can be garbage collected
-  falseTerm.reset();  // so false dag can be garbage collected
-  cache.flush();
+MetaLevel::reset() {
+    trueTerm.reset();  // so true dag can be garbage collected
+    falseTerm.reset();  // so false dag can be garbage collected
+    cache.flush();
 }

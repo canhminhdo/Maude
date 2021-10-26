@@ -25,32 +25,33 @@
 //
 #ifndef _callTask_hh_
 #define _callTask_hh_
+
 #include "strategicTask.hh"
 
-class CallTask : public StrategicTask
-{
-  NO_COPYING(CallTask);
+class CallTask : public StrategicTask {
+    NO_COPYING(CallTask);
 
 public:
-  CallTask(StrategicSearch& searchObject,
-	   int startIndex,
-	   StrategyExpression* strategy,
-	   StrategyStackManager::StackId pending,
-	   VariableBindingsManager::ContextId varBinds,
-	   StrategicExecution* sibling,
-	   StrategicProcess* insertionPoint);
+    CallTask(StrategicSearch &searchObject,
+             int startIndex,
+             StrategyExpression *strategy,
+             StrategyStackManager::StackId pending,
+             VariableBindingsManager::ContextId varBinds,
+             StrategicExecution *sibling,
+             StrategicProcess *insertionPoint);
 
-  ~CallTask();
+    ~CallTask();
 
-  //
-  //	Call-backs for interesting events.
-  //
-  virtual Survival executionSucceeded(int resultIndex, StrategicProcess* insertionPoint);
-  virtual Survival executionsExhausted(StrategicProcess* insertionPoint);
+    //
+    //	Call-backs for interesting events.
+    //
+    virtual Survival executionSucceeded(int resultIndex, StrategicProcess *insertionPoint);
+
+    virtual Survival executionsExhausted(StrategicProcess *insertionPoint);
 
 private:
-  StrategicSearch& searchObject;
-  StrategyStackManager::StackId pending;
+    StrategicSearch &searchObject;
+    StrategyStackManager::StackId pending;
 };
 
 #endif

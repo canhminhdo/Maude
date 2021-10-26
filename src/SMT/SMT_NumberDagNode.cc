@@ -27,7 +27,7 @@
 //      utility stuff
 #include "macros.hh"
 #include "vector.hh"
- 
+
 //      forward declarations
 #include "interface.hh"
 #include "core.hh"
@@ -42,46 +42,40 @@
 #include "SMT_NumberSymbol.hh"
 #include "SMT_NumberDagNode.hh"
 
-SMT_NumberDagNode::SMT_NumberDagNode(SMT_NumberSymbol* symbol, const mpq_class& value)
-  : NA_DagNode(symbol),
-    value(new mpq_class(value))
-{
-  setCallDtor();  // need our dtor called when garbage collected to destruct number
+SMT_NumberDagNode::SMT_NumberDagNode(SMT_NumberSymbol *symbol, const mpq_class &value)
+        : NA_DagNode(symbol),
+          value(new mpq_class(value)) {
+    setCallDtor();  // need our dtor called when garbage collected to destruct number
 }
 
-SMT_NumberDagNode::~SMT_NumberDagNode()
-{
-  delete value;
+SMT_NumberDagNode::~SMT_NumberDagNode() {
+    delete value;
 }
 
 size_t
-SMT_NumberDagNode::getHashValue()
-{
-  return hash(symbol()->getHashValue(),
-	      mpz_tdiv_ui(value->get_num_mpz_t(), INT_MAX),
-	      mpz_tdiv_ui(value->get_den_mpz_t(), INT_MAX));
+SMT_NumberDagNode::getHashValue() {
+    return hash(symbol()->getHashValue(),
+                mpz_tdiv_ui(value->get_num_mpz_t(), INT_MAX),
+                mpz_tdiv_ui(value->get_den_mpz_t(), INT_MAX));
 }
 
 int
-SMT_NumberDagNode::compareArguments(const DagNode* other) const
-{
-  const mpq_class* otherValue = static_cast<const SMT_NumberDagNode*>(other)->value;
-  return (*value == *otherValue) ? 0 : ((*value > *otherValue) ? 1 : -1);
+SMT_NumberDagNode::compareArguments(const DagNode *other) const {
+    const mpq_class *otherValue = static_cast<const SMT_NumberDagNode *>(other)->value;
+    return (*value == *otherValue) ? 0 : ((*value > *otherValue) ? 1 : -1);
 }
 
 void
-SMT_NumberDagNode::overwriteWithClone(DagNode* old)
-{
-  SMT_NumberDagNode* d = new(old) SMT_NumberDagNode(safeCast(SMT_NumberSymbol*, symbol()), *value);
-  d->copySetRewritingFlags(this);
-  d->setSortIndex(getSortIndex());
+SMT_NumberDagNode::overwriteWithClone(DagNode *old) {
+    SMT_NumberDagNode *d = new(old) SMT_NumberDagNode(safeCast(SMT_NumberSymbol*, symbol()), *value);
+    d->copySetRewritingFlags(this);
+    d->setSortIndex(getSortIndex());
 }
 
-DagNode*
-SMT_NumberDagNode::makeClone()
-{
-  SMT_NumberDagNode* d = new SMT_NumberDagNode(safeCast(SMT_NumberSymbol*, symbol()), *value);
-  d->copySetRewritingFlags(this);
-  d->setSortIndex(getSortIndex());
-  return d;
+DagNode *
+SMT_NumberDagNode::makeClone() {
+    SMT_NumberDagNode *d = new SMT_NumberDagNode(safeCast(SMT_NumberSymbol*, symbol()), *value);
+    d->copySetRewritingFlags(this);
+    d->setSortIndex(getSortIndex());
+    return d;
 }

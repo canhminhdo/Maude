@@ -26,31 +26,31 @@
 //
 #ifndef _memoMap_hh_
 #define _memoMap_hh_
+
 #include "hashConsSet.hh"
 
-class MemoMap
-{
+class MemoMap {
 public:
-  int getFromIndex(DagNode* fromDag);
-  DagNode* getToDag(int fromIndex) const;
-  void assignToDag(int fromIndex, DagNode* toDag);
+    int getFromIndex(DagNode *fromDag);
+
+    DagNode *getToDag(int fromIndex) const;
+
+    void assignToDag(int fromIndex, DagNode *toDag);
 
 private:
-  HashConsSet dags;
-  Vector<int> toIndices;  // maps from-indices to to-indices
+    HashConsSet dags;
+    Vector<int> toIndices;  // maps from-indices to to-indices
 };
 
-inline DagNode*
-MemoMap::getToDag(int fromIndex) const
-{
-  int toIndex = toIndices[fromIndex];
-  return toIndex == NONE ? 0 : dags.getCanonical(toIndex);
+inline DagNode *
+MemoMap::getToDag(int fromIndex) const {
+    int toIndex = toIndices[fromIndex];
+    return toIndex == NONE ? 0 : dags.getCanonical(toIndex);
 }
 
 inline void
-MemoMap::assignToDag(int fromIndex, DagNode* toDag)
-{
-  toIndices[fromIndex] = dags.insert(toDag);
+MemoMap::assignToDag(int fromIndex, DagNode *toDag) {
+    toIndices[fromIndex] = dags.insert(toDag);
 }
 
 #endif

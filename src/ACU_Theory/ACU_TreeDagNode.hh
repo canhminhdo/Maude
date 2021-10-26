@@ -25,89 +25,103 @@
 //
 #ifndef _ACU_TreeDagNode_hh_
 #define _ACU_TreeDagNode_hh_
+
 #include "ACU_BaseDagNode.hh"
 #include "ACU_Tree.hh"
 
-class ACU_TreeDagNode : public ACU_BaseDagNode
-{
+class ACU_TreeDagNode : public ACU_BaseDagNode {
 public:
-  ACU_TreeDagNode(ACU_Symbol* symbol, const ACU_Tree& tree);
-   //
-  //	Member functions required by theory interface.
-  //
-  RawDagArgumentIterator* arguments();
-  size_t getHashValue();
-  int compareArguments(const DagNode* other) const;
-  void overwriteWithClone(DagNode* old);
-  DagNode* makeClone();
-  DagNode* copyWithReplacement(int argIndex, DagNode* replacement);
-  DagNode* copyWithReplacement(Vector<RedexPosition>& redexStack,
-			       int first,
-			       int last);
-  //
-  //	Member functions required to handle extension information.
-  //
-  bool matchVariableWithExtension(int index,
-				  const Sort* sort,
-				  Substitution& solution,
-				  Subproblem*& returnedSubproblem,
-				  ExtensionInfo* extensionInfo);
-  void partialReplace(DagNode* replacement, ExtensionInfo* extensionInfo);
-  DagNode* partialConstruct(DagNode* replacement, ExtensionInfo* extensionInfo);
-  //
-  //	Interface for narrowing.
-  //
-  //	This is needed to remove any tree nodes from dag being narrowed since
-  //	unification and narrowing functionality doesn't support them.
-  //
-  bool indexVariables2(NarrowingVariableInfo& indices, int baseIndex);
-  //
-  //	ACU_TreeDagNode -> ACU_DagNode in-place conversion function.
-  //
-  static ACU_DagNode* treeToArgVec(ACU_TreeDagNode* original);
+    ACU_TreeDagNode(ACU_Symbol *symbol, const ACU_Tree &tree);
 
-  const ACU_Tree& getTree() const;
+    //
+    //	Member functions required by theory interface.
+    //
+    RawDagArgumentIterator *arguments();
 
-  //
-  //	Hash cons stuff
-  //
-  ACU_TreeDagNode* makeCanonical(HashConsSet* hcs);
+    size_t getHashValue();
+
+    int compareArguments(const DagNode *other) const;
+
+    void overwriteWithClone(DagNode *old);
+
+    DagNode *makeClone();
+
+    DagNode *copyWithReplacement(int argIndex, DagNode *replacement);
+
+    DagNode *copyWithReplacement(Vector<RedexPosition> &redexStack,
+                                 int first,
+                                 int last);
+
+    //
+    //	Member functions required to handle extension information.
+    //
+    bool matchVariableWithExtension(int index,
+                                    const Sort *sort,
+                                    Substitution &solution,
+                                    Subproblem *&returnedSubproblem,
+                                    ExtensionInfo *extensionInfo);
+
+    void partialReplace(DagNode *replacement, ExtensionInfo *extensionInfo);
+
+    DagNode *partialConstruct(DagNode *replacement, ExtensionInfo *extensionInfo);
+
+    //
+    //	Interface for narrowing.
+    //
+    //	This is needed to remove any tree nodes from dag being narrowed since
+    //	unification and narrowing functionality doesn't support them.
+    //
+    bool indexVariables2(NarrowingVariableInfo &indices, int baseIndex);
+
+    //
+    //	ACU_TreeDagNode -> ACU_DagNode in-place conversion function.
+    //
+    static ACU_DagNode *treeToArgVec(ACU_TreeDagNode *original);
+
+    const ACU_Tree &getTree() const;
+
+    //
+    //	Hash cons stuff
+    //
+    ACU_TreeDagNode *makeCanonical(HashConsSet *hcs);
 
 private:
- //
-  //	Theory interface functions.
-  //
-  DagNode* markArguments();
-  DagNode* copyEagerUptoReduced2();
-  DagNode* copyAll2();
-  void clearCopyPointers2();
-  //
-  //	Arguments under ACU symbol.
-  //
-  ACU_Tree tree;
-  //
-  //	Slot for caching hash value.
-  //
-  size_t hashCache;
+    //
+    //	Theory interface functions.
+    //
+    DagNode *markArguments();
 
-  friend class ACU_Symbol;		// HACK for hash consing
+    DagNode *copyEagerUptoReduced2();
+
+    DagNode *copyAll2();
+
+    void clearCopyPointers2();
+
+    //
+    //	Arguments under ACU symbol.
+    //
+    ACU_Tree tree;
+    //
+    //	Slot for caching hash value.
+    //
+    size_t hashCache;
+
+    friend class ACU_Symbol;        // HACK for hash consing
 
 };
 
 inline
-ACU_TreeDagNode::ACU_TreeDagNode(ACU_Symbol* symbol, const ACU_Tree& tree)
-  : ACU_BaseDagNode(symbol), tree(tree)
-{
-  Assert(tree.getSize() > 1 || tree.getMaxMult() > 1,
-  	 "tried to make ACU_TreeDagNode with single argument");
-  setNormalizationStatus(TREE);
+ACU_TreeDagNode::ACU_TreeDagNode(ACU_Symbol *symbol, const ACU_Tree &tree)
+        : ACU_BaseDagNode(symbol), tree(tree) {
+    Assert(tree.getSize() > 1 || tree.getMaxMult() > 1,
+           "tried to make ACU_TreeDagNode with single argument");
+    setNormalizationStatus(TREE);
 }
 
 inline
-const ACU_Tree&
-ACU_TreeDagNode::getTree() const
-{
-  return tree;
+const ACU_Tree &
+ACU_TreeDagNode::getTree() const {
+    return tree;
 }
 
 #endif

@@ -25,36 +25,37 @@
 //
 #ifndef _randomOpSymbol_hh_
 #define _randomOpSymbol_hh_
+
 #include "numberOpSymbol.hh"
 #include "MersenneTwister.h"
 
-class RandomOpSymbol : public NumberOpSymbol
-{
+class RandomOpSymbol : public NumberOpSymbol {
 public:
-  RandomOpSymbol(int id);
+    RandomOpSymbol(int id);
 
-  bool attachData(const Vector<Sort*>& opDeclaration,
-		  const char* purpose,
-		  const Vector<const char*>& data);
-  void getDataAttachments(const Vector<Sort*>& opDeclaration,
-			  Vector<const char*>& purposes,
-			  Vector<Vector<const char*> >& data);
-  bool eqRewrite(DagNode* subject, RewritingContext& context);
+    bool attachData(const Vector<Sort *> &opDeclaration,
+                    const char *purpose,
+                    const Vector<const char *> &data);
 
-  static void setGlobalSeed(MTRand::uint32 value);
+    void getDataAttachments(const Vector<Sort *> &opDeclaration,
+                            Vector<const char *> &purposes,
+                            Vector<Vector<const char *> > &data);
+
+    bool eqRewrite(DagNode *subject, RewritingContext &context);
+
+    static void setGlobalSeed(MTRand::uint32 value);
 
 private:
-  static MTRand::uint32 globalSeed;
+    static MTRand::uint32 globalSeed;
 
-  mpz_class currentIndex;
-  MTRand currentState;
-  MTRand::uint32 randomNumber;
+    mpz_class currentIndex;
+    MTRand currentState;
+    MTRand::uint32 randomNumber;
 };
 
 inline void
-RandomOpSymbol::setGlobalSeed(MTRand::uint32 value)
-{
-  globalSeed = value;
+RandomOpSymbol::setGlobalSeed(MTRand::uint32 value) {
+    globalSeed = value;
 }
 
 #endif

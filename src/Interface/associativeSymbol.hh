@@ -25,78 +25,83 @@
 //
 #ifndef _associativeSymbol_hh_
 #define _associativeSymbol_hh_
+
 #include "binarySymbol.hh"
 
-class AssociativeSymbol : public BinarySymbol
-{
+class AssociativeSymbol : public BinarySymbol {
 public:
-  //
-  //	The idea here is that we can satisfy the sort on a binding
-  //	f(...) to variable X:s just by satisfying it on each subterm
-  //	if s is LIMIT_SORT for f. This allows making bindings during matching
-  //	without explicitly computing the sort of the binding.
-  //
-  //	If s is PURE_SORT we also know that if a single subterm has too
-  //	larger sort then the binding will definitely fail for X:s.
-  // 
-  enum Structure
-  {
-    UNSTRUCTURED,	// no guarantees
-    LIMIT_SORT,		// s_1 <= s & s_2 <= s ===> s_f(s_1, s_2) <= s
-    PURE_SORT		// replaces ===> with <===>,
-    			// taking sort constraints in to account
-  };
+    //
+    //	The idea here is that we can satisfy the sort on a binding
+    //	f(...) to variable X:s just by satisfying it on each subterm
+    //	if s is LIMIT_SORT for f. This allows making bindings during matching
+    //	without explicitly computing the sort of the binding.
+    //
+    //	If s is PURE_SORT we also know that if a single subterm has too
+    //	larger sort then the binding will definitely fail for X:s.
+    //
+    enum Structure {
+        UNSTRUCTURED,    // no guarantees
+        LIMIT_SORT,        // s_1 <= s & s_2 <= s ===> s_f(s_1, s_2) <= s
+        PURE_SORT        // replaces ===> with <===>,
+        // taking sort constraints in to account
+    };
 
-  AssociativeSymbol(int id,
-		    const Vector<int>& strategy,
-		    bool memoFlag,
-		    Term* identity = 0);
+    AssociativeSymbol(int id,
+                      const Vector<int> &strategy,
+                      bool memoFlag,
+                      Term *identity = 0);
 
-  const Sort* uniformSort() const;
-  int sortBound(const Sort* sort) const;
-  Structure sortStructure(const Sort* sort) const;
-  bool mightCollapseToOurSymbol(const Term* subterm) const;
-  void finalizeSortInfo();  // virtual in base class SortTable
-  void fillInSortInfo(Term* subject);  // virtual in base class SortTable
-  bool isConstructor(DagNode* subject);  // virtual in base class Symbol
-  void setFrozen(const NatSet& frozen);  // virtual in base class Strategy
+    const Sort *uniformSort() const;
+
+    int sortBound(const Sort *sort) const;
+
+    Structure sortStructure(const Sort *sort) const;
+
+    bool mightCollapseToOurSymbol(const Term *subterm) const;
+
+    void finalizeSortInfo();  // virtual in base class SortTable
+    void fillInSortInfo(Term *subject);  // virtual in base class SortTable
+    bool isConstructor(DagNode *subject);  // virtual in base class Symbol
+    void setFrozen(const NatSet &frozen);  // virtual in base class Strategy
 
 protected:
-  void processIdentity();
+    void processIdentity();
 
 private:
-  struct Inv;
+    struct Inv;
 
-  void associativeSortCheck();
-  void associativeCtorCheck();
-  void associativeSortBoundsAnalysis();
-  void associativeSortStructureAnalysis();
-  bool checkUniformity(const Sort* uniformSort, int nrSorts);
-  void insertGreaterOrEqualSorts(const Sort* sort, NatSet& set);
+    void associativeSortCheck();
 
-  const Sort* uniSort;
-  Vector<int> sortBounds;
-  Vector<Structure> sortStructures;
+    void associativeCtorCheck();
+
+    void associativeSortBoundsAnalysis();
+
+    void associativeSortStructureAnalysis();
+
+    bool checkUniformity(const Sort *uniformSort, int nrSorts);
+
+    void insertGreaterOrEqualSorts(const Sort *sort, NatSet &set);
+
+    const Sort *uniSort;
+    Vector<int> sortBounds;
+    Vector<Structure> sortStructures;
 };
 
-inline const Sort*
-AssociativeSymbol::uniformSort() const
-{
-  return uniSort;
+inline const Sort *
+AssociativeSymbol::uniformSort() const {
+    return uniSort;
 }
 
 inline int
-AssociativeSymbol::sortBound(const Sort* sort) const
-{
-  return sortBounds[sort->index()];
+AssociativeSymbol::sortBound(const Sort *sort) const {
+    return sortBounds[sort->index()];
 }
 
 inline AssociativeSymbol::Structure
-AssociativeSymbol::sortStructure(const Sort* sort) const
-{
-  return sortStructures[sort->index()];
+AssociativeSymbol::sortStructure(const Sort *sort) const {
+    return sortStructures[sort->index()];
 }
 
-ostream& operator<<(ostream& s, AssociativeSymbol::Structure structure);
+ostream &operator<<(ostream &s, AssociativeSymbol::Structure structure);
 
 #endif

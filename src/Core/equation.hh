@@ -25,111 +25,114 @@
 //
 #ifndef _equation_hh_
 #define _equation_hh_
+
 #include "preEquation.hh"
 #include "rhsBuilder.hh"
 
-class Equation : public PreEquation
-{
+class Equation : public PreEquation {
 public:
-  Equation(int label,
-	   Term* lhs,
-	   Term* rhs,
-	   bool owise = false,
-	   const Vector<ConditionFragment*>& condition = noCondition);
-  ~Equation();
+    Equation(int label,
+             Term *lhs,
+             Term *rhs,
+             bool owise = false,
+             const Vector<ConditionFragment *> &condition = noCondition);
 
-  Term* getRhs() const;
-  void check();
-  void preprocess();
-  void compile(bool compileLhs);
-  const RhsBuilder& getRhsBuilder() const;
-  long fastNrVariables() const;
-  void print(ostream& s) const;
+    ~Equation();
 
-  bool isOwise() const;
-  void setVariant();
-  void clearVariant();
-  bool isVariant() const;
+    Term *getRhs() const;
 
-  void stackMachineCompile();
-  Instruction* getInstructionSequence() const;
+    void check();
+
+    void preprocess();
+
+    void compile(bool compileLhs);
+
+    const RhsBuilder &getRhsBuilder() const;
+
+    long fastNrVariables() const;
+
+    void print(ostream &s) const;
+
+    bool isOwise() const;
+
+    void setVariant();
+
+    void clearVariant();
+
+    bool isVariant() const;
+
+    void stackMachineCompile();
+
+    Instruction *getInstructionSequence() const;
 
 private:
-  enum Flags
-  {
-    OWISE = 0x10,
-    VARIANT = 0x20
-  };
+    enum Flags {
+        OWISE = 0x10,
+        VARIANT = 0x20
+    };
 
-  int traceBeginTrial(DagNode* subject, RewritingContext& context) const;
-  //
-  //	To qualify for "fast" treatment an equation must:
-  //	(1) be unconditional
-  //
-  //	In this case we set fast to PreEquation::nrVariables; otherwise
-  //	we set fast to DEFAULT.
-  //
-  long fast;  // avoid the need for explicit extension instruction on x86-64
-  Term* rhs;
-  RhsBuilder builder;
-  //
-  //	For stack based execution.
-  //
-  Instruction* instructionSequence;
-  // int nrSlots;
+    int traceBeginTrial(DagNode *subject, RewritingContext &context) const;
+
+    //
+    //	To qualify for "fast" treatment an equation must:
+    //	(1) be unconditional
+    //
+    //	In this case we set fast to PreEquation::nrVariables; otherwise
+    //	we set fast to DEFAULT.
+    //
+    long fast;  // avoid the need for explicit extension instruction on x86-64
+    Term *rhs;
+    RhsBuilder builder;
+    //
+    //	For stack based execution.
+    //
+    Instruction *instructionSequence;
+    // int nrSlots;
 };
 
 inline bool
-Equation::isOwise() const
-{
-  return getFlag(OWISE);
+Equation::isOwise() const {
+    return getFlag(OWISE);
 }
 
 inline bool
-Equation::isVariant() const
-{
-  return getFlag(VARIANT);
+Equation::isVariant() const {
+    return getFlag(VARIANT);
 }
 
 inline void
-Equation::setVariant()
-{
-  setFlags(VARIANT);
+Equation::setVariant() {
+    setFlags(VARIANT);
 }
 
 inline void
-Equation::clearVariant()
-{
-  clearFlags(VARIANT);
+Equation::clearVariant() {
+    clearFlags(VARIANT);
 }
 
 inline long
-Equation::fastNrVariables() const
-{
-  return fast;
+Equation::fastNrVariables() const {
+    return fast;
 }
 
-inline Term*
-Equation::getRhs() const
-{
-  return rhs;
+inline Term *
+Equation::getRhs() const {
+    return rhs;
 }
 
-inline const RhsBuilder&
-Equation::getRhsBuilder() const
-{
-  return builder;
+inline const RhsBuilder &
+Equation::getRhsBuilder() const {
+    return builder;
 }
 
-inline Instruction*
-Equation::getInstructionSequence() const
-{
-  return instructionSequence;
+inline Instruction *
+Equation::getInstructionSequence() const {
+    return instructionSequence;
 }
 
 //
 //      Output function for Equation must be defined by library user.
 //
-ostream& operator<<(ostream& s, const Equation* equation);
+ostream &operator<<(ostream &s, const Equation *equation);
 
 #endif

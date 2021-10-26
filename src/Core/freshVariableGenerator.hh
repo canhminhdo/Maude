@@ -26,27 +26,31 @@
 #ifndef _freshVariableGenerator_hh_
 #define _freshVariableGenerator_hh_
 
-class FreshVariableGenerator
-{
+class FreshVariableGenerator {
 public:
-  virtual ~FreshVariableGenerator() {}
-  virtual int getFreshVariableName(int index, int family) = 0;
-  virtual Symbol* getBaseVariableSymbol(Sort* sort) = 0;
-  //
-  //	The following member function checks if a given variable name could conflict
-  //	with a future fresh variable that it might generate.
-  //
-  virtual bool variableNameConflict(int id, int okFamily = NONE) = 0;
-  //
-  //	The following member function checks if a given variable name belongs to
-  //	the given family.
-  //
-  virtual bool belongsToFamily(int id, int family) = 0;
-  //
-  //	Checks if the variable has a name we could generate, and if so
-  //	returns the index and family that will generate it.
-  //
-  virtual bool isFreshVariableName(int id, int& index, int& family) = 0;
+    virtual ~FreshVariableGenerator() {}
+
+    virtual int getFreshVariableName(int index, int family) = 0;
+
+    virtual Symbol *getBaseVariableSymbol(Sort *sort) = 0;
+
+    //
+    //	The following member function checks if a given variable name could conflict
+    //	with a future fresh variable that it might generate.
+    //
+    virtual bool variableNameConflict(int id, int okFamily = NONE) = 0;
+
+    //
+    //	The following member function checks if a given variable name belongs to
+    //	the given family.
+    //
+    virtual bool belongsToFamily(int id, int family) = 0;
+
+    //
+    //	Checks if the variable has a name we could generate, and if so
+    //	returns the index and family that will generate it.
+    //
+    virtual bool isFreshVariableName(int id, int &index, int &family) = 0;
 };
 
 #endif

@@ -31,53 +31,57 @@
 #ifndef _intSystem_hh_
 #define _intSystem_hh_
 
-class IntSystem
-{
-public:  
-  IntSystem(int nrVariables);
+class IntSystem {
+public:
+    IntSystem(int nrVariables);
 
-  typedef Vector<int> IntVec;
+    typedef Vector<int> IntVec;
 
-  void insertEqn(const IntVec& eqn);
-  void setUpperBounds(const IntVec& bounds);  // pass UNBOUNDED to bound by INT_MAX
-  bool findNextMinimalSolution(IntVec& solution);
+    void insertEqn(const IntVec &eqn);
+
+    void setUpperBounds(const IntVec &bounds);  // pass UNBOUNDED to bound by INT_MAX
+    bool findNextMinimalSolution(IntVec &solution);
 
 private:
-  //
-  //	General data types, functions and data.
-  //
-  typedef list<IntVec> VecList;
+    //
+    //	General data types, functions and data.
+    //
+    typedef list <IntVec> VecList;
 
-  static bool greaterEqual(const IntVec& arg1, const IntVec& arg2);
-  bool minimal(const IntVec& arg);
-  void initializeUpperBounds();
+    static bool greaterEqual(const IntVec &arg1, const IntVec &arg2);
+
+    bool minimal(const IntVec &arg);
+
+    void initializeUpperBounds();
+
 #ifndef NO_ASSERT
-  void dumpEqns();
+    void dumpEqns();
 #endif
 
-  const int nrVariables;
-  VecList eqns;			// Diophantine system
-  IntVec upperBounds;		// upper bounds for each variable
-  VecList solutions;		// minimal solutions found so far
-  //
-  //	Contejean-Devie specific stuff.
-  //
-  struct State
-  {
-    IntVec assignment;	// current assignment to each variable
-    IntVec residue;	// residue for each equation
-    NatSet frozen;	// indicies of variables that can no longer be incremented
-  };
+    const int nrVariables;
+    VecList eqns;            // Diophantine system
+    IntVec upperBounds;        // upper bounds for each variable
+    VecList solutions;        // minimal solutions found so far
+    //
+    //	Contejean-Devie specific stuff.
+    //
+    struct State {
+        IntVec assignment;    // current assignment to each variable
+        IntVec residue;    // residue for each equation
+        NatSet frozen;    // indicies of variables that can no longer be incremented
+    };
 
-  typedef Vector<State> StateStack;
+    typedef Vector<State> StateStack;
 
-  static bool isZero(const IntVec& arg);
-  void initialize();
-  int scalerProduct(const IntVec& arg, int columnNr);
+    static bool isZero(const IntVec &arg);
 
-  StateStack states;		// stack of search tree states
-  int stackPointer;
-  State current;		// pre-allocated temporary storage
+    void initialize();
+
+    int scalerProduct(const IntVec &arg, int columnNr);
+
+    StateStack states;        // stack of search tree states
+    int stackPointer;
+    State current;        // pre-allocated temporary storage
 };
 
 #endif

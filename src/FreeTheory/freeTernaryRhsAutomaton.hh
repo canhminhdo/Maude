@@ -26,27 +26,29 @@
 //
 #ifndef _freeTernaryRhsAutomaton_hh_
 #define _freeTernaryRhsAutomaton_hh_
+
 #include "freeRhsAutomaton.hh"
 
-class FreeTernaryRhsAutomaton : public FreeRhsAutomaton
-{
+class FreeTernaryRhsAutomaton : public FreeRhsAutomaton {
 public:
-  //
-  //	We hook in code for fast copies here.
-  //
-  void remapIndices(VariableInfo& variableInfo);
-  //
-  //	We just replace a couple of virtual functions with ones optimized for this case.
-  //
-  DagNode* construct(Substitution& matcher);
-  void replace(DagNode* old, Substitution& matcher);
+    //
+    //	We hook in code for fast copies here.
+    //
+    void remapIndices(VariableInfo &variableInfo);
+
+    //
+    //	We just replace a couple of virtual functions with ones optimized for this case.
+    //
+    DagNode *construct(Substitution &matcher);
+
+    void replace(DagNode *old, Substitution &matcher);
 
 private:
-  void fillOutArgs(Substitution& matcher, FreeDagNode* d);
+    void fillOutArgs(Substitution &matcher, FreeDagNode *d);
 
-  Symbol* symbol;
-  int sources[3];
-  int destination;
+    Symbol *symbol;
+    int sources[3];
+    int destination;
 };
 
 #endif

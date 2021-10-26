@@ -25,39 +25,46 @@
 //
 #ifndef _loopSymbol_hh_
 #define _loopSymbol_hh_
+
 #include "freeSymbol.hh"
 
-class LoopSymbol : public FreeSymbol
-{
+class LoopSymbol : public FreeSymbol {
 public:
-  LoopSymbol(int id);
+    LoopSymbol(int id);
 
-  bool attachData(const Vector<Sort*>& opDeclaration,
-		  const char* purpose,
-		  const Vector<const char*>& data);
-  bool attachSymbol(const char* purpose, Symbol* symbol);
-  void copyAttachments(Symbol* original, SymbolMap* map);
-  void getDataAttachments(const Vector<Sort*>& opDeclaration,
-			  Vector<const char*>& purposes,
-			  Vector<Vector<const char*> >& data);
-  void getSymbolAttachments(Vector<const char*>& purposes,
-			    Vector<Symbol*>& symbols);
+    bool attachData(const Vector<Sort *> &opDeclaration,
+                    const char *purpose,
+                    const Vector<const char *> &data);
 
-  bool extractOutput(DagNode* loopNode, Vector<int>& bubble);
-  void injectInput(DagNode* loopNode, const Vector<Token>& bubble);
+    bool attachSymbol(const char *purpose, Symbol *symbol);
+
+    void copyAttachments(Symbol *original, SymbolMap *map);
+
+    void getDataAttachments(const Vector<Sort *> &opDeclaration,
+                            Vector<const char *> &purposes,
+                            Vector<Vector<const char *> > &data);
+
+    void getSymbolAttachments(Vector<const char *> &purposes,
+                              Vector<Symbol *> &symbols);
+
+    bool extractOutput(DagNode *loopNode, Vector<int> &bubble);
+
+    void injectInput(DagNode *loopNode, const Vector<Token> &bubble);
 
 private:
-  NO_COPYING(LoopSymbol);
+    NO_COPYING(LoopSymbol);
 
-  DagNode* createQidList(const Vector<Token>& ids);
-  bool extractQid(DagNode* metaQid, int& id);
-  bool extractQidList(DagNode* metaQidList, Vector<int>& ids);
+    DagNode *createQidList(const Vector<Token> &ids);
 
-  static const Vector<int> eagerStrategy;
+    bool extractQid(DagNode *metaQid, int &id);
 
-  QuotedIdentifierSymbol* qidSymbol;
-  Symbol* nilQidListSymbol;
-  AU_Symbol* qidListSymbol;
+    bool extractQidList(DagNode *metaQidList, Vector<int> &ids);
+
+    static const Vector<int> eagerStrategy;
+
+    QuotedIdentifierSymbol *qidSymbol;
+    Symbol *nilQidListSymbol;
+    AU_Symbol *qidListSymbol;
 };
 
 #endif

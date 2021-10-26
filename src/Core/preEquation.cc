@@ -45,231 +45,201 @@
 #include "conditionFragment.hh"
 #include "preEquation.hh"
 
-const Vector<ConditionFragment*> PreEquation::noCondition;
+const Vector<ConditionFragment *> PreEquation::noCondition;
 
-PreEquation::PreEquation(int label, Term* lhs, const Vector<ConditionFragment*>& cond)
-  : label(label),
-    lhs(lhs)
-{
-  Assert(lhs != 0, "null lhs");
-  lhsAutomaton = 0;
-  //
-  //	We want to ensure that isNull() is true for an empty condition -
-  //	i.e. the Vector of ConditionFragments has never be touched. So
-  //	we only do a copy for if cond is non-empty()
-  //
-  if (!(cond.empty()))
-    condition = cond;  // semi-deep copy
+PreEquation::PreEquation(int label, Term *lhs, const Vector<ConditionFragment *> &cond)
+        : label(label),
+          lhs(lhs) {
+    Assert(lhs != 0, "null lhs");
+    lhsAutomaton = 0;
+    //
+    //	We want to ensure that isNull() is true for an empty condition -
+    //	i.e. the Vector of ConditionFragments has never be touched. So
+    //	we only do a copy for if cond is non-empty()
+    //
+    if (!(cond.empty()))
+        condition = cond;  // semi-deep copy
 }
 
-PreEquation::~PreEquation()
-{
-  delete lhsAutomaton;
-  lhs->deepSelfDestruct();
-  int nrFragments = condition.length();
-  for (int i = 0; i < nrFragments; i++)
-    delete condition[i];
-}
-
-void
-PreEquation::check(NatSet& boundVariables)
-{
-  //
-  //	Normalize lhs and fill out variable info
-  //
-  lhs = lhs->normalize(true);
-  lhs->indexVariables(*this);
-  boundVariables = lhs->occursBelow();  // deep copy
-  int nrFragments = condition.length();
-  for (int i = 0; i < nrFragments; i++)
-    condition[i]->check(*this, boundVariables);
+PreEquation::~PreEquation() {
+    delete lhsAutomaton;
+    lhs->deepSelfDestruct();
+    int nrFragments = condition.length();
+    for (int i = 0; i < nrFragments; i++)
+        delete condition[i];
 }
 
 void
-PreEquation::preprocess()
-{
-  lhs->symbol()->fillInSortInfo(lhs);
-  lhs->analyseCollapses();
-  int nrFragments = condition.length();
-  for (int i = 0; i < nrFragments; i++)
-    condition[i]->preprocess();
+PreEquation::check(NatSet &boundVariables) {
+    //
+    //	Normalize lhs and fill out variable info
+    //
+    lhs = lhs->normalize(true);
+    lhs->indexVariables(*this);
+    boundVariables = lhs->occursBelow();  // deep copy
+    int nrFragments = condition.length();
+    for (int i = 0; i < nrFragments; i++)
+        condition[i]->check(*this, boundVariables);
 }
 
 void
-PreEquation::compileBuild(TermBag& availableTerms, bool eagerContext)
-{
-  lhs->findAvailableTerms(availableTerms, eagerContext, true);
-  lhs->determineContextVariables();
-  lhs->insertAbstractionVariables(*this);
-  int nrFragments = condition.length();
-  for (int i = 0; i < nrFragments; i++)
-    condition[i]->compileBuild(*this, availableTerms);
+PreEquation::preprocess() {
+    lhs->symbol()->fillInSortInfo(lhs);
+    lhs->analyseCollapses();
+    int nrFragments = condition.length();
+    for (int i = 0; i < nrFragments; i++)
+        condition[i]->preprocess();
 }
 
 void
-PreEquation::compileMatch(bool compileLhs, bool withExtension)
-{
-  //
-  //	We don't assume that our module was set so we look at the module of the lhs top symbol.
-  //
-  lhs->symbol()->getModule()->notifySubstitutionSize(computeIndexRemapping());
-  if (compileLhs)
-    {
-      NatSet boundUniquely;
-      bool subproblemLikely;
-      lhsAutomaton = lhs->compileLhs(withExtension, *this, boundUniquely, subproblemLikely);
+PreEquation::compileBuild(TermBag &availableTerms, bool eagerContext) {
+    lhs->findAvailableTerms(availableTerms, eagerContext, true);
+    lhs->determineContextVariables();
+    lhs->insertAbstractionVariables(*this);
+    int nrFragments = condition.length();
+    for (int i = 0; i < nrFragments; i++)
+        condition[i]->compileBuild(*this, availableTerms);
+}
+
+void
+PreEquation::compileMatch(bool compileLhs, bool withExtension) {
+    //
+    //	We don't assume that our module was set so we look at the module of the lhs top symbol.
+    //
+    lhs->symbol()->getModule()->notifySubstitutionSize(computeIndexRemapping());
+    if (compileLhs) {
+        NatSet boundUniquely;
+        bool subproblemLikely;
+        lhsAutomaton = lhs->compileLhs(withExtension, *this, boundUniquely, subproblemLikely);
     }
-  NatSet boundUniquely(lhs->occursBelow());
-  int nrFragments = condition.length();
-  for (int i = 0; i < nrFragments; i++)
-    condition[i]->compileMatch(*this, boundUniquely);
+    NatSet boundUniquely(lhs->occursBelow());
+    int nrFragments = condition.length();
+    for (int i = 0; i < nrFragments; i++)
+        condition[i]->compileMatch(*this, boundUniquely);
 }
 
 bool
-PreEquation::checkCondition(DagNode* subject,
-			    RewritingContext& context,
-			    Subproblem* subproblem) const
-{
-  int trialRef =  UNDEFINED;
-  Stack<ConditionState*> state;
-  bool result = checkCondition(true, subject, context, subproblem, trialRef, state);
-  Assert(result || state.empty(), "non-empty condition state stack");
-  while (!state.empty())
-    {
-      delete state.top();
-      state.pop();
+PreEquation::checkCondition(DagNode *subject,
+                            RewritingContext &context,
+                            Subproblem *subproblem) const {
+    int trialRef = UNDEFINED;
+    Stack<ConditionState *> state;
+    bool result = checkCondition(true, subject, context, subproblem, trialRef, state);
+    Assert(result || state.empty(), "non-empty condition state stack");
+    while (!state.empty()) {
+        delete state.top();
+        state.pop();
     }
-  return result;
+    return result;
 }
 
 bool
 PreEquation::checkCondition(bool findFirst,
-			    DagNode* subject,
-			    RewritingContext& context,
-			    Subproblem* subproblem,
-			    int& trialRef,
-			    Stack<ConditionState*>& state) const
-{
-  Assert(condition.length() != 0, "no condition");
-  Assert(!findFirst || state.empty(), "non-empty condition state stack");
-  if (findFirst)
-    trialRef = UNDEFINED;
-  do
-    {
-      if (RewritingContext::getTraceStatus())
-	{
-	  if (findFirst)
-	    trialRef = traceBeginTrial(subject, context);
-	  if (context.traceAbort())
-	    {
-	      cleanStack(state);
-	      return false;  // return false since condition variables may be unbound
-	    }
-	}
-      bool success = solveCondition(findFirst, trialRef, context, state);
-      if (RewritingContext::getTraceStatus())
-	{
-	  if (context.traceAbort())
-	    {
-	      cleanStack(state);
-	      return false;  // return false since condition variables may be unbound
-	    }
-	  if (trialRef != UNDEFINED)
-	    context.traceEndTrial(trialRef, success);
-	}
-      if (success)
-	return true;
-      Assert(state.empty(), "non-empty condition state stack");
-      findFirst = true;
-      trialRef = UNDEFINED;
-      //
-      //	Condition evaluation may create nodes without doing rewrites so...
-      //
-      MemoryCell::okToCollectGarbage();
-    }
-  while (subproblem != 0 && subproblem->solve(false, context));
-  if (RewritingContext::getTraceStatus() && trialRef != UNDEFINED)
-    context.traceExhausted(trialRef);
-  return false;
+                            DagNode *subject,
+                            RewritingContext &context,
+                            Subproblem *subproblem,
+                            int &trialRef,
+                            Stack<ConditionState *> &state) const {
+    Assert(condition.length() != 0, "no condition");
+    Assert(!findFirst || state.empty(), "non-empty condition state stack");
+    if (findFirst)
+        trialRef = UNDEFINED;
+    do {
+        if (RewritingContext::getTraceStatus()) {
+            if (findFirst)
+                trialRef = traceBeginTrial(subject, context);
+            if (context.traceAbort()) {
+                cleanStack(state);
+                return false;  // return false since condition variables may be unbound
+            }
+        }
+        bool success = solveCondition(findFirst, trialRef, context, state);
+        if (RewritingContext::getTraceStatus()) {
+            if (context.traceAbort()) {
+                cleanStack(state);
+                return false;  // return false since condition variables may be unbound
+            }
+            if (trialRef != UNDEFINED)
+                context.traceEndTrial(trialRef, success);
+        }
+        if (success)
+            return true;
+        Assert(state.empty(), "non-empty condition state stack");
+        findFirst = true;
+        trialRef = UNDEFINED;
+        //
+        //	Condition evaluation may create nodes without doing rewrites so...
+        //
+        MemoryCell::okToCollectGarbage();
+    } while (subproblem != 0 && subproblem->solve(false, context));
+    if (RewritingContext::getTraceStatus() && trialRef != UNDEFINED)
+        context.traceExhausted(trialRef);
+    return false;
 }
 
 bool
 PreEquation::solveCondition(bool findFirst,
-			    int trialRef,
-			    RewritingContext& solution,
-			    Stack<ConditionState*>& state) const
-{
-  int nrFragments = condition.length();
-  int i = findFirst ? 0 : nrFragments - 1;
-  for(;;)
-    {
-      if (RewritingContext::getTraceStatus())
-	{
-	  if (solution.traceAbort())
-	    return false;
-	  solution.traceBeginFragment(trialRef, this, i, findFirst);
-	}
-      findFirst = condition[i]->solve(findFirst, solution, state);
-      if (RewritingContext::getTraceStatus())
-	{
-	  if (solution.traceAbort())
-	    return false;
-	  solution.traceEndFragment(trialRef, this, i, findFirst);
-	}
-      if (findFirst)
-	{
-	  if (++i == nrFragments)
-	    break;
-	}
-      else
-	{
-	  if (--i < 0)
-	    break;
-	}
+                            int trialRef,
+                            RewritingContext &solution,
+                            Stack<ConditionState *> &state) const {
+    int nrFragments = condition.length();
+    int i = findFirst ? 0 : nrFragments - 1;
+    for (;;) {
+        if (RewritingContext::getTraceStatus()) {
+            if (solution.traceAbort())
+                return false;
+            solution.traceBeginFragment(trialRef, this, i, findFirst);
+        }
+        findFirst = condition[i]->solve(findFirst, solution, state);
+        if (RewritingContext::getTraceStatus()) {
+            if (solution.traceAbort())
+                return false;
+            solution.traceEndFragment(trialRef, this, i, findFirst);
+        }
+        if (findFirst) {
+            if (++i == nrFragments)
+                break;
+        } else {
+            if (--i < 0)
+                break;
+        }
     }
-  return findFirst;
+    return findFirst;
 }
 
 void
-PreEquation::cleanStack(Stack<ConditionState*>& conditionStack)
-{
-  DebugAdvisoryCheck(conditionStack.empty(),
-		     "cleaning condition stack because of abort");
-  while (!conditionStack.empty())
-    {
-      delete conditionStack.top();
-      conditionStack.pop();
+PreEquation::cleanStack(Stack<ConditionState *> &conditionStack) {
+    DebugAdvisoryCheck(conditionStack.empty(),
+                       "cleaning condition stack because of abort");
+    while (!conditionStack.empty()) {
+        delete conditionStack.top();
+        conditionStack.pop();
     }
 }
 
-DagNode*
-PreEquation::getLhsDag()
-{
-  DagNode* d = lhsDag.getNode();
-  if (d == 0)
-    {
-      d = getLhs()->term2Dag();
-      if (d->computeBaseSortForGroundSubterms(true) == DagNode::UNIMPLEMENTED)
-	{
-	  IssueWarning(*this << ": lefthand side of " << this <<
-		       " contains function symbols with nonvariable arguments that are not supported by unification.");
-	}
-      lhsDag.setNode(d);
+DagNode *
+PreEquation::getLhsDag() {
+    DagNode *d = lhsDag.getNode();
+    if (d == 0) {
+        d = getLhs()->term2Dag();
+        if (d->computeBaseSortForGroundSubterms(true) == DagNode::UNIMPLEMENTED) {
+            IssueWarning(*this << ": lefthand side of " << this <<
+                               " contains function symbols with nonvariable arguments that are not supported by unification.");
+        }
+        lhsDag.setNode(d);
     }
-  return d;
+    return d;
 }
 
 void
-PreEquation::reset()
-{
-  lhsDag.setNode(0);
+PreEquation::reset() {
+    lhsDag.setNode(0);
 }
 
-ostream&
-operator<<(ostream& s, const PreEquation* pe)
-{
-  pe->print(s);
-  return s;
+ostream &
+operator<<(ostream &s, const PreEquation *pe) {
+    pe->print(s);
+    return s;
 }
 
 #ifdef DUMP
@@ -292,7 +262,7 @@ PreEquation::dump(ostream& s, int indentLevel)
     {
       s << Indent(indentLevel) << "Begin{Condition}\n";
       for (int i = 0; i < nrFragments; ++i)
-	condition[i]->dump(s, *this, indentLevel + 1);
+    condition[i]->dump(s, *this, indentLevel + 1);
       s << Indent(indentLevel) << "End{Condition}\n";
     }
   s << Indent(indentLevel - 1) << "End{PreEquation}\n";

@@ -26,53 +26,57 @@
 //
 #ifndef _unifierFilter_hh_
 #define _unifierFilter_hh_
+
 #include <list>
 #include "simpleRootContainer.hh"
 #include "substitution.hh"
 
-class UnifierFilter : private SimpleRootContainer
-{
-  NO_COPYING(UnifierFilter);
+class UnifierFilter : private SimpleRootContainer {
+    NO_COPYING(UnifierFilter);
 
 public:
-  UnifierFilter(int firstInterestingVariable, int nrInterestingVariables);
-  ~UnifierFilter();
-  //
-  //	posistionIndex and equationIndex are just opaque integers that are
-  //	stored along side the unifier. The names suggest the way they are used
-  //	during variantNarrowing but the caller can use them to store other
-  //	information if desired.
-  //
-  void insertUnifier(const Substitution& unifier, int positionIndex = 0, int equationIndex = 0);
-  bool getNextSurvivingUnifier(Substitution*& unifier, int& positionIndex, int& equationIndex);
+    UnifierFilter(int firstInterestingVariable, int nrInterestingVariables);
+
+    ~UnifierFilter();
+
+    //
+    //	posistionIndex and equationIndex are just opaque integers that are
+    //	stored along side the unifier. The names suggest the way they are used
+    //	during variantNarrowing but the caller can use them to store other
+    //	information if desired.
+    //
+    void insertUnifier(const Substitution &unifier, int positionIndex = 0, int equationIndex = 0);
+
+    bool getNextSurvivingUnifier(Substitution *&unifier, int &positionIndex, int &equationIndex);
 
 private:
-  struct RetainedUnifier
-  {
-    RetainedUnifier(const Substitution& original,
-		    int firstInterestingVariable,
-		    int nrInterestingVariables);
-    ~RetainedUnifier();
+    struct RetainedUnifier {
+        RetainedUnifier(const Substitution &original,
+                        int firstInterestingVariable,
+                        int nrInterestingVariables);
 
-    Substitution unifier;
-    Vector<Term*> interestingBindings;
-    Vector<LhsAutomaton*> matchingAutomata;
-    int nrVariablesInBindings;
-    int positionIndex;
-    int equationIndex;
-  };
+        ~RetainedUnifier();
 
-  typedef list<RetainedUnifier*> RetainedUnifierList;
+        Substitution unifier;
+        Vector<Term *> interestingBindings;
+        Vector<LhsAutomaton *> matchingAutomata;
+        int nrVariablesInBindings;
+        int positionIndex;
+        int equationIndex;
+    };
 
-  void markReachableNodes();
-  bool subsumes(const RetainedUnifier* retainedUnifier, const Substitution& unifier);
+    typedef list<RetainedUnifier *> RetainedUnifierList;
 
-  const int firstInterestingVariable;
-  const int nrInterestingVariables;
-  RetainedUnifierList mostGeneralSoFar;   // on interestingVariables;
+    void markReachableNodes();
 
-  bool startedExtractingUnifiers;
-  RetainedUnifierList::const_iterator nextUnifier;
+    bool subsumes(const RetainedUnifier *retainedUnifier, const Substitution &unifier);
+
+    const int firstInterestingVariable;
+    const int nrInterestingVariables;
+    RetainedUnifierList mostGeneralSoFar;   // on interestingVariables;
+
+    bool startedExtractingUnifiers;
+    RetainedUnifierList::const_iterator nextUnifier;
 };
 
 #endif

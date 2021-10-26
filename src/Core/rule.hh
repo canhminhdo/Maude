@@ -25,78 +25,83 @@
 //
 #ifndef _rule_hh_
 #define _rule_hh_
+
 #include "preEquation.hh"
 #include "rhsBuilder.hh"
 
-class Rule : public PreEquation
-{
+class Rule : public PreEquation {
 public:
-  Rule(int label,
-       Term* lhs,
-       Term* rhs,
-       const Vector<ConditionFragment*>& condition = noCondition);
-  ~Rule();
+    Rule(int label,
+         Term *lhs,
+         Term *rhs,
+         const Vector<ConditionFragment *> &condition = noCondition);
 
-  Term* getRhs() const;
-  void check();
-  void preprocess();
-  void compile(bool compileLhs);
-  const RhsBuilder& getRhsBuilder() const;
-  LhsAutomaton* getNonExtLhsAutomaton();
-  LhsAutomaton* getExtLhsAutomaton();
-  void print(ostream& s) const;
-  bool isNarrowing() const;
-  void setNarrowing();
-  void clearNarrowing();
+    ~Rule();
+
+    Term *getRhs() const;
+
+    void check();
+
+    void preprocess();
+
+    void compile(bool compileLhs);
+
+    const RhsBuilder &getRhsBuilder() const;
+
+    LhsAutomaton *getNonExtLhsAutomaton();
+
+    LhsAutomaton *getExtLhsAutomaton();
+
+    void print(ostream &s) const;
+
+    bool isNarrowing() const;
+
+    void setNarrowing();
+
+    void clearNarrowing();
 
 private:
-  enum Flags
-  {
-    NARROWING = 0x100
-  };
+    enum Flags {
+        NARROWING = 0x100
+    };
 
-  int traceBeginTrial(DagNode* subject, RewritingContext& context) const;
+    int traceBeginTrial(DagNode *subject, RewritingContext &context) const;
 
-  Term* rhs;
-  RhsBuilder builder;
-  LhsAutomaton* nonExtLhsAutomaton;
-  LhsAutomaton* extLhsAutomaton;
-  DagRoot lhsDag;  // for unification
+    Term *rhs;
+    RhsBuilder builder;
+    LhsAutomaton *nonExtLhsAutomaton;
+    LhsAutomaton *extLhsAutomaton;
+    DagRoot lhsDag;  // for unification
 };
 
-inline Term*
-Rule::getRhs() const
-{
-  return rhs;
+inline Term *
+Rule::getRhs() const {
+    return rhs;
 }
 
-inline const RhsBuilder&
-Rule::getRhsBuilder() const
-{
-  return builder;
+inline const RhsBuilder &
+Rule::getRhsBuilder() const {
+    return builder;
 }
 
 inline bool
-Rule::isNarrowing() const
-{
-  return getFlag(NARROWING);
+Rule::isNarrowing() const {
+    return getFlag(NARROWING);
 }
 
 inline void
-Rule::setNarrowing()
-{
-  setFlags(NARROWING);
+Rule::setNarrowing() {
+    setFlags(NARROWING);
 }
 
 inline void
-Rule::clearNarrowing()
-{
-  clearFlags(NARROWING);
+Rule::clearNarrowing() {
+    clearFlags(NARROWING);
 }
 
 //
 //      Output function for Rule must be defined by library user
 //
-ostream& operator<<(ostream& s, const Rule* rule);
- 
+ostream &operator<<(ostream &s, const Rule *rule);
+
 #endif

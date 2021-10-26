@@ -38,21 +38,19 @@
 
 #include "memoryCell.hh"
 
-struct MemoryCell::Arena
-{
-  union
-  {
-    Arena* nextArena;
-    Int64 alignmentDummy;  // force 8 byte alignment for MemoryCell objects
-  };
-  MemoryCell storage[ARENA_SIZE];
-  MemoryCell* firstNode();
+struct MemoryCell::Arena {
+    union {
+        Arena *nextArena;
+        Int64 alignmentDummy;  // force 8 byte alignment for MemoryCell objects
+    };
+    MemoryCell storage[ARENA_SIZE];
+
+    MemoryCell *firstNode();
 };
 
-inline MemoryCell*
-MemoryCell::Arena::firstNode()
-{
-  return storage;
+inline MemoryCell *
+MemoryCell::Arena::firstNode() {
+    return storage;
 }
 
 bool MemoryCell::showGC = false;
@@ -63,302 +61,272 @@ int MemoryCell::nrArenas = 0;
 int nrNodesInUse = 0;  // FIX ME
 bool MemoryCell::currentArenaPastActiveArena = true;
 bool MemoryCell::needToCollectGarbage = false;
-MemoryCell::Arena* MemoryCell::firstArena = 0;
-MemoryCell::Arena* MemoryCell::lastArena = 0;
-MemoryCell::Arena* MemoryCell::currentArena = 0;
-MemoryCell* MemoryCell::nextNode = 0;
-MemoryCell* MemoryCell::endPointer = 0;
-MemoryCell::Arena* MemoryCell::lastActiveArena = 0;
-MemoryCell* MemoryCell::lastActiveNode = 0;
+MemoryCell::Arena *MemoryCell::firstArena = 0;
+MemoryCell::Arena *MemoryCell::lastArena = 0;
+MemoryCell::Arena *MemoryCell::currentArena = 0;
+MemoryCell *MemoryCell::nextNode = 0;
+MemoryCell *MemoryCell::endPointer = 0;
+MemoryCell::Arena *MemoryCell::lastActiveArena = 0;
+MemoryCell *MemoryCell::lastActiveNode = 0;
 //
 //	Bucket management variables.
 //
 int MemoryCell::nrBuckets = 0;
-MemoryCell::Bucket* MemoryCell::bucketList = 0;
-MemoryCell::Bucket* MemoryCell::unusedList = 0;
+MemoryCell::Bucket *MemoryCell::bucketList = 0;
+MemoryCell::Bucket *MemoryCell::unusedList = 0;
 size_t MemoryCell::bucketStorage = 0;
 size_t MemoryCell::storageInUse = 0;
 size_t MemoryCell::target = INITIAL_TARGET;
 
-MemoryCell::Arena*
-MemoryCell::allocateNewArena()
-{
+MemoryCell::Arena *
+MemoryCell::allocateNewArena() {
 #ifdef GC_DEBUG
-  cerr << "allocateNewArena()\n";
-  dumpMemoryVariables(cerr);
+    cerr << "allocateNewArena()\n";
+    dumpMemoryVariables(cerr);
 #endif
-  Arena* a = new Arena;
-  a->nextArena = 0;
-  if (lastArena == 0)
-    firstArena = a;
-  else
-    lastArena->nextArena = a;
-  lastArena = a;
-  MemoryCell* d = a->firstNode();
-  for (int i = 0; i < ARENA_SIZE; i++, d++)
-    d->clearAllFlags();
-  ++nrArenas;
-  return a;
+    Arena *a = new Arena;
+    a->nextArena = 0;
+    if (lastArena == 0)
+        firstArena = a;
+    else
+        lastArena->nextArena = a;
+    lastArena = a;
+    MemoryCell *d = a->firstNode();
+    for (int i = 0; i < ARENA_SIZE; i++, d++)
+        d->clearAllFlags();
+    ++nrArenas;
+    return a;
 }
 
-MemoryCell*
-MemoryCell::slowNew()
-{
+MemoryCell *
+MemoryCell::slowNew() {
 #ifdef GC_DEBUG
-  cerr << "slowNew()\n";
-  dumpMemoryVariables(cerr);
+    cerr << "slowNew()\n";
+    dumpMemoryVariables(cerr);
 #endif
-  for(;;)
-    {
-      if (currentArena == 0)
-	{
-	  //
-	  //	Allocate first arena.
-	  //
-	  currentArena = allocateNewArena();
-	  MemoryCell* d = currentArena->firstNode();
-	  endPointer = d + ARENA_SIZE - RESERVE_SIZE;
-	  //Assert(d->h.flags == 0, "flags not cleared");
-	  return d;
-	}
-      Arena* a = currentArena->nextArena;
-      if (a == 0)
-	{
-	  needToCollectGarbage = true;
-	 MemoryCell* e = currentArena->firstNode() + ARENA_SIZE;
-	  if (endPointer != e)
-	    {
-	      //
-	      //	Use up reserve.
-	      //
-	      nextNode = endPointer;  // nextNode is invalid where we are called
-	      endPointer = e;
-	    }
-	  else
-	    {
-	      //
-	      //	Allocate a new arena.
-	      //
-	      if (currentArena == lastActiveArena)
-		currentArenaPastActiveArena = true;
-	      currentArena = allocateNewArena();
-	      MemoryCell* d = currentArena->firstNode();
-	      endPointer = d + ARENA_SIZE;
-	      //Assert(d->h.flags == 0, "flags not cleared");
-	      return d;
-	    }
-	}
-      else
-	{
-	  //
-	  //	Use next arena.
-	  //
-	  if (currentArena == lastActiveArena)
-	    currentArenaPastActiveArena = true;
-	  currentArena = a;
-	  nextNode = a->firstNode();
-	  endPointer = nextNode +
-	    ((a->nextArena != 0) ? ARENA_SIZE : ARENA_SIZE - RESERVE_SIZE);
-	}
-      //
-      //	Now execute lazy sweep to actually find a free location
-      //
+    for (;;) {
+        if (currentArena == 0) {
+            //
+            //	Allocate first arena.
+            //
+            currentArena = allocateNewArena();
+            MemoryCell *d = currentArena->firstNode();
+            endPointer = d + ARENA_SIZE - RESERVE_SIZE;
+            //Assert(d->h.flags == 0, "flags not cleared");
+            return d;
+        }
+        Arena *a = currentArena->nextArena;
+        if (a == 0) {
+            needToCollectGarbage = true;
+            MemoryCell *e = currentArena->firstNode() + ARENA_SIZE;
+            if (endPointer != e) {
+                //
+                //	Use up reserve.
+                //
+                nextNode = endPointer;  // nextNode is invalid where we are called
+                endPointer = e;
+            } else {
+                //
+                //	Allocate a new arena.
+                //
+                if (currentArena == lastActiveArena)
+                    currentArenaPastActiveArena = true;
+                currentArena = allocateNewArena();
+                MemoryCell *d = currentArena->firstNode();
+                endPointer = d + ARENA_SIZE;
+                //Assert(d->h.flags == 0, "flags not cleared");
+                return d;
+            }
+        } else {
+            //
+            //	Use next arena.
+            //
+            if (currentArena == lastActiveArena)
+                currentArenaPastActiveArena = true;
+            currentArena = a;
+            nextNode = a->firstNode();
+            endPointer = nextNode +
+                         ((a->nextArena != 0) ? ARENA_SIZE : ARENA_SIZE - RESERVE_SIZE);
+        }
+        //
+        //	Now execute lazy sweep to actually find a free location
+        //
 #ifdef GC_DEBUG
-      checkInvariant();
+        checkInvariant();
 #endif
-      MemoryCell* e = endPointer;
-      for (MemoryCell* d = nextNode; d != e; d++)
-	{
-	  if (d->simpleReuse())
-	    {
-	      return d;
-	    }
-	  if (!(d->isMarked()))
-	    {
-	      d->callDtor();
-	      return d;
-	    }
-	  d->clearFlag(MARKED);
-	}
+        MemoryCell *e = endPointer;
+        for (MemoryCell *d = nextNode; d != e; d++) {
+            if (d->simpleReuse()) {
+                return d;
+            }
+            if (!(d->isMarked())) {
+                d->callDtor();
+                return d;
+            }
+            d->clearFlag(MARKED);
+        }
     }
 }
 
-void*
-MemoryCell::slowAllocateStorage(size_t bytesNeeded)
-{
-  Bucket* p = 0;
-  for (Bucket* b = unusedList; b; p = b, b = b->nextBucket)
-    {
-      if (b->bytesFree >= bytesNeeded)
-	{
-	  //
-	  //	Move b from unused list to bucket list
-	  //
-	  if (p == 0)
-	    unusedList = b->nextBucket;
-	  else
-	    p->nextBucket = b->nextBucket;
-	  b->nextBucket = bucketList;
-	  bucketList = b;
-	  //
-	  //	Allocate storage from b
-	  //
-	  b->bytesFree -= bytesNeeded;
-	  void* t = b->nextFree;
-	  b->nextFree = static_cast<char*>(t) + bytesNeeded;
-	  return t;
-	}
+void *
+MemoryCell::slowAllocateStorage(size_t bytesNeeded) {
+    Bucket *p = 0;
+    for (Bucket *b = unusedList; b; p = b, b = b->nextBucket) {
+        if (b->bytesFree >= bytesNeeded) {
+            //
+            //	Move b from unused list to bucket list
+            //
+            if (p == 0)
+                unusedList = b->nextBucket;
+            else
+                p->nextBucket = b->nextBucket;
+            b->nextBucket = bucketList;
+            bucketList = b;
+            //
+            //	Allocate storage from b
+            //
+            b->bytesFree -= bytesNeeded;
+            void *t = b->nextFree;
+            b->nextFree = static_cast<char *>(t) + bytesNeeded;
+            return t;
+        }
     }
-  //
-  //	Create new bucket
-  //
-  size_t size = BUCKET_MULTIPLIER * bytesNeeded;
-  if (size < MIN_BUCKET_SIZE)
-    size = MIN_BUCKET_SIZE;
+    //
+    //	Create new bucket
+    //
+    size_t size = BUCKET_MULTIPLIER * bytesNeeded;
+    if (size < MIN_BUCKET_SIZE)
+        size = MIN_BUCKET_SIZE;
 
-  Bucket* b = static_cast<Bucket*>(operator new[](size));
-  ++nrBuckets;
-  void* t = b + 1;
-  size_t nrBytes = size - sizeof(Bucket);
-  bucketStorage += nrBytes;
-  b->nrBytes = nrBytes;
-  b->bytesFree = nrBytes - bytesNeeded;
-  b->nextFree = static_cast<char*>(t) + bytesNeeded;
-  b->nextBucket = bucketList;
-  bucketList = b;
-  return t;
+    Bucket *b = static_cast<Bucket *>(operator new[](size));
+    ++nrBuckets;
+    void *t = b + 1;
+    size_t nrBytes = size - sizeof(Bucket);
+    bucketStorage += nrBytes;
+    b->nrBytes = nrBytes;
+    b->bytesFree = nrBytes - bytesNeeded;
+    b->nextFree = static_cast<char *>(t) + bytesNeeded;
+    b->nextBucket = bucketList;
+    bucketList = b;
+    return t;
 }
 
 void
-MemoryCell::tidyArenas()
-{
+MemoryCell::tidyArenas() {
 #ifdef GC_DEBUG
-  cerr << "tidyArenas()\n";
-  dumpMemoryVariables(cerr);
+    cerr << "tidyArenas()\n";
+    dumpMemoryVariables(cerr);
 #endif
-  //
-  //	Tidy up lazy sweep phase - clear marked flags and call dtors
-  //	where necessary.
-  //
-  Arena* newLastActiveArena = currentArena;
-  MemoryCell* newLastActiveNode = nextNode - 1;  // nextNode never points to first node
+    //
+    //	Tidy up lazy sweep phase - clear marked flags and call dtors
+    //	where necessary.
+    //
+    Arena *newLastActiveArena = currentArena;
+    MemoryCell *newLastActiveNode = nextNode - 1;  // nextNode never points to first node
 
-  if (!currentArenaPastActiveArena)
-    {
-      //
-      //	First tidy arenas from current up to lastActive.
-      //
-      MemoryCell* d = nextNode;
-      Arena* c = currentArena;
-      for (; c != lastActiveArena; c = c->nextArena, d = c->firstNode())
-	{
-	  MemoryCell* e = c->firstNode() + ARENA_SIZE;
-	  for (; d != e; d++)
-	    {
-	      if (d->isMarked())
-		{
-		  newLastActiveArena = c;
-		  newLastActiveNode = d;
-		  d->clearFlag(MARKED);
-		}
-	      else
-		{
-		  if (d->needToCallDtor())
-		    d->callDtor();
-		  d->clearAllFlags();
-		}
-	    }
-	}
-      //
-      //	Now tidy lastActiveArena from d upto and including lastActiveNode.
-      //
-      MemoryCell* e = lastActiveNode;
-      for(; d <= e; d++)
-	{
-	  if (d->isMarked())
-	    {
-	      newLastActiveArena = c;
-	      newLastActiveNode = d;
-	      d->clearFlag(MARKED);
-	    }
-	  else
-	    {
-	      if (d->needToCallDtor())
-		d->callDtor();
-	      d->clearAllFlags();
-	    }
-	}
+    if (!currentArenaPastActiveArena) {
+        //
+        //	First tidy arenas from current up to lastActive.
+        //
+        MemoryCell *d = nextNode;
+        Arena *c = currentArena;
+        for (; c != lastActiveArena; c = c->nextArena, d = c->firstNode()) {
+            MemoryCell *e = c->firstNode() + ARENA_SIZE;
+            for (; d != e; d++) {
+                if (d->isMarked()) {
+                    newLastActiveArena = c;
+                    newLastActiveNode = d;
+                    d->clearFlag(MARKED);
+                } else {
+                    if (d->needToCallDtor())
+                        d->callDtor();
+                    d->clearAllFlags();
+                }
+            }
+        }
+        //
+        //	Now tidy lastActiveArena from d upto and including lastActiveNode.
+        //
+        MemoryCell *e = lastActiveNode;
+        for (; d <= e; d++) {
+            if (d->isMarked()) {
+                newLastActiveArena = c;
+                newLastActiveNode = d;
+                d->clearFlag(MARKED);
+            } else {
+                if (d->needToCallDtor())
+                    d->callDtor();
+                d->clearAllFlags();
+            }
+        }
     }
-  lastActiveArena = newLastActiveArena;
-  lastActiveNode = newLastActiveNode;
+    lastActiveArena = newLastActiveArena;
+    lastActiveNode = newLastActiveNode;
 }
 
 void
-MemoryCell::collectGarbage()
-{
-  if (firstArena == 0)
-    return;
-  tidyArenas();
+MemoryCell::collectGarbage() {
+    if (firstArena == 0)
+        return;
+    tidyArenas();
 #ifdef GC_DEBUG
-  checkArenas();
+    checkArenas();
 #endif
-  //
-  //	Mark phase
-  //
-  nrNodesInUse = 0;
-  size_t oldStorageInUse = storageInUse;
-  Bucket* b = bucketList;
-  bucketList = unusedList;
-  unusedList = 0;
-  storageInUse = 0;
+    //
+    //	Mark phase
+    //
+    nrNodesInUse = 0;
+    size_t oldStorageInUse = storageInUse;
+    Bucket *b = bucketList;
+    bucketList = unusedList;
+    unusedList = 0;
+    storageInUse = 0;
 
-  RootContainer::markPhase();
+    RootContainer::markPhase();
 
-  unusedList = b;
-  for (; b; b = b->nextBucket)
-    {
-      b->bytesFree = b->nrBytes;
-      b->nextFree = b + 1;  // reset
+    unusedList = b;
+    for (; b; b = b->nextBucket) {
+        b->bytesFree = b->nrBytes;
+        b->nextFree = b + 1;  // reset
     }
-  size_t newTarget = TARGET_MULTIPLIER * storageInUse;
-  if (target < newTarget)
-    target = newTarget;
-  //
-  //	Calculate if we should allocate more arenas to avoid an early gc.
-  //
-  int nrNodes = nrArenas * ARENA_SIZE;
-  if (showGC)
-    {
-      cout << "Arenas: " << nrArenas <<
-	"\tNodes: " << nrNodes <<
-	//	"\tIn use: " << nrNodesInUse <<
-	//	"\tCollected: " << reclaimed << 
-	"\tNow: " << nrNodesInUse <<
-	"\nBuckets: " << nrBuckets <<
-	"\tBytes: " << bucketStorage <<
-	"\tIn use: " << oldStorageInUse <<
-	"\tCollected: " << oldStorageInUse - storageInUse <<
-	"\tNow: " << storageInUse << '\n';
+    size_t newTarget = TARGET_MULTIPLIER * storageInUse;
+    if (target < newTarget)
+        target = newTarget;
+    //
+    //	Calculate if we should allocate more arenas to avoid an early gc.
+    //
+    int nrNodes = nrArenas * ARENA_SIZE;
+    if (showGC) {
+        cout << "Arenas: " << nrArenas <<
+             "\tNodes: " << nrNodes <<
+             //	"\tIn use: " << nrNodesInUse <<
+             //	"\tCollected: " << reclaimed <<
+             "\tNow: " << nrNodesInUse <<
+             "\nBuckets: " << nrBuckets <<
+             "\tBytes: " << bucketStorage <<
+             "\tIn use: " << oldStorageInUse <<
+             "\tCollected: " << oldStorageInUse - storageInUse <<
+             "\tNow: " << storageInUse << '\n';
     }
-  //
-  //	Allocate new arenas so that we have at least 50% of nodes unused.
-  //
-  int neededArenas = ceilingDivision(2 * nrNodesInUse, ARENA_SIZE);
-  while (nrArenas < neededArenas)
-    (void) allocateNewArena();
-  //
-  //	Reset node stuff.
-  //
-  currentArenaPastActiveArena = false;
-  currentArena = firstArena;
-  nextNode = currentArena->firstNode();
-  endPointer = nextNode +
-    ((firstArena->nextArena != 0) ? ARENA_SIZE : ARENA_SIZE - RESERVE_SIZE);
-  needToCollectGarbage = false;
+    //
+    //	Allocate new arenas so that we have at least 50% of nodes unused.
+    //
+    int neededArenas = ceilingDivision(2 * nrNodesInUse, ARENA_SIZE);
+    while (nrArenas < neededArenas)
+        (void) allocateNewArena();
+    //
+    //	Reset node stuff.
+    //
+    currentArenaPastActiveArena = false;
+    currentArena = firstArena;
+    nextNode = currentArena->firstNode();
+    endPointer = nextNode +
+                 ((firstArena->nextArena != 0) ? ARENA_SIZE : ARENA_SIZE - RESERVE_SIZE);
+    needToCollectGarbage = false;
 #ifdef GC_DEBUG
-  // stompArenas();
-  cerr << "end of GC\n";
-  dumpMemoryVariables(cerr);
+    // stompArenas();
+    cerr << "end of GC\n";
+    dumpMemoryVariables(cerr);
 #endif
 }
 
@@ -370,10 +338,10 @@ MemoryCell::stompArenas()
     {
       MemoryCell* d = a->firstNode();
       for (int i = 0; i < ARENA_SIZE; i++, d++)
-	{
-	  if (!(d->h.flags & MARKED) && !(d->h.flags & CALL_DTOR))
-	    d->topSymbol = reinterpret_cast<Symbol*>(0x33);
-	}
+    {
+      if (!(d->h.flags & MARKED) && !(d->h.flags & CALL_DTOR))
+        d->topSymbol = reinterpret_cast<Symbol*>(0x33);
+    }
     }
 }
 
@@ -385,13 +353,13 @@ MemoryCell::checkArenas()
     {
       MemoryCell* d = a->firstNode();
       for (int i = 0; i < ARENA_SIZE; i++, d++)
-	{
-	  if (d->h.flags & MARKED)
-	    {
-	      cerr << "checkArenas(): MARKED DagNode! arena = " <<
-		n << " node = " << i << '\n';
-	    }
-	}
+    {
+      if (d->h.flags & MARKED)
+        {
+          cerr << "checkArenas(): MARKED DagNode! arena = " <<
+        n << " node = " << i << '\n';
+        }
+    }
     }
 }
 
@@ -404,15 +372,15 @@ MemoryCell::checkInvariant()
       MemoryCell* d = a->firstNode();
       int bound = (a == currentArena) ? nextNode - d : ARENA_SIZE;
       for (int i = 0; i < bound; i++, d++)
-	{
-	  if (d->h.flags & MARKED)
-	    {
-	      cerr << "checkInvariant() : MARKED DagNode! arena = " <<
-		n << " node = " << i << '\n';
-	    }
-	}
+    {
+      if (d->h.flags & MARKED)
+        {
+          cerr << "checkInvariant() : MARKED DagNode! arena = " <<
+        n << " node = " << i << '\n';
+        }
+    }
       if (a == currentArena)
-	break;
+    break;
     }
 }
 

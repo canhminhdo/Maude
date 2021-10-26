@@ -25,68 +25,76 @@
 //
 #ifndef _numberOpSymbol_hh_
 #define _numberOpSymbol_hh_
+
 #include "freeSymbol.hh"
 #include "cachedDag.hh"
 #include "gmpxx.h"
 
-class NumberOpSymbol : public FreeSymbol
-{
+class NumberOpSymbol : public FreeSymbol {
 public:
-  NumberOpSymbol(int id, int arity);
+    NumberOpSymbol(int id, int arity);
 
-  bool attachData(const Vector<Sort*>& opDeclaration,
-		  const char* purpose,
-		  const Vector<const char*>& data);
-  bool attachSymbol(const char* purpose, Symbol* symbol);
-  bool attachTerm(const char* purpose, Term* term);
-  void copyAttachments(Symbol* original, SymbolMap* map);
-  void getDataAttachments(const Vector<Sort*>& opDeclaration,
-			  Vector<const char*>& purposes,
-			  Vector<Vector<const char*> >& data);
-  void getSymbolAttachments(Vector<const char*>& purposes,
-			    Vector<Symbol*>& symbols);
-  void getTermAttachments(Vector<const char*>& purposes,
-			  Vector<Term*>& terms);
+    bool attachData(const Vector<Sort *> &opDeclaration,
+                    const char *purpose,
+                    const Vector<const char *> &data);
 
-  void postInterSymbolPass();
-  void reset();
-  bool eqRewrite(DagNode* subject, RewritingContext& context);
-  //
-  //	Functions special to NumberOpSymbol.
-  //
-  /*
-  DagNode* makeNegDag(const mpz_class& integer);
-  bool isNeg(const DagNode* dagNode) const;
-  const mpz_class& getNeg(const DagNode* dagNode, mpz_class& result) const;
-  */
+    bool attachSymbol(const char *purpose, Symbol *symbol);
+
+    bool attachTerm(const char *purpose, Term *term);
+
+    void copyAttachments(Symbol *original, SymbolMap *map);
+
+    void getDataAttachments(const Vector<Sort *> &opDeclaration,
+                            Vector<const char *> &purposes,
+                            Vector<Vector<const char *> > &data);
+
+    void getSymbolAttachments(Vector<const char *> &purposes,
+                              Vector<Symbol *> &symbols);
+
+    void getTermAttachments(Vector<const char *> &purposes,
+                            Vector<Term *> &terms);
+
+    void postInterSymbolPass();
+
+    void reset();
+
+    bool eqRewrite(DagNode *subject, RewritingContext &context);
+    //
+    //	Functions special to NumberOpSymbol.
+    //
+    /*
+    DagNode* makeNegDag(const mpz_class& integer);
+    bool isNeg(const DagNode* dagNode) const;
+    const mpz_class& getNeg(const DagNode* dagNode, mpz_class& result) const;
+    */
 
 protected:
-  SuccSymbol* getSuccSymbol() const;
-  MinusSymbol* getMinusSymbol() const;
-  bool getNumber(DagNode* dagNode, mpz_class& value) const;
+    SuccSymbol *getSuccSymbol() const;
+
+    MinusSymbol *getMinusSymbol() const;
+
+    bool getNumber(DagNode *dagNode, mpz_class &value) const;
 
 private:
-  enum ImplementationConstants
-  {
-    EXPONENT_BOUND = 1000000	// max allowed exponent to limit runaway memory use
-  };
+    enum ImplementationConstants {
+        EXPONENT_BOUND = 1000000    // max allowed exponent to limit runaway memory use
+    };
 
-  int op;
-  SuccSymbol* succSymbol;
-  MinusSymbol* minusSymbol;
-  CachedDag trueTerm;
-  CachedDag falseTerm;
+    int op;
+    SuccSymbol *succSymbol;
+    MinusSymbol *minusSymbol;
+    CachedDag trueTerm;
+    CachedDag falseTerm;
 };
 
-inline SuccSymbol*
-NumberOpSymbol::getSuccSymbol() const
-{
-  return succSymbol;
+inline SuccSymbol *
+NumberOpSymbol::getSuccSymbol() const {
+    return succSymbol;
 }
-inline MinusSymbol*
-NumberOpSymbol::getMinusSymbol() const
-{
-  return minusSymbol;
+
+inline MinusSymbol *
+NumberOpSymbol::getMinusSymbol() const {
+    return minusSymbol;
 }
 
 #endif

@@ -29,29 +29,30 @@
 #ifndef _delayedSubproblem_hh_
 #define _delayedSubproblem_hh_
 
-class DelayedSubproblem
-{
+class DelayedSubproblem {
 public:
-  virtual ~DelayedSubproblem() {}  // deep
-  virtual bool delayedSolve(bool findFirst, RewritingContext& solution) { CantHappen("Not implemented"); return false; }
+    virtual ~DelayedSubproblem() {}  // deep
+    virtual bool delayedSolve(bool findFirst, RewritingContext &solution) {
+        CantHappen("Not implemented");
+        return false;
+    }
 
-  bool solved() const;
-  void setSolvedSatus(bool flag);
+    bool solved() const;
+
+    void setSolvedSatus(bool flag);
 
 private:
-  bool solvedFlag;
+    bool solvedFlag;
 };
 
 inline bool
-DelayedSubproblem::solved() const
-{
-  return solvedFlag;
+DelayedSubproblem::solved() const {
+    return solvedFlag;
 }
 
 inline void
-DelayedSubproblem::setSolvedSatus(bool flag)
-{
-  solvedFlag = flag;
+DelayedSubproblem::setSolvedSatus(bool flag) {
+    solvedFlag = flag;
 }
 
 #endif

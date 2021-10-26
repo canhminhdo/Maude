@@ -26,52 +26,54 @@
 //
 #ifndef _variantMatchingProblem_hh_
 #define _variantMatchingProblem_hh_
+
 #include <set>
 #include "simpleRootContainer.hh"
 
-class VariantMatchingProblem : private SimpleRootContainer
-{
+class VariantMatchingProblem : private SimpleRootContainer {
 public:
-  //
-  //	VariantMatchingProblem takes responsibility for deleting subject
-  //	on destruction.
-  //
-  VariantMatchingProblem(VariantFolder* pattern,
-			 RewritingContext* subject,
-			 FreshVariableGenerator* freshVariableGenerator);
-  ~VariantMatchingProblem();
-  
-  bool findNextMatcher();
-  const Vector<DagNode*>& getCurrentMatcher() const;
-  bool freshVariablesNeeded() const;
+    //
+    //	VariantMatchingProblem takes responsibility for deleting subject
+    //	on destruction.
+    //
+    VariantMatchingProblem(VariantFolder *pattern,
+                           RewritingContext *subject,
+                           FreshVariableGenerator *freshVariableGenerator);
+
+    ~VariantMatchingProblem();
+
+    bool findNextMatcher();
+
+    const Vector<DagNode *> &getCurrentMatcher() const;
+
+    bool freshVariablesNeeded() const;
 
 private:
-  void markReachableNodes();
-  void checkVariablesInSubject();
-  
-  VariantFolder* const pattern;
-  RewritingContext* const subject;
-  FreshVariableGenerator* const freshVariableGenerator;
-  
-  set<int> indicesToAvoid;
-  bool checkedVariablesInSubject;
-  int indexOfLastUsedVariant;
-  RewritingContext* matcher;
-  Subproblem* subproblem;
-  const Vector<DagNode*>* currentVariant;
-  Vector<DagNode*> currentMatcher;
+    void markReachableNodes();
+
+    void checkVariablesInSubject();
+
+    VariantFolder *const pattern;
+    RewritingContext *const subject;
+    FreshVariableGenerator *const freshVariableGenerator;
+
+    set<int> indicesToAvoid;
+    bool checkedVariablesInSubject;
+    int indexOfLastUsedVariant;
+    RewritingContext *matcher;
+    Subproblem *subproblem;
+    const Vector<DagNode *> *currentVariant;
+    Vector<DagNode *> currentMatcher;
 };
 
-inline const Vector<DagNode*>&
-VariantMatchingProblem::getCurrentMatcher() const
-{
-  return currentMatcher;
+inline const Vector<DagNode *> &
+VariantMatchingProblem::getCurrentMatcher() const {
+    return currentMatcher;
 }
 
 inline bool
-VariantMatchingProblem::freshVariablesNeeded() const
-{
-  return checkedVariablesInSubject;
+VariantMatchingProblem::freshVariablesNeeded() const {
+    return checkedVariablesInSubject;
 }
 
 #endif

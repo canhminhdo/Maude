@@ -25,27 +25,27 @@
 //
 #ifndef _subtermProcess_hh_
 #define _subtermProcess_hh_
+
 #include "strategicProcess.hh"
 #include "sharedValue.hh"
 
-class SubtermProcess : public StrategicProcess
-{
-  NO_COPYING(SubtermProcess);
+class SubtermProcess : public StrategicProcess {
+    NO_COPYING(SubtermProcess);
 
 public:
-  SubtermProcess(MatchSearchState* matchState,
-		 SubtermStrategy* strategy,
-		 VariableBindingsManager::ContextId varBinds,
-		 StrategicExecution* taskSibling,
-		 StrategicProcess* insertionPoint);
+    SubtermProcess(MatchSearchState *matchState,
+                   SubtermStrategy *strategy,
+                   VariableBindingsManager::ContextId varBinds,
+                   StrategicExecution *taskSibling,
+                   StrategicProcess *insertionPoint);
 
-  Survival run(StrategicSearch& searchObject);
+    Survival run(StrategicSearch &searchObject);
 
 private:
-  // Will be shared with the matchrew tasks it will create
-  SharedValue<MatchSearchState> matchState;
-  SubtermStrategy* strategy;
-  StrategyStackManager::StackId pending;
+    // Will be shared with the matchrew tasks it will create
+    SharedValue<MatchSearchState> matchState;
+    SubtermStrategy *strategy;
+    StrategyStackManager::StackId pending;
 };
 
 #endif

@@ -28,48 +28,47 @@
 //
 #ifndef _bdd_hh_
 #define _bdd_hh_
+
 #include "bdd.h"
 
-class Bdd : public bdd
-{
+class Bdd : public bdd {
 public:
-  Bdd();
-  Bdd(const bdd& other);
+    Bdd();
 
-  const Bdd& operator=(const bdd& other);
-  bool operator<(const Bdd& other) const;
-  bool implies(const Bdd& other) const;
-  Bdd extractPrimeImplicant() const;
+    Bdd(const bdd &other);
+
+    const Bdd &operator=(const bdd &other);
+
+    bool operator<(const Bdd &other) const;
+
+    bool implies(const Bdd &other) const;
+
+    Bdd extractPrimeImplicant() const;
 };
 
 inline
-Bdd::Bdd()
-{
+Bdd::Bdd() {
 }
 
 inline
-Bdd::Bdd(const bdd& other)
-  : bdd(other)
-{
-} 
+Bdd::Bdd(const bdd &other)
+        : bdd(other) {
+}
 
-inline const Bdd&
-Bdd::operator=(const bdd& other)
-{
-  bdd::operator=(other);
-  return *this;
+inline const Bdd &
+Bdd::operator=(const bdd &other) {
+    bdd::operator=(other);
+    return *this;
 }
 
 inline bool
-Bdd::operator<(const Bdd& other) const
-{
-  return id() < other.id();
+Bdd::operator<(const Bdd &other) const {
+    return id() < other.id();
 }
 
 inline bool
-Bdd::implies(const Bdd& other) const
-{
-  return bdd_imp(*this, other) == bdd_true();
+Bdd::implies(const Bdd &other) const {
+    return bdd_imp(*this, other) == bdd_true();
 }
 
 #endif

@@ -25,56 +25,59 @@
 //
 #ifndef _hashConsSet_hh_
 #define _hashConsSet_hh_
+
 #include "pointerSet.hh"
 #include "simpleRootContainer.hh"
 
-class HashConsSet : private PointerSet, private SimpleRootContainer
-{
+class HashConsSet : private PointerSet, private SimpleRootContainer {
 public:
 #ifndef NO_ASSERT
-  //
-  //	Analysis/debugging of collisions.
-  //
-  mutable Int64 collisionCounter;
-  void collision(void* pointer1,
-		 unsigned int rawHashValue1, 
-		 void* pointer2,
-		 unsigned int rawHashValue2,
-		 unsigned int tableSize,
-		 unsigned int disputedSlot) const;
-  HashConsSet() { collisionCounter = 0;}
+    //
+    //	Analysis/debugging of collisions.
+    //
+    mutable Int64 collisionCounter;
+    void collision(void* pointer1,
+           unsigned int rawHashValue1,
+           void* pointer2,
+           unsigned int rawHashValue2,
+           unsigned int tableSize,
+           unsigned int disputedSlot) const;
+    HashConsSet() { collisionCounter = 0;}
 #endif
 
-  //
-  //	Returns an index that is unique to dag node.
-  //
-  int insert(DagNode* d);
-  //
-  //	As above, but unreduced eager dag nodes are always
-  //	copied and can never become canonical.
-  //
-  int insertCopy(DagNode* d);
-  //
-  //	Returns the canonical dag node for the index.
-  //
-  DagNode* getCanonical(int index) const;
+    //
+    //	Returns an index that is unique to dag node.
+    //
+    int insert(DagNode *d);
+
+    //
+    //	As above, but unreduced eager dag nodes are always
+    //	copied and can never become canonical.
+    //
+    int insertCopy(DagNode *d);
+
+    //
+    //	Returns the canonical dag node for the index.
+    //
+    DagNode *getCanonical(int index) const;
 
 private:
-  //
-  //	For PointerSet call backs.
-  //
-  unsigned int hash(void* pointer) const;
-  bool isEqual(void* pointer1, void* pointer2) const;
-  //
-  //	To protect hash cons'd dagnodes from garbage collection.
-  //
-  void markReachableNodes();
+    //
+    //	For PointerSet call backs.
+    //
+    unsigned int hash(void *pointer) const;
+
+    bool isEqual(void *pointer1, void *pointer2) const;
+
+    //
+    //	To protect hash cons'd dagnodes from garbage collection.
+    //
+    void markReachableNodes();
 };
 
-inline DagNode*
-HashConsSet::getCanonical(int index) const
-{
-  return static_cast<DagNode*>(index2Pointer(index));
+inline DagNode *
+HashConsSet::getCanonical(int index) const {
+    return static_cast<DagNode *>(index2Pointer(index));
 }
 
 #endif

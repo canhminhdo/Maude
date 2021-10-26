@@ -26,135 +26,129 @@
 #ifndef _variableConstraint_hh_
 #define _variableConstraint_hh_
 
-class VariableConstraint
-{
-  //
-  //	Variable may or may not be able to take the empty word.
-  //	A variable may have a bound on the length of the word
-  //	it is assigned OR it may have a theory constraint (which
-  //	implies a bound of 1).
-  //
+class VariableConstraint {
+    //
+    //	Variable may or may not be able to take the empty word.
+    //	A variable may have a bound on the length of the word
+    //	it is assigned OR it may have a theory constraint (which
+    //	implies a bound of 1).
+    //
 public:
-  //
-  //	The default is that a variable cannot take the empty
-  //	word but has no other constraints.
-  //
-  VariableConstraint();
-  //
-  //	Allow the variable to take the empty word.
-  //
-  void setTakeEmpty();
-  //
-  //	Set an upper-bound on the length of word a variable may take.
-  //	This will usually be 1, but could be another small positive
-  //	integer. An upper-bound of 0 means no upper-bound.
-  //
-  void setUpperBound(int upperBound);
-  //
-  //	Set a theory constraint on a variable. This implies
-  //	an upper bound of one, and furthermore, two variables
-  //	constrained by different theory indices cannot be made equal.
-  //	Theory indices are natural numbers starting at 0.
-  //
-  void setTheoryConstraint(int theoryIndex);
+    //
+    //	The default is that a variable cannot take the empty
+    //	word but has no other constraints.
+    //
+    VariableConstraint();
+
+    //
+    //	Allow the variable to take the empty word.
+    //
+    void setTakeEmpty();
+
+    //
+    //	Set an upper-bound on the length of word a variable may take.
+    //	This will usually be 1, but could be another small positive
+    //	integer. An upper-bound of 0 means no upper-bound.
+    //
+    void setUpperBound(int upperBound);
+
+    //
+    //	Set a theory constraint on a variable. This implies
+    //	an upper bound of one, and furthermore, two variables
+    //	constrained by different theory indices cannot be made equal.
+    //	Theory indices are natural numbers starting at 0.
+    //
+    void setTheoryConstraint(int theoryIndex);
 
 public:
-  bool none() const;
-  bool operator==(const VariableConstraint& other) const;
-  
-  bool intersect(VariableConstraint other);
-  //void absorb(VariableConstraint& other);
+    bool none() const;
 
-  //
-  //	New tests.
-  //
-  bool isUnbounded() const;
-  int getUpperBound() const;  // 0 means no upper-bound
-  bool hasTheoryConstraint() const;
-  int getTheoryConstraint() const;  // NONE means no theory constraint
-  bool canTakeEmpty() const;
+    bool operator==(const VariableConstraint &other) const;
+
+    bool intersect(VariableConstraint other);
+    //void absorb(VariableConstraint& other);
+
+    //
+    //	New tests.
+    //
+    bool isUnbounded() const;
+
+    int getUpperBound() const;  // 0 means no upper-bound
+    bool hasTheoryConstraint() const;
+
+    int getTheoryConstraint() const;  // NONE means no theory constraint
+    bool canTakeEmpty() const;
 
 private:
-  //
-  //	Constraint is stored in a 32-bit unsigned int
-  //    (30-bit upper-bound or theory index) (theory flag) (take empty flag)
-  //
-  enum Special
-    {
-      TAKE_EMPTY_FLAG = 1,
-      THEORY_FLAG = 2,
-      INDEX_SHIFT = 2
+    //
+    //	Constraint is stored in a 32-bit unsigned int
+    //    (30-bit upper-bound or theory index) (theory flag) (take empty flag)
+    //
+    enum Special {
+        TAKE_EMPTY_FLAG = 1,
+        THEORY_FLAG = 2,
+        INDEX_SHIFT = 2
     };
 
-  Uint32 constraint;
+    Uint32 constraint;
 
-  friend ostream& operator<<(ostream& s, VariableConstraint c);  // HACK
+    friend ostream &operator<<(ostream &s, VariableConstraint c);  // HACK
 };
 
 inline
-VariableConstraint::VariableConstraint()
-{
-  constraint = 0;  // TAKE_EMPTY_FLAG, THEORY_FLAG = 0; upper-bound = 0 (unbounded)
+VariableConstraint::VariableConstraint() {
+    constraint = 0;  // TAKE_EMPTY_FLAG, THEORY_FLAG = 0; upper-bound = 0 (unbounded)
 }
 
 inline void
-VariableConstraint::setTakeEmpty()
-{
-  constraint |= TAKE_EMPTY_FLAG;
+VariableConstraint::setTakeEmpty() {
+    constraint |= TAKE_EMPTY_FLAG;
 }
 
 inline void
-VariableConstraint::setUpperBound(int upperBound)
-{
-  constraint = (constraint & TAKE_EMPTY_FLAG) | (upperBound << INDEX_SHIFT);
+VariableConstraint::setUpperBound(int upperBound) {
+    constraint = (constraint & TAKE_EMPTY_FLAG) | (upperBound << INDEX_SHIFT);
 }
 
 inline void
-VariableConstraint::setTheoryConstraint(int theoryIndex)
-{
-  constraint = (constraint & TAKE_EMPTY_FLAG) | THEORY_FLAG | (theoryIndex << INDEX_SHIFT);
+VariableConstraint::setTheoryConstraint(int theoryIndex) {
+    constraint = (constraint & TAKE_EMPTY_FLAG) | THEORY_FLAG | (theoryIndex << INDEX_SHIFT);
 }
 
 inline bool
-VariableConstraint::canTakeEmpty() const
-{
-  return constraint & TAKE_EMPTY_FLAG;
+VariableConstraint::canTakeEmpty() const {
+    return constraint & TAKE_EMPTY_FLAG;
 }
 
 inline bool
-VariableConstraint::hasTheoryConstraint() const
-{
-  return constraint & THEORY_FLAG;
+VariableConstraint::hasTheoryConstraint() const {
+    return constraint & THEORY_FLAG;
 }
 
 inline bool
-VariableConstraint::isUnbounded() const
-{
-  //
-  //	True if THEORY_FLAG clear and bound = 0; i.e.
-  //	everything except possibly TAKE_EMPTY_FLAG is 0.
-  //
-  return (constraint & ~TAKE_EMPTY_FLAG) == 0;
+VariableConstraint::isUnbounded() const {
+    //
+    //	True if THEORY_FLAG clear and bound = 0; i.e.
+    //	everything except possibly TAKE_EMPTY_FLAG is 0.
+    //
+    return (constraint & ~TAKE_EMPTY_FLAG) == 0;
 }
 
 inline int
-VariableConstraint::getUpperBound() const
-{
-  return (constraint & THEORY_FLAG) ? 1 : (constraint >> INDEX_SHIFT);
+VariableConstraint::getUpperBound() const {
+    return (constraint & THEORY_FLAG) ? 1 : (constraint >> INDEX_SHIFT);
 }
 
 inline int
-VariableConstraint::getTheoryConstraint() const
-{
-  return (constraint & THEORY_FLAG) ? (constraint >> INDEX_SHIFT) : NONE;
+VariableConstraint::getTheoryConstraint() const {
+    return (constraint & THEORY_FLAG) ? (constraint >> INDEX_SHIFT) : NONE;
 }
 
 inline bool
-VariableConstraint::operator==(const VariableConstraint& other) const
-{
-  return constraint == other.constraint;
+VariableConstraint::operator==(const VariableConstraint &other) const {
+    return constraint == other.constraint;
 }
 
-ostream& operator<<(ostream& s, VariableConstraint c);
+ostream &operator<<(ostream &s, VariableConstraint c);
 
 #endif

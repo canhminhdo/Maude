@@ -50,74 +50,66 @@
 #include "metaLevel.hh"
 #include "metaView.hh"
 
-MetaView::MetaView(Token viewName, DagNode* opMappings, DagNode* stratMappings, MetaLevel* metaLevel, Interpreter* owner)
-  : View(viewName, owner),
-    opMappings(opMappings),
-    stratMappings(stratMappings),
-    metaLevel(metaLevel)
-{
+MetaView::MetaView(Token viewName, DagNode *opMappings, DagNode *stratMappings, MetaLevel *metaLevel,
+                   Interpreter *owner)
+        : View(viewName, owner),
+          opMappings(opMappings),
+          stratMappings(stratMappings),
+          metaLevel(metaLevel) {
 }
 
-MetaView::~MetaView()
-{
+MetaView::~MetaView() {
 }
 
 bool
-MetaView::handleTermAndExprMappings()
-{
-  //
-  //	First we pull down the op->term mappings; this can only be done once
-  //	the module expressions for the from theory and to module have be evaluated.
-  //
-  ImportModule* fromTheory = getFromTheory();
-  ImportModule* toModule = getToModule();
-  {
-    Vector<Term*> fromTerms;
-    Vector<Term*> toTerms;
-    if (!(metaLevel->downOpTermMappings(opMappings.getNode(), fromTheory, toModule, fromTerms, toTerms)))
-      return false;
+MetaView::handleTermAndExprMappings() {
     //
-    //	Then we go though them, inserting them into the base view.
+    //	First we pull down the op->term mappings; this can only be done once
+    //	the module expressions for the from theory and to module have be evaluated.
     //
-    int nrMappings = fromTerms.size();
-    for (int i = 0; i < nrMappings; ++i)
-      {
-	if (!(insertOpToTermMapping(fromTerms[i], toTerms[i])))
-	  {
-	    for (; i < nrMappings; ++i)
-	      {
-		fromTerms[i]->deepSelfDestruct();
-		toTerms[i]->deepSelfDestruct();
-	      }
-	    return false;
-	  }
-      }
-  }
-  //
-  // Now, we deal with strat->expr mappings the same way
-  //
-  {
-    Vector<CallStrategy*> fromExprs;
-    Vector<StrategyExpression*> toExprs;
-    if (!(metaLevel->downStratExprMappings(stratMappings.getNode(), fromTheory, toModule, fromExprs, toExprs)))
-      return false;
+    ImportModule *fromTheory = getFromTheory();
+    ImportModule *toModule = getToModule();
+    {
+        Vector<Term *> fromTerms;
+        Vector<Term *> toTerms;
+        if (!(metaLevel->downOpTermMappings(opMappings.getNode(), fromTheory, toModule, fromTerms, toTerms)))
+            return false;
+        //
+        //	Then we go though them, inserting them into the base view.
+        //
+        int nrMappings = fromTerms.size();
+        for (int i = 0; i < nrMappings; ++i) {
+            if (!(insertOpToTermMapping(fromTerms[i], toTerms[i]))) {
+                for (; i < nrMappings; ++i) {
+                    fromTerms[i]->deepSelfDestruct();
+                    toTerms[i]->deepSelfDestruct();
+                }
+                return false;
+            }
+        }
+    }
+    //
+    // Now, we deal with strat->expr mappings the same way
+    //
+    {
+        Vector<CallStrategy *> fromExprs;
+        Vector<StrategyExpression *> toExprs;
+        if (!(metaLevel->downStratExprMappings(stratMappings.getNode(), fromTheory, toModule, fromExprs, toExprs)))
+            return false;
 
-    int nrMappings = fromExprs.size();
-    for (int i = 0; i < nrMappings; ++i)
-      {
-	if (!(insertStratToExprMapping(fromExprs[i],
-				       toExprs[i],
-				       toModule)))
-	  {
-	    for (++i; i < nrMappings; ++i)
-	      {
-		delete fromExprs[i];
-		delete toExprs[i];
-	      }
-	    return false;
-	  }
-      }
-  }
+        int nrMappings = fromExprs.size();
+        for (int i = 0; i < nrMappings; ++i) {
+            if (!(insertStratToExprMapping(fromExprs[i],
+                                           toExprs[i],
+                                           toModule))) {
+                for (++i; i < nrMappings; ++i) {
+                    delete fromExprs[i];
+                    delete toExprs[i];
+                }
+                return false;
+            }
+        }
+    }
 
-  return true;
+    return true;
 }

@@ -25,113 +25,101 @@
 //
 
 bool
-MetaLevelOpSymbol::metaUnify2(FreeDagNode* subject,
-			      RewritingContext& context,
-			      bool disjoint,
-			      bool irredundant)
-{
-  DebugAdvisory(Tty(Tty::CYAN) << "meta unfication call: " << Tty(Tty::GREEN) <<
-		(DagNode*) subject << Tty(Tty::RESET));
-  //
-  //	We handle both metaUnify() and metaDisjointUnify().
-  //
-  if (MetaModule* m = metaLevel->downModule(subject->getArgument(0)))
-    {
-      Int64 solutionNr;
-      int variableFamilyName;
-      int variableFamily;
-      if (metaLevel->downQid(subject->getArgument(2), variableFamilyName) &&
-	  (variableFamily = FreshVariableSource::getFamily(variableFamilyName)) != NONE &&
-	  metaLevel->downSaturate64(subject->getArgument(3), solutionNr) &&
-	  solutionNr >= 0)
-	{
-	  UnificationProblem* unification;
-	  Int64 lastSolutionNr;
-	  if (!(m->getCachedStateObject(subject, solutionNr, unification, lastSolutionNr)))
-	    {
-	      Vector<Term*> lhs;
-	      Vector<Term*> rhs;
-	      if (!metaLevel->downUnificationProblem(subject->getArgument(1), lhs, rhs, m, disjoint))
-		return false;
-	      DebugAdvisory("metaUnify2() - making unification problem for " << subject);
-	      FreshVariableSource* freshVariableSource = new FreshVariableSource(m);
-	      unification = irredundant ?
-		new IrredundantUnificationProblem(lhs, rhs, freshVariableSource, variableFamily) :
-		new UnificationProblem(lhs, rhs, freshVariableSource, variableFamily);
-	      if (!(unification->problemOK()))
-		{
-		  delete unification;
-		  return false;
-		}
-	      lastSolutionNr = -1;
-	    }
-	  else
-	    DebugAdvisory("metaUnify2() - using existing unification problem for " << subject);
+MetaLevelOpSymbol::metaUnify2(FreeDagNode *subject,
+                              RewritingContext &context,
+                              bool disjoint,
+                              bool irredundant) {
+    DebugAdvisory(Tty(Tty::CYAN) << "meta unfication call: " << Tty(Tty::GREEN) <<
+                                 (DagNode *) subject << Tty(Tty::RESET));
+    //
+    //	We handle both metaUnify() and metaDisjointUnify().
+    //
+    if (MetaModule *m = metaLevel->downModule(subject->getArgument(0))) {
+        Int64 solutionNr;
+        int variableFamilyName;
+        int variableFamily;
+        if (metaLevel->downQid(subject->getArgument(2), variableFamilyName) &&
+            (variableFamily = FreshVariableSource::getFamily(variableFamilyName)) != NONE &&
+            metaLevel->downSaturate64(subject->getArgument(3), solutionNr) &&
+            solutionNr >= 0) {
+            UnificationProblem *unification;
+            Int64 lastSolutionNr;
+            if (!(m->getCachedStateObject(subject, solutionNr, unification, lastSolutionNr))) {
+                Vector<Term *> lhs;
+                Vector<Term *> rhs;
+                if (!metaLevel->downUnificationProblem(subject->getArgument(1), lhs, rhs, m, disjoint))
+                    return false;
+                DebugAdvisory("metaUnify2() - making unification problem for " << subject);
+                FreshVariableSource *freshVariableSource = new FreshVariableSource(m);
+                unification = irredundant ?
+                              new IrredundantUnificationProblem(lhs, rhs, freshVariableSource, variableFamily) :
+                              new UnificationProblem(lhs, rhs, freshVariableSource, variableFamily);
+                if (!(unification->problemOK())) {
+                    delete unification;
+                    return false;
+                }
+                lastSolutionNr = -1;
+            } else
+                    DebugAdvisory("metaUnify2() - using existing unification problem for " << subject);
 
-	  DagNode* result;
-	  m->protect();
-	  DebugAdvisoryCheck(solutionNr - lastSolutionNr == 1,
-			     "unification jump from " <<  lastSolutionNr << " to " << solutionNr);
-	  for (; lastSolutionNr < solutionNr; ++lastSolutionNr)
-	    {
-	      if (!(unification->findNextUnifier()))
-		{
-		  bool incomplete = unification->isIncomplete();
-		  delete unification;
-		  result = disjoint ? metaLevel->upNoUnifierTriple(incomplete) :
-		    metaLevel->upNoUnifierPair(incomplete);
-		  goto fail;
-		}
-	    }
-	  m->insert(subject, unification, solutionNr);
-	  {
-	    const Substitution& solution = unification->getSolution();
-	    const VariableInfo& variableInfo = unification->getVariableInfo();
-	    int variableNameId = FreshVariableSource::getBaseName(unification->getVariableFamily());
-	    result = disjoint ?
-	      metaLevel->upUnificationTriple(solution, variableInfo, variableNameId, m) :
-	      metaLevel->upUnificationPair(solution, variableInfo, variableNameId, m);
-	  }
-	fail:
-	  (void) m->unprotect();
-	  return context.builtInReplace(subject, result);
-	}
+            DagNode *result;
+            m->protect();
+            DebugAdvisoryCheck(solutionNr - lastSolutionNr == 1,
+                               "unification jump from " << lastSolutionNr << " to " << solutionNr);
+            for (; lastSolutionNr < solutionNr; ++lastSolutionNr) {
+                if (!(unification->findNextUnifier())) {
+                    bool incomplete = unification->isIncomplete();
+                    delete unification;
+                    result = disjoint ? metaLevel->upNoUnifierTriple(incomplete) :
+                             metaLevel->upNoUnifierPair(incomplete);
+                    goto fail;
+                }
+            }
+            m->insert(subject, unification, solutionNr);
+            {
+                const Substitution &solution = unification->getSolution();
+                const VariableInfo &variableInfo = unification->getVariableInfo();
+                int variableNameId = FreshVariableSource::getBaseName(unification->getVariableFamily());
+                result = disjoint ?
+                         metaLevel->upUnificationTriple(solution, variableInfo, variableNameId, m) :
+                         metaLevel->upUnificationPair(solution, variableInfo, variableNameId, m);
+            }
+            fail:
+            (void) m->unprotect();
+            return context.builtInReplace(subject, result);
+        }
     }
-  return false;
+    return false;
 }
 
 bool
-MetaLevelOpSymbol::metaUnify(FreeDagNode* subject, RewritingContext& context)
-{
-  //
-  //	op metaUnify : Module UnificationProblem Qid Nat ~> UnificationPair? .
-  //
-  return metaUnify2(subject, context, false, false);
+MetaLevelOpSymbol::metaUnify(FreeDagNode *subject, RewritingContext &context) {
+    //
+    //	op metaUnify : Module UnificationProblem Qid Nat ~> UnificationPair? .
+    //
+    return metaUnify2(subject, context, false, false);
 }
 
 bool
-MetaLevelOpSymbol::metaDisjointUnify(FreeDagNode* subject, RewritingContext& context)
-{
-  //
-  //	op metaDisjointUnify : Module UnificationProblem Qid Nat ~> UnificationTriple? .
-  //
-  return metaUnify2(subject, context, true, false);
+MetaLevelOpSymbol::metaDisjointUnify(FreeDagNode *subject, RewritingContext &context) {
+    //
+    //	op metaDisjointUnify : Module UnificationProblem Qid Nat ~> UnificationTriple? .
+    //
+    return metaUnify2(subject, context, true, false);
 }
 
 bool
-MetaLevelOpSymbol::metaIrredundantUnify(FreeDagNode* subject, RewritingContext& context)
-{
-  //
-  //	op metaIrredundantUnify : Module UnificationProblem Qid Nat ~> UnificationPair? .
-  //
-  return metaUnify2(subject, context, false, true);
+MetaLevelOpSymbol::metaIrredundantUnify(FreeDagNode *subject, RewritingContext &context) {
+    //
+    //	op metaIrredundantUnify : Module UnificationProblem Qid Nat ~> UnificationPair? .
+    //
+    return metaUnify2(subject, context, false, true);
 }
 
 bool
-MetaLevelOpSymbol::metaIrredundantDisjointUnify(FreeDagNode* subject, RewritingContext& context)
-{
-  //
-  //	op metaIrredundantDisjointUnify : Module UnificationProblem Qid Nat ~> UnificationTriple? .
-  //
-  return metaUnify2(subject, context, true, true);
+MetaLevelOpSymbol::metaIrredundantDisjointUnify(FreeDagNode *subject, RewritingContext &context) {
+    //
+    //	op metaIrredundantDisjointUnify : Module UnificationProblem Qid Nat ~> UnificationTriple? .
+    //
+    return metaUnify2(subject, context, true, true);
 }

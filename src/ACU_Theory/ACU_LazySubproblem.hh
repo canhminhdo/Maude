@@ -29,53 +29,54 @@
 //
 #ifndef _ACU_LazySubproblem_hh_
 #define _ACU_LazySubproblem_hh_
+
 #include "subproblem.hh"
 #include "ACU_SlowIter.hh"
 
-class ACU_LazySubproblem : public Subproblem, private SimpleRootContainer
-{
-  NO_COPYING(ACU_LazySubproblem);
+class ACU_LazySubproblem : public Subproblem, private SimpleRootContainer {
+    NO_COPYING(ACU_LazySubproblem);
 
 public:
-  ACU_LazySubproblem(ACU_BaseDagNode* subject,
-		     const ACU_Tree& remaining,
-		     const Substitution& substitution,
-		     LhsAutomaton* const stripperAutomaton,
-		     Term* const stripperTerm,
-		     int collectorVarIndex,
-		     Sort* collectorSort);
-  ~ACU_LazySubproblem();
+    ACU_LazySubproblem(ACU_BaseDagNode *subject,
+                       const ACU_Tree &remaining,
+                       const Substitution &substitution,
+                       LhsAutomaton *const stripperAutomaton,
+                       Term *const stripperTerm,
+                       int collectorVarIndex,
+                       Sort *collectorSort);
 
-  bool solve(bool findFirst, RewritingContext& solution);
+    ~ACU_LazySubproblem();
+
+    bool solve(bool findFirst, RewritingContext &solution);
 
 #ifdef DUMP
-  void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
+    void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
 #endif
 
 private:
-  struct Alternative
-  {
-    LocalBinding* difference;
-    Subproblem* subproblem;
-  };
+    struct Alternative {
+        LocalBinding *difference;
+        Subproblem *subproblem;
+    };
 
-  void markReachableNodes();
-  bool bindCollector(RewritingContext& solution);
+    void markReachableNodes();
 
-  ACU_BaseDagNode* const subject;
-  ACU_Tree remaining;
-  Substitution matchTime;
-  LhsAutomaton* const stripperAutomaton;
-  Term* const stripperTerm;
-  const int collectorVarIndex;
-  Sort* const collectorSort;
-  //
-  //	Solve time variables.
-  //
-  ACU_SlowIter currentPath;
-  Substitution local;
-  int previousIndex;
-  Vector<Alternative> previous;
+    bool bindCollector(RewritingContext &solution);
+
+    ACU_BaseDagNode *const subject;
+    ACU_Tree remaining;
+    Substitution matchTime;
+    LhsAutomaton *const stripperAutomaton;
+    Term *const stripperTerm;
+    const int collectorVarIndex;
+    Sort *const collectorSort;
+    //
+    //	Solve time variables.
+    //
+    ACU_SlowIter currentPath;
+    Substitution local;
+    int previousIndex;
+    Vector<Alternative> previous;
 };
 
 #endif

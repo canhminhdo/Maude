@@ -31,103 +31,115 @@
 #ifndef _mpzSystem_hh_
 #define _mpzSystem_hh_
 
-class MpzSystem
-{
-public:  
-  typedef Vector<mpz_class> IntVec;
+class MpzSystem {
+public:
+    typedef Vector<mpz_class> IntVec;
 
-  void insertEqn(const IntVec& eqn);
-  void setUpperBounds(const IntVec& bounds);  // pass NONE in place of UNBOUNDED
-  bool findNextMinimalSolution(IntVec& solution);
-  bool findNextMinimalSolutionGcd(IntVec& solution);
+    void insertEqn(const IntVec &eqn);
+
+    void setUpperBounds(const IntVec &bounds);  // pass NONE in place of UNBOUNDED
+    bool findNextMinimalSolution(IntVec &solution);
+
+    bool findNextMinimalSolutionGcd(IntVec &solution);
 
 private:
-  //
-  //	Common data types, functions and data.
-  //
-  typedef list<IntVec> VecList;
+    //
+    //	Common data types, functions and data.
+    //
+    typedef list <IntVec> VecList;
 
-  static bool greaterEqual(const IntVec& arg1, const IntVec& arg2);
-  bool minimal(const IntVec& arg);
-  void initializeUpperBounds();
+    static bool greaterEqual(const IntVec &arg1, const IntVec &arg2);
+
+    bool minimal(const IntVec &arg);
+
+    void initializeUpperBounds();
+
 #ifndef NO_ASSERT
-  void dumpEqns();
+    void dumpEqns();
 #endif
 
-  int nrVariables;
-  VecList eqns;			// Diophantine system
-  IntVec upperBounds;		// upper bounds for each variable, NONE means unbounded
-  VecList solutions;		// minimal solutions found so far
-  //
-  //	Contejean-Devie specific stuff.
-  //
-  struct State
-  {
-    IntVec assignment;	// current assignment to each variable
-    IntVec residue;	// residue for each equation
-    NatSet frozen;	// indicies of variables that can no longer be incremented
-  };
+    int nrVariables;
+    VecList eqns;            // Diophantine system
+    IntVec upperBounds;        // upper bounds for each variable, NONE means unbounded
+    VecList solutions;        // minimal solutions found so far
+    //
+    //	Contejean-Devie specific stuff.
+    //
+    struct State {
+        IntVec assignment;    // current assignment to each variable
+        IntVec residue;    // residue for each equation
+        NatSet frozen;    // indicies of variables that can no longer be incremented
+    };
 
-  typedef Vector<State> StateStack;
+    typedef Vector<State> StateStack;
 
-  static bool isZero(const IntVec& arg);
-  void initialize();
-  mpz_class scalerProduct(const IntVec& arg, int columnNr);
+    static bool isZero(const IntVec &arg);
 
-  StateStack states;		// stack of search tree states
-  int stackPointer;
-  State current;		// pre-allocated temporary storage
-  //
-  //	Gcd based solver specific stuff.
-  //
-  struct StackEntry
-  {
-    mpz_class inc;
-    mpz_class bound;
-  };
+    void initialize();
 
-  static bool findConcensus(const mpz_class& a,
-			    const mpz_class& b,
-			    const mpz_class& u,
-			    const mpz_class& c,
-			    const mpz_class& d,
-			    const mpz_class& v,
-			    mpz_class& e,
-			    mpz_class& f,
-			    mpz_class& w);
-  static bool solveTwoVariableProblem(mpz_class a,
-				      mpz_class b,
-				      mpz_class c,
-				      bool y_nonneg,
-				      const mpz_class& x_bound,
-				      const mpz_class& y_bound,
-				      mpz_class& x_base,
-				      mpz_class& y_base,
-				      mpz_class& x_inc,
-				      mpz_class& y_inc,
-				      mpz_class& bound);
+    mpz_class scalerProduct(const IntVec &arg, int columnNr);
 
-  void swapVariables(int u, int v);
-  void integerGaussianElimination();
-  void initializeGcd();
-  mpz_class computeSumBound();
+    StateStack states;        // stack of search tree states
+    int stackPointer;
+    State current;        // pre-allocated temporary storage
+    //
+    //	Gcd based solver specific stuff.
+    //
+    struct StackEntry {
+        mpz_class inc;
+        mpz_class bound;
+    };
 
-  void updateResidues(int varNr, const mpz_class& delta);
-  bool nextSolution(bool first);
-  bool fillOutStackEntry(int varNr);
-  bool fillOutLastEntry();
-  bool solveDiagonal();
+    static bool findConcensus(const mpz_class &a,
+                              const mpz_class &b,
+                              const mpz_class &u,
+                              const mpz_class &c,
+                              const mpz_class &d,
+                              const mpz_class &v,
+                              mpz_class &e,
+                              mpz_class &f,
+                              mpz_class &w);
 
-  int nrFreeVariables;			// free variables are those not on the diagonal
-  Vector<StackEntry> stack;		// stack for backtracking
-  IntVec solution;			// current partial solution
-  IntVec residues;			// residue for each equation with the current partial solution
-  mpz_class sumBound;			// bound on sum of components for a minimal solution
-  mpz_class leftOver;			// part of sumBound not used by current partial solution
-  VecList gcds;
-  Vector<int> permutation;		// for full pivoting
-  Vector<int> lastPrediagNeg;		// index last prediagonal -ve entry in each equation
-  int firstPrunablePrediag;		// prediagonal greater or equal to this can take one of at most 2 values
+    static bool solveTwoVariableProblem(mpz_class a,
+                                        mpz_class b,
+                                        mpz_class c,
+                                        bool y_nonneg,
+                                        const mpz_class &x_bound,
+                                        const mpz_class &y_bound,
+                                        mpz_class &x_base,
+                                        mpz_class &y_base,
+                                        mpz_class &x_inc,
+                                        mpz_class &y_inc,
+                                        mpz_class &bound);
+
+    void swapVariables(int u, int v);
+
+    void integerGaussianElimination();
+
+    void initializeGcd();
+
+    mpz_class computeSumBound();
+
+    void updateResidues(int varNr, const mpz_class &delta);
+
+    bool nextSolution(bool first);
+
+    bool fillOutStackEntry(int varNr);
+
+    bool fillOutLastEntry();
+
+    bool solveDiagonal();
+
+    int nrFreeVariables;            // free variables are those not on the diagonal
+    Vector<StackEntry> stack;        // stack for backtracking
+    IntVec solution;            // current partial solution
+    IntVec residues;            // residue for each equation with the current partial solution
+    mpz_class sumBound;            // bound on sum of components for a minimal solution
+    mpz_class leftOver;            // part of sumBound not used by current partial solution
+    VecList gcds;
+    Vector<int> permutation;        // for full pivoting
+    Vector<int> lastPrediagNeg;        // index last prediagonal -ve entry in each equation
+    int firstPrunablePrediag;        // prediagonal greater or equal to this can take one of at most 2 values
 };
 
 #endif

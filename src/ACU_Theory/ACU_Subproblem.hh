@@ -27,94 +27,102 @@
 //
 #ifndef _ACU_Subproblem_hh_
 #define _ACU_Subproblem_hh_
+
 #include "subproblem.hh"
 #include "delayedSubproblem.hh"
 
-class ACU_Subproblem : public Subproblem, public DelayedSubproblem
-{
-  NO_COPYING(ACU_Subproblem);
+class ACU_Subproblem : public Subproblem, public DelayedSubproblem {
+    NO_COPYING(ACU_Subproblem);
 
 public:
-  ACU_Subproblem(ACU_DagNode* subjectDagNode,
-		 ACU_ExtensionInfo* extension);
-  ~ACU_Subproblem();
+    ACU_Subproblem(ACU_DagNode *subjectDagNode,
+                   ACU_ExtensionInfo *extension);
 
-  int addPatternNode(int multiplicity);
-  void removePatternNode(int& uniqueSubject,
-			 LocalBinding*& difference,
-			 Subproblem*& subproblem);
-  bool noPatterns() const;
-  void addEdge(int pattern,
-	       int target,
-	       LocalBinding* difference,
-	       Subproblem* subproblem);
-  void addTopVariable(int index,
-		      int multiplicity,
-		      int lowerBound,
-		      int upperBound,
-		      const Sort* sort);
-  void addSubjects(Vector<int>& multiplicity);
+    ~ACU_Subproblem();
 
-  bool solve(bool findFirst, RewritingContext& solution);
+    int addPatternNode(int multiplicity);
+
+    void removePatternNode(int &uniqueSubject,
+                           LocalBinding *&difference,
+                           Subproblem *&subproblem);
+
+    bool noPatterns() const;
+
+    void addEdge(int pattern,
+                 int target,
+                 LocalBinding *difference,
+                 Subproblem *subproblem);
+
+    void addTopVariable(int index,
+                        int multiplicity,
+                        int lowerBound,
+                        int upperBound,
+                        const Sort *sort);
+
+    void addSubjects(Vector<int> &multiplicity);
+
+    bool solve(bool findFirst, RewritingContext &solution);
 
 #ifdef DUMP
-  void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
+    void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
 #endif
 
 private:
-  struct TopVariable
-    {
-      int index;
-      int multiplicity;
-      int lowerBound;
-      int upperBound;
-      const Sort* sort;
+    struct TopVariable {
+        int index;
+        int multiplicity;
+        int lowerBound;
+        int upperBound;
+        const Sort *sort;
     };
 
-  struct Edge
-    {
-      int target;
-      LocalBinding* difference;
-      Subproblem* subproblem;
+    struct Edge {
+        int target;
+        LocalBinding *difference;
+        Subproblem *subproblem;
     };
 
-  struct PatternNode
-    {
-      bool solve(bool findFirst,
-		 RewritingContext& solution,
-		 Vector<int>& currentMultiplicity);
+    struct PatternNode {
+        bool solve(bool findFirst,
+                   RewritingContext &solution,
+                   Vector<int> &currentMultiplicity);
 
-      int multiplicity;
-      Vector<Edge> edges;
-      int selectedEdge;
+        int multiplicity;
+        Vector<Edge> edges;
+        int selectedEdge;
     };
 
-  bool solvePatterns(bool findFirst, RewritingContext& solution);
-  bool solveVariables(bool findFirst, RewritingContext& solution);
-  bool noVariableCase(const Vector<int>& multVec);
-  bool oneVariableCase(const Vector<int>& multVec, RewritingContext& solution);
-  bool extractDiophantineSystem(RewritingContext& solution);
-  DagNode* computeAssignment(int row);
-  void fillOutExtensionInfo();
+    bool solvePatterns(bool findFirst, RewritingContext &solution);
 
-  ACU_DagNode* const subject;
-  ACU_ExtensionInfo* const extensionInfo;
-  Vector<int> currentMultiplicity;
-  Vector<TopVariable> topVariables;
-  Vector<PatternNode> patternNodes;
-  //
-  //	Structures needed for building and solving diophantine problem
-  //
-  DiophantineSystem* system;
-  Vector<int> variableMap;
-  Vector<int> subjectMap;
-  Vector<int> afterMultiplicity;
+    bool solveVariables(bool findFirst, RewritingContext &solution);
+
+    bool noVariableCase(const Vector<int> &multVec);
+
+    bool oneVariableCase(const Vector<int> &multVec, RewritingContext &solution);
+
+    bool extractDiophantineSystem(RewritingContext &solution);
+
+    DagNode *computeAssignment(int row);
+
+    void fillOutExtensionInfo();
+
+    ACU_DagNode *const subject;
+    ACU_ExtensionInfo *const extensionInfo;
+    Vector<int> currentMultiplicity;
+    Vector<TopVariable> topVariables;
+    Vector<PatternNode> patternNodes;
+    //
+    //	Structures needed for building and solving diophantine problem
+    //
+    DiophantineSystem *system;
+    Vector<int> variableMap;
+    Vector<int> subjectMap;
+    Vector<int> afterMultiplicity;
 };
 
 inline bool
-ACU_Subproblem::noPatterns() const
-{
-  return patternNodes.empty();
+ACU_Subproblem::noPatterns() const {
+    return patternNodes.empty();
 }
 
 #endif

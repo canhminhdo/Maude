@@ -25,84 +25,84 @@
 //
 #ifndef _SearchState_hh_
 #define _SearchState_hh_
+
 #include "stack.hh"
 #include "cacheableState.hh"
 #include "positionState.hh"
 #include "rewritingContext.hh"
 
-class SearchState : public CacheableState, public PositionState
-{
-  NO_COPYING(SearchState);
+class SearchState : public CacheableState, public PositionState {
+    NO_COPYING(SearchState);
 
 public:
-  enum Flags
-  {
-    GC_CONTEXT = 2,		// delete context in our dtor
-    GC_SUBSTITUTION = 4,	// delete substitution in our dtor
-    IGNORE_CONDITION = 8	// ignore conditions of conditional PreEquations
-  };
+    enum Flags {
+        GC_CONTEXT = 2,        // delete context in our dtor
+        GC_SUBSTITUTION = 4,    // delete substitution in our dtor
+        IGNORE_CONDITION = 8    // ignore conditions of conditional PreEquations
+    };
 
-  //
-  //	SearchState uses the provided context for constructing matches,
-  //	resolving conditions and accumulating rewrite counts.
-  //
-  SearchState(RewritingContext* context,
-	      int flags = 0,
-	      int minDepth = 0,
-	      int maxDepth = -1);
-  virtual ~SearchState();
+    //
+    //	SearchState uses the provided context for constructing matches,
+    //	resolving conditions and accumulating rewrite counts.
+    //
+    SearchState(RewritingContext *context,
+                int flags = 0,
+                int minDepth = 0,
+                int maxDepth = -1);
 
-  bool findFirstSolution(const PreEquation* preEqn, LhsAutomaton* automaton);
-  bool findNextSolution();
+    virtual ~SearchState();
 
-  RewritingContext* getContext() const;
-  void transferCountTo(RewritingContext& recipient);
+    bool findFirstSolution(const PreEquation *preEqn, LhsAutomaton *automaton);
 
-  //
-  //	Takes responsibility for deleting the Term and DagRoot objects,
-  //	if instance was created with GC_SUBSTITUTION flag.
-  //
-  void setInitialSubstitution(Vector<Term*>& variables, Vector<DagRoot*>& values);
+    bool findNextSolution();
+
+    RewritingContext *getContext() const;
+
+    void transferCountTo(RewritingContext &recipient);
+
+    //
+    //	Takes responsibility for deleting the Term and DagRoot objects,
+    //	if instance was created with GC_SUBSTITUTION flag.
+    //
+    void setInitialSubstitution(Vector<Term *> &variables, Vector<DagRoot *> &values);
 
 private:
-  bool initSubstitution(const VariableInfo& varInfo);
-  bool hasCondition(const PreEquation* preEqn);
+    bool initSubstitution(const VariableInfo &varInfo);
 
-  RewritingContext* const context;
-  const PreEquation* preEquation;
-  //
-  //	Initial (partial) substitution.
-  //
-  Vector<Term*> substVariables;
-  Vector<DagRoot*> substValues;
-  //
-  //	For backtracking over matches.
-  //
-  Subproblem* matchingSubproblem;
-  //
-  //	For backtracking of solutions to a rule condition.
-  //
-  int trialRef;
-  Stack<ConditionState*> conditionStack;
+    bool hasCondition(const PreEquation *preEqn);
+
+    RewritingContext *const context;
+    const PreEquation *preEquation;
+    //
+    //	Initial (partial) substitution.
+    //
+    Vector<Term *> substVariables;
+    Vector<DagRoot *> substValues;
+    //
+    //	For backtracking over matches.
+    //
+    Subproblem *matchingSubproblem;
+    //
+    //	For backtracking of solutions to a rule condition.
+    //
+    int trialRef;
+    Stack<ConditionState *> conditionStack;
 };
 
-inline RewritingContext*
-SearchState::getContext() const
-{
-  return context;
+inline RewritingContext *
+SearchState::getContext() const {
+    return context;
 }
 
 inline void
-SearchState::transferCountTo(RewritingContext& recipient)
-{
-  recipient.transferCountFrom(*context);
+SearchState::transferCountTo(RewritingContext &recipient) {
+    recipient.transferCountFrom(*context);
 }
 
 inline void
-SearchState::setInitialSubstitution(Vector<Term*>& variables, Vector<DagRoot*>& values)
-{
-  substVariables.swap(variables);
-  substValues.swap(values);
+SearchState::setInitialSubstitution(Vector<Term *> &variables, Vector<DagRoot *> &values) {
+    substVariables.swap(variables);
+    substValues.swap(values);
 }
 
 #endif

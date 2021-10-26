@@ -29,21 +29,21 @@
 //
 #ifndef _argument_hh_
 #define _argument_hh_
+
 #include "namedEntity.hh"
 
-class Argument : public NamedEntity
-{
-  NO_COPYING(Argument);
+class Argument : public NamedEntity {
+    NO_COPYING(Argument);
 
 public:
-  Argument(int argumentName);
-  virtual ~Argument() {}
+    Argument(int argumentName);
+
+    virtual ~Argument() {}
 };
 
 inline
 Argument::Argument(int argumentName)
-  : NamedEntity(argumentName)
-{
+        : NamedEntity(argumentName) {
 }
 
 #endif

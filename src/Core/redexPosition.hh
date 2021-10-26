@@ -26,33 +26,38 @@
 #ifndef _redexPosition_hh_
 #define _redexPosition_hh_
 
-class RedexPosition
-{
+class RedexPosition {
 public:
-  RedexPosition() { CantHappen("called"); }  // needed so that Vector template can be instantiated
-  //  RedexPosition(DagNode* node, int parentIndex, int argIndex);
-  RedexPosition(DagNode* node, int parentIndex, int argIndex, bool eager);
+    RedexPosition() { CantHappen("called"); }  // needed so that Vector template can be instantiated
+    //  RedexPosition(DagNode* node, int parentIndex, int argIndex);
+    RedexPosition(DagNode *node, int parentIndex, int argIndex, bool eager);
 
-  DagNode* node() const;
-  int parentIndex() const;
-  int argIndex() const;
-  void replaceNode(DagNode* newNode);
-  void setStale();
-  void clearStale();
-  bool isStale() const;
-  bool isEager() const;
+    DagNode *node() const;
+
+    int parentIndex() const;
+
+    int argIndex() const;
+
+    void replaceNode(DagNode *newNode);
+
+    void setStale();
+
+    void clearStale();
+
+    bool isStale() const;
+
+    bool isEager() const;
 
 private:
-  enum Flags
-  {
-    STALE = 1,
-    EAGER = 2
-  };
+    enum Flags {
+        STALE = 1,
+        EAGER = 2
+    };
 
-  DagNode* dagNode;
-  int pIndex;
-  int aIndex;
-  int flags;
+    DagNode *dagNode;
+    int pIndex;
+    int aIndex;
+    int flags;
 };
 
 /*
@@ -67,60 +72,51 @@ RedexPosition::RedexPosition(DagNode* node, int parentIndex, int argIndex)
 */
 
 inline
-RedexPosition::RedexPosition(DagNode* node, int parentIndex, int argIndex, bool eager)
-  : dagNode(node),
-    pIndex(parentIndex),
-    aIndex(argIndex),
-    flags(eager ? EAGER : 0)
-{
+RedexPosition::RedexPosition(DagNode *node, int parentIndex, int argIndex, bool eager)
+        : dagNode(node),
+          pIndex(parentIndex),
+          aIndex(argIndex),
+          flags(eager ? EAGER : 0) {
 }
 
-inline DagNode*
-RedexPosition::node() const
-{
-  return dagNode;
-}
-
-inline int
-RedexPosition::parentIndex() const
-{
-  return pIndex;
+inline DagNode *
+RedexPosition::node() const {
+    return dagNode;
 }
 
 inline int
-RedexPosition::argIndex() const
-{
-  return aIndex;
+RedexPosition::parentIndex() const {
+    return pIndex;
+}
+
+inline int
+RedexPosition::argIndex() const {
+    return aIndex;
 }
 
 inline void
-RedexPosition::replaceNode(DagNode* newNode)
-{
-  dagNode = newNode;
+RedexPosition::replaceNode(DagNode *newNode) {
+    dagNode = newNode;
 }
 
 inline void
-RedexPosition::setStale()
-{
-  flags |= STALE;
+RedexPosition::setStale() {
+    flags |= STALE;
 }
 
 inline void
-RedexPosition::clearStale()
-{
-  flags &= ~STALE;
+RedexPosition::clearStale() {
+    flags &= ~STALE;
 }
 
 inline bool
-RedexPosition::isStale() const
-{
-  return flags & STALE;
+RedexPosition::isStale() const {
+    return flags & STALE;
 }
 
 inline bool
-RedexPosition::isEager() const
-{
-  return flags & EAGER;
+RedexPosition::isEager() const {
+    return flags & EAGER;
 }
 
 #endif

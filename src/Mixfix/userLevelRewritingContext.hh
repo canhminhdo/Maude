@@ -25,215 +25,247 @@
 //
 #ifndef _userLevelRewritingContext_hh_
 #define _userLevelRewritingContext_hh_
+
 #include <signal.h>
 #include "timeStuff.hh"
+
 #ifdef USE_LIBSIGSEGV
+
 #include "sigsegv.h"
+
 #endif
+
 #include "objectSystemRewritingContext.hh"
 #include "metadataStore.hh"
 #include "rule.hh"
+
 class Token;  // HACK
 
-class UserLevelRewritingContext : public ObjectSystemRewritingContext
-{
-  NO_COPYING(UserLevelRewritingContext);
+class UserLevelRewritingContext : public ObjectSystemRewritingContext {
+    NO_COPYING(UserLevelRewritingContext);
 
 public:
-  enum ExitCodes
-    {
-     NORMAL_EXIT = 0,
-     STACK_OVERFLOW = 1,
-     INTERNAL_ERROR = 2,
-     SOCKET_CLOSED = 3
+    enum ExitCodes {
+        NORMAL_EXIT = 0,
+        STACK_OVERFLOW = 1,
+        INTERNAL_ERROR = 2,
+        SOCKET_CLOSED = 3
     };
 
-  enum OtherPurpose
-    {
-     TOP_LEVEL_EVAL = OTHER + 1,
-     META_EVAL
+    enum OtherPurpose {
+        TOP_LEVEL_EVAL = OTHER + 1,
+        META_EVAL
     };
 
-  enum ParseResult
-    {
-     NORMAL,
-     QUIT,
-     RESUME,
-     ABORT,
-     STEP,
-     WHERE
+    enum ParseResult {
+        NORMAL,
+        QUIT,
+        RESUME,
+        ABORT,
+        STEP,
+        WHERE
     };
 
-  UserLevelRewritingContext(DagNode* root);
+    UserLevelRewritingContext(DagNode *root);
 
-  static void ignoreCtrlC();
-  static void setHandlers(bool handleCtrlC);
-  static ParseResult commandLoop();
-  static bool interrupted();
-  static bool aborted();
-  static void setInteractive(bool status);
-  static void setPrintAttributeStream(ostream* s);
-  static void beginCommand();
-  static void setDebug();
-  static void clearDebug();
-  //static void clearInterrupt();
-  static void clearTrialCount();
-  static void clearInfo();
+    static void ignoreCtrlC();
 
-  RewritingContext* makeSubcontext(DagNode* root, int purpose);
-  void beAdoptedBy(UserLevelRewritingContext* newParent);
-  int traceBeginEqTrial(DagNode* subject, const Equation* equation);
-  int traceBeginRuleTrial(DagNode* subject, const Rule* rule);
-  int traceBeginScTrial(DagNode* subject, const SortConstraint* sc);
-  int traceBeginSdTrial(DagNode* subject, const StrategyDefinition* sdef);
-  void traceEndTrial(int trailRef, bool success);
-  void traceExhausted(int trialRef);
+    static void setHandlers(bool handleCtrlC);
 
-  void tracePreEqRewrite(DagNode* redex, const Equation* equation, int type);
-  void tracePostEqRewrite(DagNode* replacement);
-  void tracePreRuleRewrite(DagNode* redex, const Rule* rule);
-  void tracePostRuleRewrite(DagNode* replacement);
-  void tracePreScApplication(DagNode* subject, const SortConstraint* sc);
-  bool traceAbort();
-  void traceBeginFragment(int trialRef,
-			  const PreEquation* preEquation,
-			  int fragmentIndex,
-			  bool firstAttempt);
-  void traceEndFragment(int trialRef,
-			const PreEquation* preEquation,
-			int fragmentIndex,
-			bool success);
+    static ParseResult commandLoop();
 
-  void traceNarrowingStep(Rule* rule,
-			  DagNode* redex,
-			  DagNode* replacement,
-			  const NarrowingVariableInfo* variableInfo,
-			  const Substitution* substitution,
-			  DagNode* newState);
+    static bool interrupted();
 
-  void traceVariantNarrowingStep(Equation* equation,
-				 const Vector<DagNode*>& oldVariantSubstitution,
-				 DagNode* redex,
-				 DagNode* replacement,
-				 const NarrowingVariableInfo& variableInfo,
-				 const Substitution* substitution,
-				 DagNode* newState,
-				 const Vector<DagNode*>& newVariantSubstitution,
-				 const NarrowingVariableInfo& originalVariables);
+    static bool aborted();
 
-  void traceStrategyCall(StrategyDefinition* sdef,
-			 DagNode* callDag,
-			 DagNode* subject,
-			 const Substitution* substitution);
+    static void setInteractive(bool status);
 
-  static void printSubstitution(const Substitution& substitution,
-				const VariableInfo& varInfo,
-				const NatSet& ignoredIndices = NatSet());
-  
-  static void printSubstitution(const Vector<DagNode*>& substitution,
-				const NarrowingVariableInfo& variableInfo);
+    static void setPrintAttributeStream(ostream *s);
 
-  static void printSubstitution(const Substitution& substitution,
-				const NarrowingVariableInfo& variableInfo);
+    static void beginCommand();
 
-  bool interruptSeen();
-  
+    static void setDebug();
+
+    static void clearDebug();
+
+    //static void clearInterrupt();
+    static void clearTrialCount();
+
+    static void clearInfo();
+
+    RewritingContext *makeSubcontext(DagNode *root, int purpose);
+
+    void beAdoptedBy(UserLevelRewritingContext *newParent);
+
+    int traceBeginEqTrial(DagNode *subject, const Equation *equation);
+
+    int traceBeginRuleTrial(DagNode *subject, const Rule *rule);
+
+    int traceBeginScTrial(DagNode *subject, const SortConstraint *sc);
+
+    int traceBeginSdTrial(DagNode *subject, const StrategyDefinition *sdef);
+
+    void traceEndTrial(int trailRef, bool success);
+
+    void traceExhausted(int trialRef);
+
+    void tracePreEqRewrite(DagNode *redex, const Equation *equation, int type);
+
+    void tracePostEqRewrite(DagNode *replacement);
+
+    void tracePreRuleRewrite(DagNode *redex, const Rule *rule);
+
+    void tracePostRuleRewrite(DagNode *replacement);
+
+    void tracePreScApplication(DagNode *subject, const SortConstraint *sc);
+
+    bool traceAbort();
+
+    void traceBeginFragment(int trialRef,
+                            const PreEquation *preEquation,
+                            int fragmentIndex,
+                            bool firstAttempt);
+
+    void traceEndFragment(int trialRef,
+                          const PreEquation *preEquation,
+                          int fragmentIndex,
+                          bool success);
+
+    void traceNarrowingStep(Rule *rule,
+                            DagNode *redex,
+                            DagNode *replacement,
+                            const NarrowingVariableInfo *variableInfo,
+                            const Substitution *substitution,
+                            DagNode *newState);
+
+    void traceVariantNarrowingStep(Equation *equation,
+                                   const Vector<DagNode *> &oldVariantSubstitution,
+                                   DagNode *redex,
+                                   DagNode *replacement,
+                                   const NarrowingVariableInfo &variableInfo,
+                                   const Substitution *substitution,
+                                   DagNode *newState,
+                                   const Vector<DagNode *> &newVariantSubstitution,
+                                   const NarrowingVariableInfo &originalVariables);
+
+    void traceStrategyCall(StrategyDefinition *sdef,
+                           DagNode *callDag,
+                           DagNode *subject,
+                           const Substitution *substitution);
+
+    static void printSubstitution(const Substitution &substitution,
+                                  const VariableInfo &varInfo,
+                                  const NatSet &ignoredIndices = NatSet());
+
+    static void printSubstitution(const Vector<DagNode *> &substitution,
+                                  const NarrowingVariableInfo &variableInfo);
+
+    static void printSubstitution(const Substitution &substitution,
+                                  const NarrowingVariableInfo &variableInfo);
+
+    bool interruptSeen();
+
 private:
-  UserLevelRewritingContext(DagNode* root,
-			    UserLevelRewritingContext* parent,
-			    int purpose,
-			    bool localTraceFlag);
+    UserLevelRewritingContext(DagNode *root,
+                              UserLevelRewritingContext *parent,
+                              int purpose,
+                              bool localTraceFlag);
 
-  static void interruptHandler(int);
-  static void infoHandler(int);
-  static void interruptHandler2(...);
+    static void interruptHandler(int);
+
+    static void infoHandler(int);
+
+    static void interruptHandler2(...);
 
 #ifdef USE_LIBSIGSEGV
-  static void stackOverflowHandler(int emergency, stackoverflow_context_t scp);
-  static int sigsegvHandler(void* fault_address, int serious);
+
+    static void stackOverflowHandler(int emergency, stackoverflow_context_t scp);
+
+    static int sigsegvHandler(void *fault_address, int serious);
+
 #endif
-  static void internalErrorHandler(int signalNr);
 
-  static void changePrompt();
-  static bool dontTrace(const DagNode* redex, const PreEquation* pe);
+    static void internalErrorHandler(int signalNr);
 
-  bool handleInterrupt();
-  bool blockAndHandleInterrupts(sigset_t *normalSet);
-  
-  void checkForPrintAttribute(MetadataStore::ItemType itemType, const PreEquation* item);
-  bool handleDebug(DagNode* subject, const PreEquation* pe);
-  void where(ostream& s);
-  void printStatusReportCommon();
-  void printStatusReport(DagNode* subject, const PreEquation* pe);
+    static void changePrompt();
 
-  static bool tracePostFlag;
-  static int trialCount;
-  static const char header[];
+    static bool dontTrace(const DagNode *redex, const PreEquation *pe);
 
-  static bool interactiveFlag;
-  static bool ctrlC_Flag;	// set in ^C signal handler
-  static bool infoFlag;		// set in info signal handler
-  static bool stepFlag;
-  static bool abortFlag;
-  static int debugLevel;
-  //
-  //	This are used to decide how to respond to two interrupts
-  //	in succession.
-  //
-  static Int64 rewriteCountAtLastInterrupt;
-  static timespec timeAtLastInterrupt;
+    bool handleInterrupt();
 
-  static AutoWrapBuffer* wrapOut;
-  static AutoWrapBuffer* wrapErr;
+    bool blockAndHandleInterrupts(sigset_t *normalSet);
 
-  static ostream* printAttrStream;
+    void checkForPrintAttribute(MetadataStore::ItemType itemType, const PreEquation *item);
 
-  UserLevelRewritingContext* parent;
-  const int purpose;
-  bool localTraceFlag;
+    bool handleDebug(DagNode *subject, const PreEquation *pe);
+
+    void where(ostream &s);
+
+    void printStatusReportCommon();
+
+    void printStatusReport(DagNode *subject, const PreEquation *pe);
+
+    static bool tracePostFlag;
+    static int trialCount;
+    static const char header[];
+
+    static bool interactiveFlag;
+    static bool ctrlC_Flag;    // set in ^C signal handler
+    static bool infoFlag;        // set in info signal handler
+    static bool stepFlag;
+    static bool abortFlag;
+    static int debugLevel;
+    //
+    //	This are used to decide how to respond to two interrupts
+    //	in succession.
+    //
+    static Int64 rewriteCountAtLastInterrupt;
+    static timespec timeAtLastInterrupt;
+
+    static AutoWrapBuffer *wrapOut;
+    static AutoWrapBuffer *wrapErr;
+
+    static ostream *printAttrStream;
+
+    UserLevelRewritingContext *parent;
+    const int purpose;
+    bool localTraceFlag;
 };
 
 inline void
-UserLevelRewritingContext::setPrintAttributeStream(ostream* s)
-{
-  printAttrStream = s;
+UserLevelRewritingContext::setPrintAttributeStream(ostream *s) {
+    printAttrStream = s;
 }
 
 inline void
-UserLevelRewritingContext::clearTrialCount()
-{
-  trialCount = 0;
+UserLevelRewritingContext::clearTrialCount() {
+    trialCount = 0;
 }
 
 inline bool
-UserLevelRewritingContext::interrupted()
-{
-  return ctrlC_Flag;
+UserLevelRewritingContext::interrupted() {
+    return ctrlC_Flag;
 }
 
 inline bool
-UserLevelRewritingContext::aborted()
-{
-  return abortFlag;
+UserLevelRewritingContext::aborted() {
+    return abortFlag;
 }
 
 inline void
-UserLevelRewritingContext::setDebug()
-{
-  setTraceStatus(true);
-  stepFlag = true;
+UserLevelRewritingContext::setDebug() {
+    setTraceStatus(true);
+    stepFlag = true;
 }
 
 inline void
-UserLevelRewritingContext::clearInfo()
-{
-  infoFlag = false;
+UserLevelRewritingContext::clearInfo() {
+    infoFlag = false;
 }
 
 inline void
-UserLevelRewritingContext::beAdoptedBy(UserLevelRewritingContext* newParent)
-{
-  parent = newParent;
+UserLevelRewritingContext::beAdoptedBy(UserLevelRewritingContext *newParent) {
+    parent = newParent;
 }
 
 #endif

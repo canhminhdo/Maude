@@ -39,77 +39,81 @@
 //
 #ifndef _autoWrapBuf_hh_
 #define _autoWrapBuf_hh_
+
 #include <string>
 
-class AutoWrapBuffer : public std::streambuf
-{
-  NO_COPYING(AutoWrapBuffer);
+class AutoWrapBuffer : public std::streambuf {
+    NO_COPYING(AutoWrapBuffer);
 
 public:
-  typedef void (*WaitFunction)();
+    typedef void (*WaitFunction)();
 
-  AutoWrapBuffer(streambuf* outputBuffer,
-		 int lineWidth,
-		 bool respectFlush,
-		 WaitFunction waitFunction);
+    AutoWrapBuffer(streambuf *outputBuffer,
+                   int lineWidth,
+                   bool respectFlush,
+                   WaitFunction waitFunction);
 
-  void setLineWidth(int lineWidth);
-  void resetCursorPosition();
-  //
-  //	Member functions we need to override from streambuf to get
-  //	hold of raw characters.
-  //
-  int sync();
-  int overflow(int ch);
+    void setLineWidth(int lineWidth);
+
+    void resetCursorPosition();
+
+    //
+    //	Member functions we need to override from streambuf to get
+    //	hold of raw characters.
+    //
+    int sync();
+
+    int overflow(int ch);
 
 private:
-  enum Options
-  {
-    LEFT_MARGIN = 4,
-    RIGHT_MARGIN = 1
-  };
+    enum Options {
+        LEFT_MARGIN = 4,
+        RIGHT_MARGIN = 1
+    };
 
-  void handleChar(int ch);
-  void handleEscapeSequenceChar(int ch);
-  int nextTabPosition(int pos);
-  void dumpBuffer();
-  void decideOnBreak();
-  void legalPositionToBreak();
+    void handleChar(int ch);
 
-  streambuf* outputBuffer;
-  int lineWidth;		// width of output device
-  bool respectFlush;
-  WaitFunction waitFunction;
+    void handleEscapeSequenceChar(int ch);
 
-  int cursorPosition;		// cursor position if we were to print pendingBuffer
-  Bool seenBackQuote;		// last char was a `
-  Bool seenBackSlash;		// inside a "string" and last char was an unescaped
-  				// backslash
-  Bool inString;		// inside a "string"
-  Bool inEscape;		// inside an ESC sequence
-  string pendingBuffer;
-  int pendingWidth;		// number of chars in buffer excluding \t and ESC sequences
+    int nextTabPosition(int pos);
+
+    void dumpBuffer();
+
+    void decideOnBreak();
+
+    void legalPositionToBreak();
+
+    streambuf *outputBuffer;
+    int lineWidth;        // width of output device
+    bool respectFlush;
+    WaitFunction waitFunction;
+
+    int cursorPosition;        // cursor position if we were to print pendingBuffer
+    Bool seenBackQuote;        // last char was a `
+    Bool seenBackSlash;        // inside a "string" and last char was an unescaped
+    // backslash
+    Bool inString;        // inside a "string"
+    Bool inEscape;        // inside an ESC sequence
+    string pendingBuffer;
+    int pendingWidth;        // number of chars in buffer excluding \t and ESC sequences
 };
 
 inline void
-AutoWrapBuffer::setLineWidth(int lineWidth)
-{
-  AutoWrapBuffer::lineWidth = lineWidth;
+AutoWrapBuffer::setLineWidth(int lineWidth) {
+    AutoWrapBuffer::lineWidth = lineWidth;
 }
 
 inline int
-AutoWrapBuffer::nextTabPosition(int pos)
-{
-  return (pos + 8) & ~7;
+AutoWrapBuffer::nextTabPosition(int pos) {
+    return (pos + 8) & ~7;
 }
 
 inline void
-AutoWrapBuffer::resetCursorPosition()
-{
-  //
-  //	We need this to account for newline characters implicit in user input.
-  //
-  cursorPosition = 0;
+AutoWrapBuffer::resetCursorPosition() {
+    //
+    //	We need this to account for newline characters implicit in user input.
+    //
+    cursorPosition = 0;
 }
 
 #endif

@@ -25,25 +25,30 @@
 //
 #ifndef _floatSymbol_hh_
 #define _floatSymbol_hh_
+
 #include "NA_Symbol.hh"
 
-class FloatSymbol : public NA_Symbol
-{
+class FloatSymbol : public NA_Symbol {
 public:
-  FloatSymbol(int id);
+    FloatSymbol(int id);
 
-  void fillInSortInfo(Term* subject);
-  void computeBaseSort(DagNode* subject);
-  void compileOpDeclarations();
-  bool isConstructor(DagNode* subject);
-  bool rewriteToFloat(DagNode* subject,
-		      RewritingContext& context,
-		      double result);
-  Term* termify(DagNode* dagNode);
+    void fillInSortInfo(Term *subject);
+
+    void computeBaseSort(DagNode *subject);
+
+    void compileOpDeclarations();
+
+    bool isConstructor(DagNode *subject);
+
+    bool rewriteToFloat(DagNode *subject,
+                        RewritingContext &context,
+                        double result);
+
+    Term *termify(DagNode *dagNode);
 
 private:
-  Sort* sort;
-  Sort* finiteSort;
+    Sort *sort;
+    Sort *finiteSort;
 };
 
 #endif

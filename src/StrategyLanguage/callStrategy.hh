@@ -25,43 +25,43 @@
 //
 #ifndef _callStrategy_hh_
 #define _callStrategy_hh_
+
 #include "cachedDag.hh"
 #include "variableInfo.hh"
 #include "strategyExpression.hh"
 
-class CallStrategy : public StrategyExpression
-{
+class CallStrategy : public StrategyExpression {
 public:
-  CallStrategy(RewriteStrategy* strat, Term* call);
+    CallStrategy(RewriteStrategy *strat, Term *call);
 
-  Term* getTerm() const;
-  RewriteStrategy* getStrategy() const;
+    Term *getTerm() const;
 
-  bool check(VariableInfo& indices, const TermSet& boundVars);
-  void process();
+    RewriteStrategy *getStrategy() const;
 
-  StrategicExecution::Survival decompose(StrategicSearch& searchObject, DecompositionProcess* remainder);
+    bool check(VariableInfo &indices, const TermSet &boundVars);
 
-  bool equal(const StrategyExpression& other) const;
+    void process();
+
+    StrategicExecution::Survival decompose(StrategicSearch &searchObject, DecompositionProcess *remainder);
+
+    bool equal(const StrategyExpression &other) const;
 
 private:
-  RewriteStrategy* strategy;
-  CachedDag callTerm;
-  bool callDagIsReduced;
+    RewriteStrategy *strategy;
+    CachedDag callTerm;
+    bool callDagIsReduced;
 
-  static bool tailCall(DecompositionProcess* remainder);
+    static bool tailCall(DecompositionProcess *remainder);
 };
 
-inline Term*
-CallStrategy::getTerm() const
-{
-  return callTerm.getTerm();
+inline Term *
+CallStrategy::getTerm() const {
+    return callTerm.getTerm();
 }
 
-inline RewriteStrategy*
-CallStrategy::getStrategy() const
-{
-  return strategy;
+inline RewriteStrategy *
+CallStrategy::getStrategy() const {
+    return strategy;
 }
 
 #endif

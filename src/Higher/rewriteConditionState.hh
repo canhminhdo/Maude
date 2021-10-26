@@ -25,30 +25,31 @@
 //
 #ifndef _rewriteConditionState_hh_
 #define _rewriteConditionState_hh_
+
 #include "conditionState.hh"
 #include "stateTransitionGraph.hh"
 #include "substitution.hh"
 
-class RewriteConditionState : public ConditionState
-{
+class RewriteConditionState : public ConditionState {
 public:
-  RewriteConditionState(RewritingContext& original,
-			DagNode* lhsInstance,
-			LhsAutomaton* matcher);
-  ~RewriteConditionState();
+    RewriteConditionState(RewritingContext &original,
+                          DagNode *lhsInstance,
+                          LhsAutomaton *matcher);
 
-  bool solve(bool findFirst, RewritingContext& solution);
+    ~RewriteConditionState();
+
+    bool solve(bool findFirst, RewritingContext &solution);
 
 private:
-  int findNextState();
+    int findNextState();
 
-  StateTransitionGraph stateGraph;
-  LhsAutomaton* const matcher;
+    StateTransitionGraph stateGraph;
+    LhsAutomaton *const matcher;
 
-  Substitution saved;
-  Subproblem* subproblem;
-  int explore;
-  int arcNr;
+    Substitution saved;
+    Subproblem *subproblem;
+    int explore;
+    int arcNr;
 };
 
 #endif

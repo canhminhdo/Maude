@@ -83,114 +83,120 @@
 #ifndef _diophantineSystem_hh_
 #define _diophantineSystem_hh_
 
-class DiophantineSystem
-{
+class DiophantineSystem {
 public:
-  enum SpecialValues
-    {
-      INSOLUBLE = -1
+    enum SpecialValues {
+        INSOLUBLE = -1
     };
 
-  DiophantineSystem(int estNrRows = 0, int estNrColumns = 0);
-  
-  void insertRow(int coeff, int minSize, int maxSize);
-  void insertColumn(int value);
-  bool solve();
-  int solution(int row, int column) const;
-  int rowCount() const;
-  int columnCount() const;
-  
+    DiophantineSystem(int estNrRows = 0, int estNrColumns = 0);
+
+    void insertRow(int coeff, int minSize, int maxSize);
+
+    void insertColumn(int value);
+
+    bool solve();
+
+    int solution(int row, int column) const;
+
+    int rowCount() const;
+
+    int columnCount() const;
+
 private:
-  struct Select
-    {
-      int base;		// base value for element of M (0 for simple systems)
-      int extra;	// extra value representing current state of solution
-      int maxExtra;	// maximum for extra
-    };
-  
-  //
-  //	In a complex system, for each row with coefficient R_i and for each possible
-  //	column value V we compute and store the minimum and maximum K such that
-  //	V - K*R_i can be expressed as a natural number linear combination over
-  //	R_j for j > i, respecting the maximum allowable sums but not the minimum
-  //	allowable sums (since some other column may make up the minimum).
-  //	If no such (natural number) K exists we store min = max = INSOLUBLE.
-  // 
-  struct Soluble
-    {
-      int min;	// minimum assignment to row for given column value
-      int max;	// maximum assignment to row for given column value
+    struct Select {
+        int base;        // base value for element of M (0 for simple systems)
+        int extra;    // extra value representing current state of solution
+        int maxExtra;    // maximum for extra
     };
 
-  //
-  //	Structure for each row. We have a pair of member functions to handle
-  //	making a selection from a multiset, both normally and in the presence
-  //	of solubility constraints on the non-selected part.
-  //
-  struct Row
-    {
-      bool multisetSelect(Vector<int>& bag, bool findFirst);
-      bool multisetComplex(Vector<int>& bag,
-			   Vector<Soluble>& soluble,
-			   bool findFirst);
-
-      int name;			// original position of row
-      int coeff;	       	// coefficient
-      int minSize;	       	// minimum acceptable sum
-      int minProduct;	       	// coeff * minSize
-      int minLeave;	       	// minimum sum that must be left for
-      				// remaining rows
-      int maxSize;	       	// maximum acceptable sum
-      int maxProduct;	       	// coeff * maxSize
-      int maxLeave;	       	// maximum sum that may be left for
-			       	// remaining rows
-      int currentSize;		// current size of selection from multiset
-      int currentMaxSize;      	// maximum size of selection from multiset
-      Vector<Select> selection;	// vector of values selected for this row
-      Vector<Soluble> soluble;	// solubility vector (complex systems only)
+    //
+    //	In a complex system, for each row with coefficient R_i and for each possible
+    //	column value V we compute and store the minimum and maximum K such that
+    //	V - K*R_i can be expressed as a natural number linear combination over
+    //	R_j for j > i, respecting the maximum allowable sums but not the minimum
+    //	allowable sums (since some other column may make up the minimum).
+    //	If no such (natural number) K exists we store min = max = INSOLUBLE.
+    //
+    struct Soluble {
+        int min;    // minimum assignment to row for given column value
+        int max;    // maximum assignment to row for given column value
     };
-  
-  static bool rowLt(const Row& i, const Row& j);
-  
-  bool precompute();
-  void buildSolubilityVectors();
-  bool viable(int rowNr) const;
-  bool solveRowSimple(int rowNr, bool findFirst);
-  void solveLastRowSimple();
-  bool solveSimple(bool findFirst);
-  bool solveRowComplex(int rowNr, bool findFirst);
-  void solveLastRowComplex();
-  bool solveComplex(bool findFirst);
 
-  Vector<Row> rows;
-  Vector<int> columns;
-  Vector<int> rowPermute;
-  int columnSum;
-  int maxColumnValue;
-  bool closed;		// system is closed once we start solving
-  bool complex;
-  bool failed;		// set when failure detected
+    //
+    //	Structure for each row. We have a pair of member functions to handle
+    //	making a selection from a multiset, both normally and in the presence
+    //	of solubility constraints on the non-selected part.
+    //
+    struct Row {
+        bool multisetSelect(Vector<int> &bag, bool findFirst);
+
+        bool multisetComplex(Vector<int> &bag,
+                             Vector<Soluble> &soluble,
+                             bool findFirst);
+
+        int name;            // original position of row
+        int coeff;            // coefficient
+        int minSize;            // minimum acceptable sum
+        int minProduct;            // coeff * minSize
+        int minLeave;            // minimum sum that must be left for
+        // remaining rows
+        int maxSize;            // maximum acceptable sum
+        int maxProduct;            // coeff * maxSize
+        int maxLeave;            // maximum sum that may be left for
+        // remaining rows
+        int currentSize;        // current size of selection from multiset
+        int currentMaxSize;        // maximum size of selection from multiset
+        Vector<Select> selection;    // vector of values selected for this row
+        Vector<Soluble> soluble;    // solubility vector (complex systems only)
+    };
+
+    static bool rowLt(const Row &i, const Row &j);
+
+    bool precompute();
+
+    void buildSolubilityVectors();
+
+    bool viable(int rowNr) const;
+
+    bool solveRowSimple(int rowNr, bool findFirst);
+
+    void solveLastRowSimple();
+
+    bool solveSimple(bool findFirst);
+
+    bool solveRowComplex(int rowNr, bool findFirst);
+
+    void solveLastRowComplex();
+
+    bool solveComplex(bool findFirst);
+
+    Vector<Row> rows;
+    Vector<int> columns;
+    Vector<int> rowPermute;
+    int columnSum;
+    int maxColumnValue;
+    bool closed;        // system is closed once we start solving
+    bool complex;
+    bool failed;        // set when failure detected
 };
 
 inline int
-DiophantineSystem::solution(int r, int c) const
-{
-  Assert(closed, "solve() not called");
-  Assert(!failed, "non-existent solution");
-  const Select& s = rows[rowPermute[r]].selection[c];
-  return s.base + s.extra;
+DiophantineSystem::solution(int r, int c) const {
+    Assert(closed, "solve() not called");
+    Assert(!failed, "non-existent solution");
+    const Select &s = rows[rowPermute[r]].selection[c];
+    return s.base + s.extra;
 }
 
 inline int
-DiophantineSystem::rowCount() const
-{
-  return rows.length();
+DiophantineSystem::rowCount() const {
+    return rows.length();
 }
 
 inline int
-DiophantineSystem::columnCount() const
-{
-  return columns.length();
+DiophantineSystem::columnCount() const {
+    return columns.length();
 }
 
 #endif

@@ -29,10 +29,9 @@
 #ifndef _conditionState_hh_
 #define _conditionState_hh_
 
-class ConditionState
-{
+class ConditionState {
 public:
-  virtual ~ConditionState() {};
+    virtual ~ConditionState() {};
 };
 
 #endif

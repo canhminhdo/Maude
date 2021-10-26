@@ -40,7 +40,6 @@
 #include "dagRoot.hh"
 
 void
-DagRoot::markReachableNodes()
-{
-  nodePointer->mark();
+DagRoot::markReachableNodes() {
+    nodePointer->mark();
 }

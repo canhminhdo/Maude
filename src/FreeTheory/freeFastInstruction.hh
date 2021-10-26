@@ -26,28 +26,32 @@
 //
 #ifndef _freeFastInstruction_hh_
 #define _freeFastInstruction_hh_
+
 #include "freeInstruction.hh"
 
-class FreeFastInstruction : public FreeInstruction
-{
-  NO_COPYING(FreeFastInstruction);
+class FreeFastInstruction : public FreeInstruction {
+    NO_COPYING(FreeFastInstruction);
 
 public:
-  FreeFastInstruction(FreeSymbol* symbol, int destIndex, Instruction* nextInstruction);
-  FreeFastInstruction(FreeSymbol* symbol, int argIndex0, int destIndex, Instruction* nextInstruction);
-  FreeFastInstruction(FreeSymbol* symbol, int argIndex0, int argIndex1, int destIndex, Instruction* nextInstruction);
-  FreeFastInstruction(FreeSymbol* symbol, int argIndex0, int argIndex1, int argIndex2, int destIndex, Instruction* nextInstruction);
+    FreeFastInstruction(FreeSymbol *symbol, int destIndex, Instruction *nextInstruction);
+
+    FreeFastInstruction(FreeSymbol *symbol, int argIndex0, int destIndex, Instruction *nextInstruction);
+
+    FreeFastInstruction(FreeSymbol *symbol, int argIndex0, int argIndex1, int destIndex, Instruction *nextInstruction);
+
+    FreeFastInstruction(FreeSymbol *symbol, int argIndex0, int argIndex1, int argIndex2, int destIndex,
+                        Instruction *nextInstruction);
 
 #ifdef DUMP
-  //void dump(ostream& s, int indentLevel);
+    //void dump(ostream& s, int indentLevel);
 #endif
 
 private:
-  const SlotIndex argIndex0;
-  const SlotIndex argIndex1;
-  const SlotIndex argIndex2;
+    const SlotIndex argIndex0;
+    const SlotIndex argIndex1;
+    const SlotIndex argIndex2;
 
-  friend class FreeInstruction;
+    friend class FreeInstruction;
 };
 
 #endif

@@ -29,31 +29,30 @@
 #ifndef _memoTable_hh_
 #define _memoTable_hh_
 
-class MemoTable : public ModuleItem
-{
+class MemoTable : public ModuleItem {
 public:
-  typedef Vector<int> SourceSet;
+    typedef Vector<int> SourceSet;
 
-  MemoTable(bool memoFlag);
+    MemoTable(bool memoFlag);
 
-  bool isMemoized() const;
-  bool memoRewrite(SourceSet& sourceSet, DagNode* subject, RewritingContext& context);
-  void memoEnter(SourceSet& sourceSet, DagNode* destination);
+    bool isMemoized() const;
+
+    bool memoRewrite(SourceSet &sourceSet, DagNode *subject, RewritingContext &context);
+
+    void memoEnter(SourceSet &sourceSet, DagNode *destination);
 
 private:
-  const bool memo;
+    const bool memo;
 };
 
 inline
 MemoTable::MemoTable(bool memoFlag)
-  : memo(memoFlag)
-{
+        : memo(memoFlag) {
 }
 
 inline bool
-MemoTable::isMemoized() const
-{
-  return memo;
+MemoTable::isMemoized() const {
+    return memo;
 }
 
 #endif

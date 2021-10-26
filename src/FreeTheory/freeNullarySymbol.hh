@@ -26,19 +26,20 @@
 //
 #ifndef _freeNullarySymbol_hh_
 #define _freeNullarySymbol_hh_
+
 #include "freeSymbol.hh"
 #include "dagRoot.hh"
 
-class FreeNullarySymbol : public FreeSymbol, public DagRoot
-{
+class FreeNullarySymbol : public FreeSymbol, public DagRoot {
 public:
-  FreeNullarySymbol(int id);
+    FreeNullarySymbol(int id);
 
-  bool eqRewrite(DagNode* subject, RewritingContext& context);
-  void reset();
+    bool eqRewrite(DagNode *subject, RewritingContext &context);
+
+    void reset();
 
 private:
-  DagRoot cached;
+    DagRoot cached;
 };
 
 #endif

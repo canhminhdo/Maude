@@ -25,50 +25,48 @@
 //
 #ifndef _nonFinalCtor_hh_
 #define _nonFinalCtor_hh_
+
 #include "nonFinalInstruction.hh"
 #include "frame.hh"
 
-class NonFinalCtor : public NonFinalInstruction
-{
-  NO_COPYING(NonFinalCtor);
+class NonFinalCtor : public NonFinalInstruction {
+    NO_COPYING(NonFinalCtor);
 
 public:
-  NonFinalCtor(int destinationIndex, Instruction* nextInstruction);
+    NonFinalCtor(int destinationIndex, Instruction *nextInstruction);
 
 protected:
-  //
-  //	This shared code for finishing up the execution of a non-final ctor is the sole
-  //	reason for this class to exist.
-  //
-  //	It's not safe to call this from functions that leak pointers to their stack
-  //	frame since the compiler will not be able to perform tail recursion properly
-  //	and an accumulation of garbage stack frame will occur. This is why this
-  //	function lives here, as opposed to in the parent class.
-  //
-  void saveResultAndContinue(StackMachine* machine, Frame* frame, DagNode* result) const;
+    //
+    //	This shared code for finishing up the execution of a non-final ctor is the sole
+    //	reason for this class to exist.
+    //
+    //	It's not safe to call this from functions that leak pointers to their stack
+    //	frame since the compiler will not be able to perform tail recursion properly
+    //	and an accumulation of garbage stack frame will occur. This is why this
+    //	function lives here, as opposed to in the parent class.
+    //
+    void saveResultAndContinue(StackMachine *machine, Frame *frame, DagNode *result) const;
 };
 
 inline
-NonFinalCtor::NonFinalCtor(int destinationIndex, Instruction* nextInstruction)
-  : NonFinalInstruction(destinationIndex, nextInstruction)
-{
+NonFinalCtor::NonFinalCtor(int destinationIndex, Instruction *nextInstruction)
+        : NonFinalInstruction(destinationIndex, nextInstruction) {
 }
 
 inline void
-NonFinalCtor::saveResultAndContinue(StackMachine* machine, Frame* frame, DagNode* result) const
-{
-  //
-  //	Save new result in frame.
-  //
-  frame->setSlot(getDestinationIndex(), result);
-  //
-  //	Execute next instruction.
-  //	This should be subject to tail call optimization in the calling execute() function, after we
-  //	are inlined, so the callers stack frame will disappear, avoiding accumulation of stack frames.
-  //	We don't bother storing a pointer to the next instruction in the our frame, relying on the
-  //	instruction we execute to do this (or pass on the obligation).
-  //
-  getNextInstruction()->execute(machine);
+NonFinalCtor::saveResultAndContinue(StackMachine *machine, Frame *frame, DagNode *result) const {
+    //
+    //	Save new result in frame.
+    //
+    frame->setSlot(getDestinationIndex(), result);
+    //
+    //	Execute next instruction.
+    //	This should be subject to tail call optimization in the calling execute() function, after we
+    //	are inlined, so the callers stack frame will disappear, avoiding accumulation of stack frames.
+    //	We don't bother storing a pointer to the next instruction in the our frame, relying on the
+    //	instruction we execute to do this (or pass on the obligation).
+    //
+    getNextInstruction()->execute(machine);
 }
 
 #endif

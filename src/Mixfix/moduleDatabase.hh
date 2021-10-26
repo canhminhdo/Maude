@@ -25,48 +25,51 @@
 //
 #ifndef _moduleDatabase_hh_
 #define _moduleDatabase_hh_
+
 #include <map>
 #include <set>
 #include "importModule.hh"
 
-class ModuleDatabase
-{
-  NO_COPYING(ModuleDatabase);
+class ModuleDatabase {
+    NO_COPYING(ModuleDatabase);
 
 public:
-  typedef map<int, ImportModule::ImportMode> ImportMap;
-  typedef set<int> ImportSet;
+    typedef map<int, ImportModule::ImportMode> ImportMap;
+    typedef set<int> ImportSet;
 
-  ModuleDatabase(){}
+    ModuleDatabase() {}
 
-  bool insertModule(int name, PreModule* module);  // true if existing module displaced
-  PreModule* getModule(int name) const;  // 0 if doesn't exist
-  bool deleteModule(int name);  // true if module deleted
-  void deleteNamedModules();
-  void setAutoImport(ImportModule::ImportMode importMode, Token name, bool polarity);
-  void setOmodInclude(Token name, bool polarity);
-  const ImportMap& getAutoImports() const;
-  const ImportSet& getOmodIncludes() const;
-  void showNamedModules(ostream& s) const;
+    bool insertModule(int name, PreModule *module);  // true if existing module displaced
+    PreModule *getModule(int name) const;  // 0 if doesn't exist
+    bool deleteModule(int name);  // true if module deleted
+    void deleteNamedModules();
+
+    void setAutoImport(ImportModule::ImportMode importMode, Token name, bool polarity);
+
+    void setOmodInclude(Token name, bool polarity);
+
+    const ImportMap &getAutoImports() const;
+
+    const ImportSet &getOmodIncludes() const;
+
+    void showNamedModules(ostream &s) const;
 
 private:
-  typedef map<int, PreModule*> ModuleMap;
+    typedef map<int, PreModule *> ModuleMap;
 
-  ModuleMap moduleMap;
-  ImportMap autoImports;
-  ImportSet defaultOmodIncludes;
+    ModuleMap moduleMap;
+    ImportMap autoImports;
+    ImportSet defaultOmodIncludes;
 };
 
-inline const ModuleDatabase::ImportMap&
-ModuleDatabase::getAutoImports() const
-{
-  return autoImports;
+inline const ModuleDatabase::ImportMap &
+ModuleDatabase::getAutoImports() const {
+    return autoImports;
 }
 
-inline const ModuleDatabase::ImportSet&
-ModuleDatabase::getOmodIncludes() const
-{
-  return defaultOmodIncludes;
+inline const ModuleDatabase::ImportSet &
+ModuleDatabase::getOmodIncludes() const {
+    return defaultOmodIncludes;
 }
 
 #endif

@@ -36,46 +36,45 @@
 //
 #ifndef _compoundCycleSubproblem_hh_
 #define _compoundCycleSubproblem_hh_
+
 #include "unificationSubproblem.hh"
 #include "simpleRootContainer.hh"
 #include "pendingUnificationStack.hh"
 
-class CompoundCycleSubproblem : public UnificationSubproblem, private SimpleRootContainer
-{
+class CompoundCycleSubproblem : public UnificationSubproblem, private SimpleRootContainer {
 public:
-  CompoundCycleSubproblem();
+    CompoundCycleSubproblem();
 
-  void addComponent(int variableIndex);
-  bool solve(bool findFirst, UnificationContext& solution, PendingUnificationStack& pending);
+    void addComponent(int variableIndex);
+
+    bool solve(bool findFirst, UnificationContext &solution, PendingUnificationStack &pending);
 
 #ifdef DUMP
-  /*
-  virtual void dump(ostream& s,
-		    const VariableInfo& variableInfo,
-		    int indentLevel = 0);
-  */
+    /*
+    virtual void dump(ostream& s,
+              const VariableInfo& variableInfo,
+              int indentLevel = 0);
+    */
 #endif
 
 private:
-  void markReachableNodes();
+    void markReachableNodes();
 
-  Vector<int> cycle;
-  Substitution preBreakSubstitution;
-  PendingUnificationStack::Marker preBreakPendingState;
-  int currentEdgeIndex;
+    Vector<int> cycle;
+    Substitution preBreakSubstitution;
+    PendingUnificationStack::Marker preBreakPendingState;
+    int currentEdgeIndex;
 };
 
 inline
 CompoundCycleSubproblem::CompoundCycleSubproblem()
-  : preBreakSubstitution(0)
-{
-  DebugAdvisory("Created  CompoundCycleSubproblem");
+        : preBreakSubstitution(0) {
+    DebugAdvisory("Created  CompoundCycleSubproblem");
 }
 
 inline void
-CompoundCycleSubproblem::addComponent(int variableIndex)
-{
-  cycle.append(variableIndex);
+CompoundCycleSubproblem::addComponent(int variableIndex) {
+    cycle.append(variableIndex);
 }
 
 #endif

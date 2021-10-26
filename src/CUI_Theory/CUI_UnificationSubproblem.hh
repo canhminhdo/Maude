@@ -27,64 +27,65 @@
 //
 #ifndef _CUI_UnificationSubproblem_hh_
 #define _CUI_UnificationSubproblem_hh_
+
 #include "unificationSubproblem.hh"
 #include "simpleRootContainer.hh"
 #include "substitution.hh"
 #include "pendingUnificationStack.hh"
 
-class CUI_UnificationSubproblem : public UnificationSubproblem, private SimpleRootContainer
-{
-  NO_COPYING(CUI_UnificationSubproblem);
+class CUI_UnificationSubproblem : public UnificationSubproblem, private SimpleRootContainer {
+    NO_COPYING(CUI_UnificationSubproblem);
 
 public:
-  CUI_UnificationSubproblem();
-  ~CUI_UnificationSubproblem();
+    CUI_UnificationSubproblem();
 
-  void addUnification(DagNode* lhs, DagNode* rhs, bool marked, UnificationContext& solution);
-  bool solve(bool findFirst, UnificationContext& solution, PendingUnificationStack& pending);
+    ~CUI_UnificationSubproblem();
+
+    void addUnification(DagNode *lhs, DagNode *rhs, bool marked, UnificationContext &solution);
+
+    bool solve(bool findFirst, UnificationContext &solution, PendingUnificationStack &pending);
 
 #ifdef DUMP
-  //void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
+    //void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
 #endif
 
 private:
-  struct Problem
-  {
-    Problem(CUI_DagNode* lhs, CUI_DagNode* rhs);
-    Problem(const Problem& original);
+    struct Problem {
+        Problem(CUI_DagNode *lhs, CUI_DagNode *rhs);
 
-    CUI_DagNode* const lhs;
-    CUI_DagNode* const rhs;
-    Substitution savedSubstitution;
-    PendingUnificationStack::Marker savedPendingState;
-    bool reverseTried;
-  };
+        Problem(const Problem &original);
 
-  void markReachableNodes();
+        CUI_DagNode *const lhs;
+        CUI_DagNode *const rhs;
+        Substitution savedSubstitution;
+        PendingUnificationStack::Marker savedPendingState;
+        bool reverseTried;
+    };
 
-  Vector<Problem> problems;
+    void markReachableNodes();
+
+    Vector<Problem> problems;
 };
 
 inline
-CUI_UnificationSubproblem::Problem::Problem(CUI_DagNode* lhs, CUI_DagNode* rhs)
-  : lhs(lhs),
-    rhs(rhs),
-    savedSubstitution(0)
-{
+CUI_UnificationSubproblem::Problem::Problem(CUI_DagNode *lhs, CUI_DagNode *rhs)
+        : lhs(lhs),
+          rhs(rhs),
+          savedSubstitution(0) {
 }
 
 inline
-CUI_UnificationSubproblem::Problem::Problem(const Problem& original)
-  : lhs(original.lhs),
-    rhs(original.rhs),
-    savedSubstitution(0)  // HACK
+CUI_UnificationSubproblem::Problem::Problem(const Problem &original)
+        : lhs(original.lhs),
+          rhs(original.rhs),
+          savedSubstitution(0)  // HACK
 {
-  //
-  //	This is only a partial copy constructor - it copies the first two
-  //	data members, which is what is needed for addUnification(). We also
-  //	need to initialize saveSubstitution because Substitution has no
-  //	default constructor.
-  //
+    //
+    //	This is only a partial copy constructor - it copies the first two
+    //	data members, which is what is needed for addUnification(). We also
+    //	need to initialize saveSubstitution because Substitution has no
+    //	default constructor.
+    //
 }
 
 #endif

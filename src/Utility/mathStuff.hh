@@ -26,7 +26,9 @@
 #ifndef _mathStuff_hh_
 #define _mathStuff_hh_
 #if HAVE_MATH_H
+
 #include <math.h>
+
 #endif
 #if HAVE_IEEEFP_H
 #include <ieeefp.h>

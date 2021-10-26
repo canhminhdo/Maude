@@ -25,92 +25,111 @@
 //
 #ifndef _S_Symbol_hh_
 #define _S_Symbol_hh_
+
 #include "symbol.hh"
 #include "gmpxx.h"
 
-class S_Symbol : public Symbol
-{
+class S_Symbol : public Symbol {
 public:
-  S_Symbol(int id, const Vector<int>& strategy = standard, bool memoFlag = false);
-  //
-  //	Member functions required by theory interface.
-  //
-  Term* makeTerm(const Vector<Term*>& args);
-  DagNode* makeDagNode(const Vector<DagNode*>& args);
-  void computeBaseSort(DagNode* subject);
-  void normalizeAndComputeTrueSort(DagNode* subject, RewritingContext& context);
-  bool eqRewrite(DagNode* subject, RewritingContext& context);  
-  DagNode* ruleRewrite(DagNode* subject, RewritingContext& context);
-  void stackArguments(DagNode* subject,
-		      Vector<RedexPosition>& stack,
-		      int parentIndex,
-		      bool respectFrozen,
-		      bool eagerContext);
-  Term* termify(DagNode* dagNode);
-  //
-  //    Member function overiding default handling.
-  //
-  void compileOpDeclarations();
-  void finalizeSortInfo();
-  bool isConstructor(DagNode* subject);
-  void fillInSortInfo(Term* subject);
-  //
-  //	Unification stuff.
-  //
-  int unificationPriority() const;
-  void computeSortFunctionBdds(const SortBdds& sortBdds, Vector<Bdd>& sortFunctionBdds) const;
-  void computeGeneralizedSort(const SortBdds& sortBdds,
-			      const Vector<int>& realToBdd,
-			      DagNode* subject,
-			      Vector<Bdd>& generalizedSort);
-  void computeGeneralizedSort2(const SortBdds& sortBdds,
-			       const Vector<int>& realToBdd,
-			       DagNode* subject,
-			       Vector<Bdd>& outputBdds);
-  bool isStable() const;
-  //
-  //	Hash cons stuff.
-  //
-  DagNode* makeCanonical(DagNode* original, HashConsSet* hcs);
-  DagNode* makeCanonicalCopy(DagNode* original, HashConsSet* hcs);
-  //
-  //	Member function specific to S_Symbol.
-  //
-  bool mightCollapseToOurSymbol(const Term* subterm) const;
+    S_Symbol(int id, const Vector<int> &strategy = standard, bool memoFlag = false);
+
+    //
+    //	Member functions required by theory interface.
+    //
+    Term *makeTerm(const Vector<Term *> &args);
+
+    DagNode *makeDagNode(const Vector<DagNode *> &args);
+
+    void computeBaseSort(DagNode *subject);
+
+    void normalizeAndComputeTrueSort(DagNode *subject, RewritingContext &context);
+
+    bool eqRewrite(DagNode *subject, RewritingContext &context);
+
+    DagNode *ruleRewrite(DagNode *subject, RewritingContext &context);
+
+    void stackArguments(DagNode *subject,
+                        Vector<RedexPosition> &stack,
+                        int parentIndex,
+                        bool respectFrozen,
+                        bool eagerContext);
+
+    Term *termify(DagNode *dagNode);
+
+    //
+    //    Member function overiding default handling.
+    //
+    void compileOpDeclarations();
+
+    void finalizeSortInfo();
+
+    bool isConstructor(DagNode *subject);
+
+    void fillInSortInfo(Term *subject);
+
+    //
+    //	Unification stuff.
+    //
+    int unificationPriority() const;
+
+    void computeSortFunctionBdds(const SortBdds &sortBdds, Vector<Bdd> &sortFunctionBdds) const;
+
+    void computeGeneralizedSort(const SortBdds &sortBdds,
+                                const Vector<int> &realToBdd,
+                                DagNode *subject,
+                                Vector<Bdd> &generalizedSort);
+
+    void computeGeneralizedSort2(const SortBdds &sortBdds,
+                                 const Vector<int> &realToBdd,
+                                 DagNode *subject,
+                                 Vector<Bdd> &outputBdds);
+
+    bool isStable() const;
+
+    //
+    //	Hash cons stuff.
+    //
+    DagNode *makeCanonical(DagNode *original, HashConsSet *hcs);
+
+    DagNode *makeCanonicalCopy(DagNode *original, HashConsSet *hcs);
+
+    //
+    //	Member function specific to S_Symbol.
+    //
+    bool mightCollapseToOurSymbol(const Term *subterm) const;
 
 private:
-  struct SortPath
-  {
-    int computeSortIndex(const mpz_class& number);
+    struct SortPath {
+        int computeSortIndex(const mpz_class &number);
 
-    Vector<int> sortIndices;
-    int leadLength;
-    //
-    //	If we have a number greater than nonCtorBound we have at least
-    //  one non-constructor and treat the whole thing as a non-constructor.
-    //  If nonCtorBound is NONE	we have a pure ctor.
-    //
-    int nonCtorBound;
-  };
+        Vector<int> sortIndices;
+        int leadLength;
+        //
+        //	If we have a number greater than nonCtorBound we have at least
+        //  one non-constructor and treat the whole thing as a non-constructor.
+        //  If nonCtorBound is NONE	we have a pure ctor.
+        //
+        int nonCtorBound;
+    };
 
-  void computePath(int sortIndex, SortPath& path);
-  void memoStrategy(MemoTable::SourceSet& from,
-		    DagNode* subject,
-		    RewritingContext& context);
-  
-  Vector<SortPath> sortPathTable;
+    void computePath(int sortIndex, SortPath &path);
+
+    void memoStrategy(MemoTable::SourceSet &from,
+                      DagNode *subject,
+                      RewritingContext &context);
+
+    Vector<SortPath> sortPathTable;
 };
 
 inline int
-S_Symbol::SortPath::computeSortIndex(const mpz_class& number)
-{
-  int pathLength = sortIndices.length();
-  if (number <= pathLength)
-    return sortIndices[number.get_si() - 1];
-  int cycleLength = pathLength - leadLength;
-  mpz_class cycleSteps = number - (leadLength + 1);
-  int remainder = mpz_tdiv_ui(cycleSteps.get_mpz_t(), cycleLength);
-  return sortIndices[leadLength + remainder];
+S_Symbol::SortPath::computeSortIndex(const mpz_class &number) {
+    int pathLength = sortIndices.length();
+    if (number <= pathLength)
+        return sortIndices[number.get_si() - 1];
+    int cycleLength = pathLength - leadLength;
+    mpz_class cycleSteps = number - (leadLength + 1);
+    int remainder = mpz_tdiv_ui(cycleSteps.get_mpz_t(), cycleLength);
+    return sortIndices[leadLength + remainder];
 }
 
 #endif

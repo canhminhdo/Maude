@@ -25,74 +25,74 @@
 //
 #ifndef _branchStrategy_hh_
 #define _branchStrategy_hh_
+
 #include "strategyExpression.hh"
 
-class BranchStrategy : public StrategyExpression
-{
+class BranchStrategy : public StrategyExpression {
 public:
-  enum Action
-    {
-      FAIL,		// no results
-      IDLE,		// original term
-      PASS_THRU,	// results from test (success case only)
-      NEW_STRATEGY,	// apply new strategy
-      ITERATE		// apply the same branch strategy to any result
+    enum Action {
+        FAIL,        // no results
+        IDLE,        // original term
+        PASS_THRU,    // results from test (success case only)
+        NEW_STRATEGY,    // apply new strategy
+        ITERATE        // apply the same branch strategy to any result
     };
 
-  BranchStrategy(StrategyExpression* initialStrategy,
-		 Action successAction,
-		 StrategyExpression* successStrategy,
-		 Action failureAction,
-		 StrategyExpression* failureStrategy);
-  ~BranchStrategy();
+    BranchStrategy(StrategyExpression *initialStrategy,
+                   Action successAction,
+                   StrategyExpression *successStrategy,
+                   Action failureAction,
+                   StrategyExpression *failureStrategy);
 
-  StrategyExpression* getInitialStrategy() const;
-  StrategyExpression* getSuccessStrategy() const;
-  StrategyExpression* getFailureStrategy() const;
-  Action getSuccessAction() const;
-  Action getFailureAction() const;
+    ~BranchStrategy();
 
-  bool check(VariableInfo& indices, const TermSet& boundVars);
-  void process();
+    StrategyExpression *getInitialStrategy() const;
 
-  StrategicExecution::Survival decompose(StrategicSearch& searchObject, DecompositionProcess* remainder);
+    StrategyExpression *getSuccessStrategy() const;
+
+    StrategyExpression *getFailureStrategy() const;
+
+    Action getSuccessAction() const;
+
+    Action getFailureAction() const;
+
+    bool check(VariableInfo &indices, const TermSet &boundVars);
+
+    void process();
+
+    StrategicExecution::Survival decompose(StrategicSearch &searchObject, DecompositionProcess *remainder);
 
 private:
-  StrategyExpression* const initialStrategy;
-  StrategyExpression* const successStrategy;
-  StrategyExpression* const failureStrategy;
-  const Action successAction;
-  const Action failureAction;
+    StrategyExpression *const initialStrategy;
+    StrategyExpression *const successStrategy;
+    StrategyExpression *const failureStrategy;
+    const Action successAction;
+    const Action failureAction;
 };
 
-inline StrategyExpression*
-BranchStrategy::getInitialStrategy() const
-{
-  return initialStrategy;
+inline StrategyExpression *
+BranchStrategy::getInitialStrategy() const {
+    return initialStrategy;
 }
 
-inline StrategyExpression*
-BranchStrategy::getSuccessStrategy() const
-{
-  return successStrategy;
+inline StrategyExpression *
+BranchStrategy::getSuccessStrategy() const {
+    return successStrategy;
 }
 
-inline StrategyExpression*
-BranchStrategy::getFailureStrategy() const
-{
-  return failureStrategy;
+inline StrategyExpression *
+BranchStrategy::getFailureStrategy() const {
+    return failureStrategy;
 }
 
 inline BranchStrategy::Action
-BranchStrategy::getSuccessAction() const
-{
-  return successAction;
+BranchStrategy::getSuccessAction() const {
+    return successAction;
 }
 
 inline BranchStrategy::Action
-BranchStrategy::getFailureAction() const
-{
-  return failureAction;
+BranchStrategy::getFailureAction() const {
+    return failureAction;
 }
 
 #endif

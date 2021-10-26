@@ -26,33 +26,31 @@
 #ifndef _variableName_hh_
 #define _variableName_hh_
 
-class VariableName
-{
+class VariableName {
 public:
-  VariableName();
-  VariableName(char base, short index);
+    VariableName();
+
+    VariableName(char base, short index);
 
 private:
-  int combined;
-  friend ostream& operator<<(ostream& s, VariableName v);
+    int combined;
+
+    friend ostream &operator<<(ostream &s, VariableName v);
 };
 
 inline
-VariableName::VariableName()
-{
+VariableName::VariableName() {
 }
 
 inline
-VariableName::VariableName(char base, short index)
-{
-  combined = (base << 16) | index;
+VariableName::VariableName(char base, short index) {
+    combined = (base << 16) | index;
 }
 
-inline ostream&
-operator<<(ostream& s, VariableName v)
-{
-  s << static_cast<char>(v.combined >> 16) << (v.combined & 0xffff);
-  return s;
+inline ostream &
+operator<<(ostream &s, VariableName v) {
+    s << static_cast<char>(v.combined >> 16) << (v.combined & 0xffff);
+    return s;
 }
 
 #endif

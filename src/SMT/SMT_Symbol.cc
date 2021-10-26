@@ -54,133 +54,119 @@
 #include "SMT_NumberSymbol.hh"
 #include "SMT_NumberDagNode.hh"
 
-const char* SMT_Symbol::operatorNames[] =
-  {
-    //
-    //	Boolean stuff.
-    //
-    "true",
-    "false",
-    "not",
-    "and",
-    "or",
-    "xor",
-    "implies",
-    //
-    //	Polymorphic Boolean stuff.
-    //
-    "===",
-    "=/==",
-    "ite",
-    //
-    //	Integer stuff.
-    //
-    "-",
-    "-",
-    "+",
-    "*",
-    "div",
-    "mod",
-    //
-    //	Integer tests.
-    //
-    "<",
-    "<=",
-    ">",
-    ">=",
-    "divisible",
-    //
-    //	Stuff that is extra to reals.
-    //
-    "/",
-    "toReal",
-    "toInteger",
-    "isInteger",
-    0
-  };
+const char *SMT_Symbol::operatorNames[] =
+        {
+                //
+                //	Boolean stuff.
+                //
+                "true",
+                "false",
+                "not",
+                "and",
+                "or",
+                "xor",
+                "implies",
+                //
+                //	Polymorphic Boolean stuff.
+                //
+                "===",
+                "=/==",
+                "ite",
+                //
+                //	Integer stuff.
+                //
+                "-",
+                "-",
+                "+",
+                "*",
+                "div",
+                "mod",
+                //
+                //	Integer tests.
+                //
+                "<",
+                "<=",
+                ">",
+                ">=",
+                "divisible",
+                //
+                //	Stuff that is extra to reals.
+                //
+                "/",
+                "toReal",
+                "toInteger",
+                "isInteger",
+                0
+        };
 
 SMT_Symbol::SMT_Symbol(int id, int arity)
-  : FreeSymbol(id, arity)
-{
-  op = NONE;
+        : FreeSymbol(id, arity) {
+    op = NONE;
 }
 
 bool
-SMT_Symbol::attachData(const Vector<Sort*>& opDeclaration,
-		       const char* purpose,
-		       const Vector<const char*>& data)
-{
-  const char* opName = data[0];
-  if (strcmp(opName, "-") == 0)
-    {
-      op = (arity() == 1) ? UNARY_MINUS : MINUS;
-      return true;
+SMT_Symbol::attachData(const Vector<Sort *> &opDeclaration,
+                       const char *purpose,
+                       const Vector<const char *> &data) {
+    const char *opName = data[0];
+    if (strcmp(opName, "-") == 0) {
+        op = (arity() == 1) ? UNARY_MINUS : MINUS;
+        return true;
     }
-  for (const char** p =  operatorNames; *p; ++p)
-    {
-      if (strcmp(*p, opName) == 0)
-	{
-	  op = p - operatorNames;
-	  return true;
-	}
+    for (const char **p = operatorNames; *p; ++p) {
+        if (strcmp(*p, opName) == 0) {
+            op = p - operatorNames;
+            return true;
+        }
     }
-  return FreeSymbol::attachData(opDeclaration, purpose, data);
+    return FreeSymbol::attachData(opDeclaration, purpose, data);
 }
 
 void
-SMT_Symbol::copyAttachments(Symbol* original, SymbolMap* map)
-{
-  SMT_Symbol* orig = safeCast(SMT_Symbol*, original);
-  op = orig->op;
-  FreeSymbol::copyAttachments(original, map);
+SMT_Symbol::copyAttachments(Symbol *original, SymbolMap *map) {
+    SMT_Symbol *orig = safeCast(SMT_Symbol*, original);
+    op = orig->op;
+    FreeSymbol::copyAttachments(original, map);
 }
 
 void
-SMT_Symbol::getDataAttachments(const Vector<Sort*>& opDeclaration,
-			       Vector<const char*>& purposes,
-			       Vector<Vector<const char*> >& data)
-{
-  if (op != NONE)
-    {
-      int nrDataAttachments = purposes.length();
-      purposes.resize(nrDataAttachments + 1);
-      purposes[nrDataAttachments] = "SMT_Symbol";
-      data.resize(nrDataAttachments + 1);
-      data[nrDataAttachments].resize(1);
-      data[nrDataAttachments][0] = operatorNames[op];
+SMT_Symbol::getDataAttachments(const Vector<Sort *> &opDeclaration,
+                               Vector<const char *> &purposes,
+                               Vector<Vector<const char *> > &data) {
+    if (op != NONE) {
+        int nrDataAttachments = purposes.length();
+        purposes.resize(nrDataAttachments + 1);
+        purposes[nrDataAttachments] = "SMT_Symbol";
+        data.resize(nrDataAttachments + 1);
+        data[nrDataAttachments].resize(1);
+        data[nrDataAttachments][0] = operatorNames[op];
     }
-  FreeSymbol::getDataAttachments(opDeclaration, purposes, data);
+    FreeSymbol::getDataAttachments(opDeclaration, purposes, data);
 }
 
 void
-SMT_Symbol::fillOutSMT_Info(SMT_Info& info)
-{
-  //
-  //	If we are the construction operator for some SMT type, fill out that information.
-  //
-  switch (op)
-    {
-    case CONST_TRUE:
-      {
-	info.setTrueSymbol(this);
-	// fall thru
-      }
-    case CONST_FALSE:
-      {
-	info.setType(getRangeSort(), SMT_Info::BOOLEAN);
-	break;
-      }
-    case AND:
-      {
-	info.setConjunctionOperator(this);
-	break;
-      }
-    case EQUALS:
-      {
-	info.setEqualityOperator(this);
-	break;
-      }
-    default:
-      break;
+SMT_Symbol::fillOutSMT_Info(SMT_Info &info) {
+    //
+    //	If we are the construction operator for some SMT type, fill out that information.
+    //
+    switch (op) {
+        case CONST_TRUE: {
+            info.setTrueSymbol(this);
+            // fall thru
+        }
+        case CONST_FALSE: {
+            info.setType(getRangeSort(), SMT_Info::BOOLEAN);
+            break;
+        }
+        case AND: {
+            info.setConjunctionOperator(this);
+            break;
+        }
+        case EQUALS: {
+            info.setEqualityOperator(this);
+            break;
+        }
+        default:
+            break;
     }
 }

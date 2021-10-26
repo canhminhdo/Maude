@@ -26,48 +26,51 @@
 //
 #ifndef _rewriteTask_hh_
 #define _rewriteTask_hh_
+
 #include "strategicTask.hh"
 
-class RewriteTask : public StrategicTask
-{
-  NO_COPYING(RewriteTask);
+class RewriteTask : public StrategicTask {
+    NO_COPYING(RewriteTask);
 
 public:
-  RewriteTask(StrategicSearch& searchObject,
-	      SharedValue<RewriteSearchState> rewriteState,
-	      PositionState::PositionIndex redexIndex,
-	      ExtensionInfo* extensionInfo,
-	      Substitution* substitutionSoFar,
-	      Rule* rule,
-	      int fragmentNr,
-	      const Vector<StrategyExpression*>& strategies,
-	      int strategyNr,
-	      StrategyStackManager::StackId pending,
-	      StrategicExecution* taskSibling,
-	      StrategicProcess* insertionPoint);
-  ~RewriteTask();
-  //
-  //	Call-backs for interesting events.
-  //
-  virtual Survival executionSucceeded(int resultindex, StrategicProcess* insertionPoint);
-  virtual Survival executionsExhausted(StrategicProcess* insertionPoint);
+    RewriteTask(StrategicSearch &searchObject,
+                SharedValue<RewriteSearchState> rewriteState,
+                PositionState::PositionIndex redexIndex,
+                ExtensionInfo *extensionInfo,
+                Substitution *substitutionSoFar,
+                Rule *rule,
+                int fragmentNr,
+                const Vector<StrategyExpression *> &strategies,
+                int strategyNr,
+                StrategyStackManager::StackId pending,
+                StrategicExecution *taskSibling,
+                StrategicProcess *insertionPoint);
+
+    ~RewriteTask();
+
+    //
+    //	Call-backs for interesting events.
+    //
+    virtual Survival executionSucceeded(int resultindex, StrategicProcess *insertionPoint);
+
+    virtual Survival executionsExhausted(StrategicProcess *insertionPoint);
 
 private:
-  const HashConsSet& hashConsSet;			// reference to shared hash cons set
-  SharedValue<RewriteSearchState> rewriteState;		// smart pointer to rewrite state that found our redex
-  const PositionState::PositionIndex redexIndex;	// index of redex withing rewrite state
-  ExtensionInfo* extensionInfoCopy;			// copy of extension info from original match
-  Rule* const rule;					// pointer to rule whose lhs matched
-  const int fragmentNr;					// number of condition fragment within rule
-  const Vector<StrategyExpression*>& strategies;	// vector of strategies for rewrite fragments
-  const int strategyNr;					// number of next strategy to use
-  StrategyStackManager::StackId pending;       		// continuation once we finally do a rewrite
+    const HashConsSet &hashConsSet;            // reference to shared hash cons set
+    SharedValue<RewriteSearchState> rewriteState;        // smart pointer to rewrite state that found our redex
+    const PositionState::PositionIndex redexIndex;    // index of redex withing rewrite state
+    ExtensionInfo *extensionInfoCopy;            // copy of extension info from original match
+    Rule *const rule;                    // pointer to rule whose lhs matched
+    const int fragmentNr;                    // number of condition fragment within rule
+    const Vector<StrategyExpression *> &strategies;    // vector of strategies for rewrite fragments
+    const int strategyNr;                    // number of next strategy to use
+    StrategyStackManager::StackId pending;            // continuation once we finally do a rewrite
 
-  RewriteConditionFragment* rcf;
-  //
-  //	We generate a fresh subcontext to evaluate the lhs of the rewrite condition fragment.
-  //
-  RewritingContext* newContext;
+    RewriteConditionFragment *rcf;
+    //
+    //	We generate a fresh subcontext to evaluate the lhs of the rewrite condition fragment.
+    //
+    RewritingContext *newContext;
 };
 
 #endif

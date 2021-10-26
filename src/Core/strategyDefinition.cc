@@ -46,109 +46,99 @@
 #include "strategyExpression.hh"
 
 StrategyDefinition::StrategyDefinition(int label,
-				       RewriteStrategy* strategy,
-				       Term* lhs,
-				       StrategyExpression* rhs,
-				       const Vector<ConditionFragment*>& condition)
-  : PreEquation(label, lhs, condition),
-    strategy(strategy),
-    rhs(rhs)
-{
-  Assert(rhs, "null rhs");
+                                       RewriteStrategy *strategy,
+                                       Term *lhs,
+                                       StrategyExpression *rhs,
+                                       const Vector<ConditionFragment *> &condition)
+        : PreEquation(label, lhs, condition),
+          strategy(strategy),
+          rhs(rhs) {
+    Assert(rhs, "null rhs");
 }
 
-StrategyDefinition::~StrategyDefinition()
-{
-  delete rhs;
+StrategyDefinition::~StrategyDefinition() {
+    delete rhs;
 }
 
 void
-StrategyDefinition::check()
-{
-  NatSet boundVariables;
-  PreEquation::check(boundVariables);
+StrategyDefinition::check() {
+    NatSet boundVariables;
+    PreEquation::check(boundVariables);
 
-  // Non-executable strategy definitions are not processed
-  if (isNonexec())
-    return;
+    // Non-executable strategy definitions are not processed
+    if (isNonexec())
+        return;
 
-  // First, check unbound variables in the condition
+    // First, check unbound variables in the condition
 
-  const NatSet& unboundVariables = getUnboundVariables();
+    const NatSet &unboundVariables = getUnboundVariables();
 
-  if (!unboundVariables.empty())
-    {
-      IssueWarning(*this << ": variable " <<
-		   QUOTE(index2Variable(getUnboundVariables().min())) <<
-		   " is used before it is bound in strategy definition:\n" <<
-		   this);
-      markAsBad();
-      return;
+    if (!unboundVariables.empty()) {
+        IssueWarning(*this << ": variable " <<
+                           QUOTE(index2Variable(getUnboundVariables().min())) <<
+                           " is used before it is bound in strategy definition:\n" <<
+                           this);
+        markAsBad();
+        return;
     }
 
-  // The RHS expression is not indexed with a single VariableInfo because
-  // it has different indices depending on the static context
+    // The RHS expression is not indexed with a single VariableInfo because
+    // it has different indices depending on the static context
 
-  TermSet boundVars;
-  VariableInfo vinfo;
+    TermSet boundVars;
+    VariableInfo vinfo;
 
-  for (int index = 0; index < getNrRealVariables(); index++)
-    if (boundVariables.contains(index))
-      boundVars.insert(index2Variable(index));
+    for (int index = 0; index < getNrRealVariables(); index++)
+        if (boundVariables.contains(index))
+            boundVars.insert(index2Variable(index));
 
-  if (!rhs->check(vinfo, boundVars))
-    // Errors are printed inside the check methods
-    markAsBad();
-  else
-    {
-      // Builds the context creation vector
+    if (!rhs->check(vinfo, boundVars))
+        // Errors are printed inside the check methods
+        markAsBad();
+    else {
+        // Builds the context creation vector
 
-      size_t rhsVars = vinfo.getNrRealVariables();
-      contextSpec.expandTo(rhsVars);
+        size_t rhsVars = vinfo.getNrRealVariables();
+        contextSpec.expandTo(rhsVars);
 
-      for (size_t i = 0; i < rhsVars; i++)
-	{
-	  Term* var = vinfo.index2Variable(i);
-	  int lhsIndex = variable2Index(static_cast<VariableTerm*>(var));
+        for (size_t i = 0; i < rhsVars; i++) {
+            Term *var = vinfo.index2Variable(i);
+            int lhsIndex = variable2Index(static_cast<VariableTerm *>(var));
 
-	  contextSpec[i] = lhsIndex;
-	}
+            contextSpec[i] = lhsIndex;
+        }
     }
 }
 
 void
-StrategyDefinition::preprocess()
-{
-  PreEquation::preprocess();
-  addConditionVariables(getLhs()->occursBelow());
-  rhs->process();
+StrategyDefinition::preprocess() {
+    PreEquation::preprocess();
+    addConditionVariables(getLhs()->occursBelow());
+    rhs->process();
 
-  // Strategy expressions do not have type, so we do not check
-  // if the strategy declaration type is consistent
+    // Strategy expressions do not have type, so we do not check
+    // if the strategy declaration type is consistent
 }
 
 void
-StrategyDefinition::compile(bool compileLhs)
-{
-  if (isCompiled())
-    return;
-  setCompiled();
+StrategyDefinition::compile(bool compileLhs) {
+    if (isCompiled())
+        return;
+    setCompiled();
 
-  TermBag availableTerms;
-  compileBuild(availableTerms, false);
-  compileMatch(compileLhs, false);
+    TermBag availableTerms;
+    compileBuild(availableTerms, false);
+    compileMatch(compileLhs, false);
 
-  // fast = hasCondition() ? DEFAULT : getNrProtectedVariables();
+    // fast = hasCondition() ? DEFAULT : getNrProtectedVariables();
 }
 
 int
-StrategyDefinition::traceBeginTrial(DagNode* subject, RewritingContext& context) const
-{
-  return context.traceBeginSdTrial(subject, this);
+StrategyDefinition::traceBeginTrial(DagNode *subject, RewritingContext &context) const {
+    return context.traceBeginSdTrial(subject, this);
 }
 
 void
-StrategyDefinition::print(ostream& s) const
-{
-  s << this;
+StrategyDefinition::print(ostream &s) const {
+    s << this;
 }

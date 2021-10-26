@@ -25,35 +25,36 @@
 //
 #ifndef _strategicProcess_hh_
 #define _strategicProcess_hh_
+
 #include "strategicExecution.hh"
 
-class StrategicProcess : public StrategicExecution
-{
-  NO_COPYING(StrategicProcess);
+class StrategicProcess : public StrategicExecution {
+    NO_COPYING(StrategicProcess);
 
 public:
-  StrategicProcess(StrategicExecution* taskSibling, StrategicProcess* other);
-  ~StrategicProcess();
+    StrategicProcess(StrategicExecution *taskSibling, StrategicProcess *other);
 
-  StrategicProcess* getNextProcess() const;
-  StrategicProcess* getPrevProcess() const;
-  virtual Survival run(StrategicSearch& searchObject) = 0;
+    ~StrategicProcess();
+
+    StrategicProcess *getNextProcess() const;
+
+    StrategicProcess *getPrevProcess() const;
+
+    virtual Survival run(StrategicSearch &searchObject) = 0;
 
 private:
-  StrategicProcess* prev;	// previous process in circular queue
-  StrategicProcess* next;	// next process in circular queue
+    StrategicProcess *prev;    // previous process in circular queue
+    StrategicProcess *next;    // next process in circular queue
 };
 
-inline StrategicProcess*
-StrategicProcess::getNextProcess() const
-{
-  return next;
+inline StrategicProcess *
+StrategicProcess::getNextProcess() const {
+    return next;
 }
 
-inline StrategicProcess*
-StrategicProcess::getPrevProcess() const
-{
-  return prev;
+inline StrategicProcess *
+StrategicProcess::getPrevProcess() const {
+    return prev;
 }
 
 #endif

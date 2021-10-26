@@ -25,39 +25,41 @@
 //
 #ifndef _metadataStore_hh_
 #define _metadataStore_hh_
+
 #include <map>
 #include "printAttribute.hh"
 
-class MetadataStore
-{
+class MetadataStore {
 public:
-  enum ItemType
-  {
-    MEMB_AX = 0x10000000,
-    EQUATION = 0x20000000,
-    RULE = 0x30000000,
-    STRAT_DECL = 0x40000000,
-    STRAT_DEF = 0x50000000
-  };
+    enum ItemType {
+        MEMB_AX = 0x10000000,
+        EQUATION = 0x20000000,
+        RULE = 0x30000000,
+        STRAT_DECL = 0x40000000,
+        STRAT_DEF = 0x50000000
+    };
 
-  void insertMetadata(ItemType itemType, const ModuleItem* item, int metadata);
-  int getMetadata(ItemType itemType, const ModuleItem* item) const;
+    void insertMetadata(ItemType itemType, const ModuleItem *item, int metadata);
 
-  void insertMetadata(ModuleItem* symbol, int opDeclIndex, int metadata);
-  int getMetadata(ModuleItem* symbol, int opDeclIndex) const;
+    int getMetadata(ItemType itemType, const ModuleItem *item) const;
 
-  void insertPrintAttribute(ItemType itemType,
-			    const PreEquation* statement,
-			    const Vector<int>& names,
-			    const Vector<Sort*>& sorts);
-  const PrintAttribute* getPrintAttribute(ItemType itemType, const ModuleItem* item) const;
+    void insertMetadata(ModuleItem *symbol, int opDeclIndex, int metadata);
+
+    int getMetadata(ModuleItem *symbol, int opDeclIndex) const;
+
+    void insertPrintAttribute(ItemType itemType,
+                              const PreEquation *statement,
+                              const Vector<int> &names,
+                              const Vector<Sort *> &sorts);
+
+    const PrintAttribute *getPrintAttribute(ItemType itemType, const ModuleItem *item) const;
 
 private:
-  typedef map<Int64, int> MetadataMap;
-  typedef map<Int64, PrintAttribute> PrintAttributeMap;
+    typedef map<Int64, int> MetadataMap;
+    typedef map <Int64, PrintAttribute> PrintAttributeMap;
 
-  MetadataMap metadataMap;
-  PrintAttributeMap printAttributeMap;
+    MetadataMap metadataMap;
+    PrintAttributeMap printAttributeMap;
 };
 
 #endif

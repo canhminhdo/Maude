@@ -25,31 +25,32 @@
 //
 #ifndef _graph_hh_
 #define _graph_hh_
+
 #include <set>
 
-class Graph
-{
+class Graph {
 public:
-  Graph(int nrNodes);
+    Graph(int nrNodes);
 
-  void insertEdge(int n1, int n2);
-  int color(Vector<int>& coloring);  // node 0 is guaranteed to get color 0
-  void findComponents(Vector<Vector<int> >& components);
+    void insertEdge(int n1, int n2);
+
+    int color(Vector<int> &coloring);  // node 0 is guaranteed to get color 0
+    void findComponents(Vector<Vector<int> > &components);
 
 private:
-  void colorNode(int i, int& maxColor, Vector<int>& coloring);
-  void visit(int i, Vector<int>& component, NatSet& visited);
+    void colorNode(int i, int &maxColor, Vector<int> &coloring);
 
-  typedef set<int> AdjSet;
+    void visit(int i, Vector<int> &component, NatSet &visited);
 
-  Vector<AdjSet> adjSets;
+    typedef set<int> AdjSet;
+
+    Vector<AdjSet> adjSets;
 };
 
 inline void
-Graph::insertEdge(int n1, int n2)
-{
-  adjSets[n1].insert(n2);
-  adjSets[n2].insert(n1);
+Graph::insertEdge(int n1, int n2) {
+    adjSets[n1].insert(n2);
+    adjSets[n2].insert(n1);
 }
 
 #endif

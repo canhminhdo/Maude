@@ -44,46 +44,41 @@
 #include "copyRhsAutomaton.hh"
 
 CopyRhsAutomaton::CopyRhsAutomaton(int originalIndex, int copyIndex)
-  : originalIndex(originalIndex),
-    copyIndex(copyIndex)
-{
+        : originalIndex(originalIndex),
+          copyIndex(copyIndex) {
 }
 
 void
-CopyRhsAutomaton::remapIndices(VariableInfo& variableInfo)
-{
-  originalIndex = variableInfo.remapIndex(originalIndex);
-  copyIndex = variableInfo.remapIndex(copyIndex);
+CopyRhsAutomaton::remapIndices(VariableInfo &variableInfo) {
+    originalIndex = variableInfo.remapIndex(originalIndex);
+    copyIndex = variableInfo.remapIndex(copyIndex);
 }
 
 
 bool
-CopyRhsAutomaton::recordInfo(StackMachineRhsCompiler& compiler)
-{
-  Vector<int> sources(1);
-  sources[0] = originalIndex;
-  compiler.recordFunctionEval(0, copyIndex, sources);
-  return true;
+CopyRhsAutomaton::recordInfo(StackMachineRhsCompiler &compiler) {
+    Vector<int> sources(1);
+    sources[0] = originalIndex;
+    compiler.recordFunctionEval(0, copyIndex, sources);
+    return true;
 }
 
-DagNode*
-CopyRhsAutomaton::construct(Substitution& matcher)
-{
-  DagNode* orig = matcher.value(originalIndex);
-  DebugAdvisory("CopyRhsAutomaton::construct " << orig);
-  DagNode* n = orig->copyEagerUptoReduced();
-  orig->clearCopyPointers();
-  matcher.bind(copyIndex, n);
-  return n;
+DagNode *
+CopyRhsAutomaton::construct(Substitution &matcher) {
+    DagNode *orig = matcher.value(originalIndex);
+    DebugAdvisory("CopyRhsAutomaton::construct " << orig);
+    DagNode *n = orig->copyEagerUptoReduced();
+    orig->clearCopyPointers();
+    matcher.bind(copyIndex, n);
+    return n;
 }
 
 void
-CopyRhsAutomaton::replace(DagNode* old, Substitution& matcher)
-{
-  DagNode* orig = matcher.value(originalIndex);
-  DagNode* n = orig->copyEagerUptoReduced();
-  orig->clearCopyPointers();
-  n->overwriteWithClone(old);
+CopyRhsAutomaton::replace(DagNode *old, Substitution &matcher) {
+    DagNode *orig = matcher.value(originalIndex);
+    DagNode *n = orig->copyEagerUptoReduced();
+    orig->clearCopyPointers();
+    n->overwriteWithClone(old);
 }
 
 #ifdef DUMP

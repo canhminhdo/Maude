@@ -26,40 +26,40 @@
 #ifndef _disjunctiveSubproblemAccumulator_hh_
 #define _disjunctiveSubproblemAccumulator_hh_
 
-class DisjunctiveSubproblemAccumulator
-{
+class DisjunctiveSubproblemAccumulator {
 public:
-  DisjunctiveSubproblemAccumulator(Substitution& global);
-  ~DisjunctiveSubproblemAccumulator();
+    DisjunctiveSubproblemAccumulator(Substitution &global);
 
-  bool empty() const;
-  void addOption(Substitution& local,
-		 Subproblem* subproblem,
-		 ExtensionInfo* extensionInfo);
-  bool extract(Substitution& solution,
-	       Subproblem*&returnedSubproblem,
-	       ExtensionInfo* extensionInfo);
+    ~DisjunctiveSubproblemAccumulator();
+
+    bool empty() const;
+
+    void addOption(Substitution &local,
+                   Subproblem *subproblem,
+                   ExtensionInfo *extensionInfo);
+
+    bool extract(Substitution &solution,
+                 Subproblem *&returnedSubproblem,
+                 ExtensionInfo *extensionInfo);
 
 private:
-  bool first;
-  Substitution& global;
-  LocalBinding* firstDifference;
-  Subproblem* firstSubproblem;
-  ExtensionInfo* firstExtensionInfo;
-  SubproblemDisjunction* disjunction;
+    bool first;
+    Substitution &global;
+    LocalBinding *firstDifference;
+    Subproblem *firstSubproblem;
+    ExtensionInfo *firstExtensionInfo;
+    SubproblemDisjunction *disjunction;
 };
 
 inline
-DisjunctiveSubproblemAccumulator::DisjunctiveSubproblemAccumulator(Substitution& global)
-  : global(global)
-{
-  first = true;
+DisjunctiveSubproblemAccumulator::DisjunctiveSubproblemAccumulator(Substitution &global)
+        : global(global) {
+    first = true;
 }
 
 inline bool
-DisjunctiveSubproblemAccumulator::empty() const
-{
-  return first;
+DisjunctiveSubproblemAccumulator::empty() const {
+    return first;
 }
 
 #endif

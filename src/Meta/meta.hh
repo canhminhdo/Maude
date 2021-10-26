@@ -27,12 +27,19 @@
 #define _meta_hh_
 
 class MetaLevel;
+
 class MetaModule;
+
 class MetaModuleCache;
+
 class MetaLevelOpSymbol;
+
 class MetaOpCache;
+
 class MetaPreModule;
+
 class InterpreterManagerSymbol;
+
 class MetaView;
 
 #endif

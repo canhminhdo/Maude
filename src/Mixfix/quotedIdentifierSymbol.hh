@@ -25,35 +25,41 @@
 //
 #ifndef _quotedIdentifierSymbol_hh_
 #define _quotedIdentifierSymbol_hh_
+
 #include "NA_Symbol.hh"
 
-class QuotedIdentifierSymbol : public NA_Symbol
-{
+class QuotedIdentifierSymbol : public NA_Symbol {
 public:
-  QuotedIdentifierSymbol(int id);
+    QuotedIdentifierSymbol(int id);
 
-  bool attachData(const Vector<Sort*>& opDeclaration,
-		  const char* purpose,
-		  const Vector<const char*>& data);
-  void copyAttachments(Symbol* original, SymbolMap* map);
-  void getDataAttachments(const Vector<Sort*>& opDeclaration,
-			  Vector<const char*>& purposes,
-			  Vector<Vector<const char*> >& data);
+    bool attachData(const Vector<Sort *> &opDeclaration,
+                    const char *purpose,
+                    const Vector<const char *> &data);
 
-  void fillInSortInfo(Term* subject);
-  void computeBaseSort(DagNode* subject);
-  bool isConstructor(DagNode* subject);
-  void compileOpDeclarations();
-  Term* termify(DagNode* dagNode);
+    void copyAttachments(Symbol *original, SymbolMap *map);
+
+    void getDataAttachments(const Vector<Sort *> &opDeclaration,
+                            Vector<const char *> &purposes,
+                            Vector<Vector<const char *> > &data);
+
+    void fillInSortInfo(Term *subject);
+
+    void computeBaseSort(DagNode *subject);
+
+    bool isConstructor(DagNode *subject);
+
+    void compileOpDeclarations();
+
+    Term *termify(DagNode *dagNode);
 
 private:
-  Sort* determineSort(int idIndex);
+    Sort *determineSort(int idIndex);
 
-  Sort* baseSort;
-  Sort* constantSort;
-  Sort* variableSort;
-  Sort* sortSort;
-  Sort* kindSort;
+    Sort *baseSort;
+    Sort *constantSort;
+    Sort *variableSort;
+    Sort *sortSort;
+    Sort *kindSort;
 };
 
 #endif

@@ -41,29 +41,25 @@
 #include "substitution.hh"
 #include "bindingLhsAutomaton.hh"
 
-BindingLhsAutomaton::BindingLhsAutomaton(int variableIndex, LhsAutomaton* realLhsAutomaton)
-  : variableIndex(variableIndex),
-    realLhsAutomaton(realLhsAutomaton)
-{
+BindingLhsAutomaton::BindingLhsAutomaton(int variableIndex, LhsAutomaton *realLhsAutomaton)
+        : variableIndex(variableIndex),
+          realLhsAutomaton(realLhsAutomaton) {
 }
 
-BindingLhsAutomaton::~BindingLhsAutomaton()
-{
-  delete realLhsAutomaton;
+BindingLhsAutomaton::~BindingLhsAutomaton() {
+    delete realLhsAutomaton;
 }
 
 bool
-BindingLhsAutomaton::match(DagNode* subject,
-			   Substitution& solution,
-			   Subproblem*& returnedSubproblem,
-			   ExtensionInfo* extensionInfo)
-{
-  if (realLhsAutomaton->match(subject, solution, returnedSubproblem, extensionInfo))
-    {
-      solution.bind(variableIndex, subject);
-      return true;
+BindingLhsAutomaton::match(DagNode *subject,
+                           Substitution &solution,
+                           Subproblem *&returnedSubproblem,
+                           ExtensionInfo *extensionInfo) {
+    if (realLhsAutomaton->match(subject, solution, returnedSubproblem, extensionInfo)) {
+        solution.bind(variableIndex, subject);
+        return true;
     }
-  return false;
+    return false;
 }
 
 #ifdef DUMP

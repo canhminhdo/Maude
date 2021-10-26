@@ -25,148 +25,157 @@
 //
 #ifndef _freeNet_hh_
 #define _freeNet_hh_
+
 #include <set>
 #include "unionFind.hh"
 #include "freeRemainder.hh"
 
-class FreeNet
-{
+class FreeNet {
 public:
-  typedef set<int> PatternSet;
+    typedef set<int> PatternSet;
 
-  FreeNet();
-  ~FreeNet();
+    FreeNet();
 
-  //
-  //	Functions to construct a FreeNet.
-  //
-  int allocateNode(int nrMatchArcs);
-  void fillOutNode(int nodeNr,
-		   int position,
-		   int argIndex,
-		   const Vector<Symbol*>& symbols,
-		   const Vector<int>& targets,
-		   const Vector<int>& slots,
-		   int neqTarget);
-  int addRemainderList(const PatternSet& liveSet);
-  void translateSlots(int nrRealSlots, const Vector<int>& slotTranslation);
-  void buildRemainders(const Vector<Equation*>& equations,
-		       const PatternSet& patternsUsed,
-		       const Vector<int>& slotTranslation);
-  //
-  //	Functions to use a FreeNet.
-  //
-  bool applyReplace(DagNode* subject, RewritingContext& context);
-  bool applyReplaceFast(DagNode* subject, RewritingContext& context);
-  bool applyReplaceNoOwise(DagNode* subject, RewritingContext& context);
-  //
-  //	For stack machine execution.
-  //
-  long findRemainderListIndex(DagNode** argumentList);
-  bool fastHandling() const;
+    ~FreeNet();
+
+    //
+    //	Functions to construct a FreeNet.
+    //
+    int allocateNode(int nrMatchArcs);
+
+    void fillOutNode(int nodeNr,
+                     int position,
+                     int argIndex,
+                     const Vector<Symbol *> &symbols,
+                     const Vector<int> &targets,
+                     const Vector<int> &slots,
+                     int neqTarget);
+
+    int addRemainderList(const PatternSet &liveSet);
+
+    void translateSlots(int nrRealSlots, const Vector<int> &slotTranslation);
+
+    void buildRemainders(const Vector<Equation *> &equations,
+                         const PatternSet &patternsUsed,
+                         const Vector<int> &slotTranslation);
+
+    //
+    //	Functions to use a FreeNet.
+    //
+    bool applyReplace(DagNode *subject, RewritingContext &context);
+
+    bool applyReplaceFast(DagNode *subject, RewritingContext &context);
+
+    bool applyReplaceNoOwise(DagNode *subject, RewritingContext &context);
+
+    //
+    //	For stack machine execution.
+    //
+    long findRemainderListIndex(DagNode **argumentList);
+
+    bool fastHandling() const;
 
 #ifdef DUMP
-  void dump(ostream& s, int indentLevel = 0);
+    void dump(ostream& s, int indentLevel = 0);
 #endif
 
 private:
-  enum SpecialValues
-  {
-    LESS = 1,
-    GREATER = 0
-  };
+    enum SpecialValues {
+        LESS = 1,
+        GREATER = 0
+    };
 
-  struct TestNode
-  {
-    int notEqual[2];  // index of next test node to take for > and < cases (-ve encodes index of applicable list, 0 encodes failure)
-    int position;  // stack slot to get free dagnode argument list from (-1 indicates use old argument)
-    int argIndex;   // index of argument to test
-    long symbolIndex;  // index within module of symbol we test against
-    int slot;  // index of stack slot to store free dagnode argument list in (-1 indicates do not store)
-    int equal;  // index of next test node to take for == case (-ve encode index of applicable list)
+    struct TestNode {
+        int notEqual[2];  // index of next test node to take for > and < cases (-ve encodes index of applicable list, 0 encodes failure)
+        int position;  // stack slot to get free dagnode argument list from (-1 indicates use old argument)
+        int argIndex;   // index of argument to test
+        long symbolIndex;  // index within module of symbol we test against
+        int slot;  // index of stack slot to store free dagnode argument list in (-1 indicates do not store)
+        int equal;  // index of next test node to take for == case (-ve encode index of applicable list)
 
 #if SIZEOF_LONG == 4  // 32-bit machines
-    int pad_struct_to_32_bytes_on_32_bit_machines;
+        int pad_struct_to_32_bytes_on_32_bit_machines;
 #endif
-  };
+    };
 
-  /*
-  struct TestNode
-  {
-    int symbolIndex;  // index within module of symbol we test against
-    //
-    //QUICK HACK
-    //int position;  // stack slot to get free dagnode argument list from (-1 indicates use old argument)
-    //int slot;  // index of stack slot to store free dagnode argument list in (-1 indicates do not store)
- 
-    short position;  // stack slot to get free dagnode argument list from (-1 indicates use old argument)
-    short slot;  // index of stack slot to store free dagnode argument list in (-1 indicates do not store)
-    int argIndex;   // index of argument to test
-    int equal;  // index of next test node to take for == case (-ve encode index of applicable list)
-    long notEqual[2];  // index of next test node to take for > and < cases (-ve encodes index of applicable list, 0 encodes failure)
+    /*
+    struct TestNode
+    {
+      int symbolIndex;  // index within module of symbol we test against
+      //
+      //QUICK HACK
+      //int position;  // stack slot to get free dagnode argument list from (-1 indicates use old argument)
+      //int slot;  // index of stack slot to store free dagnode argument list in (-1 indicates do not store)
 
-#if SIZEOF_LONG == 4  // 32-bit machines
-    int pad_struct_to_32_bytes;
-    int on_32_bit_machines;
-#endif
-  };
-  */
+      short position;  // stack slot to get free dagnode argument list from (-1 indicates use old argument)
+      short slot;  // index of stack slot to store free dagnode argument list in (-1 indicates do not store)
+      int argIndex;   // index of argument to test
+      int equal;  // index of next test node to take for == case (-ve encode index of applicable list)
+      long notEqual[2];  // index of next test node to take for > and < cases (-ve encodes index of applicable list, 0 encodes failure)
 
-  struct Triple
-  {
-    Symbol* symbol;
-    int slot;
-    int subtree;
-  };
+  #if SIZEOF_LONG == 4  // 32-bit machines
+      int pad_struct_to_32_bytes;
+      int on_32_bit_machines;
+  #endif
+    };
+    */
 
-  static bool tripleLt(const Triple& p1, const Triple& p2);
+    struct Triple {
+        Symbol *symbol;
+        int slot;
+        int subtree;
+    };
 
-  void buildTernaryTree(int& nodeIndex,
-			Vector<Triple>& triples,
-			int first,
-			int last,
-			int defaultSubtree,
-			int position,
-			int argIndex);
-  bool moreImportant(Symbol* first, Symbol* second);
-  bool applyReplace2(DagNode* subject, RewritingContext& context);
-  bool applyReplaceFast2(DagNode* subject, RewritingContext& context);
-  bool applyReplaceNoOwise2(DagNode* subject, RewritingContext& context);
+    static bool tripleLt(const Triple &p1, const Triple &p2);
 
-  Vector<DagNode**> stack;
-  Vector<TestNode> net;
-  Vector<Vector<FreeRemainder*> > fastApplicable;
-  Vector<FreeRemainder*> remainders;
-  Vector<PatternSet> applicable;
-  bool fast;
+    void buildTernaryTree(int &nodeIndex,
+                          Vector<Triple> &triples,
+                          int first,
+                          int last,
+                          int defaultSubtree,
+                          int position,
+                          int argIndex);
 
-  friend class FreeInstruction;
-  friend class FreeGeneralExtor;
-  friend class FreeGeneralExtorFinal;
+    bool moreImportant(Symbol *first, Symbol *second);
+
+    bool applyReplace2(DagNode *subject, RewritingContext &context);
+
+    bool applyReplaceFast2(DagNode *subject, RewritingContext &context);
+
+    bool applyReplaceNoOwise2(DagNode *subject, RewritingContext &context);
+
+    Vector<DagNode **> stack;
+    Vector<TestNode> net;
+    Vector<Vector<FreeRemainder *> > fastApplicable;
+    Vector<FreeRemainder *> remainders;
+    Vector<PatternSet> applicable;
+    bool fast;
+
+    friend class FreeInstruction;
+
+    friend class FreeGeneralExtor;
+
+    friend class FreeGeneralExtorFinal;
 };
 
 inline bool
-FreeNet::applyReplace(DagNode* subject, RewritingContext& context)
-{
-  return !applicable.isNull() ? applyReplace2(subject, context) : false;
+FreeNet::applyReplace(DagNode *subject, RewritingContext &context) {
+    return !applicable.isNull() ? applyReplace2(subject, context) : false;
 }
 
 inline bool
-FreeNet::applyReplaceFast(DagNode* subject, RewritingContext& context)
-{
-  return !applicable.isNull() ? applyReplaceFast2(subject, context) : false;
+FreeNet::applyReplaceFast(DagNode *subject, RewritingContext &context) {
+    return !applicable.isNull() ? applyReplaceFast2(subject, context) : false;
 }
 
 inline bool
-FreeNet::applyReplaceNoOwise(DagNode* subject, RewritingContext& context)
-{
-  return !applicable.isNull() ? applyReplaceNoOwise2(subject, context) : false;
+FreeNet::applyReplaceNoOwise(DagNode *subject, RewritingContext &context) {
+    return !applicable.isNull() ? applyReplaceNoOwise2(subject, context) : false;
 }
 
 inline bool
-FreeNet::fastHandling() const
-{
-  return fast;
+FreeNet::fastHandling() const {
+    return fast;
 }
 
 #endif

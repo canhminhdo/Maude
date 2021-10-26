@@ -25,51 +25,57 @@
 //
 #ifndef _rewriteConditionFragment_hh_
 #define _rewriteConditionFragment_hh_
+
 #include "conditionFragment.hh"
 #include "rhsBuilder.hh"
 
-class RewriteConditionFragment : public ConditionFragment
-{
-  NO_COPYING(RewriteConditionFragment);
+class RewriteConditionFragment : public ConditionFragment {
+    NO_COPYING(RewriteConditionFragment);
 
 public:
-  RewriteConditionFragment(Term* lhs, Term* rhs);
-  ~RewriteConditionFragment();
+    RewriteConditionFragment(Term *lhs, Term *rhs);
 
-  void check(VariableInfo& varInfo, NatSet& boundVariables);
-  void preprocess();
-  void compileBuild(VariableInfo& variableInfo, TermBag& availableTerms);
-  void compileMatch(VariableInfo& variableInfo, NatSet& boundUniquely);
-  bool solve(bool findFirst,
-	     RewritingContext& solution,
-	     Stack<ConditionState*>& state);
+    ~RewriteConditionFragment();
 
-  Term* getLhs() const;
-  Term* getRhs() const;
-  //
-  //	Needed for strategy language.
-  //
-  DagNode* makeLhsInstance(Substitution& solution);
-  bool matchRoot(RewritingContext& context, Subproblem*& subproblem);
+    void check(VariableInfo &varInfo, NatSet &boundVariables);
+
+    void preprocess();
+
+    void compileBuild(VariableInfo &variableInfo, TermBag &availableTerms);
+
+    void compileMatch(VariableInfo &variableInfo, NatSet &boundUniquely);
+
+    bool solve(bool findFirst,
+               RewritingContext &solution,
+               Stack<ConditionState *> &state);
+
+    Term *getLhs() const;
+
+    Term *getRhs() const;
+
+    //
+    //	Needed for strategy language.
+    //
+    DagNode *makeLhsInstance(Substitution &solution);
+
+    bool matchRoot(RewritingContext &context, Subproblem *&subproblem);
 
 private:
-  Term* lhs;
-  Term* rhs;
-  RhsBuilder builder;
-  int lhsIndex;
-  LhsAutomaton* rhsMatcher;
+    Term *lhs;
+    Term *rhs;
+    RhsBuilder builder;
+    int lhsIndex;
+    LhsAutomaton *rhsMatcher;
 };
 
-inline Term*
-RewriteConditionFragment::getLhs() const
-{
-  return lhs;
+inline Term *
+RewriteConditionFragment::getLhs() const {
+    return lhs;
 }
 
-inline Term*
-RewriteConditionFragment::getRhs() const
-{
-  return rhs;
+inline Term *
+RewriteConditionFragment::getRhs() const {
+    return rhs;
 }
 
 #endif

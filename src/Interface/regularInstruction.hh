@@ -25,22 +25,24 @@
 //
 #ifndef _regularInstruction_hh_
 #define _regularInstruction_hh_
+
 #include "instruction.hh"
 
-class RegularInstruction : public Instruction
-{
-  NO_COPYING(RegularInstruction);
+class RegularInstruction : public Instruction {
+    NO_COPYING(RegularInstruction);
 
 public:
-  RegularInstruction() {}
+    RegularInstruction() {}
 
-  void setActiveSlots(const NatSet& slots);
-  void markActiveSlots(const Frame* frame) const;
-  void dumpActiveSlots(ostream& s, const Frame* frame) const;
+    void setActiveSlots(const NatSet &slots);
+
+    void markActiveSlots(const Frame *frame) const;
+
+    void dumpActiveSlots(ostream &s, const Frame *frame) const;
 
 private:
-  typedef size_t BitVec;
-  BitVec activeSlots;
+    typedef size_t BitVec;
+    BitVec activeSlots;
 };
 
 #endif

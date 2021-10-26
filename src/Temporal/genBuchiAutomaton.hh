@@ -38,6 +38,7 @@
 //
 #ifndef _genBuchiAutomaton_hh_
 #define _genBuchiAutomaton_hh_
+
 #include <stack>
 #include <list>
 #include "bddUser.hh"
@@ -45,133 +46,144 @@
 #include "bdd.hh"
 #include "indexedSet.hh"
 
-class GenBuchiAutomaton : private BddUser
-{
+class GenBuchiAutomaton : private BddUser {
 public:
-  typedef pair<int, int> Key;  // (state index, fairness set index)
-  typedef pair<Key, Bdd> FairTransition;
-  typedef map<Key, Bdd> FairTransitionSet;
+    typedef pair<int, int> Key;  // (state index, fairness set index)
+    typedef pair<Key, Bdd> FairTransition;
+    typedef map<Key, Bdd> FairTransitionSet;
 
-  GenBuchiAutomaton(LogicFormula* formula, int top);
+    GenBuchiAutomaton(LogicFormula *formula, int top);
 
-  void simplify();
-  bool satSolve(list<Bdd>& leadIn, list<Bdd>& cycle);
-  int getNrStates() const;
-  int getNrFairnessSets() const;
-  const NatSet& getInitialStates() const;
-  const NatSet& getFairnessCombination(int fairnessIndex) const;
-  const FairTransitionSet& getTransitions(int stateNr) const;
-  void dump(ostream& s) const;
+    void simplify();
+
+    bool satSolve(list <Bdd> &leadIn, list <Bdd> &cycle);
+
+    int getNrStates() const;
+
+    int getNrFairnessSets() const;
+
+    const NatSet &getInitialStates() const;
+
+    const NatSet &getFairnessCombination(int fairnessIndex) const;
+
+    const FairTransitionSet &getTransitions(int stateNr) const;
+
+    void dump(ostream &s) const;
 
 private:
-  typedef IndexedSet<NatSet> NatSetTable;
-  typedef IndexedSet<FairTransitionSet> FairTransitionSetTable;
+    typedef IndexedSet<NatSet> NatSetTable;
+    typedef IndexedSet<FairTransitionSet> FairTransitionSetTable;
 
-  void generateState(int index);
-  int getStateIndex(const NatSet& stateSet);
-  void insertFairTransition(FairTransitionSet& fts, const FairTransition& ft);
-  void insertFairTransition2(FairTransitionSet& fts, const FairTransition& ft);
-  void transformFairTransitionSet(FairTransitionSet& transformed,
-				  const FairTransitionSet& original);
-  void maximallyCollapseStates();
-  void collapseStates();
+    void generateState(int index);
 
-  void sccOptimizations();
-  void sccAnalysis();
-  int strongConnected(int v);
-  void handleComponent(int component);
+    int getStateIndex(const NatSet &stateSet);
 
-  void eliminateFairness(FairTransitionSet& transformed,
-			 const FairTransitionSet& original,
-			 const Vector<int>& stateMap);
-  void transformFairTransitionSet2(NatSetTable& oldFairnessConditions,
-				   FairTransitionSet& transformed,
-				   const FairTransitionSet& original,
-				   const Vector<int>& stateMap,
-				   const Vector<int>& fairMap,
-				   int component);
-  void remapNatSet(NatSet& newSet,
-		   const NatSet& oldSet,
-		   const Vector<int>& natMap);
+    void insertFairTransition(FairTransitionSet &fts, const FairTransition &ft);
 
-  void bfsToFairComponent(int& fairState, list<Bdd>& path) const;
-  void bfsToMoreFairness(NatSet& fairness, int& start, list<Bdd>& path) const;
-  void bfsToTarget(int start, int target, list<Bdd>& path) const;
+    void insertFairTransition2(FairTransitionSet &fts, const FairTransition &ft);
 
-  NatSet initialStates;
-  Vector<int> states;
-  FairTransitionSetTable fairTransitionSets;
-  int nrFairnessSets;
-  NatSetTable fairnessConditions;
+    void transformFairTransitionSet(FairTransitionSet &transformed,
+                                    const FairTransitionSet &original);
 
-  //
-  //	Temporary data used during construction.
-  //
-  VeryWeakAlternatingAutomaton* vwaa;
-  NatSetTable vwaaStateSets;
-  //
-  //	Structures used for SCC Optimizations.
-  //
-  struct StateInfo
-  {
-    int traversalNumber;	// DFS traversal number
-    int component;		// number of the component we're in
-  };
+    void maximallyCollapseStates();
 
-  enum ComponentStatus
-  {
-    DEAD,	// unfair and can't reach a fair SCC
-    UNFAIR,	// unfair and can reach a fair SCC
-    FAIR	// has internal transitions covering all fairness sets
-  };
+    void collapseStates();
 
-  struct ComponentInfo
-  {
-    ComponentStatus status;
-    NatSet redundant;		// redundant fairness sets for a fair component
-  };
+    void sccOptimizations();
 
-  int traversalCount;
-  int componentCount;
-  stack<int> stateStack;
-  Vector<StateInfo> stateInfo;
-  Vector<ComponentInfo> componentInfo;
-  NatSet allFair;
-  NatSet essential;
-  //
-  //	Stucture used for sat solving.
-  //
-  struct Step;
+    void sccAnalysis();
+
+    int strongConnected(int v);
+
+    void handleComponent(int component);
+
+    void eliminateFairness(FairTransitionSet &transformed,
+                           const FairTransitionSet &original,
+                           const Vector<int> &stateMap);
+
+    void transformFairTransitionSet2(NatSetTable &oldFairnessConditions,
+                                     FairTransitionSet &transformed,
+                                     const FairTransitionSet &original,
+                                     const Vector<int> &stateMap,
+                                     const Vector<int> &fairMap,
+                                     int component);
+
+    void remapNatSet(NatSet &newSet,
+                     const NatSet &oldSet,
+                     const Vector<int> &natMap);
+
+    void bfsToFairComponent(int &fairState, list <Bdd> &path) const;
+
+    void bfsToMoreFairness(NatSet &fairness, int &start, list <Bdd> &path) const;
+
+    void bfsToTarget(int start, int target, list <Bdd> &path) const;
+
+    NatSet initialStates;
+    Vector<int> states;
+    FairTransitionSetTable fairTransitionSets;
+    int nrFairnessSets;
+    NatSetTable fairnessConditions;
+
+    //
+    //	Temporary data used during construction.
+    //
+    VeryWeakAlternatingAutomaton *vwaa;
+    NatSetTable vwaaStateSets;
+    //
+    //	Structures used for SCC Optimizations.
+    //
+    struct StateInfo {
+        int traversalNumber;    // DFS traversal number
+        int component;        // number of the component we're in
+    };
+
+    enum ComponentStatus {
+        DEAD,    // unfair and can't reach a fair SCC
+        UNFAIR,    // unfair and can reach a fair SCC
+        FAIR    // has internal transitions covering all fairness sets
+    };
+
+    struct ComponentInfo {
+        ComponentStatus status;
+        NatSet redundant;        // redundant fairness sets for a fair component
+    };
+
+    int traversalCount;
+    int componentCount;
+    stack<int> stateStack;
+    Vector<StateInfo> stateInfo;
+    Vector<ComponentInfo> componentInfo;
+    NatSet allFair;
+    NatSet essential;
+    //
+    //	Stucture used for sat solving.
+    //
+    struct Step;
 };
 
 inline int
-GenBuchiAutomaton::getNrStates() const
-{
-  return states.length();
+GenBuchiAutomaton::getNrStates() const {
+    return states.length();
 }
 
 inline int
-GenBuchiAutomaton::getNrFairnessSets() const
-{
-  return nrFairnessSets;
+GenBuchiAutomaton::getNrFairnessSets() const {
+    return nrFairnessSets;
 }
 
-inline const NatSet&
-GenBuchiAutomaton::getInitialStates() const
-{
-  return initialStates;
+inline const NatSet &
+GenBuchiAutomaton::getInitialStates() const {
+    return initialStates;
 }
 
-inline const NatSet&
-GenBuchiAutomaton::getFairnessCombination(int fairnessIndex) const
-{
-  return fairnessConditions.ithElement(fairnessIndex);
+inline const NatSet &
+GenBuchiAutomaton::getFairnessCombination(int fairnessIndex) const {
+    return fairnessConditions.ithElement(fairnessIndex);
 }
 
-inline const GenBuchiAutomaton::FairTransitionSet&
-GenBuchiAutomaton::getTransitions(int stateNr) const
-{
-  return fairTransitionSets.ithElement(states[stateNr]);
+inline const GenBuchiAutomaton::FairTransitionSet &
+GenBuchiAutomaton::getTransitions(int stateNr) const {
+    return fairTransitionSets.ithElement(states[stateNr]);
 }
 
 #endif

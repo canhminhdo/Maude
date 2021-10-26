@@ -45,124 +45,110 @@
 #include "termBag.hh"
 #include "rule.hh"
 
-Rule::Rule(int label, Term* lhs, Term* rhs, const Vector<ConditionFragment*>& condition)
-  : PreEquation(label, lhs, condition),
-    rhs(rhs)
-{
-  Assert(rhs != 0, "null rhs");
-  nonExtLhsAutomaton = 0;
-  extLhsAutomaton = 0;
+Rule::Rule(int label, Term *lhs, Term *rhs, const Vector<ConditionFragment *> &condition)
+        : PreEquation(label, lhs, condition),
+          rhs(rhs) {
+    Assert(rhs != 0, "null rhs");
+    nonExtLhsAutomaton = 0;
+    extLhsAutomaton = 0;
 }
 
-Rule::~Rule()
-{
-  delete nonExtLhsAutomaton;
-  delete extLhsAutomaton;
-  rhs->deepSelfDestruct();
+Rule::~Rule() {
+    delete nonExtLhsAutomaton;
+    delete extLhsAutomaton;
+    rhs->deepSelfDestruct();
 }
 
 void
-Rule::check()
-{
-  NatSet boundVariables;
-  PreEquation::check(boundVariables);
-  rhs = rhs->normalize(false);
-  rhs->indexVariables(*this);
-  NatSet unboundVariables(rhs->occursBelow());
-  unboundVariables.subtract(boundVariables);
-  addUnboundVariables(unboundVariables);
-  if (!isNonexec() && !getUnboundVariables().empty())
-    {
-      IssueWarning(*this << ": variable " <<
-		   QUOTE(index2Variable(getUnboundVariables().min())) <<
-		   " is used before it is bound in rule:\n" <<
-		   this);
-      //
-      //	Rules with variables used before they are bound have a legitimate
-      //	purpose - they can be used with metaApply() and a substitution. So
-      //	we just make the rule nonexec rather than marking it as bad.
-      //
-      setNonexec();
+Rule::check() {
+    NatSet boundVariables;
+    PreEquation::check(boundVariables);
+    rhs = rhs->normalize(false);
+    rhs->indexVariables(*this);
+    NatSet unboundVariables(rhs->occursBelow());
+    unboundVariables.subtract(boundVariables);
+    addUnboundVariables(unboundVariables);
+    if (!isNonexec() && !getUnboundVariables().empty()) {
+        IssueWarning(*this << ": variable " <<
+                           QUOTE(index2Variable(getUnboundVariables().min())) <<
+                           " is used before it is bound in rule:\n" <<
+                           this);
+        //
+        //	Rules with variables used before they are bound have a legitimate
+        //	purpose - they can be used with metaApply() and a substitution. So
+        //	we just make the rule nonexec rather than marking it as bad.
+        //
+        setNonexec();
     }
 }
 
 void
-Rule::preprocess()
-{
-  PreEquation::preprocess();
-  rhs->symbol()->fillInSortInfo(rhs);
-  Assert(getLhs()->getComponent() == rhs->getComponent(), "connected component clash");
+Rule::preprocess() {
+    PreEquation::preprocess();
+    rhs->symbol()->fillInSortInfo(rhs);
+    Assert(getLhs()->getComponent() == rhs->getComponent(), "connected component clash");
 }
 
-LhsAutomaton*
-Rule::getNonExtLhsAutomaton()
-{
-  if (nonExtLhsAutomaton == 0)
-    {
-      NatSet boundUniquely;
-      bool subproblemLikely;
-      nonExtLhsAutomaton = getLhs()->compileLhs(false, *this, boundUniquely, subproblemLikely);
+LhsAutomaton *
+Rule::getNonExtLhsAutomaton() {
+    if (nonExtLhsAutomaton == 0) {
+        NatSet boundUniquely;
+        bool subproblemLikely;
+        nonExtLhsAutomaton = getLhs()->compileLhs(false, *this, boundUniquely, subproblemLikely);
     }
-  return nonExtLhsAutomaton;
+    return nonExtLhsAutomaton;
 }
 
-LhsAutomaton*
-Rule::getExtLhsAutomaton()
-{
-  if (extLhsAutomaton == 0)
-    {
-      NatSet boundUniquely;
-      bool subproblemLikely;
-      extLhsAutomaton = getLhs()->compileLhs(true, *this, boundUniquely, subproblemLikely);
+LhsAutomaton *
+Rule::getExtLhsAutomaton() {
+    if (extLhsAutomaton == 0) {
+        NatSet boundUniquely;
+        bool subproblemLikely;
+        extLhsAutomaton = getLhs()->compileLhs(true, *this, boundUniquely, subproblemLikely);
     }
-  return extLhsAutomaton;
+    return extLhsAutomaton;
 }
 
 void
-Rule::compile(bool compileLhs)
-{
-  if (isCompiled())
-    return;
-  setCompiled();
-  TermBag availableTerms;  // terms available for reuse
-  //
-  //	Since rules can be applied in non-eager subterms, if we have
-  //	a condition we must consider all variables to be non-eager
-  //	to avoid having a condition reduce a lazy subterm.
-  //
-  compileBuild(availableTerms, !hasCondition());
-  //
-  //	HACK: we pessimize the compilation of unconditional rules to avoid
-  //	left->right subterm sharing that would break narrowing.
-  //
-  if (!hasCondition())
-    {
-      TermBag dummy;
-      rhs->compileTopRhs(builder, *this, dummy);
-    }
-  else
-    rhs->compileTopRhs(builder, *this, availableTerms);  // original code
+Rule::compile(bool compileLhs) {
+    if (isCompiled())
+        return;
+    setCompiled();
+    TermBag availableTerms;  // terms available for reuse
+    //
+    //	Since rules can be applied in non-eager subterms, if we have
+    //	a condition we must consider all variables to be non-eager
+    //	to avoid having a condition reduce a lazy subterm.
+    //
+    compileBuild(availableTerms, !hasCondition());
+    //
+    //	HACK: we pessimize the compilation of unconditional rules to avoid
+    //	left->right subterm sharing that would break narrowing.
+    //
+    if (!hasCondition()) {
+        TermBag dummy;
+        rhs->compileTopRhs(builder, *this, dummy);
+    } else
+        rhs->compileTopRhs(builder, *this, availableTerms);  // original code
 
-  //  builder.dump(cout, *this);
-  compileMatch(compileLhs, true);
-  builder.remapIndices(*this);
-  //
-  //	Make all variables in a rules lhs into condition variables so that
-  //	if we compile lhs again in getNonExtLhsAutomaton() or getExtLhsAutomaton()
-  //	it will be compiled to generate all matchers rather than just those
-  //	that differ on variables in the condition.
-  //
-  addConditionVariables(getLhs()->occursBelow());
+    //  builder.dump(cout, *this);
+    compileMatch(compileLhs, true);
+    builder.remapIndices(*this);
+    //
+    //	Make all variables in a rules lhs into condition variables so that
+    //	if we compile lhs again in getNonExtLhsAutomaton() or getExtLhsAutomaton()
+    //	it will be compiled to generate all matchers rather than just those
+    //	that differ on variables in the condition.
+    //
+    addConditionVariables(getLhs()->occursBelow());
 }
 
 int
-Rule::traceBeginTrial(DagNode* subject, RewritingContext& context) const
-{
-  return context.traceBeginRuleTrial(subject, this);
+Rule::traceBeginTrial(DagNode *subject, RewritingContext &context) const {
+    return context.traceBeginRuleTrial(subject, this);
 }
 
 void
-Rule::print(ostream& s) const
-{
-  s << this;
+Rule::print(ostream &s) const {
+    s << this;
 }

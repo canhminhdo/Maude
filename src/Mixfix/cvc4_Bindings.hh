@@ -32,48 +32,56 @@
 
 using namespace CVC4;
 
-class VariableGenerator : public SMT_EngineWrapper
-{
+class VariableGenerator : public SMT_EngineWrapper {
 public:
-  VariableGenerator(const SMT_Info& smtInfo);
-  ~VariableGenerator();
-  //
-  //	Virtual functions for SMT solving.
-  //
-  Result assertDag(DagNode* dag);
-  Result checkDag(DagNode* dag);
-  void clearAssertions();
-  void push();
-  void pop();
+    VariableGenerator(const SMT_Info &smtInfo);
 
-  VariableDagNode* makeFreshVariable(Term* baseVariable, const mpz_class& number);
+    ~VariableGenerator();
+
+    //
+    //	Virtual functions for SMT solving.
+    //
+    Result assertDag(DagNode *dag);
+
+    Result checkDag(DagNode *dag);
+
+    void clearAssertions();
+
+    void push();
+
+    void pop();
+
+    VariableDagNode *makeFreshVariable(Term *baseVariable, const mpz_class &number);
 
 private:
-  //
-  //	We identify Maude variables that correspond to SMT variables by a pair
-  //	where the first component in the variable's sort's index within its module
-  //	and the second component is the variables name.
-  //
-  typedef pair<int, int> SortIndexVariableNamePair;
-  //
-  //	When we generate SMT variables on-the-fly we keep track of them in a map.
-  //
-  typedef map<SortIndexVariableNamePair, Expr> VariableMap;
+    //
+    //	We identify Maude variables that correspond to SMT variables by a pair
+    //	where the first component in the variable's sort's index within its module
+    //	and the second component is the variables name.
+    //
+    typedef pair<int, int> SortIndexVariableNamePair;
+    //
+    //	When we generate SMT variables on-the-fly we keep track of them in a map.
+    //
+    typedef map <SortIndexVariableNamePair, Expr> VariableMap;
 
-  Expr makeVariable(VariableDagNode* v);
-  Expr makeBooleanExpr(DagNode* dag);
-  Expr makeRationalConstant(const mpq_class& rational);
-  Expr dagToCVC4(DagNode* dag);
+    Expr makeVariable(VariableDagNode *v);
 
-  const SMT_Info& smtInfo;
+    Expr makeBooleanExpr(DagNode *dag);
 
-  VariableMap variableMap;
-  int pushCount;
-  //
-  //	CVC4 objects.
-  //
-  ExprManager* exprManager;
-  SmtEngine* smtEngine;
+    Expr makeRationalConstant(const mpq_class &rational);
+
+    Expr dagToCVC4(DagNode *dag);
+
+    const SMT_Info &smtInfo;
+
+    VariableMap variableMap;
+    int pushCount;
+    //
+    //	CVC4 objects.
+    //
+    ExprManager *exprManager;
+    SmtEngine *smtEngine;
 };
 
 #endif

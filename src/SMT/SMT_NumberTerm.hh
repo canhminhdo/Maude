@@ -25,35 +25,40 @@
 //
 #ifndef _SMT_NumberTerm_hh_
 #define _SMT_NumberTerm_hh_
+
 #include <gmpxx.h>
 #include "NA_Term.hh"
 
-class SMT_NumberTerm : public NA_Term
-{
+class SMT_NumberTerm : public NA_Term {
 public:
-  SMT_NumberTerm(SMT_NumberSymbol* symbol, const mpq_class& value);
+    SMT_NumberTerm(SMT_NumberSymbol *symbol, const mpq_class &value);
 
-  Term* deepCopy2(SymbolMap* map) const;
-  Term* normalize(bool full, bool& changed);
-  int compareArguments(const Term* other) const;
-  int compareArguments(const DagNode* other) const;
-  void overwriteWithDagNode(DagNode* old) const;
-  NA_DagNode* makeDagNode() const;
-  //
-  //	Needed because we have hidden data.
-  //
-  Term* instantiate2(const Vector<Term*>& varBindings, SymbolMap* translator);
+    Term *deepCopy2(SymbolMap *map) const;
 
-  const mpq_class& getValue() const;
+    Term *normalize(bool full, bool &changed);
+
+    int compareArguments(const Term *other) const;
+
+    int compareArguments(const DagNode *other) const;
+
+    void overwriteWithDagNode(DagNode *old) const;
+
+    NA_DagNode *makeDagNode() const;
+
+    //
+    //	Needed because we have hidden data.
+    //
+    Term *instantiate2(const Vector<Term *> &varBindings, SymbolMap *translator);
+
+    const mpq_class &getValue() const;
 
 private:
-  mpq_class value;
+    mpq_class value;
 };
 
-inline const mpq_class&
-SMT_NumberTerm::getValue() const
-{
-  return value;
+inline const mpq_class &
+SMT_NumberTerm::getValue() const {
+    return value;
 }
 
 #endif

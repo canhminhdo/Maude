@@ -24,31 +24,47 @@
 //	Declarations for auxiliary functions needed by lexical analyzer.
 //
 void lexerIdMode();
+
 void lexerTokenTreeMode(int terminatingTokens);
+
 void lexerCmdMode();
+
 void lexerOpMode();
+
 void lexerInitialMode();
+
 void lexerFileNameMode();
+
 void lexerStringMode();
+
 void lexerLatexMode();
-bool includeFile(const string& directory, const string& fileName, bool silent, int lineNr);
+
+bool includeFile(const string &directory, const string &fileName, bool silent, int lineNr);
+
 bool handleEof();
+
 void eatComment(bool firstNonWhite);
+
 void cleanUpLexer();
+
 void checkForPending();
 
 void setDebugMode(bool polarity);
+
 bool generateImpliedStep();
 
 
 void lexBubble(int termination, int minLen);
-void lexBubble(const Token& first, int termination, int minLen, int pCount = 0);
-void lexContinueBubble(const Token& next, int termination, int minLen, int pCount = 0);
-void lexSave(const Token& first);
-void lexContinueSave(const Token& next);
 
-enum TERMINATION_TOKENS
-  {
+void lexBubble(const Token &first, int termination, int minLen, int pCount = 0);
+
+void lexContinueBubble(const Token &next, int termination, int minLen, int pCount = 0);
+
+void lexSave(const Token &first);
+
+void lexContinueSave(const Token &next);
+
+enum TERMINATION_TOKENS {
     BAR_COLON = 0x1,
     BAR_COMMA = 0x2,
     BAR_LEFT_BRACKET = 0x4,
@@ -64,4 +80,4 @@ enum TERMINATION_TOKENS
 
     END_STATEMENT = 0x40000000,
     END_COMMAND = 0x80000000
-  };
+};

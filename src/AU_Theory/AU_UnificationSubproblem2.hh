@@ -25,6 +25,7 @@
 //
 #ifndef _AU_UnificationSubproblem2_hh_
 #define _AU_UnificationSubproblem2_hh_
+
 #include <list>
 #include "unificationSubproblem.hh"
 #include "simpleRootContainer.hh"
@@ -34,60 +35,64 @@
 #include "pendingUnificationStack.hh"
 #include "wordSystem.hh"
 
-class AU_UnificationSubproblem2 : public UnificationSubproblem, private SimpleRootContainer
-{
-  NO_COPYING(AU_UnificationSubproblem2);
+class AU_UnificationSubproblem2 : public UnificationSubproblem, private SimpleRootContainer {
+    NO_COPYING(AU_UnificationSubproblem2);
 
 public:
-  AU_UnificationSubproblem2(AU_Symbol* topSymbol);
-  ~AU_UnificationSubproblem2();
+    AU_UnificationSubproblem2(AU_Symbol *topSymbol);
 
-  void addUnification(DagNode* lhs, DagNode* rhs, bool marked, UnificationContext& solution);
-  bool solve(bool findFirst, UnificationContext& solution, PendingUnificationStack& pending);
+    ~AU_UnificationSubproblem2();
+
+    void addUnification(DagNode *lhs, DagNode *rhs, bool marked, UnificationContext &solution);
+
+    bool solve(bool findFirst, UnificationContext &solution, PendingUnificationStack &pending);
 
 private:
-  typedef WordSystem::Word Word;
+    typedef WordSystem::Word Word;
 
-  struct Assignment
-  {
-    int variable;
-    WordSystem::Word value;
-  };
+    struct Assignment {
+        int variable;
+        WordSystem::Word value;
+    };
 
-  struct Unification
-  {
-    WordSystem::Word lhs;
-    WordSystem::Word rhs;
-  };
+    struct Unification {
+        WordSystem::Word lhs;
+        WordSystem::Word rhs;
+    };
 
-  void markReachableNodes();
+    void markReachableNodes();
 
-  int dagToAbstract(DagNode* dagNode, UnificationContext& solution);
-  void assocToAbstract(DagNode* dagNode, WordSystem::Word& word, UnificationContext& solution);
-  void makeWordSystem(UnificationContext& solution);
-  void unsolve(int index, UnificationContext& solution);
-  DagNode* abstractToFreshVariable(int variableIndex, UnificationContext& solution);
-  bool buildSolution(UnificationContext& solution, PendingUnificationStack& pending);
- 
-  AU_Symbol* const topSymbol;
-  Vector<DagNode*> subterms;
-  list<Assignment> assignments;
-  list<Unification> unifications;
+    int dagToAbstract(DagNode *dagNode, UnificationContext &solution);
 
-  WordSystem* wordSystem;
-  Vector<DagNode*> freshVariables;
-  //
-  //	For backtracking.
-  //
-  Substitution preSolveSubstitution;
-  Substitution savedSubstitution;
-  PendingUnificationStack::Marker preSolveState;
-  PendingUnificationStack::Marker savedPendingState;
-  //
-  //	Needed for identity case.
-  //
-  list<WordSystem::Word> nullEquations;
-  NatSet markedSubterms;  // indices of subterms that have been marked
+    void assocToAbstract(DagNode *dagNode, WordSystem::Word &word, UnificationContext &solution);
+
+    void makeWordSystem(UnificationContext &solution);
+
+    void unsolve(int index, UnificationContext &solution);
+
+    DagNode *abstractToFreshVariable(int variableIndex, UnificationContext &solution);
+
+    bool buildSolution(UnificationContext &solution, PendingUnificationStack &pending);
+
+    AU_Symbol *const topSymbol;
+    Vector<DagNode *> subterms;
+    list<Assignment> assignments;
+    list<Unification> unifications;
+
+    WordSystem *wordSystem;
+    Vector<DagNode *> freshVariables;
+    //
+    //	For backtracking.
+    //
+    Substitution preSolveSubstitution;
+    Substitution savedSubstitution;
+    PendingUnificationStack::Marker preSolveState;
+    PendingUnificationStack::Marker savedPendingState;
+    //
+    //	Needed for identity case.
+    //
+    list<WordSystem::Word> nullEquations;
+    NatSet markedSubterms;  // indices of subterms that have been marked
 };
 
 #endif

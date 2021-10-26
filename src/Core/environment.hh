@@ -26,13 +26,12 @@
 #ifndef _environment_hh_
 #define _environment_hh_
 
-class Environment
-{
+class Environment {
 public:
-  //
-  //	Currently we don't provide access to any functionality though this class.
-  //
-  virtual ~Environment() {}
+    //
+    //	Currently we don't provide access to any functionality though this class.
+    //
+    virtual ~Environment() {}
 };
 
 #endif

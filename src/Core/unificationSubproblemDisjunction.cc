@@ -40,61 +40,56 @@
 #include "unificationSubproblemDisjunction.hh"
 
 void
-UnificationSubproblemDisjunction::addUnification(DagNode* lhs, DagNode* rhs, bool /* marked */, UnificationContext& /* solution */)
-{
-  int nrProblems = problems.size();
-  problems.expandBy(1);
-  problems[nrProblems].lhs = lhs;
-  problems[nrProblems].rhs = rhs;
+UnificationSubproblemDisjunction::addUnification(DagNode *lhs, DagNode *rhs, bool /* marked */,
+                                                 UnificationContext & /* solution */) {
+    int nrProblems = problems.size();
+    problems.expandBy(1);
+    problems[nrProblems].lhs = lhs;
+    problems[nrProblems].rhs = rhs;
 }
 
 bool
-UnificationSubproblemDisjunction::solve(bool findFirst, UnificationContext& /* solution */, PendingUnificationStack& pending)
-{
-  //
-  //	We only push problems on the pending stack and restore the pending stack.
-  //	We don't touch the substitution so we don't need to save or restore it.
-  //
-  int nrProblems = problems.size();
-  int i;
-  if (findFirst)
-    i = 0;
-  else
-    {
-      for (i = nrProblems - 1;; --i)
-	{
-	  TheoryClash& p = problems[i];
-	  if (p.lhsControlling)
-	    {
-	      //
-	      //	Restore the state to what it was before we pushed the
-	      //	problem with the lhs controlling.
-	      //
-	      pending.restore(p.savedPendingState);
-	      p.lhsControlling = false;
-	      pending.push(p.rhs->symbol(), p.rhs, p.lhs, true);  // swap lhs and rhs
-	      ++i;
-	      break;
-	    }
-	  if (i == 0)
-	    {
-	      //
-	      //	All combinations exhausted; restore intial state.
-	      //
-	      pending.restore(p.savedPendingState);
-	      return false;
-	    }
-	}
+UnificationSubproblemDisjunction::solve(bool findFirst, UnificationContext & /* solution */,
+                                        PendingUnificationStack &pending) {
+    //
+    //	We only push problems on the pending stack and restore the pending stack.
+    //	We don't touch the substitution so we don't need to save or restore it.
+    //
+    int nrProblems = problems.size();
+    int i;
+    if (findFirst)
+        i = 0;
+    else {
+        for (i = nrProblems - 1;; --i) {
+            TheoryClash &p = problems[i];
+            if (p.lhsControlling) {
+                //
+                //	Restore the state to what it was before we pushed the
+                //	problem with the lhs controlling.
+                //
+                pending.restore(p.savedPendingState);
+                p.lhsControlling = false;
+                pending.push(p.rhs->symbol(), p.rhs, p.lhs, true);  // swap lhs and rhs
+                ++i;
+                break;
+            }
+            if (i == 0) {
+                //
+                //	All combinations exhausted; restore intial state.
+                //
+                pending.restore(p.savedPendingState);
+                return false;
+            }
+        }
     }
-  //
-  //	Give lhs control of any remaining problems.
-  //
-  for (; i < nrProblems; ++i)
-    {
-      TheoryClash& p = problems[i];
-      p.savedPendingState = pending.checkPoint();
-      p.lhsControlling = true;
-      pending.push(p.lhs->symbol(), p.lhs, p.rhs, true);
+    //
+    //	Give lhs control of any remaining problems.
+    //
+    for (; i < nrProblems; ++i) {
+        TheoryClash &p = problems[i];
+        p.savedPendingState = pending.checkPoint();
+        p.lhsControlling = true;
+        pending.push(p.lhs->symbol(), p.lhs, p.rhs, true);
     }
-  return true;
+    return true;
 }

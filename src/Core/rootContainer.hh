@@ -26,58 +26,56 @@
 #ifndef _rootContainer_hh_
 #define _rootContainer_hh_
 
-class RootContainer
-{
+class RootContainer {
 public:
-  //
-  //	For safety since this class is intended to be derived from.
-  //
-  virtual ~RootContainer() {}
+    //
+    //	For safety since this class is intended to be derived from.
+    //
+    virtual ~RootContainer() {}
 
-  static void markPhase();
+    static void markPhase();
 
 #ifdef DUMP
-  static void dump(ostream& s);
+    static void dump(ostream& s);
 #endif
 
 protected:
-  void link();
-  void unlink();
-  virtual void markReachableNodes() = 0;
+    void link();
+
+    void unlink();
+
+    virtual void markReachableNodes() = 0;
 
 private:
-  static RootContainer* listHead;
+    static RootContainer *listHead;
 
-  RootContainer* next;
-  RootContainer* prev;
+    RootContainer *next;
+    RootContainer *prev;
 };
 
 inline void
-RootContainer::link()
-{
-  prev = 0;
-  next = listHead;
-  if (listHead != 0)
-    listHead->prev = this;
-  listHead = this;
+RootContainer::link() {
+    prev = 0;
+    next = listHead;
+    if (listHead != 0)
+        listHead->prev = this;
+    listHead = this;
 }
 
 inline void
-RootContainer::unlink()
-{
-  if (next != 0)
-    next->prev = prev;
-  if (prev != 0)
-    prev->next = next;
-  else
-    listHead = next;
+RootContainer::unlink() {
+    if (next != 0)
+        next->prev = prev;
+    if (prev != 0)
+        prev->next = next;
+    else
+        listHead = next;
 }
 
 inline void
-RootContainer::markPhase()
-{
-  for (RootContainer* p = listHead; p; p = p->next)
-    p->markReachableNodes();
+RootContainer::markPhase() {
+    for (RootContainer *p = listHead; p; p = p->next)
+        p->markReachableNodes();
 }
 
 #endif

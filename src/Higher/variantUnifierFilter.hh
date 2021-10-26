@@ -27,105 +27,106 @@
 //
 #ifndef _variantUnifierFilter_hh_
 #define _variantUnifierFilter_hh_
+
 #include <list>
 #include "dagRoot.hh"
 #include "substitution.hh"
 
-class VariantUnifierFilter
-{
-  NO_COPYING(VariantUnifierFilter);
+class VariantUnifierFilter {
+    NO_COPYING(VariantUnifierFilter);
 
 public:
-  //
-  //	We just use the context to make new contexts to call VariantSearch on.
-  //
-  VariantUnifierFilter(RewritingContext* context,
-		       FreshVariableGenerator* freshVariableGenerator);
-  ~VariantUnifierFilter();
-  //
-  //	Unifiers must have the same number of assignments, and kinds must match for
-  //	the ith family. Variables in the assignments of a unifier  must be drawn from
-  //	a single variable family but variable families can differ between unifers.
-  //
-  void insertUnifier(const Vector<DagNode*>& unifier,int nrFreeVariables, int variableFamily);
-  bool findNextSurvivingUnifier();
-  const Vector<DagNode*>& getCurrentSurvivingUnifier(int& nrFreeVariables, int& variableFamily);
-  bool filteringIncomplete() const;
+    //
+    //	We just use the context to make new contexts to call VariantSearch on.
+    //
+    VariantUnifierFilter(RewritingContext *context,
+                         FreshVariableGenerator *freshVariableGenerator);
+
+    ~VariantUnifierFilter();
+
+    //
+    //	Unifiers must have the same number of assignments, and kinds must match for
+    //	the ith family. Variables in the assignments of a unifier  must be drawn from
+    //	a single variable family but variable families can differ between unifers.
+    //
+    void insertUnifier(const Vector<DagNode *> &unifier, int nrFreeVariables, int variableFamily);
+
+    bool findNextSurvivingUnifier();
+
+    const Vector<DagNode *> &getCurrentSurvivingUnifier(int &nrFreeVariables, int &variableFamily);
+
+    bool filteringIncomplete() const;
 
 private:
-  struct RetainedUnifier
-  {
-    RetainedUnifier(const Vector<DagNode*>& unifier,
-		    int nrFreeVariables,
-		    int variableFamily,
-		    DagNode* encodedUnifier,
-		    VariantSearch* variants);
-    ~RetainedUnifier();
-    bool subsumes(DagNode* otherUnifier);
-    
-    Vector<DagNode*> unifier;
-    int nrFreeVariables;
-    int variableFamily;
-    DagNode* const encodedUnifier;
-    VariantSearch* variants;
-  };
+    struct RetainedUnifier {
+        RetainedUnifier(const Vector<DagNode *> &unifier,
+                        int nrFreeVariables,
+                        int variableFamily,
+                        DagNode *encodedUnifier,
+                        VariantSearch *variants);
 
-  typedef list<RetainedUnifier*> RetainedUnifierList;
+        ~RetainedUnifier();
 
-  bool subsumes(const RetainedUnifier* retainedUnifier, DagNode* otherEncodedUnifier);
+        bool subsumes(DagNode *otherUnifier);
 
-  RewritingContext* const context;
-  FreshVariableGenerator* const freshVariableGenerator;
+        Vector<DagNode *> unifier;
+        int nrFreeVariables;
+        int variableFamily;
+        DagNode *const encodedUnifier;
+        VariantSearch *variants;
+    };
 
-  Symbol* tupleSymbol;
-  DagRoot encodedUnifier;
-  RetainedUnifierList mostGeneralSoFar;
-  
-  bool startedExtractingUnifiers;
-  bool currentUnifierSubsumed;
-  bool filteringIncompleteFlag;
-  RetainedUnifierList::const_iterator currentUnifier;
+    typedef list<RetainedUnifier *> RetainedUnifierList;
+
+    bool subsumes(const RetainedUnifier *retainedUnifier, DagNode *otherEncodedUnifier);
+
+    RewritingContext *const context;
+    FreshVariableGenerator *const freshVariableGenerator;
+
+    Symbol *tupleSymbol;
+    DagRoot encodedUnifier;
+    RetainedUnifierList mostGeneralSoFar;
+
+    bool startedExtractingUnifiers;
+    bool currentUnifierSubsumed;
+    bool filteringIncompleteFlag;
+    RetainedUnifierList::const_iterator currentUnifier;
 };
 
 inline
-VariantUnifierFilter::RetainedUnifier::RetainedUnifier(const Vector<DagNode*>& unifier,
-						       int nrFreeVariables,
-						       int variableFamily,
-						       DagNode* encodedUnifier,
-						       VariantSearch* variants)
-  : unifier(unifier),  // shallow copy
-    nrFreeVariables(nrFreeVariables),
-    variableFamily(variableFamily),
-    encodedUnifier(encodedUnifier),
-    variants(variants)
-{
+VariantUnifierFilter::RetainedUnifier::RetainedUnifier(const Vector<DagNode *> &unifier,
+                                                       int nrFreeVariables,
+                                                       int variableFamily,
+                                                       DagNode *encodedUnifier,
+                                                       VariantSearch *variants)
+        : unifier(unifier),  // shallow copy
+          nrFreeVariables(nrFreeVariables),
+          variableFamily(variableFamily),
+          encodedUnifier(encodedUnifier),
+          variants(variants) {
 }
 
 inline
-VariantUnifierFilter::RetainedUnifier::~RetainedUnifier()
-{
-  delete variants;
+VariantUnifierFilter::RetainedUnifier::~RetainedUnifier() {
+    delete variants;
 }
 
 inline bool
-VariantUnifierFilter::RetainedUnifier::subsumes(DagNode* otherEncodedUnifier)
-{
-  return variants->isSubsumed(otherEncodedUnifier);
+VariantUnifierFilter::RetainedUnifier::subsumes(DagNode *otherEncodedUnifier) {
+    return variants->isSubsumed(otherEncodedUnifier);
 }
 
-inline const Vector<DagNode*>&
-VariantUnifierFilter::getCurrentSurvivingUnifier(int& nrFreeVariables, int& variableFamily)
-{
-  Assert(startedExtractingUnifiers == true, "didn't call findNextSurvivingUnifier()");
-  nrFreeVariables = (*currentUnifier)->nrFreeVariables;
-  variableFamily = (*currentUnifier)->variableFamily;
-  return (*currentUnifier)->unifier;
+inline const Vector<DagNode *> &
+VariantUnifierFilter::getCurrentSurvivingUnifier(int &nrFreeVariables, int &variableFamily) {
+    Assert(startedExtractingUnifiers == true, "didn't call findNextSurvivingUnifier()");
+    nrFreeVariables = (*currentUnifier)->nrFreeVariables;
+    variableFamily = (*currentUnifier)->variableFamily;
+    return (*currentUnifier)->unifier;
 }
 
 inline bool
-VariantUnifierFilter::filteringIncomplete() const
-{
-  return filteringIncompleteFlag;
+VariantUnifierFilter::filteringIncomplete() const {
+    return filteringIncompleteFlag;
 }
 
 #endif

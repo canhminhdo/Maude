@@ -25,30 +25,31 @@
 //
 #ifndef _ACU_TreeDagArgumentIterator_hh_
 #define _ACU_TreeDagArgumentIterator_hh_
+
 #include "rawDagArgumentIterator.hh"
 #include "ACU_FastIter.hh"
 
-class ACU_TreeDagArgumentIterator : public RawDagArgumentIterator
-{
-  NO_COPYING(ACU_TreeDagArgumentIterator);
+class ACU_TreeDagArgumentIterator : public RawDagArgumentIterator {
+    NO_COPYING(ACU_TreeDagArgumentIterator);
 
 public:
-  ACU_TreeDagArgumentIterator(const ACU_Tree& tree);
- 
-  bool valid() const;
-  DagNode* argument() const;
-  void next();
- 
+    ACU_TreeDagArgumentIterator(const ACU_Tree &tree);
+
+    bool valid() const;
+
+    DagNode *argument() const;
+
+    void next();
+
 private:
-  ACU_FastIter iter;
-  int multiplicityRemaining;
+    ACU_FastIter iter;
+    int multiplicityRemaining;
 };
 
 inline
-ACU_TreeDagArgumentIterator::ACU_TreeDagArgumentIterator(const ACU_Tree& tree)
-  : iter(tree)
-{
-  multiplicityRemaining = iter.getMultiplicity();
+ACU_TreeDagArgumentIterator::ACU_TreeDagArgumentIterator(const ACU_Tree &tree)
+        : iter(tree) {
+    multiplicityRemaining = iter.getMultiplicity();
 }
- 
+
 #endif

@@ -25,317 +25,303 @@
 //
 #ifndef _ACU_RedBlackNode_hh_
 #define _ACU_RedBlackNode_hh_
+
 #include "symbol.hh"  // HACK
 #include "dagNode.hh"  // HACK
 #include "memoryCell.hh"
 
-class ACU_RedBlackNode
-{
-  NO_COPYING(ACU_RedBlackNode);
+class ACU_RedBlackNode {
+    NO_COPYING(ACU_RedBlackNode);
 
 public:
-  enum PublicValues
-  {
-    MAX_TREE_HEIGHT = 64	// must be height of largest red-black tree
-  };
+    enum PublicValues {
+        MAX_TREE_HEIGHT = 64    // must be height of largest red-black tree
+    };
 
-  ACU_RedBlackNode(DagNode* dagNode,
-		   int multiplicity,
-		   ACU_RedBlackNode* left,
-		   ACU_RedBlackNode* right);
+    ACU_RedBlackNode(DagNode *dagNode,
+                     int multiplicity,
+                     ACU_RedBlackNode *left,
+                     ACU_RedBlackNode *right);
 
-  ACU_RedBlackNode(DagNode* dagNode,
-		   int multiplicity,
-		   ACU_RedBlackNode* left,
-		   ACU_RedBlackNode* right,
-		   int maxMult);
+    ACU_RedBlackNode(DagNode *dagNode,
+                     int multiplicity,
+                     ACU_RedBlackNode *left,
+                     ACU_RedBlackNode *right,
+                     int maxMult);
 
-  DagNode* getDagNode() const;
-  int getMultiplicity() const;
-  ACU_RedBlackNode* getLeft() const;
-  ACU_RedBlackNode* getRight() const;
-  int getMaxMult() const;
+    DagNode *getDagNode() const;
 
-  void setSortIndex(int index);
-  int getSortIndex() const;
+    int getMultiplicity() const;
 
-  void makeRed();  // need for conversion from array
+    ACU_RedBlackNode *getLeft() const;
 
-  void* operator new(size_t size);
-  void setMarked();
-  bool isMarked();
+    ACU_RedBlackNode *getRight() const;
 
-  static bool find(ACU_RedBlackNode* root,
-		   DagNode* dagNode,
-		   ACU_Stack& path);
+    int getMaxMult() const;
 
-  static bool find(ACU_RedBlackNode* root,
-		   Term* term,
-		   ACU_Stack& path);
+    void setSortIndex(int index);
 
-  static bool findFirstPotentialMatch(ACU_RedBlackNode* root,
-				      Term* key,
-				      const Substitution& partial,
-				      ACU_Stack& path);
+    int getSortIndex() const;
 
-  static bool findGeqMult(ACU_RedBlackNode* root,
-			  int multiplicity,
-			  ACU_Stack& path);
+    void makeRed();  // need for conversion from array
 
-  static ACU_RedBlackNode* consInsert(ACU_RedBlackNode* root,
-				      DagNode* dagNode,
-				      int multiplicity,
-				      int& delta);
+    void *operator new(size_t size);
 
-  static ACU_RedBlackNode* consDelete(ACU_Stack& path,
-				      int multiplicity,
-				      int& delta);
+    void setMarked();
 
-  //
-  //	Experimental hash cons code.
-  //
-  ACU_RedBlackNode* canonicalRebuild(HashConsSet* hcs);
+    bool isMarked();
 
-  void dump(ostream& s, int indent);
+    static bool find(ACU_RedBlackNode *root,
+                     DagNode *dagNode,
+                     ACU_Stack &path);
+
+    static bool find(ACU_RedBlackNode *root,
+                     Term *term,
+                     ACU_Stack &path);
+
+    static bool findFirstPotentialMatch(ACU_RedBlackNode *root,
+                                        Term *key,
+                                        const Substitution &partial,
+                                        ACU_Stack &path);
+
+    static bool findGeqMult(ACU_RedBlackNode *root,
+                            int multiplicity,
+                            ACU_Stack &path);
+
+    static ACU_RedBlackNode *consInsert(ACU_RedBlackNode *root,
+                                        DagNode *dagNode,
+                                        int multiplicity,
+                                        int &delta);
+
+    static ACU_RedBlackNode *consDelete(ACU_Stack &path,
+                                        int multiplicity,
+                                        int &delta);
+
+    //
+    //	Experimental hash cons code.
+    //
+    ACU_RedBlackNode *canonicalRebuild(HashConsSet *hcs);
+
+    void dump(ostream &s, int indent);
 
 #ifdef CHECK_TREE
-  //
-  //	Extra functions for strict checking of red-black property
-  //	after each operation.
-  //
-  bool checkRedBlackProperty();
-  bool checkRedBlackProperty(int& height);
-  static ACU_RedBlackNode* consInsert2(ACU_RedBlackNode* root,
-				      DagNode* dagNode,
-				      int multiplicity);
+    //
+    //	Extra functions for strict checking of red-black property
+    //	after each operation.
+    //
+    bool checkRedBlackProperty();
+    bool checkRedBlackProperty(int& height);
+    static ACU_RedBlackNode* consInsert2(ACU_RedBlackNode* root,
+                        DagNode* dagNode,
+                        int multiplicity);
 
-  static ACU_RedBlackNode* consDelete2(ACU_Stack& path, int multiplicity);
+    static ACU_RedBlackNode* consDelete2(ACU_Stack& path, int multiplicity);
 
 #endif
 
 private:
-  enum Values
-  {
-    LEFT_INDEX = 1,
-    RIGHT_INDEX = 0
-  };
+    enum Values {
+        LEFT_INDEX = 1,
+        RIGHT_INDEX = 0
+    };
 
-  enum Flags
-  {
-    RED = 1
-  };
+    enum Flags {
+        RED = 1
+    };
 
-  //
-  //	Returns left child if negative, right child otherwise.
-  //
-  ACU_RedBlackNode* getChild(int sign) const;
+    //
+    //	Returns left child if negative, right child otherwise.
+    //
+    ACU_RedBlackNode *getChild(int sign) const;
 
-  static ACU_RedBlackNode* copy(ACU_Stack& path,
-				ACU_RedBlackNode* n,
-				ACU_RedBlackNode* old);
+    static ACU_RedBlackNode *copy(ACU_Stack &path,
+                                  ACU_RedBlackNode *n,
+                                  ACU_RedBlackNode *old);
 
-  static ACU_RedBlackNode* copy(ACU_Stack& path,
-				ACU_RedBlackNode* n,
-				ACU_RedBlackNode* old,
-				ACU_RedBlackNode* victim,
-				ACU_RedBlackNode* surrogate);
+    static ACU_RedBlackNode *copy(ACU_Stack &path,
+                                  ACU_RedBlackNode *n,
+                                  ACU_RedBlackNode *old,
+                                  ACU_RedBlackNode *victim,
+                                  ACU_RedBlackNode *surrogate);
 
-  static ACU_RedBlackNode* copyRebalance(ACU_Stack& path,
-					 ACU_RedBlackNode* n,
-					 ACU_RedBlackNode* old,
-					 ACU_RedBlackNode* victim,
-					 ACU_RedBlackNode* surrogate);
+    static ACU_RedBlackNode *copyRebalance(ACU_Stack &path,
+                                           ACU_RedBlackNode *n,
+                                           ACU_RedBlackNode *old,
+                                           ACU_RedBlackNode *victim,
+                                           ACU_RedBlackNode *surrogate);
 
-  static ACU_RedBlackNode* blackNode(ACU_RedBlackNode* key,
-				     ACU_RedBlackNode* left,
-				     ACU_RedBlackNode* right);
+    static ACU_RedBlackNode *blackNode(ACU_RedBlackNode *key,
+                                       ACU_RedBlackNode *left,
+                                       ACU_RedBlackNode *right);
 
-  static ACU_RedBlackNode* redNode(ACU_RedBlackNode* key,
-				   ACU_RedBlackNode* left,
-				   ACU_RedBlackNode* right);
+    static ACU_RedBlackNode *redNode(ACU_RedBlackNode *key,
+                                     ACU_RedBlackNode *left,
+                                     ACU_RedBlackNode *right);
 
-  bool isRed() const;
-  static bool isRed(const ACU_RedBlackNode* mightBeNull);
-  void makeRedIfRed(const ACU_RedBlackNode* other);
-  //
-  //    Get pointer to MemoryInfo object associated with us.
-  //
-  MemoryInfo* getMemoryInfo();
-  const MemoryInfo* getMemoryInfo() const;
+    bool isRed() const;
 
-  DagNode* const dagNode;
-  int const multiplicity;
-  ACU_RedBlackNode* children[2];  // no way to initialize const
-  int maxMult;
+    static bool isRed(const ACU_RedBlackNode *mightBeNull);
+
+    void makeRedIfRed(const ACU_RedBlackNode *other);
+
+    //
+    //    Get pointer to MemoryInfo object associated with us.
+    //
+    MemoryInfo *getMemoryInfo();
+
+    const MemoryInfo *getMemoryInfo() const;
+
+    DagNode *const dagNode;
+    int const multiplicity;
+    ACU_RedBlackNode *children[2];  // no way to initialize const
+    int maxMult;
 };
 
-inline MemoryInfo*
-ACU_RedBlackNode::getMemoryInfo()
-{
-  return MemoryCell::getMemoryInfo(this);
+inline MemoryInfo *
+ACU_RedBlackNode::getMemoryInfo() {
+    return MemoryCell::getMemoryInfo(this);
 }
 
-inline const MemoryInfo*
-ACU_RedBlackNode::getMemoryInfo() const
-{
-  return MemoryCell::getMemoryInfo(this);
+inline const MemoryInfo *
+ACU_RedBlackNode::getMemoryInfo() const {
+    return MemoryCell::getMemoryInfo(this);
 }
 
-inline void*
-ACU_RedBlackNode::operator new(size_t size)
-{
-  Assert(size <= sizeof(MemoryCell), "red-black node too big");
-  void* m = MemoryCell::allocateMemoryCell();
-  //
-  //	MemoryCell::allocateMemoryCell() no longer sets the half word to
-  //	Sort::SORT_UNKNOWN. This responsibility is shifted to us.
-  //
-  MemoryCell::getMemoryInfo(m)->setHalfWord(Sort::SORT_UNKNOWN);
-  //
-  //	MemoryCell::allocateMemoryCell() no longer clears the memory
-  //	cell flags. This responsibility is shifted to us.
-  //
-  MemoryCell::getMemoryInfo(m)->clearAllFlags();
-  return m;
+inline void *
+ACU_RedBlackNode::operator new(size_t size) {
+    Assert(size <= sizeof(MemoryCell), "red-black node too big");
+    void *m = MemoryCell::allocateMemoryCell();
+    //
+    //	MemoryCell::allocateMemoryCell() no longer sets the half word to
+    //	Sort::SORT_UNKNOWN. This responsibility is shifted to us.
+    //
+    MemoryCell::getMemoryInfo(m)->setHalfWord(Sort::SORT_UNKNOWN);
+    //
+    //	MemoryCell::allocateMemoryCell() no longer clears the memory
+    //	cell flags. This responsibility is shifted to us.
+    //
+    MemoryCell::getMemoryInfo(m)->clearAllFlags();
+    return m;
 }
 
 inline void
-ACU_RedBlackNode::setMarked()
-{
-  getMemoryInfo()->setMarked();
+ACU_RedBlackNode::setMarked() {
+    getMemoryInfo()->setMarked();
 }
 
 inline bool
-ACU_RedBlackNode::isMarked()
-{
-  return getMemoryInfo()->isMarked();
+ACU_RedBlackNode::isMarked() {
+    return getMemoryInfo()->isMarked();
 }
 
 inline int
-ACU_RedBlackNode::getMaxMult() const
-{
-  return maxMult;
+ACU_RedBlackNode::getMaxMult() const {
+    return maxMult;
 }
 
 inline
-ACU_RedBlackNode::ACU_RedBlackNode(DagNode* dagNode,
-				   int multiplicity,
-				   ACU_RedBlackNode* left,
-				   ACU_RedBlackNode* right)
-  : dagNode(dagNode),
-    multiplicity(multiplicity)
-{
-  int mm = multiplicity;
-  if (left != 0)
-    {
-      int t = left->maxMult;
-      if (t > mm)
-	mm = t;
+ACU_RedBlackNode::ACU_RedBlackNode(DagNode *dagNode,
+                                   int multiplicity,
+                                   ACU_RedBlackNode *left,
+                                   ACU_RedBlackNode *right)
+        : dagNode(dagNode),
+          multiplicity(multiplicity) {
+    int mm = multiplicity;
+    if (left != 0) {
+        int t = left->maxMult;
+        if (t > mm)
+            mm = t;
     }
-  if (right != 0)
-    {
-      int t = right->maxMult;
-      if (t > mm)
-	mm = t;
+    if (right != 0) {
+        int t = right->maxMult;
+        if (t > mm)
+            mm = t;
     }
-  maxMult = mm;
-  children[LEFT_INDEX] = left;
-  children[RIGHT_INDEX] = right;
+    maxMult = mm;
+    children[LEFT_INDEX] = left;
+    children[RIGHT_INDEX] = right;
 }
 
 inline
-ACU_RedBlackNode::ACU_RedBlackNode(DagNode* dagNode,
-				   int multiplicity,
-				   ACU_RedBlackNode* left,
-				   ACU_RedBlackNode* right,
-				   int maxMult)
-  : dagNode(dagNode),
-    multiplicity(multiplicity),
-    maxMult(maxMult)
-{
-  Assert(maxMult ==
-	 max(multiplicity,
-	     max((left == 0) ? 0 : left->maxMult,
-		 (right == 0) ? 0 : right->maxMult)),
-	  "bad maxMult");
-  children[LEFT_INDEX] = left;
-  children[RIGHT_INDEX] = right;
+ACU_RedBlackNode::ACU_RedBlackNode(DagNode *dagNode,
+                                   int multiplicity,
+                                   ACU_RedBlackNode *left,
+                                   ACU_RedBlackNode *right,
+                                   int maxMult)
+        : dagNode(dagNode),
+          multiplicity(multiplicity),
+          maxMult(maxMult) {
+    Assert(maxMult ==
+           max(multiplicity,
+               max((left == 0) ? 0 : left->maxMult,
+                   (right == 0) ? 0 : right->maxMult)),
+           "bad maxMult");
+    children[LEFT_INDEX] = left;
+    children[RIGHT_INDEX] = right;
 }
 
-inline DagNode*
-ACU_RedBlackNode::getDagNode() const
-{
-  return dagNode;
-}
-
-inline int
-ACU_RedBlackNode::getMultiplicity() const
-{
-  return multiplicity;
-}
-
-inline ACU_RedBlackNode*
-ACU_RedBlackNode::getLeft() const
-{
-  return children[LEFT_INDEX];
-}
-
-inline ACU_RedBlackNode*
-ACU_RedBlackNode::getRight() const
-{
-  return children[RIGHT_INDEX];
-}
-
-inline ACU_RedBlackNode*
-ACU_RedBlackNode::getChild(int sign) const
-{
-  return children[sign < 0];
-}
-
-inline void
-ACU_RedBlackNode::setSortIndex(int index)
-{
-  getMemoryInfo()->setHalfWord(index);
+inline DagNode *
+ACU_RedBlackNode::getDagNode() const {
+    return dagNode;
 }
 
 inline int
-ACU_RedBlackNode::getSortIndex() const
-{
-  return getMemoryInfo()->getHalfWord();
+ACU_RedBlackNode::getMultiplicity() const {
+    return multiplicity;
 }
 
-inline bool
-ACU_RedBlackNode::isRed() const
-{
-  return getMemoryInfo()->getFlag(RED);
+inline ACU_RedBlackNode *
+ACU_RedBlackNode::getLeft() const {
+    return children[LEFT_INDEX];
 }
 
-inline bool
-ACU_RedBlackNode::isRed(const ACU_RedBlackNode* mightBeNull)
-{
-  return mightBeNull != 0 && mightBeNull->getMemoryInfo()->getFlag(RED);
+inline ACU_RedBlackNode *
+ACU_RedBlackNode::getRight() const {
+    return children[RIGHT_INDEX];
 }
 
-inline void
-ACU_RedBlackNode::makeRed()
-{
-  getMemoryInfo()->setFlag(RED);
+inline ACU_RedBlackNode *
+ACU_RedBlackNode::getChild(int sign) const {
+    return children[sign < 0];
 }
 
 inline void
-ACU_RedBlackNode::makeRedIfRed(const ACU_RedBlackNode* other)
-{
-  getMemoryInfo()->copySetFlags(RED, other->getMemoryInfo());
+ACU_RedBlackNode::setSortIndex(int index) {
+    getMemoryInfo()->setHalfWord(index);
 }
 
-inline ACU_RedBlackNode*
-ACU_RedBlackNode::redNode(ACU_RedBlackNode* key,
-			  ACU_RedBlackNode* left,
-			  ACU_RedBlackNode* right)
-{
-  ACU_RedBlackNode* n = blackNode(key, left, right);
-  n->makeRed();
-  return n;
+inline int
+ACU_RedBlackNode::getSortIndex() const {
+    return getMemoryInfo()->getHalfWord();
+}
+
+inline bool
+ACU_RedBlackNode::isRed() const {
+    return getMemoryInfo()->getFlag(RED);
+}
+
+inline bool
+ACU_RedBlackNode::isRed(const ACU_RedBlackNode *mightBeNull) {
+    return mightBeNull != 0 && mightBeNull->getMemoryInfo()->getFlag(RED);
+}
+
+inline void
+ACU_RedBlackNode::makeRed() {
+    getMemoryInfo()->setFlag(RED);
+}
+
+inline void
+ACU_RedBlackNode::makeRedIfRed(const ACU_RedBlackNode *other) {
+    getMemoryInfo()->copySetFlags(RED, other->getMemoryInfo());
+}
+
+inline ACU_RedBlackNode *
+ACU_RedBlackNode::redNode(ACU_RedBlackNode *key,
+                          ACU_RedBlackNode *left,
+                          ACU_RedBlackNode *right) {
+    ACU_RedBlackNode *n = blackNode(key, left, right);
+    n->makeRed();
+    return n;
 }
 
 #endif

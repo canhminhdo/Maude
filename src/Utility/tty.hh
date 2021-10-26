@@ -26,68 +26,63 @@
 #ifndef _tty_hh_
 #define _tty_hh_
 
-class Tty
-{
+class Tty {
 public:
-  enum Attribute
-  {
-    RESET,
-    BRIGHT,
-    DIM,
-    UNDERLINE,
-    BLINK,
-    REVERSE,
-    HIDDEN,
-    
-    BLACK,
-    RED,
-    GREEN,
-    YELLOW,
-    BLUE,
-    MAGENTA,
-    CYAN,
-    WHITE,
-    
-    BKGD_BLACK,
-    BKGD_RED,
-    BKGD_GREEN,
-    BKGD_YELLOW,
-    BKGD_BLUE,
-    BKGD_MAGENTA,
-    BKGD_CYAN,
-    BKGD_WHITE
-  };
+    enum Attribute {
+        RESET,
+        BRIGHT,
+        DIM,
+        UNDERLINE,
+        BLINK,
+        REVERSE,
+        HIDDEN,
 
-  Tty(Attribute attr);
+        BLACK,
+        RED,
+        GREEN,
+        YELLOW,
+        BLUE,
+        MAGENTA,
+        CYAN,
+        WHITE,
 
-  static void setEscapeSequencesAllowed(bool flag);
+        BKGD_BLACK,
+        BKGD_RED,
+        BKGD_GREEN,
+        BKGD_YELLOW,
+        BKGD_BLUE,
+        BKGD_MAGENTA,
+        BKGD_CYAN,
+        BKGD_WHITE
+    };
 
-  const char* ctrlSequence() const;
+    Tty(Attribute attr);
+
+    static void setEscapeSequencesAllowed(bool flag);
+
+    const char *ctrlSequence() const;
 
 private:
-  static const char* const ansiCode[];
-  static bool allowedFlag;
+    static const char *const ansiCode[];
+    static bool allowedFlag;
 
-  const Attribute attr;
+    const Attribute attr;
 };
 
 inline
 Tty::Tty(Attribute attr)
-  : attr(attr)
-{
+        : attr(attr) {
 }
 
 inline void
-Tty::setEscapeSequencesAllowed(bool flag)
-{
-  allowedFlag = flag;
+Tty::setEscapeSequencesAllowed(bool flag) {
+    allowedFlag = flag;
 }
 
 inline
-ostream& operator<<(ostream& s, const Tty& t)
-{
-  s << t.ctrlSequence();
-  return s;
+ostream &operator<<(ostream &s, const Tty &t) {
+    s << t.ctrlSequence();
+    return s;
 }
 
 #endif

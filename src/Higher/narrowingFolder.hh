@@ -34,160 +34,165 @@
 //
 #ifndef _narrowingFolder_hh_
 #define _narrowingFolder_hh_
+
 #include <set>
 #include <map>
 #include "simpleRootContainer.hh"
 #include "narrowingVariableInfo.hh"
 
-class NarrowingFolder : private SimpleRootContainer
-{
-  NO_COPYING(NarrowingFolder);
+class NarrowingFolder : private SimpleRootContainer {
+    NO_COPYING(NarrowingFolder);
 
 public:
-  NarrowingFolder(bool fold, bool keepHistory);
-  ~NarrowingFolder();
+    NarrowingFolder(bool fold, bool keepHistory);
 
-  bool insertState(int index, DagNode* state, int parentIndex);
-  void addAccumulatedSubstitution(int index,
-				  int variableFamily,
-				  Substitution* accumulatedSubstitution);
-  void addHistory(int index,
-		  Rule* rule,
-		  DagNode* narrowingContext,
-		  DagNode* narrowingPosition,
-		  const Substitution& unifier,
-		  const NarrowingVariableInfo& variableInfo);
-  bool keepingHistory() const;
-  void getState(int index,
-		DagNode*& state,
-		int& variableFamily,
-		Substitution*& accumulatedSubstitution) const;
-  int getDepth(int index) const;
-  void getHistory(int index,
-		  DagNode*& root,
-		  DagNode*& position,
-		  Rule*& rule,
-		  const Substitution*& unifier,
-		  const NarrowingVariableInfo*& unifierVariableInfo,
-		  int& variableFamily,
-		  DagNode*& newDag,
-		  const Substitution*& accumulatedSubstitution,
-		  int& parentIndex) const;
-  //
-  //	Returns NONE if there is no next surviving state.
-  //
-  int getNextSurvivingState(DagNode*& nextState,
-			    Substitution*& nextStateAccumulatedSubstitution,
-			    int& nextStateVariableFamily,
-			    int& nextStateDepth);
+    ~NarrowingFolder();
+
+    bool insertState(int index, DagNode *state, int parentIndex);
+
+    void addAccumulatedSubstitution(int index,
+                                    int variableFamily,
+                                    Substitution *accumulatedSubstitution);
+
+    void addHistory(int index,
+                    Rule *rule,
+                    DagNode *narrowingContext,
+                    DagNode *narrowingPosition,
+                    const Substitution &unifier,
+                    const NarrowingVariableInfo &variableInfo);
+
+    bool keepingHistory() const;
+
+    void getState(int index,
+                  DagNode *&state,
+                  int &variableFamily,
+                  Substitution *&accumulatedSubstitution) const;
+
+    int getDepth(int index) const;
+
+    void getHistory(int index,
+                    DagNode *&root,
+                    DagNode *&position,
+                    Rule *&rule,
+                    const Substitution *&unifier,
+                    const NarrowingVariableInfo *&unifierVariableInfo,
+                    int &variableFamily,
+                    DagNode *&newDag,
+                    const Substitution *&accumulatedSubstitution,
+                    int &parentIndex) const;
+
+    //
+    //	Returns NONE if there is no next surviving state.
+    //
+    int getNextSurvivingState(DagNode *&nextState,
+                              Substitution *&nextStateAccumulatedSubstitution,
+                              int &nextStateVariableFamily,
+                              int &nextStateDepth);
 
 private:
-  struct RetainedState
-  {
-    RetainedState(DagNode* state, int parentIndex, bool fold);
-    ~RetainedState();
-    bool subsumes(DagNode* state) const;
+    struct RetainedState {
+        RetainedState(DagNode *state, int parentIndex, bool fold);
 
-    DagNode* const state;
-    Substitution* accumulatedSubstitution;
-    const int parentIndex;
-    int variableFamily;
-    int depth;
-    //
-    //	Only used for folding.
-    //
-    Term* stateTerm;
-    LhsAutomaton* matchingAutomaton;
-    int nrMatchingVariables;  // number of variables needed for matching; includes
-    			      // any abstraction variables
-    //
-    //	Only used for history.
-    //
-    Rule* rule;  // rule used for narrowing step that created this state
-    DagNode* narrowingContext;
-    DagNode* narrowingPosition;  //  pointer into old state
-    Substitution* unifier;  // variant unifier between parent state and rule lhs
-    NarrowingVariableInfo variableInfo;  // variable info for the parent state part of the unifier
-    //
-    //	Only used for history if we are not folding.
-    //
-    int nrDescendants;
-  };
+        ~RetainedState();
 
-  typedef map<int, RetainedState*> RetainedStateMap;
-  typedef set<int> StateSet;
+        bool subsumes(DagNode *state) const;
 
-  void markReachableNodes();
-  void cleanGraph();
+        DagNode *const state;
+        Substitution *accumulatedSubstitution;
+        const int parentIndex;
+        int variableFamily;
+        int depth;
+        //
+        //	Only used for folding.
+        //
+        Term *stateTerm;
+        LhsAutomaton *matchingAutomaton;
+        int nrMatchingVariables;  // number of variables needed for matching; includes
+        // any abstraction variables
+        //
+        //	Only used for history.
+        //
+        Rule *rule;  // rule used for narrowing step that created this state
+        DagNode *narrowingContext;
+        DagNode *narrowingPosition;  //  pointer into old state
+        Substitution *unifier;  // variant unifier between parent state and rule lhs
+        NarrowingVariableInfo variableInfo;  // variable info for the parent state part of the unifier
+        //
+        //	Only used for history if we are not folding.
+        //
+        int nrDescendants;
+    };
 
-  const bool fold;  // we do folding to prune less general states
-  const bool keepHistory;  // we keep the history of how we arrived at each state
-  RetainedStateMap mostGeneralSoFar;
-  int currentStateIndex;
+    typedef map<int, RetainedState *> RetainedStateMap;
+    typedef set<int> StateSet;
+
+    void markReachableNodes();
+
+    void cleanGraph();
+
+    const bool fold;  // we do folding to prune less general states
+    const bool keepHistory;  // we keep the history of how we arrived at each state
+    RetainedStateMap mostGeneralSoFar;
+    int currentStateIndex;
 };
 
 inline void
 NarrowingFolder::addAccumulatedSubstitution(int index,
-					    int variableFamily,
-					    Substitution* accumulatedSubstitution)
-{
-  RetainedStateMap::iterator i = mostGeneralSoFar.find(index);
-  Assert(i != mostGeneralSoFar.end(), "couldn't find state with index " << index);
-  i->second->variableFamily = variableFamily;
-  i->second->accumulatedSubstitution = accumulatedSubstitution;
+                                            int variableFamily,
+                                            Substitution *accumulatedSubstitution) {
+    RetainedStateMap::iterator i = mostGeneralSoFar.find(index);
+    Assert(i != mostGeneralSoFar.end(), "couldn't find state with index " << index);
+    i->second->variableFamily = variableFamily;
+    i->second->accumulatedSubstitution = accumulatedSubstitution;
 }
 
 inline bool
-NarrowingFolder::keepingHistory() const
-{
-  return keepHistory;
+NarrowingFolder::keepingHistory() const {
+    return keepHistory;
 }
 
 inline void
 NarrowingFolder::getState(int index,
-			  DagNode*& state,
-			  int& variableFamily,
-			  Substitution*& accumulatedSubstitution) const
-{
-  RetainedStateMap::const_iterator i = mostGeneralSoFar.find(index);
-  Assert(i != mostGeneralSoFar.end(), "couldn't find state with index " << index);
-  state = i->second->state;
-  variableFamily = i->second->variableFamily;
-  accumulatedSubstitution = i->second->accumulatedSubstitution;
+                          DagNode *&state,
+                          int &variableFamily,
+                          Substitution *&accumulatedSubstitution) const {
+    RetainedStateMap::const_iterator i = mostGeneralSoFar.find(index);
+    Assert(i != mostGeneralSoFar.end(), "couldn't find state with index " << index);
+    state = i->second->state;
+    variableFamily = i->second->variableFamily;
+    accumulatedSubstitution = i->second->accumulatedSubstitution;
 }
 
 inline int
-NarrowingFolder::getDepth(int index) const
-{
-  RetainedStateMap::const_iterator i = mostGeneralSoFar.find(index);
-  Assert(i != mostGeneralSoFar.end(), "couldn't find state with index " << index);
-  return i->second->depth;
+NarrowingFolder::getDepth(int index) const {
+    RetainedStateMap::const_iterator i = mostGeneralSoFar.find(index);
+    Assert(i != mostGeneralSoFar.end(), "couldn't find state with index " << index);
+    return i->second->depth;
 }
 
 inline void
 NarrowingFolder::getHistory(int index,
-			    DagNode*& root,
-			    DagNode*& position,
-			    Rule*& rule,
-			    const Substitution*& unifier,
-			    const NarrowingVariableInfo*& unifierVariableInfo,
-			    int& variableFamily,
-			    DagNode*& newDag,
-			    const Substitution*& accumulatedSubstitution,
-			    int& parentIndex) const
-{
-  RetainedStateMap::const_iterator i = mostGeneralSoFar.find(index);
-  Assert(i != mostGeneralSoFar.end(), "couldn't find state with index " << index);
+                            DagNode *&root,
+                            DagNode *&position,
+                            Rule *&rule,
+                            const Substitution *&unifier,
+                            const NarrowingVariableInfo *&unifierVariableInfo,
+                            int &variableFamily,
+                            DagNode *&newDag,
+                            const Substitution *&accumulatedSubstitution,
+                            int &parentIndex) const {
+    RetainedStateMap::const_iterator i = mostGeneralSoFar.find(index);
+    Assert(i != mostGeneralSoFar.end(), "couldn't find state with index " << index);
 
-  root = i->second->narrowingContext;
-  position = i->second->narrowingPosition;
-  rule = i->second->rule;
-  unifier = i->second->unifier;
-  unifierVariableInfo = &(i->second->variableInfo);
-  variableFamily = i->second->variableFamily;
-  newDag = i->second->state;
-  accumulatedSubstitution = i->second->accumulatedSubstitution;
-  parentIndex = i->second->parentIndex;
+    root = i->second->narrowingContext;
+    position = i->second->narrowingPosition;
+    rule = i->second->rule;
+    unifier = i->second->unifier;
+    unifierVariableInfo = &(i->second->variableInfo);
+    variableFamily = i->second->variableFamily;
+    newDag = i->second->state;
+    accumulatedSubstitution = i->second->accumulatedSubstitution;
+    parentIndex = i->second->parentIndex;
 }
 
 #endif

@@ -30,49 +30,46 @@
 #ifndef _memoryBlock_hh_
 #define _memoryBlock_hh_
 
-class MemoryBlock
-{
-  NO_COPYING(MemoryBlock);
-  
-protected:
-  //
-  //	A MemoryInfo object can only be created as part of MemoryCell.
-  //
-  MemoryBlock(){};
+class MemoryBlock {
+    NO_COPYING(MemoryBlock);
 
-  void callDtor();
+protected:
+    //
+    //	A MemoryInfo object can only be created as part of MemoryCell.
+    //
+    MemoryBlock() {};
+
+    void callDtor();
 
 private:
-  enum Sizes
-  {
-    //
-    //	MemoryCells have this much extra memory allocated for
-    //	derived classes to use. Some uses require at least room
-    //	for 5 pointers so this is the minimum value.
-    //
-    NR_EXTRA_WORDS = 5  // minimum value seems best on average
-  };
+    enum Sizes {
+        //
+        //	MemoryCells have this much extra memory allocated for
+        //	derived classes to use. Some uses require at least room
+        //	for 5 pointers so this is the minimum value.
+        //
+        NR_EXTRA_WORDS = 5  // minimum value seems best on average
+    };
 
-  MachineWord filler[NR_EXTRA_WORDS];
+    MachineWord filler[NR_EXTRA_WORDS];
 };
 
 inline void
-MemoryBlock::callDtor()
-{
-  //
-  //	First we get the void* pointer that was returned during allocation.
-  //
-  void* p = this;
-  //
-  //	Then because we know it was allocated as a DagNode, we convert
-  //	it to a DagNode* pointer.
-  //
-  DagNode* d = static_cast<DagNode*>(p);
-  //
-  //	Finally we call the DagNode* virtual destructor to clean up so
-  //	this memory block can be reused.
-  //
-  d->~DagNode();
+MemoryBlock::callDtor() {
+    //
+    //	First we get the void* pointer that was returned during allocation.
+    //
+    void *p = this;
+    //
+    //	Then because we know it was allocated as a DagNode, we convert
+    //	it to a DagNode* pointer.
+    //
+    DagNode *d = static_cast<DagNode *>(p);
+    //
+    //	Finally we call the DagNode* virtual destructor to clean up so
+    //	this memory block can be reused.
+    //
+    d->~DagNode();
 }
 
 #endif

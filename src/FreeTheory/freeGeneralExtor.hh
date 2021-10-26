@@ -25,25 +25,25 @@
 //
 #ifndef _freeGeneralExtor_hh_
 #define _freeGeneralExtor_hh_
+
 #include "nonFinalExtor.hh"
 
-class FreeGeneralExtor : public NonFinalExtor
-{
-  NO_COPYING(FreeGeneralExtor);
+class FreeGeneralExtor : public NonFinalExtor {
+    NO_COPYING(FreeGeneralExtor);
 
 public:
-  FreeGeneralExtor(FreeSymbol* symbol, const Vector<int>& argumentSlots, int destIndex, Instruction* nextInstruction);
+    FreeGeneralExtor(FreeSymbol *symbol, const Vector<int> &argumentSlots, int destIndex, Instruction *nextInstruction);
 
-  void execute(StackMachine* machine) const;
+    void execute(StackMachine *machine) const;
 
 #ifdef DUMP
-  //void dump(ostream& s, int indentLevel);
+    //void dump(ostream& s, int indentLevel);
 #endif
 
 private:
-  FreeSymbol* const symbol;
+    FreeSymbol *const symbol;
 
-  Vector<SlotIndex> args;
+    Vector<SlotIndex> args;
 };
 
 #endif

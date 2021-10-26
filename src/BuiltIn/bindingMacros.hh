@@ -29,27 +29,27 @@
 //
 //	This needs to be a macro in order to produce constant expressions.
 //
-#define CODE(c1, c2)	((c1) + ((c2) << 8))
-#define CODE3(c1, c2, c3)	((c1) + ((c2) << 8) + ((c3) << 16))
+#define CODE(c1, c2)    ((c1) + ((c2) << 8))
+#define CODE3(c1, c2, c3)    ((c1) + ((c2) << 8) + ((c3) << 16))
 
 #define BIND_OP(purpose, className, op, data) \
   if (strcmp(purpose, #className) == 0) \
     { \
       if (data.length() == 1) \
-	{ \
-	  const char* opName = (data)[0]; \
-	  if (opName[0] != '\0') \
-	    { \
-	      int t = CODE(opName[0], opName[1]); \
-	      if (op == NONE) \
-		{ \
-		  op = t; \
-		  return true; \
-		} \
-	      if (op == t) \
-		return true; \
-	    } \
-	} \
+    { \
+      const char* opName = (data)[0]; \
+      if (opName[0] != '\0') \
+        { \
+          int t = CODE(opName[0], opName[1]); \
+          if (op == NONE) \
+        { \
+          op = t; \
+          return true; \
+        } \
+          if (op == t) \
+        return true; \
+        } \
+    } \
       return false; \
     }
 
@@ -57,20 +57,20 @@
   if (strcmp(purpose, #className) == 0) \
     { \
       if (data.length() == 1) \
-	{ \
-	  const char* opName = (data)[0]; \
-	  if (opName[0] != '\0') \
-	    { \
-	      int t = (opName[1] == '\0') ? CODE(opName[0], opName[1]) : CODE3(opName[0], opName[1], opName[2]); \
-	      if (op == NONE) \
-		{ \
-		  op = t; \
-		  return true; \
-		} \
-	      if (op == t) \
-		return true; \
-	    } \
-	} \
+    { \
+      const char* opName = (data)[0]; \
+      if (opName[0] != '\0') \
+        { \
+          int t = (opName[1] == '\0') ? CODE(opName[0], opName[1]) : CODE3(opName[0], opName[1], opName[2]); \
+          if (op == NONE) \
+        { \
+          op = t; \
+          return true; \
+        } \
+          if (op == t) \
+        return true; \
+        } \
+    } \
       return false; \
     }
 
@@ -78,24 +78,24 @@
   if (strcmp(purpose, #className) == 0) \
     { \
       return data.length() == 0; \
-    } 
+    }
 
 #define BIND_SYMBOL(purpose, symbol, name, type) \
   if (strcmp(purpose, #name) == 0) \
     { \
       if (name != 0) \
-	return name == symbol; \
+    return name == symbol; \
       name = dynamic_cast<type>(symbol); \
       return name != 0; \
     }
 
-#define BIND_SYMBOL2(purpose, symbol, name, type, nrArgs)	\
+#define BIND_SYMBOL2(purpose, symbol, name, type, nrArgs)    \
   if (strcmp(purpose, #name) == 0) \
     { \
       if (name != 0) \
-	return name == symbol; \
+    return name == symbol; \
       if (symbol->arity() != nrArgs) \
-	return false; \
+    return false; \
       name = dynamic_cast<type>(symbol); \
       return name != 0; \
     }
@@ -105,12 +105,12 @@
     { \
       bool r = true; \
       if (Term* t = name.getTerm()) \
-	{ \
-	  r = term->equal(t); \
-	  term->deepSelfDestruct(); \
-	} \
+    { \
+      r = term->equal(t); \
+      term->deepSelfDestruct(); \
+    } \
       else \
-	name.setTerm(term); \
+    name.setTerm(term); \
       return r; \
     }
 
@@ -125,14 +125,14 @@
   if (name == 0) \
     { \
       if (type s = original->name) \
-	name = (mapping == 0) ? s : safeCast(type, mapping->translate(s)); \
+    name = (mapping == 0) ? s : safeCast(type, mapping->translate(s)); \
     }
 
 #define COPY_TERM(original, name, mapping) \
   if (name.getTerm() == 0) \
     { \
       if (Term* t = original->name.getTerm()) \
-	name.setTerm(t->deepCopy(mapping)); \
+    name.setTerm(t->deepCopy(mapping)); \
     }
 
 #define APPEND_DATA(purposes, data, name) \
@@ -164,8 +164,8 @@
       break; \
     }
 
-#define CODE_CASE3(d, c1, c2, c3, s)		\
-  case CODE3(c1, c2, c3):	       		\
+#define CODE_CASE3(d, c1, c2, c3, s)        \
+  case CODE3(c1, c2, c3):                \
     { \
       d = s; \
       break; \

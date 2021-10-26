@@ -41,30 +41,26 @@
 #include "variableDagNode.hh"
 
 int
-NarrowingVariableInfo::variable2Index(VariableDagNode* variable)
-{
-  Assert(variable != 0, "null dagnode");
-  int nrVariables = variables.length();
-  for (int i = 0; i < nrVariables; i++)
-    {
-      if (variable->equal(variables[i]))
-	return i;
+NarrowingVariableInfo::variable2Index(VariableDagNode *variable) {
+    Assert(variable != 0, "null dagnode");
+    int nrVariables = variables.length();
+    for (int i = 0; i < nrVariables; i++) {
+        if (variable->equal(variables[i]))
+            return i;
     }
-  variables.append(variable);
-  return nrVariables;
+    variables.append(variable);
+    return nrVariables;
 }
 
 int
-NarrowingVariableInfo::variable2IndexNoAdd(VariableDagNode* variable) const
-{
-  Assert(variable != 0, "null dagnode");
-  //cout << "looking at " << (DagNode*) variable << endl;
-  int nrVariables = variables.length();
-  for (int i = 0; i < nrVariables; i++)
-    {
-      if (variable->equal(variables[i]))
-	return i;
-      //cout << "not equal to " << (DagNode*) variables[i] << endl;
+NarrowingVariableInfo::variable2IndexNoAdd(VariableDagNode *variable) const {
+    Assert(variable != 0, "null dagnode");
+    //cout << "looking at " << (DagNode*) variable << endl;
+    int nrVariables = variables.length();
+    for (int i = 0; i < nrVariables; i++) {
+        if (variable->equal(variables[i]))
+            return i;
+        //cout << "not equal to " << (DagNode*) variables[i] << endl;
     }
-  return NONE;
+    return NONE;
 }

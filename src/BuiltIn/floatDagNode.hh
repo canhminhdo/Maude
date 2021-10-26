@@ -25,34 +25,35 @@
 //
 #ifndef _floatDagNode_hh_
 #define _floatDagNode_hh_
+
 #include "NA_DagNode.hh"
 
-class FloatDagNode : public NA_DagNode
-{
+class FloatDagNode : public NA_DagNode {
 public:
-  FloatDagNode(FloatSymbol* symbol, double value);
+    FloatDagNode(FloatSymbol *symbol, double value);
 
-  size_t getHashValue();
-  int compareArguments(const DagNode* other) const;
-  void overwriteWithClone(DagNode* old);
-  DagNode* makeClone();
+    size_t getHashValue();
 
-  double getValue() const;
+    int compareArguments(const DagNode *other) const;
+
+    void overwriteWithClone(DagNode *old);
+
+    DagNode *makeClone();
+
+    double getValue() const;
 
 private:
-  const union
-  {
-    double value;
-    Int64 bitPattern;
-  };
+    const union {
+        double value;
+        Int64 bitPattern;
+    };
 
-  friend class FloatTerm;		// for comparison
+    friend class FloatTerm;        // for comparison
 };
 
 inline double
-FloatDagNode::getValue() const
-{
-  return value;
+FloatDagNode::getValue() const {
+    return value;
 }
 
 #endif

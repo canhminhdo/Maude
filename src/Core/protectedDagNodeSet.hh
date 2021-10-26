@@ -25,13 +25,13 @@
 //
 #ifndef _protectedDagNodeSet_hh_
 #define _protectedDagNodeSet_hh_
+
 #include "dagNodeSet.hh"
 #include "simpleRootContainer.hh"
 
-class ProtectedDagNodeSet : public DagNodeSet, private SimpleRootContainer
-{
+class ProtectedDagNodeSet : public DagNodeSet, private SimpleRootContainer {
 private:
-  void markReachableNodes();
+    void markReachableNodes();
 };
 
 #endif

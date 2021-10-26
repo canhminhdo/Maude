@@ -27,34 +27,55 @@
 #define _strategyLanguage_hh_
 
 class StrategyExpression;
+
 class TrivialStrategy;
+
 class ApplicationStrategy;
+
 class ConcatenationStrategy;
+
 class IterationStrategy;
+
 class BranchStrategy;
+
 class UnionStrategy;
+
 class TestStrategy;
+
 class SubtermStrategy;
+
 class CallStrategy;
 
 class StrategicExecution;
 
 class StrategicProcess;
+
 class DecompositionProcess;
+
 class ApplicationProcess;
+
 class MatchProcess;
+
 class SubtermProcess;
+
 class CallProcess;
 
 class StrategicTask;
+
 class StrategicSearch;
+
 class BranchTask;
+
 class RewriteTask;
+
 class SubtermTask;
+
 class CallTask;
 
 class SharedRewriteSearchState;
+
 class StrategyStackManager;
+
 class VariableBindingsManager;
 
 #endif

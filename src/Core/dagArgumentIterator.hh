@@ -25,57 +25,56 @@
 //
 #ifndef _dagArgumentIterator_hh_
 #define _dagArgumentIterator_hh_
+
 #include "rawDagArgumentIterator.hh"
 
-class DagArgumentIterator
-{
+class DagArgumentIterator {
 public:
-  DagArgumentIterator(DagNode& d);
-  DagArgumentIterator(DagNode* d);
-  ~DagArgumentIterator();
+    DagArgumentIterator(DagNode &d);
 
-  bool valid() const;
-  DagNode* argument() const;
-  void next();
+    DagArgumentIterator(DagNode *d);
+
+    ~DagArgumentIterator();
+
+    bool valid() const;
+
+    DagNode *argument() const;
+
+    void next();
 
 private:
-  RawDagArgumentIterator* dagArgumentIterator;
+    RawDagArgumentIterator *dagArgumentIterator;
 };
 
 inline
-DagArgumentIterator::DagArgumentIterator(DagNode& d)
-{
-  dagArgumentIterator = d.arguments();
+DagArgumentIterator::DagArgumentIterator(DagNode &d) {
+    dagArgumentIterator = d.arguments();
 
-}
-inline
-DagArgumentIterator::DagArgumentIterator(DagNode* d)
-{
-  dagArgumentIterator = d->arguments();
 }
 
 inline
-DagArgumentIterator::~DagArgumentIterator()
-{
-  delete dagArgumentIterator;
+DagArgumentIterator::DagArgumentIterator(DagNode *d) {
+    dagArgumentIterator = d->arguments();
+}
+
+inline
+DagArgumentIterator::~DagArgumentIterator() {
+    delete dagArgumentIterator;
 }
 
 inline bool
-DagArgumentIterator::valid() const
-{
-  return (dagArgumentIterator != 0) && dagArgumentIterator->valid();
+DagArgumentIterator::valid() const {
+    return (dagArgumentIterator != 0) && dagArgumentIterator->valid();
 }
 
-inline DagNode*
-DagArgumentIterator::argument() const
-{
-  return dagArgumentIterator->argument();
+inline DagNode *
+DagArgumentIterator::argument() const {
+    return dagArgumentIterator->argument();
 }
 
 inline void
-DagArgumentIterator::next()
-{
-  dagArgumentIterator->next();
+DagArgumentIterator::next() {
+    dagArgumentIterator->next();
 }
 
 #endif

@@ -30,72 +30,73 @@
 //
 #ifndef _viewExpression_hh_
 #define _viewExpression_hh_
+
 #include "token.hh"
 
-class ViewExpression
-{
+class ViewExpression {
 public:
-  //
-  //	A view expression is the name of a view or parameter:
-  //
-  ViewExpression(Token name);
-  //
-  //	OR a view expression with an instantiation which is
-  //	a vector of view expressions:
-  //
-  ViewExpression(ViewExpression* view, const Vector<ViewExpression*>& arguments);
+    //
+    //	A view expression is the name of a view or parameter:
+    //
+    ViewExpression(Token name);
 
-  bool isInstantiation() const;
-  //
-  //	For the non-instantiation case only.
-  //
-  Token getName() const;
-  //
-  //	For the instantiation case only.
-  //
-  ViewExpression* getView() const;
-  const Vector<ViewExpression*>& getArguments() const;
-  void deepSelfDestruct();
+    //
+    //	OR a view expression with an instantiation which is
+    //	a vector of view expressions:
+    //
+    ViewExpression(ViewExpression *view, const Vector<ViewExpression *> &arguments);
+
+    bool isInstantiation() const;
+
+    //
+    //	For the non-instantiation case only.
+    //
+    Token getName() const;
+
+    //
+    //	For the instantiation case only.
+    //
+    ViewExpression *getView() const;
+
+    const Vector<ViewExpression *> &getArguments() const;
+
+    void deepSelfDestruct();
 
 private:
-  //
-  //	For the non-instantiation case only.
-  //
-  Token name;
-  //
-  //	For the instantiation case only.
-  //
-  ViewExpression* view;
-  Vector<ViewExpression*> arguments;
+    //
+    //	For the non-instantiation case only.
+    //
+    Token name;
+    //
+    //	For the instantiation case only.
+    //
+    ViewExpression *view;
+    Vector<ViewExpression *> arguments;
 };
 
-ostream& operator<<(ostream& s, const ViewExpression* expr);
+ostream &operator<<(ostream &s, const ViewExpression *expr);
 
 inline bool
-ViewExpression::isInstantiation() const
-{
-  return !(arguments.isNull());
+ViewExpression::isInstantiation() const {
+    return !(arguments.isNull());
 }
 
 inline Token
-ViewExpression::getName() const
-{
-  Assert(!isInstantiation(), "instantiation, not named view/parameter " << this);
-  return name;
+ViewExpression::getName() const {
+    Assert(!isInstantiation(), "instantiation, not named view/parameter " << this);
+    return name;
 }
 
-inline ViewExpression*
-ViewExpression::getView() const
-{
-  Assert(isInstantiation(), "named view/parameter not instantiation " << this);
-  return view;
+inline ViewExpression *
+ViewExpression::getView() const {
+    Assert(isInstantiation(), "named view/parameter not instantiation " << this);
+    return view;
 }
 
-inline const Vector<ViewExpression*>&
-ViewExpression::getArguments() const
-{
-  Assert(isInstantiation(), "named view/parameter not instantiation " << this);
-  return arguments;
+inline const Vector<ViewExpression *> &
+ViewExpression::getArguments() const {
+    Assert(isInstantiation(), "named view/parameter not instantiation " << this);
+    return arguments;
 }
 
 #endif

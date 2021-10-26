@@ -25,42 +25,43 @@
 //
 #ifndef _S_Subproblem_hh_
 #define _S_Subproblem_hh_
+
 #include <gmpxx.h>
 #include "subproblem.hh"
 
-class S_Subproblem : public Subproblem
-{
-  NO_COPYING(S_Subproblem);
+class S_Subproblem : public Subproblem {
+    NO_COPYING(S_Subproblem);
 
 public:
-  S_Subproblem(S_DagNode* subject,
-	       const mpz_class& leftOver,
-	       int varIndex,
-	       const Sort* varSort,
-	       S_ExtensionInfo* extension,
-	       int mustMatchAtLeast = 0);
-  //
-  //	Member functions required by theory interface.
-  //
-  bool solve(bool findFirst, RewritingContext& solution);
+    S_Subproblem(S_DagNode *subject,
+                 const mpz_class &leftOver,
+                 int varIndex,
+                 const Sort *varSort,
+                 S_ExtensionInfo *extension,
+                 int mustMatchAtLeast = 0);
+
+    //
+    //	Member functions required by theory interface.
+    //
+    bool solve(bool findFirst, RewritingContext &solution);
 
 #ifdef DUMP
-  void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
+    void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
 #endif
 
 private:
-  S_DagNode* const subject;
-  const mpz_class leftOver;
-  S_ExtensionInfo* const extensionInfo;
-  const int varIndex;
-  const Sort* const varSort;
-  //
-  //	Usually all of leftOver can be put into extension and mustMatchAtLeast is set to 0.
-  //	However in the special case of matching with extension with the pattern as a bare
-  //	variable, we need to match at least one operator in our theory and mustMatchAtLeast
-  //	should be set to 1.
-  //
-  int mustMatchAtLeast;
+    S_DagNode *const subject;
+    const mpz_class leftOver;
+    S_ExtensionInfo *const extensionInfo;
+    const int varIndex;
+    const Sort *const varSort;
+    //
+    //	Usually all of leftOver can be put into extension and mustMatchAtLeast is set to 0.
+    //	However in the special case of matching with extension with the pattern as a bare
+    //	variable, we need to match at least one operator in our theory and mustMatchAtLeast
+    //	should be set to 1.
+    //
+    int mustMatchAtLeast;
 };
 
 #endif

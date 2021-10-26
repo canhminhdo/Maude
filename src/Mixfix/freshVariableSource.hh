@@ -25,35 +25,40 @@
 //
 #ifndef _freshVariableSource_hh_
 #define _freshVariableSource_hh_
+
 #include <gmpxx.h>
 #include "freshVariableGenerator.hh"
 
-class FreshVariableSource : public FreshVariableGenerator
-{
+class FreshVariableSource : public FreshVariableGenerator {
 public:
-  FreshVariableSource(MixfixModule* module);
-  FreshVariableSource(MixfixModule* module, const mpz_class& baseNumber);
+    FreshVariableSource(MixfixModule *module);
 
-  int getFreshVariableName(int index, int family);
-  Symbol* getBaseVariableSymbol(Sort* sort);
-  bool variableNameConflict(int id, int okFamily);
-  bool belongsToFamily(int id, int family);
-  bool isFreshVariableName(int id, int& index, int& family);
-  
-  static int getBaseName(int index);
-  static int getFamily(int id);
+    FreshVariableSource(MixfixModule *module, const mpz_class &baseNumber);
+
+    int getFreshVariableName(int index, int family);
+
+    Symbol *getBaseVariableSymbol(Sort *sort);
+
+    bool variableNameConflict(int id, int okFamily);
+
+    bool belongsToFamily(int id, int family);
+
+    bool isFreshVariableName(int id, int &index, int &family);
+
+    static int getBaseName(int index);
+
+    static int getFamily(int id);
 
 private:
-  enum Special
-    {
-      NR_FAMILIES = 3
+    enum Special {
+        NR_FAMILIES = 3
     };
 
-  typedef Vector<int> Cache;
+    typedef Vector<int> Cache;
 
-  MixfixModule* const module;
-  mpz_class baseNumber;
-  Cache caches[NR_FAMILIES];
+    MixfixModule *const module;
+    mpz_class baseNumber;
+    Cache caches[NR_FAMILIES];
 };
 
 #endif

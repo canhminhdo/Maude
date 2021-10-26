@@ -25,36 +25,41 @@
 //
 #ifndef _stringTerm_hh_
 #define _stringTerm_hh_
+
 #include "rope.hh"
 #include "NA_Term.hh"
 
-class StringTerm : public NA_Term
-{
+class StringTerm : public NA_Term {
 public:
-  StringTerm(StringSymbol* symbol, const Rope& value);
+    StringTerm(StringSymbol *symbol, const Rope &value);
 
-  Term* deepCopy2(SymbolMap* map) const;
-  Term* normalize(bool full, bool& changed);
-  int compareArguments(const Term* other) const;
-  int compareArguments(const DagNode* other) const;
-  void overwriteWithDagNode(DagNode* old) const;
-  NA_DagNode* makeDagNode() const;
-  //
-  //	Needed because we have hidden data.
-  //
-  Term* instantiate2(const Vector<Term*>& varBindings, SymbolMap* translator);
+    Term *deepCopy2(SymbolMap *map) const;
 
-  const Rope& getValue() const;
+    Term *normalize(bool full, bool &changed);
+
+    int compareArguments(const Term *other) const;
+
+    int compareArguments(const DagNode *other) const;
+
+    void overwriteWithDagNode(DagNode *old) const;
+
+    NA_DagNode *makeDagNode() const;
+
+    //
+    //	Needed because we have hidden data.
+    //
+    Term *instantiate2(const Vector<Term *> &varBindings, SymbolMap *translator);
+
+    const Rope &getValue() const;
 
 private:
-  const Rope value;
+    const Rope value;
 };
 
 
-inline const Rope&
-StringTerm::getValue() const
-{
-  return value;
+inline const Rope &
+StringTerm::getValue() const {
+    return value;
 }
 
 #endif

@@ -26,24 +26,26 @@
 //
 #ifndef _freeNullaryRhsAutomaton_hh_
 #define _freeNullaryRhsAutomaton_hh_
+
 #include "freeRhsAutomaton.hh"
 
-class FreeNullaryRhsAutomaton : public FreeRhsAutomaton
-{
+class FreeNullaryRhsAutomaton : public FreeRhsAutomaton {
 public:
-  //
-  //	We hook in code for fast copies here.
-  //
-  void remapIndices(VariableInfo& variableInfo);
-  //
-  //	We just replace a couple of virtual functions with ones optimized for this case.
-  //
-  DagNode* construct(Substitution& matcher);
-  void replace(DagNode* old, Substitution& matcher);
+    //
+    //	We hook in code for fast copies here.
+    //
+    void remapIndices(VariableInfo &variableInfo);
+
+    //
+    //	We just replace a couple of virtual functions with ones optimized for this case.
+    //
+    DagNode *construct(Substitution &matcher);
+
+    void replace(DagNode *old, Substitution &matcher);
 
 private:
-  Symbol* symbol;
-  int destination;
+    Symbol *symbol;
+    int destination;
 };
 
 #endif

@@ -31,113 +31,114 @@
 //
 #ifndef _variantUnificationProblem_hh_
 #define _variantUnificationProblem_hh_
+
 #include "simpleRootContainer.hh"
 #include "variantSearch.hh"
 
-class VariantUnificationProblem : private SimpleRootContainer
-{
-  NO_COPYING(VariantUnificationProblem);
+class VariantUnificationProblem : private SimpleRootContainer {
+    NO_COPYING(VariantUnificationProblem);
 
 public:
-  //
-  //	This extends VariantSearch::Flags and one day maybe merged into
-  //	such if FilteredVariantUnifierSearch is merged into VariantSearch.
-  //
-  enum Flags
-    {
-     FILTER_VARIANT_UNIFIERS = 0x1000,
+    //
+    //	This extends VariantSearch::Flags and one day maybe merged into
+    //	such if FilteredVariantUnifierSearch is merged into VariantSearch.
+    //
+    enum Flags {
+        FILTER_VARIANT_UNIFIERS = 0x1000,
     };
-  //
-  //	context is just used to create a new context to work in.
-  //
-  //	blockerDags are indirectly protected from GC by internal VariantSearch object.
-  //
-  //	The unificands are the lhs of the preEquation and the target. Note that the sets
-  //	of variables in these two unificands must be disjoint. The variables in the lhs
-  //	of the preEquations will have slots starting from 0 while the variables in target
-  //	must be given indices >= getMinimumSubstitutionSize()
-  //	target should not be rewritten in place while VariantUnificationProblem object exists.
-  //
-  //	Solutions have bindings for every variable in the preEquation (even those not in the lhs)
-  //	and every variable mentioned in variableInfo (even those not in target). In those
-  //	cases binding is just a fresh variable not mentioned anywhere else.
-  //
-  //	Fresh variables used to express a unifier belong to a family other than
-  //	disallowedVariableFamily, but different solutions may be expressed in variables
-  //	from different families.	
-  //
-  VariantUnificationProblem(RewritingContext* context,
-			    const Vector<DagNode*>& blockerDags,
-			    PreEquation* preEquation,
-			    DagNode* target,
-			    const NarrowingVariableInfo& variableInfo,
-			    FreshVariableGenerator* freshVariableGenerator,
-			    int disallowedVariableFamily,
-			    int variantFlags);
-  ~VariantUnificationProblem();
 
-  bool isIncomplete() const;
-  //
-  //	These are specific to unifiers and can be overriden by a derived class.
-  //
-  bool findNextUnifier();
-  Substitution& getSolution() const;
-  int getNrFreeVariables() const;
-  int getVariableFamily() const;
+    //
+    //	context is just used to create a new context to work in.
+    //
+    //	blockerDags are indirectly protected from GC by internal VariantSearch object.
+    //
+    //	The unificands are the lhs of the preEquation and the target. Note that the sets
+    //	of variables in these two unificands must be disjoint. The variables in the lhs
+    //	of the preEquations will have slots starting from 0 while the variables in target
+    //	must be given indices >= getMinimumSubstitutionSize()
+    //	target should not be rewritten in place while VariantUnificationProblem object exists.
+    //
+    //	Solutions have bindings for every variable in the preEquation (even those not in the lhs)
+    //	and every variable mentioned in variableInfo (even those not in target). In those
+    //	cases binding is just a fresh variable not mentioned anywhere else.
+    //
+    //	Fresh variables used to express a unifier belong to a family other than
+    //	disallowedVariableFamily, but different solutions may be expressed in variables
+    //	from different families.
+    //
+    VariantUnificationProblem(RewritingContext *context,
+                              const Vector<DagNode *> &blockerDags,
+                              PreEquation *preEquation,
+                              DagNode *target,
+                              const NarrowingVariableInfo &variableInfo,
+                              FreshVariableGenerator *freshVariableGenerator,
+                              int disallowedVariableFamily,
+                              int variantFlags);
+
+    ~VariantUnificationProblem();
+
+    bool isIncomplete() const;
+
+    //
+    //	These are specific to unifiers and can be overriden by a derived class.
+    //
+    bool findNextUnifier();
+
+    Substitution &getSolution() const;
+
+    int getNrFreeVariables() const;
+
+    int getVariableFamily() const;
 
 private:
-  void markReachableNodes();
+    void markReachableNodes();
 
-  RewritingContext* const context;
-  PreEquation* preEquation;
-  const NarrowingVariableInfo& variableInfo;
-  int firstTargetSlot;
-  int substitutionSize;
-  int nrPreEquationVariables;
-  RewritingContext* newContext;
-  VariantSearch* variantSearch;
-  FreshVariableGenerator* freshVariableGenerator;
-  //
-  //	Information about the current unifier.
-  //
-  Substitution* solution;
-  int nrFreeVariables;
-  int variableFamily;
+    RewritingContext *const context;
+    PreEquation *preEquation;
+    const NarrowingVariableInfo &variableInfo;
+    int firstTargetSlot;
+    int substitutionSize;
+    int nrPreEquationVariables;
+    RewritingContext *newContext;
+    VariantSearch *variantSearch;
+    FreshVariableGenerator *freshVariableGenerator;
+    //
+    //	Information about the current unifier.
+    //
+    Substitution *solution;
+    int nrFreeVariables;
+    int variableFamily;
 };
 
-inline Substitution&
-VariantUnificationProblem::getSolution() const
-{
-  return *solution;
+inline Substitution &
+VariantUnificationProblem::getSolution() const {
+    return *solution;
 }
 
 inline int
-VariantUnificationProblem::getNrFreeVariables() const
-{
-  //
-  //	Return number of free variables used to express a unifier; includes
-  //	any fresh variables created for preEquation variables and variableInfo variables
-  //	that didn't occur in the actual unfication problem.
-  //
-  return nrFreeVariables;
+VariantUnificationProblem::getNrFreeVariables() const {
+    //
+    //	Return number of free variables used to express a unifier; includes
+    //	any fresh variables created for preEquation variables and variableInfo variables
+    //	that didn't occur in the actual unfication problem.
+    //
+    return nrFreeVariables;
 }
 
 inline int
-VariantUnificationProblem::getVariableFamily() const
-{
-  //
-  //	Returns index of variable family used to express current solutions.
-  //
-  return variableFamily;
+VariantUnificationProblem::getVariableFamily() const {
+    //
+    //	Returns index of variable family used to express current solutions.
+    //
+    return variableFamily;
 }
- 
+
 inline bool
-VariantUnificationProblem::isIncomplete() const
-{
-  //
-  //	Returns true if any incompleteness has been encountered so far.
-  //
-  return variantSearch->isIncomplete();
+VariantUnificationProblem::isIncomplete() const {
+    //
+    //	Returns true if any incompleteness has been encountered so far.
+    //
+    return variantSearch->isIncomplete();
 }
 
 #endif

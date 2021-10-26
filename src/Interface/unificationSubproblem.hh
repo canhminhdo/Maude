@@ -26,18 +26,23 @@
 #ifndef _unificationSubproblem_hh_
 #define _unificationSubproblem_hh_
 
-class UnificationSubproblem
-{
+class UnificationSubproblem {
 public:
-  virtual ~UnificationSubproblem() {}  // deep
+    virtual ~UnificationSubproblem() {}  // deep
 
-  virtual void addUnification(DagNode* lhs, DagNode* rhs, bool marked, UnificationContext& solution) { CantHappen("Not implemented " << lhs << " vs " << rhs); }
-  virtual bool solve(bool findFirst, UnificationContext& solution, PendingUnificationStack& pending) { CantHappen("Not implemented"); return false; }
+    virtual void addUnification(DagNode *lhs, DagNode *rhs, bool marked, UnificationContext &solution) {
+        CantHappen("Not implemented " << lhs << " vs " << rhs);
+    }
+
+    virtual bool solve(bool findFirst, UnificationContext &solution, PendingUnificationStack &pending) {
+        CantHappen("Not implemented");
+        return false;
+    }
 
 #ifdef DUMP
-  virtual void dump(ostream& s,
-		    const VariableInfo& variableInfo,
-		    int indentLevel = 0) {}  // HACK
+    virtual void dump(ostream& s,
+              const VariableInfo& variableInfo,
+              int indentLevel = 0) {}  // HACK
 #endif
 };
 

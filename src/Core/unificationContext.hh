@@ -25,6 +25,7 @@
 //
 #ifndef _unificationContext_hh_
 #define _unificationContext_hh_
+
 #include "substitution.hh"
 #include "simpleRootContainer.hh"
 
@@ -34,62 +35,62 @@
 //	(2) the sort (always a kind actually) of fresh variables
 //	(3) A dagnode representation of each variable that gets bound
 //
-class UnificationContext : public Substitution, private SimpleRootContainer
-{
+class UnificationContext : public Substitution, private SimpleRootContainer {
 public:
-  UnificationContext(FreshVariableGenerator* freshVariableGenerator, int nrOriginalVariables, int variableFamily);
+    UnificationContext(FreshVariableGenerator *freshVariableGenerator, int nrOriginalVariables, int variableFamily);
 
-  VariableDagNode* makeFreshVariable(const ConnectedComponent* component);
-  Sort* getFreshVariableSort(int index) const;
-  int getNrOriginalVariables() const;
+    VariableDagNode *makeFreshVariable(const ConnectedComponent *component);
 
-  void unificationBind(VariableDagNode* variable, DagNode* value);
-  VariableDagNode* getVariableDagNode(int index);
+    Sort *getFreshVariableSort(int index) const;
 
-  void restoreFromClone(const Substitution& substitutionClone);
-  void dump(ostream& s);
+    int getNrOriginalVariables() const;
+
+    void unificationBind(VariableDagNode *variable, DagNode *value);
+
+    VariableDagNode *getVariableDagNode(int index);
+
+    void restoreFromClone(const Substitution &substitutionClone);
+
+    void dump(ostream &s);
 
 protected:
-  //
-  //	We make this protected so that a derived class can override it and then call
-  //	our version.
-  //
-  void markReachableNodes();
+    //
+    //	We make this protected so that a derived class can override it and then call
+    //	our version.
+    //
+    void markReachableNodes();
 
 private:
-  FreshVariableGenerator* const freshVariableGenerator;
-  const int nrOriginalVariables;  // actually some the the slots could be unused
-  const int variableFamily;  // what family of fresh variable names to use
-  //
-  //	Fresh variables are always created at the kind level. We keep track of this kind sort
-  //	for each fresh variable we create.
-  //
-  Vector<Sort*> freshVariableSorts;
-  //
-  //	We track the dagnode of each variable bound using unificationBind(). These dagnodes are used
-  //	fo unsolving solved forms (where we need to solve all problems in a given theory simultaneously
-  //	for termination reasons) and for resolving compound cycles.
-  //
-  Vector<VariableDagNode*> variableDagNodes;
+    FreshVariableGenerator *const freshVariableGenerator;
+    const int nrOriginalVariables;  // actually some the the slots could be unused
+    const int variableFamily;  // what family of fresh variable names to use
+    //
+    //	Fresh variables are always created at the kind level. We keep track of this kind sort
+    //	for each fresh variable we create.
+    //
+    Vector<Sort *> freshVariableSorts;
+    //
+    //	We track the dagnode of each variable bound using unificationBind(). These dagnodes are used
+    //	fo unsolving solved forms (where we need to solve all problems in a given theory simultaneously
+    //	for termination reasons) and for resolving compound cycles.
+    //
+    Vector<VariableDagNode *> variableDagNodes;
 };
 
-inline Sort*
-UnificationContext::getFreshVariableSort(int index) const
-{
-  return freshVariableSorts[index - nrOriginalVariables];
+inline Sort *
+UnificationContext::getFreshVariableSort(int index) const {
+    return freshVariableSorts[index - nrOriginalVariables];
 }
 
-inline VariableDagNode*
-UnificationContext::getVariableDagNode(int index)
-{
-  int nrVariableDagNodes = variableDagNodes.size();
-  return (index < nrVariableDagNodes) ? variableDagNodes[index] : 0;
+inline VariableDagNode *
+UnificationContext::getVariableDagNode(int index) {
+    int nrVariableDagNodes = variableDagNodes.size();
+    return (index < nrVariableDagNodes) ? variableDagNodes[index] : 0;
 }
 
 inline int
-UnificationContext::getNrOriginalVariables() const
-{
-  return nrOriginalVariables;
+UnificationContext::getNrOriginalVariables() const {
+    return nrOriginalVariables;
 }
 
 #endif

@@ -25,77 +25,76 @@
 //
 #ifndef _ACU_BaseDagNode_hh_
 #define _ACU_BaseDagNode_hh_
+
 #include "dagNode.hh"
 
-class ACU_BaseDagNode : public DagNode
-{
+class ACU_BaseDagNode : public DagNode {
 public:
-  enum NormalizationStatus
-  {
-    //
-    //	Default: no guarantees.
-    //
-    FRESH,
-    //
-    //	Node was produced by an assignment in ACU matcher:
-    //	(a) all arguments are reduced up to strategy of our symbol
-    //	   (this only holds if it was true of subject before matching);
-    //	(b) all arguments have the correct sort; and
-    //	(c) argument list in theory normal form.
-    //
-    ASSIGNMENT,
-    //
-    //	As above but arguments are stored in a red-black (ACU_TreeDagNode)
-    //	rather than in an ArgVec (ACU_DagNode).
-    //
-    TREE
-  };
+    enum NormalizationStatus {
+        //
+        //	Default: no guarantees.
+        //
+        FRESH,
+        //
+        //	Node was produced by an assignment in ACU matcher:
+        //	(a) all arguments are reduced up to strategy of our symbol
+        //	   (this only holds if it was true of subject before matching);
+        //	(b) all arguments have the correct sort; and
+        //	(c) argument list in theory normal form.
+        //
+        ASSIGNMENT,
+        //
+        //	As above but arguments are stored in a red-black (ACU_TreeDagNode)
+        //	rather than in an ArgVec (ACU_DagNode).
+        //
+        TREE
+    };
 
-  ACU_BaseDagNode(ACU_Symbol* symbol);
+    ACU_BaseDagNode(ACU_Symbol *symbol);
 
-  ExtensionInfo* makeExtensionInfo();
-  ACU_Symbol* symbol() const;
-  NormalizationStatus getNormalizationStatus() const;
-  void setNormalizationStatus(NormalizationStatus status);
-  bool isTree() const;
-  bool isFresh() const;
-  int getSize() const;
+    ExtensionInfo *makeExtensionInfo();
+
+    ACU_Symbol *symbol() const;
+
+    NormalizationStatus getNormalizationStatus() const;
+
+    void setNormalizationStatus(NormalizationStatus status);
+
+    bool isTree() const;
+
+    bool isFresh() const;
+
+    int getSize() const;
 };
 
 inline
-ACU_BaseDagNode::ACU_BaseDagNode(ACU_Symbol* symbol)
-  : DagNode(symbol)
-{
+ACU_BaseDagNode::ACU_BaseDagNode(ACU_Symbol *symbol)
+        : DagNode(symbol) {
 }
 
-inline ACU_Symbol*
-ACU_BaseDagNode::symbol() const
-{
-  return safeCast(ACU_Symbol*, DagNode::symbol());
+inline ACU_Symbol *
+ACU_BaseDagNode::symbol() const {
+    return safeCast(ACU_Symbol*, DagNode::symbol());
 }
 
 inline ACU_BaseDagNode::NormalizationStatus
-ACU_BaseDagNode::getNormalizationStatus() const
-{
-  return static_cast<NormalizationStatus>(getTheoryByte());
+ACU_BaseDagNode::getNormalizationStatus() const {
+    return static_cast<NormalizationStatus>(getTheoryByte());
 }
 
 inline bool
-ACU_BaseDagNode::isTree() const
-{
-  return getTheoryByte() == TREE;
+ACU_BaseDagNode::isTree() const {
+    return getTheoryByte() == TREE;
 }
 
 inline bool
-ACU_BaseDagNode::isFresh() const
-{
-  return getTheoryByte() == FRESH;
+ACU_BaseDagNode::isFresh() const {
+    return getTheoryByte() == FRESH;
 }
 
 inline void
-ACU_BaseDagNode::setNormalizationStatus(NormalizationStatus status)
-{
-  setTheoryByte(status);
+ACU_BaseDagNode::setNormalizationStatus(NormalizationStatus status) {
+    setTheoryByte(status);
 }
 
 #endif

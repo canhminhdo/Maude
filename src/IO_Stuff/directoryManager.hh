@@ -25,45 +25,53 @@
 //
 #ifndef _directoryManager_hh_
 #define _directoryManager_hh_
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <map>
 #include "stringTable.hh"
 
-class DirectoryManager
-{
+class DirectoryManager {
 public:
-  void initialize();
-  bool cd(const string& directory);
-  int pushd(const string& directory);
-  const char* popd(int prevLength = UNDEFINED);
-  const char* getCwd();
+    void initialize();
 
-  bool checkAccess(const string& directory,
-		   string& fileName,
-		   int mode,
-		   char const* const ext[] = 0);
-  bool searchPath(const char* pathVar,
-		  string& directory,
-		  string& fileName,
-		  int mode,
-		  char const* const ext[] = 0);
-  void realPath(const string& path, string& resolvedPath);
-  void visitFile(const string& fileName);
-  bool alreadySeen(const string& directory, const string& fileName);
+    bool cd(const string &directory);
+
+    int pushd(const string &directory);
+
+    const char *popd(int prevLength = UNDEFINED);
+
+    const char *getCwd();
+
+    bool checkAccess(const string &directory,
+                     string &fileName,
+                     int mode,
+                     char const *const ext[] = 0);
+
+    bool searchPath(const char *pathVar,
+                    string &directory,
+                    string &fileName,
+                    int mode,
+                    char const *const ext[] = 0);
+
+    void realPath(const string &path, string &resolvedPath);
+
+    void visitFile(const string &fileName);
+
+    bool alreadySeen(const string &directory, const string &fileName);
 
 private:
-  //
-  //	We keep track of visited files by their directory path index and inode number.
-  //	This is because different files on different file systems could potentially
-  //	have the same inode number. If a file is deleted and its inode number reused,
-  //	it will have a later modified time so we don't worry about this case.
-  //
-  typedef map<pair<int, ino_t>, time_t> VisitedMap;
+    //
+    //	We keep track of visited files by their directory path index and inode number.
+    //	This is because different files on different file systems could potentially
+    //	have the same inode number. If a file is deleted and its inode number reused,
+    //	it will have a later modified time so we don't worry about this case.
+    //
+    typedef map <pair<int, ino_t>, time_t> VisitedMap;
 
-  StringTable directoryNames;
-  Vector<int> directoryStack;
-  VisitedMap visitedMap;
+    StringTable directoryNames;
+    Vector<int> directoryStack;
+    VisitedMap visitedMap;
 };
 
 #endif

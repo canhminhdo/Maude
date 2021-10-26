@@ -25,6 +25,7 @@
 //
 #ifndef _unificationProblem_hh_
 #define _unificationProblem_hh_
+
 #include "natSet.hh"
 #include "cacheableState.hh"
 #include "simpleRootContainer.hh"
@@ -32,82 +33,85 @@
 #include "substitution.hh"
 #include "pendingUnificationStack.hh"
 
-class UnificationProblem : public CacheableState, private SimpleRootContainer
-{
-  NO_COPYING(UnificationProblem);
+class UnificationProblem : public CacheableState, private SimpleRootContainer {
+    NO_COPYING(UnificationProblem);
 
 public:
-  UnificationProblem(Vector<Term*>& lhs,
-		     Vector<Term*>& rhs,
-		     FreshVariableGenerator* freshVariableGenerator,
-		     int incomingVariableFamily = NONE);
-  virtual ~UnificationProblem();
+    UnificationProblem(Vector<Term *> &lhs,
+                       Vector<Term *> &rhs,
+                       FreshVariableGenerator *freshVariableGenerator,
+                       int incomingVariableFamily = NONE);
 
-  bool problemOK() const;
-  const VariableInfo& getVariableInfo() const;
-  int getVariableFamily() const;
-  bool isIncomplete() const;
-  //
-  //	These are specific to unifiers and can be overriden by a derived class.
-  //
-  virtual bool findNextUnifier();
-  virtual const Substitution& getSolution() const;
-  virtual int getNrFreeVariables() const;
+    virtual ~UnificationProblem();
+
+    bool problemOK() const;
+
+    const VariableInfo &getVariableInfo() const;
+
+    int getVariableFamily() const;
+
+    bool isIncomplete() const;
+
+    //
+    //	These are specific to unifiers and can be overriden by a derived class.
+    //
+    virtual bool findNextUnifier();
+
+    virtual const Substitution &getSolution() const;
+
+    virtual int getNrFreeVariables() const;
 
 protected:
-  //
-  //	Derived class can override this function if it needs to mark nodes during
-  //	the mark phase of garbage collection, but in this case the overriding
-  //	function must also call this version.
-  //
-  void markReachableNodes();
+    //
+    //	Derived class can override this function if it needs to mark nodes during
+    //	the mark phase of garbage collection, but in this case the overriding
+    //	function must also call this version.
+    //
+    void markReachableNodes();
 
 private:
-  void findOrderSortedUnifiers();
-  void bindFreeVariables();
+    void findOrderSortedUnifiers();
 
-  Vector<Term*> leftHandSides;
-  Vector<Term*> rightHandSides;
-  FreshVariableGenerator* const freshVariableGenerator;
-  const int variableFamilyToUse;
+    void bindFreeVariables();
 
-  VariableInfo variableInfo;
+    Vector<Term *> leftHandSides;
+    Vector<Term *> rightHandSides;
+    FreshVariableGenerator *const freshVariableGenerator;
+    const int variableFamilyToUse;
 
-  const SortBdds* sortBdds;		// sort computation BDDs for our module
-  Vector<DagNode*> leftHandDags;
-  Vector<DagNode*> rightHandDags;
+    VariableInfo variableInfo;
 
-  UnificationContext* unsortedSolution;	// for accumulating solved forms and constructing unsorted unifiers
-  PendingUnificationStack pendingStack;
-  bool problemOkay;			// true if problem didn't violate ctor invariants
-  bool viable;				// true if problem didn't fail computeSolvedForm() pass
-  NatSet freeVariables;	       		// indices (slots) of unbound variables in unsorted unifier
-  AllSat* orderSortedUnifiers;		// satisfiability problem encoding sorts for order-sorted unifiers
-  Substitution* sortedSolution;		// for construction order-sorted unifiers
+    const SortBdds *sortBdds;        // sort computation BDDs for our module
+    Vector<DagNode *> leftHandDags;
+    Vector<DagNode *> rightHandDags;
+
+    UnificationContext *unsortedSolution;    // for accumulating solved forms and constructing unsorted unifiers
+    PendingUnificationStack pendingStack;
+    bool problemOkay;            // true if problem didn't violate ctor invariants
+    bool viable;                // true if problem didn't fail computeSolvedForm() pass
+    NatSet freeVariables;                // indices (slots) of unbound variables in unsorted unifier
+    AllSat *orderSortedUnifiers;        // satisfiability problem encoding sorts for order-sorted unifiers
+    Substitution *sortedSolution;        // for construction order-sorted unifiers
 };
 
 inline bool
-UnificationProblem::problemOK() const
-{
-  return problemOkay;
+UnificationProblem::problemOK() const {
+    return problemOkay;
 }
 
-inline const VariableInfo&
-UnificationProblem::getVariableInfo() const
-{
-  return variableInfo;
+inline const VariableInfo &
+UnificationProblem::getVariableInfo() const {
+    return variableInfo;
 }
 
 inline bool
-UnificationProblem::isIncomplete() const
-{
-  return pendingStack.isIncomplete();
+UnificationProblem::isIncomplete() const {
+    return pendingStack.isIncomplete();
 }
 
 inline int
-UnificationProblem::getVariableFamily() const
-{
-  return variableFamilyToUse;
+UnificationProblem::getVariableFamily() const {
+    return variableFamilyToUse;
 }
 
 #endif

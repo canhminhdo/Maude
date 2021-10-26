@@ -27,31 +27,29 @@
 //
 #ifndef _badFlag_hh_
 #define _badFlag_hh_
+
 #include "flagSet.hh"
 
-class BadFlag : public FlagSet
-{
+class BadFlag : public FlagSet {
 public:
-  bool isBad() const;
-  void markAsBad();
+    bool isBad() const;
+
+    void markAsBad();
 
 private:
-  enum
-  {
-    BAD_FLAG = 1
-  };
+    enum {
+        BAD_FLAG = 1
+    };
 };
 
 inline bool
-BadFlag::isBad() const
-{
-  return getFlag(BAD_FLAG);
+BadFlag::isBad() const {
+    return getFlag(BAD_FLAG);
 }
 
 inline void
-BadFlag::markAsBad()
-{
-  setFlags(BAD_FLAG);
+BadFlag::markAsBad() {
+    setFlags(BAD_FLAG);
 }
 
 #endif

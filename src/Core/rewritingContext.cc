@@ -44,220 +44,194 @@
 bool RewritingContext::traceFlag = false;
 
 void
-RewritingContext::markReachableNodes()
-{
-  if (!isLimited())
-    rootNode->mark();
-  int nrFragile = nrFragileBindings();
-  for (int i = 0; i < nrFragile; i++)
-    {
-      DagNode* d = value(i);
-      if (d != 0)
-	d->mark();     
+RewritingContext::markReachableNodes() {
+    if (!isLimited())
+        rootNode->mark();
+    int nrFragile = nrFragileBindings();
+    for (int i = 0; i < nrFragile; i++) {
+        DagNode *d = value(i);
+        if (d != 0)
+            d->mark();
     }
-  for (RedexPosition& p : redexStack)
-    p.node()->mark();
+    for (RedexPosition &p : redexStack)
+        p.node()->mark();
 }
 
-RewritingContext*
-RewritingContext::makeSubcontext(DagNode* root, int /* purpose */)
-{
-  return new RewritingContext(root);
-}
-
-bool
-RewritingContext::handleInterrupt()
-{
-  //
-  //	By default we don't know how to handle an interrupt.
-  //
-  return false;
+RewritingContext *
+RewritingContext::makeSubcontext(DagNode *root, int /* purpose */) {
+    return new RewritingContext(root);
 }
 
 bool
-RewritingContext::blockAndHandleInterrupts(sigset_t *normalSet)
-{
-  //
-  //	Hard to do anything sensible here.
-  //
-  CantHappen("base class version shouldn't be called");
-  return false;
+RewritingContext::handleInterrupt() {
+    //
+    //	By default we don't know how to handle an interrupt.
+    //
+    return false;
 }
 
 bool
-RewritingContext::interruptSeen()
-{
-  //
-  //	Hard to do anything sensible here.
-  //
-  CantHappen("base class version shouldn't be called");
-  return false;
-}
-
-int
-RewritingContext::traceBeginEqTrial(DagNode* /* subject */, const Equation* /* equation */)
-{
-  return 0;
-}
-
-int
-RewritingContext::traceBeginRuleTrial(DagNode* /* subject */, const Rule* /* rule */)
-{
-  return 0;
-}
-
-int
-RewritingContext::traceBeginScTrial(DagNode* /* subject */, const SortConstraint* /* sc */)
-{
-  return 0;
-}
-
-int
-RewritingContext::traceBeginSdTrial(DagNode* /* subject */, const StrategyDefinition* /* sc */)
-{
-  return 0;
-}
-
-void
-RewritingContext::traceEndTrial(int /* trailRef */, bool /* success */)
-{
-}
-
-void
-RewritingContext::traceExhausted(int /* trialRef */)
-{
-}
-
-void
-RewritingContext::tracePreEqRewrite(DagNode* /* redex */,
-				    const Equation* /* equation */,
-				    int /* type */)
-{
-}
-
-void
-RewritingContext::tracePostEqRewrite(DagNode* /* replacement */)
-{
-}
-
-void
-RewritingContext::tracePreRuleRewrite(DagNode* /* redex */, const Rule* /* rule */)
-{
-}
-
-void
-RewritingContext::tracePostRuleRewrite(DagNode* /* replacement */)
-{
-}
-
-void
-RewritingContext::tracePreScApplication(DagNode* /* subject */, const SortConstraint* /* sc */)
-{
+RewritingContext::blockAndHandleInterrupts(sigset_t *normalSet) {
+    //
+    //	Hard to do anything sensible here.
+    //
+    CantHappen("base class version shouldn't be called");
+    return false;
 }
 
 bool
-RewritingContext::traceAbort()
-{
-  return false;
+RewritingContext::interruptSeen() {
+    //
+    //	Hard to do anything sensible here.
+    //
+    CantHappen("base class version shouldn't be called");
+    return false;
+}
+
+int
+RewritingContext::traceBeginEqTrial(DagNode * /* subject */, const Equation * /* equation */) {
+    return 0;
+}
+
+int
+RewritingContext::traceBeginRuleTrial(DagNode * /* subject */, const Rule * /* rule */) {
+    return 0;
+}
+
+int
+RewritingContext::traceBeginScTrial(DagNode * /* subject */, const SortConstraint * /* sc */) {
+    return 0;
+}
+
+int
+RewritingContext::traceBeginSdTrial(DagNode * /* subject */, const StrategyDefinition * /* sc */) {
+    return 0;
+}
+
+void
+RewritingContext::traceEndTrial(int /* trailRef */, bool /* success */) {
+}
+
+void
+RewritingContext::traceExhausted(int /* trialRef */) {
+}
+
+void
+RewritingContext::tracePreEqRewrite(DagNode * /* redex */,
+                                    const Equation * /* equation */,
+                                    int /* type */) {
+}
+
+void
+RewritingContext::tracePostEqRewrite(DagNode * /* replacement */) {
+}
+
+void
+RewritingContext::tracePreRuleRewrite(DagNode * /* redex */, const Rule * /* rule */) {
+}
+
+void
+RewritingContext::tracePostRuleRewrite(DagNode * /* replacement */) {
+}
+
+void
+RewritingContext::tracePreScApplication(DagNode * /* subject */, const SortConstraint * /* sc */) {
+}
+
+bool
+RewritingContext::traceAbort() {
+    return false;
 }
 
 void
 RewritingContext::traceBeginFragment(int /* trialRef */,
-				     const PreEquation* /* preEquation */,
-				     int /* fragmentIndex */,
-				     bool /* firstAttempt */)
-{
+                                     const PreEquation * /* preEquation */,
+                                     int /* fragmentIndex */,
+                                     bool /* firstAttempt */) {
 }
 
 void
 RewritingContext::traceEndFragment(int /* trialRef */,
-				   const PreEquation* /* preEquation */,
-				   int /* fragmentIndex */,
-				   bool /* success */)
-{
+                                   const PreEquation * /* preEquation */,
+                                   int /* fragmentIndex */,
+                                   bool /* success */) {
 }
 
 void
-RewritingContext::traceNarrowingStep(Rule* /* rule */,
-				     DagNode* /* redex */,
-				     DagNode* /* replacement */,
-				     const NarrowingVariableInfo* /* variableInfo */,
-				     const Substitution* /* substitution */,
-				     DagNode* /* newState */)
-{
+RewritingContext::traceNarrowingStep(Rule * /* rule */,
+                                     DagNode * /* redex */,
+                                     DagNode * /* replacement */,
+                                     const NarrowingVariableInfo * /* variableInfo */,
+                                     const Substitution * /* substitution */,
+                                     DagNode * /* newState */) {
 }
 
 void
-RewritingContext::traceVariantNarrowingStep(Equation* /* equation */,
-					    const Vector<DagNode*>& /* oldVariantSubstitution */,
-					    DagNode* /* redex */,
-					    DagNode* /* replacement */,
-					    const NarrowingVariableInfo& /* variableInfo */,
-					    const Substitution* /* substitution */,
-					    DagNode* /* newState */,
-					    const Vector<DagNode*>& /* newVariantSubstitution */,
-					    const NarrowingVariableInfo& /* originalVariables */)
-{
+RewritingContext::traceVariantNarrowingStep(Equation * /* equation */,
+                                            const Vector<DagNode *> & /* oldVariantSubstitution */,
+                                            DagNode * /* redex */,
+                                            DagNode * /* replacement */,
+                                            const NarrowingVariableInfo & /* variableInfo */,
+                                            const Substitution * /* substitution */,
+                                            DagNode * /* newState */,
+                                            const Vector<DagNode *> & /* newVariantSubstitution */,
+                                            const NarrowingVariableInfo & /* originalVariables */) {
 }
 
 void
-RewritingContext::traceStrategyCall(StrategyDefinition* /* sdef */,
-				    DagNode* /* callDag */,
-				    DagNode* /* subject */,
-				    const Substitution* /* substitution */)
-{
+RewritingContext::traceStrategyCall(StrategyDefinition * /* sdef */,
+                                    DagNode * /* callDag */,
+                                    DagNode * /* subject */,
+                                    const Substitution * /* substitution */) {
 }
 
 void
-RewritingContext::rebuildUptoRoot()
-{
-  //  cout << "\nroot was " << rootNode << endl;
-  //  cout << "rebuilding from " << currentIndex << endl;
-  Assert(currentIndex >= 0, "bad currentIndex");
-  //
-  //	Locate deepest stack node  with a stale parent.
-  //
-  int c = currentIndex;  // all staleness guaranteed to be above currentIndex
-  for (int i = redexStack[c].parentIndex(); i != staleMarker; i = redexStack[i].parentIndex())
-    c = i;
-  //
-  //	We assume that we only have to rebuild the spine from
-  //	staleMarker to root.
-  //
-  for (int i = staleMarker; i != UNDEFINED; i = redexStack[i].parentIndex())
-    {
-      remakeStaleDagNode(i, c);
-      c = i;
+RewritingContext::rebuildUptoRoot() {
+    //  cout << "\nroot was " << rootNode << endl;
+    //  cout << "rebuilding from " << currentIndex << endl;
+    Assert(currentIndex >= 0, "bad currentIndex");
+    //
+    //	Locate deepest stack node  with a stale parent.
+    //
+    int c = currentIndex;  // all staleness guaranteed to be above currentIndex
+    for (int i = redexStack[c].parentIndex(); i != staleMarker; i = redexStack[i].parentIndex())
+        c = i;
+    //
+    //	We assume that we only have to rebuild the spine from
+    //	staleMarker to root.
+    //
+    for (int i = staleMarker; i != UNDEFINED; i = redexStack[i].parentIndex()) {
+        remakeStaleDagNode(i, c);
+        c = i;
     }
-  rootNode = redexStack[0].node();
-  staleMarker = ROOT_OK;
-  //  cout << "root is " << rootNode << endl;
+    rootNode = redexStack[0].node();
+    staleMarker = ROOT_OK;
+    //  cout << "root is " << rootNode << endl;
 }
 
 void
-RewritingContext::remakeStaleDagNode(int staleIndex, int childIndex)
-{
-  //
-  //	Find first stacked argument of stale dag node.
-  //
-  int first = childIndex;
-  while (redexStack[first - 1].parentIndex() == staleIndex)
-    --first;
-  //
-  //	Find last stacked argument of stale dag node.
-  //
-  int last = childIndex;
-  int stackLength = redexStack.length();
-  while (last + 1 < stackLength &&
-	 redexStack[last + 1].parentIndex() == staleIndex)
-    ++last;
-  //
-  //	Replace stale dag node with a copy in which stacked arguments
-  //	replace corresponding arguments in original.
-  //
-  DagNode* remade = redexStack[staleIndex].node()->
-    copyWithReplacement(redexStack, first, last);
-  redexStack[staleIndex].replaceNode(remade);
+RewritingContext::remakeStaleDagNode(int staleIndex, int childIndex) {
+    //
+    //	Find first stacked argument of stale dag node.
+    //
+    int first = childIndex;
+    while (redexStack[first - 1].parentIndex() == staleIndex)
+        --first;
+    //
+    //	Find last stacked argument of stale dag node.
+    //
+    int last = childIndex;
+    int stackLength = redexStack.length();
+    while (last + 1 < stackLength &&
+           redexStack[last + 1].parentIndex() == staleIndex)
+        ++last;
+    //
+    //	Replace stale dag node with a copy in which stacked arguments
+    //	replace corresponding arguments in original.
+    //
+    DagNode *remade = redexStack[staleIndex].node()->
+            copyWithReplacement(redexStack, first, last);
+    redexStack[staleIndex].replaceNode(remade);
 }
 
 #ifdef DUMP
@@ -268,8 +242,8 @@ RewritingContext::dumpStack(ostream& s, const Vector<RedexPosition>& stack)
   for (int i = 0; i < stackLen; i++)
     {
       s << stack[i].parentIndex() << '\t' <<
-	stack[i].argIndex() << '\t' <<
-	stack[i].node() << '\n';
+    stack[i].argIndex() << '\t' <<
+    stack[i].node() << '\n';
     }
 }
 #endif

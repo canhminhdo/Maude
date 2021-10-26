@@ -25,37 +25,36 @@
 //
 #ifndef _finalInstruction_hh_
 #define _finalInstruction_hh_
+
 #include "regularInstruction.hh"
 #include "stackMachine.hh"
 
-class FinalInstruction : public RegularInstruction
-{
-  NO_COPYING(FinalInstruction);
+class FinalInstruction : public RegularInstruction {
+    NO_COPYING(FinalInstruction);
 
 public:
-  FinalInstruction() {}
+    FinalInstruction() {}
 
 protected:
-  //
-  //	This shared code for finishing up the execution of a final ctor is the sole
-  //	reason for this class to exist. It is not placed in a class FinalCtor, since
-  //	it is also usable by return instructions.
-  //
-  //	It's not safe to call from any function that leak pointers to their stack frame
-  //	since the tail call won't optimize correctly.
-  //
-  void returnResultAndContinue(StackMachine* machine, Frame* frame, DagNode* result) const;
+    //
+    //	This shared code for finishing up the execution of a final ctor is the sole
+    //	reason for this class to exist. It is not placed in a class FinalCtor, since
+    //	it is also usable by return instructions.
+    //
+    //	It's not safe to call from any function that leak pointers to their stack frame
+    //	since the tail call won't optimize correctly.
+    //
+    void returnResultAndContinue(StackMachine *machine, Frame *frame, DagNode *result) const;
 };
 
 inline void
-FinalInstruction::returnResultAndContinue(StackMachine* machine, Frame* frame, DagNode* result) const
-{
-  frame->returnValue(result);
-  machine->popFrame(frame);
-  Frame* liveFrame = machine->getTopFrame();
-  const Instruction* ni = liveFrame->getNextInstruction();
-  MemoryCell::okToCollectGarbage();
-  ni->execute(machine);
+FinalInstruction::returnResultAndContinue(StackMachine *machine, Frame *frame, DagNode *result) const {
+    frame->returnValue(result);
+    machine->popFrame(frame);
+    Frame *liveFrame = machine->getTopFrame();
+    const Instruction *ni = liveFrame->getNextInstruction();
+    MemoryCell::okToCollectGarbage();
+    ni->execute(machine);
 }
 
 #endif

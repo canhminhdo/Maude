@@ -25,19 +25,21 @@
 //
 #ifndef _termSet_hh_
 #define _termSet_hh_
+
 #include "pointerSet.hh"
 
-class TermSet : private PointerSet
-{
+class TermSet : private PointerSet {
 public:
-  int insert(Term* t);
-  int term2Index(Term* t) const;  // returns NULL if t not in set or index otherwise
-  using PointerSet::cardinality;
-  using PointerSet::makeEmpty;
+    int insert(Term *t);
+
+    int term2Index(Term *t) const;  // returns NULL if t not in set or index otherwise
+    using PointerSet::cardinality;
+    using PointerSet::makeEmpty;
 
 private:
-  unsigned int hash(void* pointer) const;
-  bool isEqual(void* pointer1, void* pointer2) const;
+    unsigned int hash(void *pointer) const;
+
+    bool isEqual(void *pointer1, void *pointer2) const;
 };
 
 #endif

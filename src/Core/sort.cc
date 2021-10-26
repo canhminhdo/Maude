@@ -41,84 +41,73 @@
 #include "compilationContext.hh"
 
 Sort::Sort(int id)
-  : NamedEntity(id)
-{
-  sortComponent = 0;
+        : NamedEntity(id) {
+    sortComponent = 0;
 }
 
 void
-Sort::insertSubsort(Sort* subsort)
-{
-  subsorts.append(subsort);
-  subsort->supersorts.append(this);
+Sort::insertSubsort(Sort *subsort) {
+    subsorts.append(subsort);
+    subsort->supersorts.append(this);
 }
 
 void
-Sort::registerConnectedSorts(ConnectedComponent* component)
-{
-  sortComponent = component;
-  component->registerSort(this);
-  //
-  //	explore subsorts
-  //
-  int nrSorts = subsorts.length();
-  for (int i = 0; i < nrSorts; i++)
-    {
-      Sort* s = subsorts[i];
-      if (s->sortComponent == 0)
-	s->registerConnectedSorts(component);
+Sort::registerConnectedSorts(ConnectedComponent *component) {
+    sortComponent = component;
+    component->registerSort(this);
+    //
+    //	explore subsorts
+    //
+    int nrSorts = subsorts.length();
+    for (int i = 0; i < nrSorts; i++) {
+        Sort *s = subsorts[i];
+        if (s->sortComponent == 0)
+            s->registerConnectedSorts(component);
     }
-  //
-  //	explore supersorts
-  //
-  nrSorts = supersorts.length();
-  if (nrSorts == 0)
-    sortIndex = component->appendSort(this);
-  else
-    {
-      nrUnresolvedSupersorts = nrSorts;
-      for (int i = 0; i < nrSorts; i++)
-	{
-	  Sort* s = supersorts[i];
-	  if (s->sortComponent == 0)
-	    s->registerConnectedSorts(component);
-	}
+    //
+    //	explore supersorts
+    //
+    nrSorts = supersorts.length();
+    if (nrSorts == 0)
+        sortIndex = component->appendSort(this);
+    else {
+        nrUnresolvedSupersorts = nrSorts;
+        for (int i = 0; i < nrSorts; i++) {
+            Sort *s = supersorts[i];
+            if (s->sortComponent == 0)
+                s->registerConnectedSorts(component);
+        }
     }
 }
 
 void
-Sort::processSubsorts()
-{
-  int nrSorts = subsorts.length();
-  for (int i = 0; i < nrSorts; i++)
-    {
-      Sort* s = subsorts[i];
-      --(s->nrUnresolvedSupersorts);
-      if (s->nrUnresolvedSupersorts == 0)
-	s->sortIndex = sortComponent->appendSort(s);
+Sort::processSubsorts() {
+    int nrSorts = subsorts.length();
+    for (int i = 0; i < nrSorts; i++) {
+        Sort *s = subsorts[i];
+        --(s->nrUnresolvedSupersorts);
+        if (s->nrUnresolvedSupersorts == 0)
+            s->sortIndex = sortComponent->appendSort(s);
     }
 }
 
 void
-Sort::computeLeqSorts()
-{
-  leqSorts.insert(sortIndex);
-  int nrSubSorts = subsorts.length();
-  for (int i = 0; i < nrSubSorts; i++)
-    leqSorts.insert(subsorts[i]->leqSorts);
-  //
-  //	fastTest is the smallest integer such that all sorts with
-  //	index >= fastTest are less or equal us.
-  //
-  int nrSorts = sortComponent->nrSorts();
-  fastTest = sortIndex;
-  for (int i = nrSorts - 1; i > sortIndex; i--)
-    {
-      if (!(leqSorts.contains(i)))
-	{
-	  fastTest = i + 1;
-	  break;
-	}
+Sort::computeLeqSorts() {
+    leqSorts.insert(sortIndex);
+    int nrSubSorts = subsorts.length();
+    for (int i = 0; i < nrSubSorts; i++)
+        leqSorts.insert(subsorts[i]->leqSorts);
+    //
+    //	fastTest is the smallest integer such that all sorts with
+    //	index >= fastTest are less or equal us.
+    //
+    int nrSorts = sortComponent->nrSorts();
+    fastTest = sortIndex;
+    for (int i = nrSorts - 1; i > sortIndex; i--) {
+        if (!(leqSorts.contains(i))) {
+            fastTest = i + 1;
+            break;
+        }
     }
 }
 
@@ -132,7 +121,7 @@ Sort::generateSortVector(CompilationContext& context)
     {
       context.head() << (leqSorts.contains(i) ? '1' : '0');
       if (i + 1 < nrSorts)
-	context.head() << ", ";
+    context.head() << ", ";
     }
   context.head() << " };";
 #ifdef ANNOTATE

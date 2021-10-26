@@ -35,89 +35,87 @@
 #ifndef _wordSystem_hh_
 #define _wordSystem_hh_
 
-class WordSystem
-{
+class WordSystem {
 public:
-  enum OutcomeFlags
-    {
-      FAILURE = 0,	// no solution was found
-      SUCCESS = 1,	// solution was found
-      INCOMPLETE = 2	// solutions may have been missed
+    enum OutcomeFlags {
+        FAILURE = 0,    // no solution was found
+        SUCCESS = 1,    // solution was found
+        INCOMPLETE = 2    // solutions may have been missed
     };
-  //
-  //	Local names for PigPug data type.
-  //
-  typedef PigPug::Word Word;
-  typedef PigPug::Subst Subst;
+    //
+    //	Local names for PigPug data type.
+    //
+    typedef PigPug::Word Word;
+    typedef PigPug::Subst Subst;
 
-  WordSystem(int nrVariables, int nrEquations, bool identityOptimizations = false);
-  ~WordSystem();
+    WordSystem(int nrVariables, int nrEquations, bool identityOptimizations = false);
 
-  void setTheoryConstraint(int variable, int theoryIndex);
-  void setUpperBound(int variable, int upperBound);
-  void setTakeEmpty(int variable);
-  void addAssignment(int variable, const Word& value);
-  void addEquation(int index, const Word& lhs, const Word& rhs);
-  void addNullEquation(const Word& word);
-  
-  int findNextSolution();
-  const Word& getAssignment(int variable) const;
-  int getNrVariables() const;
+    ~WordSystem();
+
+    void setTheoryConstraint(int variable, int theoryIndex);
+
+    void setUpperBound(int variable, int upperBound);
+
+    void setTakeEmpty(int variable);
+
+    void addAssignment(int variable, const Word &value);
+
+    void addEquation(int index, const Word &lhs, const Word &rhs);
+
+    void addNullEquation(const Word &word);
+
+    int findNextSolution();
+
+    const Word &getAssignment(int variable) const;
+
+    int getNrVariables() const;
 
 private:
-  typedef Vector<WordLevel*> LevelStack;
+    typedef Vector<WordLevel *> LevelStack;
 
-  WordLevel* current;
-  LevelStack levelStack;
-  int incompletenessFlag;
+    WordLevel *current;
+    LevelStack levelStack;
+    int incompletenessFlag;
 };
 
 inline void
-WordSystem::setTheoryConstraint(int variable, int theoryIndex)
-{
-  current->setTheoryConstraint(variable, theoryIndex);
+WordSystem::setTheoryConstraint(int variable, int theoryIndex) {
+    current->setTheoryConstraint(variable, theoryIndex);
 }
 
 inline void
-WordSystem::setUpperBound(int variable, int upperBound)
-{
-  current->setUpperBound(variable, upperBound);
+WordSystem::setUpperBound(int variable, int upperBound) {
+    current->setUpperBound(variable, upperBound);
 }
 
 inline void
-WordSystem::setTakeEmpty(int variable)
-{
-  current->setTakeEmpty(variable);
+WordSystem::setTakeEmpty(int variable) {
+    current->setTakeEmpty(variable);
 }
 
 inline void
-WordSystem::addAssignment(int variable, const Word& value)
-{
-  current->addAssignment(variable, value);
+WordSystem::addAssignment(int variable, const Word &value) {
+    current->addAssignment(variable, value);
 }
 
 inline void
-WordSystem::addEquation(int index, const Word& lhs, const Word& rhs)
-{
-  current->addEquation(index, lhs, rhs);
+WordSystem::addEquation(int index, const Word &lhs, const Word &rhs) {
+    current->addEquation(index, lhs, rhs);
 }
 
 inline void
-WordSystem::addNullEquation(const Word& word)
-{
-  current->addNullEquation(word);
+WordSystem::addNullEquation(const Word &word) {
+    current->addNullEquation(word);
 }
 
-inline const WordSystem::Word&
-WordSystem::getAssignment(int variable) const
-{
-  return current->getAssignment(variable);
+inline const WordSystem::Word &
+WordSystem::getAssignment(int variable) const {
+    return current->getAssignment(variable);
 }
 
 inline int
-WordSystem::getNrVariables() const
-{
-  return current->getNrVariables();
+WordSystem::getNrVariables() const {
+    return current->getNrVariables();
 }
 
 #endif

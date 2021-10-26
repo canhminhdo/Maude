@@ -28,23 +28,22 @@
 #ifndef _stackMachineRhsCompiler_hh_
 #define _stackMachineRhsCompiler_hh_
 
-class StackMachineRhsCompiler
-{
+class StackMachineRhsCompiler {
 public:
-  void recordFunctionEval(Symbol* symbol, int destination, const Vector<int>& argumentSlots);
-  Instruction* compileInstructionSequence();
+    void recordFunctionEval(Symbol *symbol, int destination, const Vector<int> &argumentSlots);
 
-  void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel = 0);
+    Instruction *compileInstructionSequence();
+
+    void dump(ostream &s, const VariableInfo &variableInfo, int indentLevel = 0);
 
 private:
-  struct FunctionEval
-  {
-    Symbol* symbol;
-    int destination;
-    Vector<int> argumentSlots;
-  };
+    struct FunctionEval {
+        Symbol *symbol;
+        int destination;
+        Vector<int> argumentSlots;
+    };
 
-  Vector<FunctionEval> functionEvaluations;
+    Vector<FunctionEval> functionEvaluations;
 };
 
 #endif

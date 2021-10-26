@@ -25,33 +25,37 @@
 //
 #ifndef _irredundantUnificationProblem_hh_
 #define _irredundantUnificationProblem_hh_
+
 #include "unificationProblem.hh"
 
-class IrredundantUnificationProblem : public UnificationProblem
-{
-  NO_COPYING(IrredundantUnificationProblem);
+class IrredundantUnificationProblem : public UnificationProblem {
+    NO_COPYING(IrredundantUnificationProblem);
 
 public:
-  IrredundantUnificationProblem(Vector<Term*>& lhs,
-				Vector<Term*>& rhs,
-				FreshVariableGenerator* freshVariableGenerator,
-				int incomingVariableFamily = NONE);
-  ~IrredundantUnificationProblem();
-  //
-  //	We override these functions from the base class that are specific to
-  //	individual unifiers.
-  //
-  virtual bool findNextUnifier();
-  virtual const Substitution& getSolution() const;
-  virtual int getNrFreeVariables() const;
+    IrredundantUnificationProblem(Vector<Term *> &lhs,
+                                  Vector<Term *> &rhs,
+                                  FreshVariableGenerator *freshVariableGenerator,
+                                  int incomingVariableFamily = NONE);
+
+    ~IrredundantUnificationProblem();
+
+    //
+    //	We override these functions from the base class that are specific to
+    //	individual unifiers.
+    //
+    virtual bool findNextUnifier();
+
+    virtual const Substitution &getSolution() const;
+
+    virtual int getNrFreeVariables() const;
 
 protected:
-  //void markReachableNodes();
+    //void markReachableNodes();
 
 private:
-  UnifierFilter* unifierFilter;
-  Substitution* currentUnifier;
-  int nrFreeVariables;
+    UnifierFilter *unifierFilter;
+    Substitution *currentUnifier;
+    int nrFreeVariables;
 };
 
 #endif

@@ -41,52 +41,47 @@
 #include "substitution.hh"
 #include "pattern.hh"
 
-Pattern::Pattern(Term* patternTerm,
-		 bool withExtension,
-		 const Vector<ConditionFragment*>& condition,
-		 bool lazy)
-  : PreEquation(NONE, patternTerm, condition),
-    withExtension(withExtension),
-    prepared(false)
-{
-  //
-  //	Patterns belong to commands and descent function invocations; they
-  //	don't belong to modules - we set null information here so we don't
-  //	have uninitialized data and other things can recognize we don't belong
-  //	to a module.
-  //
-  setModuleInfo(0, NONE);
+Pattern::Pattern(Term *patternTerm,
+                 bool withExtension,
+                 const Vector<ConditionFragment *> &condition,
+                 bool lazy)
+        : PreEquation(NONE, patternTerm, condition),
+          withExtension(withExtension),
+          prepared(false) {
+    //
+    //	Patterns belong to commands and descent function invocations; they
+    //	don't belong to modules - we set null information here so we don't
+    //	have uninitialized data and other things can recognize we don't belong
+    //	to a module.
+    //
+    setModuleInfo(0, NONE);
 
-  NatSet boundVariables;  // variables bound by matching
-  check(boundVariables);
+    NatSet boundVariables;  // variables bound by matching
+    check(boundVariables);
 
-  if (!lazy) prepare();
+    if (!lazy) prepare();
 }
 
 void
-Pattern::prepare()
-{
-  if (!isBad() && !prepared)
-    {
-      preprocess();
-      addConditionVariables(getLhs()->occursBelow());
-      TermBag availableTerms;  // terms available for reuse
-      compileBuild(availableTerms, false);
-      compileMatch(true, withExtension);
+Pattern::prepare() {
+    if (!isBad() && !prepared) {
+        preprocess();
+        addConditionVariables(getLhs()->occursBelow());
+        TermBag availableTerms;  // terms available for reuse
+        compileBuild(availableTerms, false);
+        compileMatch(true, withExtension);
 
-      prepared = true;
+        prepared = true;
     }
 }
 
 int
-Pattern::traceBeginTrial(DagNode* subject, RewritingContext& context) const
-{
-  return UNDEFINED;
+Pattern::traceBeginTrial(DagNode *subject, RewritingContext &context) const {
+    return UNDEFINED;
 }
 
 void
-Pattern::print(ostream& s) const
-{
-  // FIXME This is an infinite loop
-  s << this;
+Pattern::print(ostream &s) const {
+    // FIXME This is an infinite loop
+    s << this;
 }

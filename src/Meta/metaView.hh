@@ -25,26 +25,27 @@
 //
 #ifndef _metaView_hh_
 #define _metaView_hh_
+
 #include "view.hh"
 #include "dagRoot.hh"
 
-class MetaView : public View
-{
-  NO_COPYING(MetaView);
+class MetaView : public View {
+    NO_COPYING(MetaView);
 
 public:
-  MetaView(Token name, DagNode* opMappings, DagNode* stratMappings, MetaLevel* metaLevel, Interpreter* owner);
-  ~MetaView();
+    MetaView(Token name, DagNode *opMappings, DagNode *stratMappings, MetaLevel *metaLevel, Interpreter *owner);
+
+    ~MetaView();
 
 private:
-  //
-  //	Most of the work is done in View. We just handle op->term mappings.
-  //
-  bool handleTermAndExprMappings();
+    //
+    //	Most of the work is done in View. We just handle op->term mappings.
+    //
+    bool handleTermAndExprMappings();
 
-  DagRoot opMappings;
-  DagRoot stratMappings;
-  MetaLevel* const metaLevel;
+    DagRoot opMappings;
+    DagRoot stratMappings;
+    MetaLevel *const metaLevel;
 };
 
 #endif

@@ -37,24 +37,22 @@
 #include "instruction.hh"
 #include "nullInstruction.hh"
 
-StackMachine::StackMachine()
-{
-  memoryBase = static_cast<char*>(operator new[](STACK_SIZE));
-  topFrame = reinterpret_cast<Frame*>(memoryBase);
+StackMachine::StackMachine() {
+    memoryBase = static_cast<char *>(operator new[](STACK_SIZE));
+    topFrame = reinterpret_cast<Frame *>(memoryBase);
 
-  protectedScratchpad = new DAG_POINTER[10000];  // HACK
-  //rawScratchpad = new DAGP_POINTER[1000]; // HACK
+    protectedScratchpad = new DAG_POINTER[10000];  // HACK
+    //rawScratchpad = new DAGP_POINTER[1000]; // HACK
 
-  rewriteCount = 0;
+    rewriteCount = 0;
 
-  //nrFramesMade = 0;
-  //maxFrameUse = 0;
+    //nrFramesMade = 0;
+    //maxFrameUse = 0;
 }
 
-StackMachine::~StackMachine()
-{
-  delete[] memoryBase;
-  delete[] protectedScratchpad;
+StackMachine::~StackMachine() {
+    delete[] memoryBase;
+    delete[] protectedScratchpad;
 }
 
 /*
@@ -79,148 +77,141 @@ StackMachine::execute(Instruction* instructionSequence)
 }
 */
 
-DagNode*
-StackMachine::execute(Instruction* instructionSequence)
-{
-  //
-  //	Create a dummy frame to soak up extra execute() calls.
-  //
-  DagNode* dummyResult;
-  Frame* dummyFrame = topFrame;
-  dummyFrame->setNextInstruction(NullInstruction::getNullInstruction());
-  dummyFrame->setReturnAddress(&dummyResult);  // needs to be a valid address for GC
-  dummyFrame->setAncestorWithValidNextInstruction(0);
-  //
-  //	Create initial frame to kick off computation.
-  //
-  Frame* initFrame = pushFrame(makeFrameLift(0));
-  initFrame->setNextInstruction(instructionSequence);
-  initFrame->setReturnAddress(&realResult);
-  initFrame->setAncestorWithValidNextInstruction(dummyFrame);
-  //
-  //	Make safe for GC.
-  //
-  realResult = 0;
-  //
-  //	Loop until we get back to dummy frame.
-  //
-  do
-    {
-      //
-      //	Pick 12 as the lcm(2, 3, 4, 6)
-      //
-      topFrame->getNextInstruction()->execute(this);
-      
-      topFrame->getNextInstruction()->execute(this);
-      /*
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
- 
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
- 
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
+DagNode *
+StackMachine::execute(Instruction *instructionSequence) {
+    //
+    //	Create a dummy frame to soak up extra execute() calls.
+    //
+    DagNode *dummyResult;
+    Frame *dummyFrame = topFrame;
+    dummyFrame->setNextInstruction(NullInstruction::getNullInstruction());
+    dummyFrame->setReturnAddress(&dummyResult);  // needs to be a valid address for GC
+    dummyFrame->setAncestorWithValidNextInstruction(0);
+    //
+    //	Create initial frame to kick off computation.
+    //
+    Frame *initFrame = pushFrame(makeFrameLift(0));
+    initFrame->setNextInstruction(instructionSequence);
+    initFrame->setReturnAddress(&realResult);
+    initFrame->setAncestorWithValidNextInstruction(dummyFrame);
+    //
+    //	Make safe for GC.
+    //
+    realResult = 0;
+    //
+    //	Loop until we get back to dummy frame.
+    //
+    do {
+        //
+        //	Pick 12 as the lcm(2, 3, 4, 6)
+        //
+        topFrame->getNextInstruction()->execute(this);
 
-      //
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
- 
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
- 
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        /*
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
 
-      //
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
- 
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
- 
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
 
-      //
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
- 
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
- 
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
 
-      //
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
- 
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
- 
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
-      topFrame->getNextInstruction()->execute(this);
+        //
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
 
-      //cout << (reinterpret_cast<char*>(topFrame) - memoryBase) << endl;
-      */
-      MemoryCell::okToCollectGarbage();
-    }
-  while (topFrame != dummyFrame);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
 
-  return realResult;
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+
+        //
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+
+        //
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+
+        //
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+        topFrame->getNextInstruction()->execute(this);
+
+        //cout << (reinterpret_cast<char*>(topFrame) - memoryBase) << endl;
+        */
+        MemoryCell::okToCollectGarbage();
+    } while (topFrame != dummyFrame);
+
+    return realResult;
 }
 
 void
-StackMachine::execute()
-{
-  //
-  //	Need to figure out termination condition for when last frame is pop'd
-  //
-  //  for(;;)
-  while (topFrame != 0)
-    {
-      topFrame->getNextInstruction()->execute(this);
-      MemoryCell::okToCollectGarbage();
+StackMachine::execute() {
+    //
+    //	Need to figure out termination condition for when last frame is pop'd
+    //
+    //  for(;;)
+    while (topFrame != 0) {
+        topFrame->getNextInstruction()->execute(this);
+        MemoryCell::okToCollectGarbage();
     }
 }
 
 void
-StackMachine::markReachableNodes()
-{
-  for (Frame* i = topFrame; i != 0; i = i->getAncestorWithValidNextInstruction())
-    {
-      i->returnValue(0);  // need to clear garbage pointer from slot
-      i->markActiveSlots();
+StackMachine::markReachableNodes() {
+    for (Frame *i = topFrame; i != 0; i = i->getAncestorWithValidNextInstruction()) {
+        i->returnValue(0);  // need to clear garbage pointer from slot
+        i->markActiveSlots();
     }
-  if (realResult != 0)
-    realResult->mark();
+    if (realResult != 0)
+        realResult->mark();
 }

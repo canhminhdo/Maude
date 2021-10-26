@@ -25,54 +25,59 @@
 //
 #ifndef _ruleTable_hh_
 #define _ruleTable_hh_
+
 #include <list>
 #include <stack>
 
-class RuleTable
-{
+class RuleTable {
 public:
-  RuleTable();
-  void offerRule(Rule* rule);
-  const Vector<Rule*>& getRules() const;
-  bool ruleFree() const;
-  virtual void compileRules();
-  virtual DagNode* ruleRewrite(DagNode* subject, RewritingContext& context);
-  virtual void resetRules();
-  //virtual void saveHiddenState();
-  //virtual void restoreHiddenState();
+    RuleTable();
+
+    void offerRule(Rule *rule);
+
+    const Vector<Rule *> &getRules() const;
+
+    bool ruleFree() const;
+
+    virtual void compileRules();
+
+    virtual DagNode *ruleRewrite(DagNode *subject, RewritingContext &context);
+
+    virtual void resetRules();
+    //virtual void saveHiddenState();
+    //virtual void restoreHiddenState();
 
 protected:
-  virtual bool acceptRule(Rule* rule) = 0;
-  DagNode* applyRules(DagNode* subject,
-		      RewritingContext& context,
-		      ExtensionInfo* extensionInfo);
-  void resetEachRule();
+    virtual bool acceptRule(Rule *rule) = 0;
+
+    DagNode *applyRules(DagNode *subject,
+                        RewritingContext &context,
+                        ExtensionInfo *extensionInfo);
+
+    void resetEachRule();
 
 private:
-  //typedef stack<int, list<int> > IntStack;  // optimize for the empty case
+    //typedef stack<int, list<int> > IntStack;  // optimize for the empty case
 
-  Vector<Rule*> rules;
-  int nextRule;
-  //IntStack nextRuleStack;
+    Vector<Rule *> rules;
+    int nextRule;
+    //IntStack nextRuleStack;
 };
 
-inline const Vector<Rule*>&
-RuleTable::getRules() const
-{
-  return rules;
+inline const Vector<Rule *> &
+RuleTable::getRules() const {
+    return rules;
 }
 
 inline void
-RuleTable::offerRule(Rule* rule)
-{
-  if (acceptRule(rule))
-    rules.append(rule);
+RuleTable::offerRule(Rule *rule) {
+    if (acceptRule(rule))
+        rules.append(rule);
 }
 
 inline bool
-RuleTable::ruleFree() const
-{
-  return rules.isNull();
+RuleTable::ruleFree() const {
+    return rules.isNull();
 }
 
 #endif

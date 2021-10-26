@@ -25,44 +25,45 @@
 //
 #ifndef _matchProcess_hh_
 #define _matchProcess_hh_
+
 #include "strategicProcess.hh"
 #include "rewriteSearchState.hh"
 #include "sharedValue.hh"
 #include "strategyStackManager.hh"
 
-class MatchProcess : public StrategicProcess
-{
-  NO_COPYING(MatchProcess);
+class MatchProcess : public StrategicProcess {
+    NO_COPYING(MatchProcess);
 
 public:
-  MatchProcess(const SharedValue<RewriteSearchState>& rewriteState,
-	       PositionState::PositionIndex redexIndex,
-	       ExtensionInfo* extensionInfo,
-	       RewritingContext* matchContext,
-	       Subproblem* subproblem,
-	       Rule* rule,
-	       int fragmentNr,
-	       const Vector<StrategyExpression*>& strategies,
-	       int strategyNr,
-	       StrategyStackManager::StackId pending,
-	       StrategicExecution* taskSibling,
-	       StrategicProcess* insertionPoint);
-  ~MatchProcess();
+    MatchProcess(const SharedValue<RewriteSearchState> &rewriteState,
+                 PositionState::PositionIndex redexIndex,
+                 ExtensionInfo *extensionInfo,
+                 RewritingContext *matchContext,
+                 Subproblem *subproblem,
+                 Rule *rule,
+                 int fragmentNr,
+                 const Vector<StrategyExpression *> &strategies,
+                 int strategyNr,
+                 StrategyStackManager::StackId pending,
+                 StrategicExecution *taskSibling,
+                 StrategicProcess *insertionPoint);
 
-  Survival run(StrategicSearch& searchObject);
+    ~MatchProcess();
+
+    Survival run(StrategicSearch &searchObject);
 
 private:
-  SharedValue<RewriteSearchState> rewriteState;		// smart pointer to rewrite state that found our redex
-  const PositionState::PositionIndex redexIndex;	// index of redex withing rewrite state
-  ExtensionInfo* extensionInfoCopy;			// copy of extension info from original rule match
-  RewritingContext* matchContext;			// rewrite context associated with our fragment match
-  Subproblem* subproblem;				// subproblem associated with our fragment match
-  Rule* const rule;					// pointer to rule whose lhs matched
-  const int fragmentNr;					// number of condition fragment within rule
-  const Vector<StrategyExpression*>& strategies;	// vector of strategies for rewrite fragments
-  const int strategyNr;					// number of next strategy to use
-  StrategyStackManager::StackId pending;       		// continuation once we finally do a rewrite
-  bool findFirst;					// are we looking for a first solution to fragment match?
+    SharedValue<RewriteSearchState> rewriteState;        // smart pointer to rewrite state that found our redex
+    const PositionState::PositionIndex redexIndex;    // index of redex withing rewrite state
+    ExtensionInfo *extensionInfoCopy;            // copy of extension info from original rule match
+    RewritingContext *matchContext;            // rewrite context associated with our fragment match
+    Subproblem *subproblem;                // subproblem associated with our fragment match
+    Rule *const rule;                    // pointer to rule whose lhs matched
+    const int fragmentNr;                    // number of condition fragment within rule
+    const Vector<StrategyExpression *> &strategies;    // vector of strategies for rewrite fragments
+    const int strategyNr;                    // number of next strategy to use
+    StrategyStackManager::StackId pending;            // continuation once we finally do a rewrite
+    bool findFirst;                    // are we looking for a first solution to fragment match?
 };
 
 #endif

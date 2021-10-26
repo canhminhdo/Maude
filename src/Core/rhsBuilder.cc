@@ -36,33 +36,29 @@
 //      core class definitions
 #include "rhsBuilder.hh"
 
-RhsBuilder::~RhsBuilder()
-{
-  int nrAutomata = automata.length();
-  for (int i = 0; i < nrAutomata; i++)
-    delete automata[i];
-  delete lastAutomaton;
+RhsBuilder::~RhsBuilder() {
+    int nrAutomata = automata.length();
+    for (int i = 0; i < nrAutomata; i++)
+        delete automata[i];
+    delete lastAutomaton;
 }
 
 void
-RhsBuilder::remapIndices(VariableInfo& variableInfo)
-{
-  int nrAutomata = automata.length();
-  for (int i = 0; i < nrAutomata; i++)
-    automata[i]->remapIndices(variableInfo);
-  if (lastAutomaton != 0)
-    lastAutomaton->remapIndices(variableInfo);
+RhsBuilder::remapIndices(VariableInfo &variableInfo) {
+    int nrAutomata = automata.length();
+    for (int i = 0; i < nrAutomata; i++)
+        automata[i]->remapIndices(variableInfo);
+    if (lastAutomaton != 0)
+        lastAutomaton->remapIndices(variableInfo);
 }
 
 bool
-RhsBuilder::recordInfo(StackMachineRhsCompiler& compiler)
-{
-  for (RhsAutomaton* ra : automata)
-    {
-      if (!(ra->recordInfo(compiler)))
-	return false;
+RhsBuilder::recordInfo(StackMachineRhsCompiler &compiler) {
+    for (RhsAutomaton *ra : automata) {
+        if (!(ra->recordInfo(compiler)))
+            return false;
     }
-  return (lastAutomaton == 0) ? true : lastAutomaton->recordInfo(compiler);
+    return (lastAutomaton == 0) ? true : lastAutomaton->recordInfo(compiler);
 }
 
 #ifdef DUMP

@@ -33,7 +33,7 @@
 //      core class definitions
 #include "rootContainer.hh"
 
-RootContainer* RootContainer::listHead = 0;
+RootContainer *RootContainer::listHead = 0;
 
 #ifdef DUMP
 
@@ -44,7 +44,7 @@ RootContainer::dump(ostream& s)
     {
       s << static_cast<void*>(p) << endl;
       Assert((p->prev == 0 && listHead == p) || p->prev->next == p,
-	     "bad linked list");
+         "bad linked list");
     }
 }
 

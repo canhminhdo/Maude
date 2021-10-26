@@ -44,79 +44,71 @@
 #include "metaModule.hh"
 #include "metaPreModule.hh"
 
-MetaPreModule::MetaPreModule(int name, DagNode* moduleDag, MetaLevel* metaLevel, MetaModule* module, Interpreter* owner)
-  : PreModule(name, owner),
-    moduleDag(moduleDag),
-    metaLevel(metaLevel),
-    flatModule(module)
-{
-  setModuleType(module->getModuleType());
-  module->addUser(this);
+MetaPreModule::MetaPreModule(int name, DagNode *moduleDag, MetaLevel *metaLevel, MetaModule *module, Interpreter *owner)
+        : PreModule(name, owner),
+          moduleDag(moduleDag),
+          metaLevel(metaLevel),
+          flatModule(module) {
+    setModuleType(module->getModuleType());
+    module->addUser(this);
 }
 
-MetaPreModule::~MetaPreModule()
-{
-  if (flatModule != 0)
-    flatModule->deepSelfDestruct();
+MetaPreModule::~MetaPreModule() {
+    if (flatModule != 0)
+        flatModule->deepSelfDestruct();
 }
 
-const ModuleDatabase::ImportMap*
-MetaPreModule::getAutoImports() const
-{
-  return 0;
+const ModuleDatabase::ImportMap *
+MetaPreModule::getAutoImports() const {
+    return 0;
 }
 
-VisibleModule*
-MetaPreModule::getFlatModule()
-{
-  DebugAdvisory("MetaPreModule::getFlatModule() called on " << this);
+VisibleModule *
+MetaPreModule::getFlatModule() {
+    DebugAdvisory("MetaPreModule::getFlatModule() called on " << this);
 
-  VisibleModule* m = getFlatSignature();
-  //
-  //	getFlatSignature() returns null pointer rather than calling
-  //	markAsBad() if anything went wrong.
-  //
-  if (m != 0 && m->getStatus() < Module::THEORY_CLOSED)
-    {
-      //
-      //	We didn't import statements or compile module yet.
-      //
-      m->importStatements();
-      Assert(!(m->isBad()), "importStatements() unexpectedly set bad flag in " << *m);
-      m->resetImports();
-      //
-      //	Compile  module.
-      //
-      m->closeTheory();
-      //
-      //	We don't allow reserved fresh variable names in variant
-      //	equations or narrowing rules. We can't do this until statements
-      //	have been compiled since it relied on VariableInfo being filled out.
-      //
-      m->checkFreshVariableNames();
+    VisibleModule *m = getFlatSignature();
+    //
+    //	getFlatSignature() returns null pointer rather than calling
+    //	markAsBad() if anything went wrong.
+    //
+    if (m != 0 && m->getStatus() < Module::THEORY_CLOSED) {
+        //
+        //	We didn't import statements or compile module yet.
+        //
+        m->importStatements();
+        Assert(!(m->isBad()), "importStatements() unexpectedly set bad flag in " << *m);
+        m->resetImports();
+        //
+        //	Compile  module.
+        //
+        m->closeTheory();
+        //
+        //	We don't allow reserved fresh variable names in variant
+        //	equations or narrowing rules. We can't do this until statements
+        //	have been compiled since it relied on VariableInfo being filled out.
+        //
+        m->checkFreshVariableNames();
     }
-  return m;  // could be null pointer
+    return m;  // could be null pointer
 }
 
-VisibleModule*
-MetaPreModule::getFlatSignature()
-{
-  DebugAdvisory("MetaPreModule::getFlatSignature() called on " << this);
+VisibleModule *
+MetaPreModule::getFlatSignature() {
+    DebugAdvisory("MetaPreModule::getFlatSignature() called on " << this);
 
-  if (flatModule == 0)
-    {
-      IssueAdvisory("reparsing meta-module " << QUOTE(this) << " due to changes in imported modules.");
-      flatModule = metaLevel->downSignature(moduleDag.getNode(), getOwner());
-      if (flatModule != 0)
-	flatModule->addUser(this);
+    if (flatModule == 0) {
+        IssueAdvisory("reparsing meta-module " << QUOTE(this) << " due to changes in imported modules.");
+        flatModule = metaLevel->downSignature(moduleDag.getNode(), getOwner());
+        if (flatModule != 0)
+            flatModule->addUser(this);
     }
-  return flatModule;
+    return flatModule;
 }
 
 void
-MetaPreModule::regretToInform(Entity* doomedEntity)
-{
-  DebugAdvisory("MetaPreModule::regretToInform() called on " << this);
-  Assert(doomedEntity == flatModule, "module pointer error");
-  flatModule = 0;
+MetaPreModule::regretToInform(Entity *doomedEntity) {
+    DebugAdvisory("MetaPreModule::regretToInform() called on " << this);
+    Assert(doomedEntity == flatModule, "module pointer error");
+    flatModule = 0;
 }

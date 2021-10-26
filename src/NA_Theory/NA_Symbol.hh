@@ -25,24 +25,31 @@
 //
 #ifndef _NA_Symbol_hh_
 #define _NA_Symbol_hh_
+
 #include "symbol.hh"
 
-class NA_Symbol : public Symbol
-{
+class NA_Symbol : public Symbol {
 public:
-  NA_Symbol(int id);
+    NA_Symbol(int id);
 
-  Term* makeTerm(const Vector<Term*>& args);
-  DagNode* makeDagNode(const Vector<DagNode*>& args);
-  bool eqRewrite(DagNode* subject, RewritingContext& context);
-  void computeBaseSort(DagNode* subject);
-  void normalizeAndComputeTrueSort(DagNode* subject, RewritingContext& context);
-  bool isStable() const;
-  //
-  //	Hash cons stuff.
-  //
-  DagNode* makeCanonical(DagNode* original, HashConsSet* /* hcs */);
-  DagNode* makeCanonicalCopy(DagNode* original, HashConsSet* /* hcs */);
+    Term *makeTerm(const Vector<Term *> &args);
+
+    DagNode *makeDagNode(const Vector<DagNode *> &args);
+
+    bool eqRewrite(DagNode *subject, RewritingContext &context);
+
+    void computeBaseSort(DagNode *subject);
+
+    void normalizeAndComputeTrueSort(DagNode *subject, RewritingContext &context);
+
+    bool isStable() const;
+
+    //
+    //	Hash cons stuff.
+    //
+    DagNode *makeCanonical(DagNode *original, HashConsSet * /* hcs */);
+
+    DagNode *makeCanonicalCopy(DagNode *original, HashConsSet * /* hcs */);
 };
 
 #endif

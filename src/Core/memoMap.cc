@@ -36,19 +36,17 @@
 #include "memoMap.hh"
 
 int
-MemoMap::getFromIndex(DagNode* fromDag)
-{
-  //
-  //	We assume that a fromDag is unreduced and therefore we never use
-  //	the original in the hash cons table incase it is reduced in place.
-  //
-  int fromIndex =  dags.insertCopy(fromDag);
-  int nrFromDags = toIndices.size();
-  if (fromIndex >= nrFromDags)
-    {
-      toIndices.resize(fromIndex + 1);
-      for (int i = nrFromDags; i <= fromIndex; ++i)
-	toIndices[i] = NONE;
+MemoMap::getFromIndex(DagNode *fromDag) {
+    //
+    //	We assume that a fromDag is unreduced and therefore we never use
+    //	the original in the hash cons table incase it is reduced in place.
+    //
+    int fromIndex = dags.insertCopy(fromDag);
+    int nrFromDags = toIndices.size();
+    if (fromIndex >= nrFromDags) {
+        toIndices.resize(fromIndex + 1);
+        for (int i = nrFromDags; i <= fromIndex; ++i)
+            toIndices[i] = NONE;
     }
-  return fromIndex;
+    return fromIndex;
 }

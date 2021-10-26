@@ -47,190 +47,162 @@
 #include "equationTable.hh"
 
 void
-EquationTable::compileEquations()
-{
-  int nrEquations = equations.length();
-  for (int i = 0; i < nrEquations; i++)
-    equations[i]->compile(true);
+EquationTable::compileEquations() {
+    int nrEquations = equations.length();
+    for (int i = 0; i < nrEquations; i++)
+        equations[i]->compile(true);
 }
 
 bool
-EquationTable::applyReplace(DagNode* subject,
-			    RewritingContext& context,
-			    ExtensionInfo* extensionInfo)
-{
-  for (Equation* eq : equations)
-    {
-      Subproblem* sp;
-      long nrVariables = eq->fastNrVariables();
-      if (nrVariables >= 0)
-	{
-	  //
-	  //	Fast case.
-	  //
-	  context.clear(nrVariables);
-	  if (eq->getLhsAutomaton()->match(subject, context, sp, extensionInfo))
-	    {
-	      if (sp != 0 || RewritingContext::getTraceStatus())
-		goto slowCase;
-	      if (extensionInfo == 0 || extensionInfo->matchedWhole())
-		eq->getRhsBuilder().replace(subject, context);
-	      else
-		{
-		  subject->partialReplace(eq->getRhsBuilder().construct(context),
-					  extensionInfo);
-		}
-	      context.incrementEqCount();
-	      context.finished();
-	      MemoryCell::okToCollectGarbage();
-	      return true;
-	    }
-	}
-      else
-	{
-	  //
-	  //	General case.
-	  //
-	  nrVariables = eq->getNrProtectedVariables();
-	  context.clear(nrVariables);
-	  if (eq->getLhsAutomaton()->match(subject, context, sp, extensionInfo))
-	    {
-	    slowCase:
-	      DebugAdvisory("EquationTable::applyReplace() slowCase:\nsubject = " <<
-			    subject << "\neq = " << eq);
-	      if (sp == 0 || sp->solve(true, context))
-		{
-		  if (!(eq->hasCondition()) || eq->checkCondition(subject, context, sp))
-		    {
-		      bool trace = RewritingContext::getTraceStatus();
-		      if (trace)
-			{
-			  context.tracePreEqRewrite(subject, eq, RewritingContext::NORMAL);
-			  if (context.traceAbort())
-			    {
-			      delete sp;
-			      context.finished();
-			      break;
-			    }
-			}
-		      if (extensionInfo == 0 || extensionInfo->matchedWhole())
-			eq->getRhsBuilder().replace(subject, context);
-		      else
-			{
-			  subject->partialReplace(eq->getRhsBuilder().construct(context),
-						  extensionInfo);
-			}
-		      context.incrementEqCount();
-		      if (trace)
-			context.tracePostEqRewrite(subject);
-		      delete sp;
-		      context.finished();
-		      MemoryCell::okToCollectGarbage();
-		      return true;
-		    }
-		}
-	      delete sp;
-	    }
-	}
-      context.finished();
-      MemoryCell::okToCollectGarbage();  // matching process may create new DAG nodes
+EquationTable::applyReplace(DagNode *subject,
+                            RewritingContext &context,
+                            ExtensionInfo *extensionInfo) {
+    for (Equation *eq : equations) {
+        Subproblem *sp;
+        long nrVariables = eq->fastNrVariables();
+        if (nrVariables >= 0) {
+            //
+            //	Fast case.
+            //
+            context.clear(nrVariables);
+            if (eq->getLhsAutomaton()->match(subject, context, sp, extensionInfo)) {
+                if (sp != 0 || RewritingContext::getTraceStatus())
+                    goto slowCase;
+                if (extensionInfo == 0 || extensionInfo->matchedWhole())
+                    eq->getRhsBuilder().replace(subject, context);
+                else {
+                    subject->partialReplace(eq->getRhsBuilder().construct(context),
+                                            extensionInfo);
+                }
+                context.incrementEqCount();
+                context.finished();
+                MemoryCell::okToCollectGarbage();
+                return true;
+            }
+        } else {
+            //
+            //	General case.
+            //
+            nrVariables = eq->getNrProtectedVariables();
+            context.clear(nrVariables);
+            if (eq->getLhsAutomaton()->match(subject, context, sp, extensionInfo)) {
+                slowCase:
+                DebugAdvisory("EquationTable::applyReplace() slowCase:\nsubject = " <<
+                                                                                    subject << "\neq = " << eq);
+                if (sp == 0 || sp->solve(true, context)) {
+                    if (!(eq->hasCondition()) || eq->checkCondition(subject, context, sp)) {
+                        bool trace = RewritingContext::getTraceStatus();
+                        if (trace) {
+                            context.tracePreEqRewrite(subject, eq, RewritingContext::NORMAL);
+                            if (context.traceAbort()) {
+                                delete sp;
+                                context.finished();
+                                break;
+                            }
+                        }
+                        if (extensionInfo == 0 || extensionInfo->matchedWhole())
+                            eq->getRhsBuilder().replace(subject, context);
+                        else {
+                            subject->partialReplace(eq->getRhsBuilder().construct(context),
+                                                    extensionInfo);
+                        }
+                        context.incrementEqCount();
+                        if (trace)
+                            context.tracePostEqRewrite(subject);
+                        delete sp;
+                        context.finished();
+                        MemoryCell::okToCollectGarbage();
+                        return true;
+                    }
+                }
+                delete sp;
+            }
+        }
+        context.finished();
+        MemoryCell::okToCollectGarbage();  // matching process may create new DAG nodes
     }
-  return false;
+    return false;
 }
 
 bool
-EquationTable::applyReplaceNoOwise(DagNode* subject,
-				   RewritingContext& context,
-				   ExtensionInfo* extensionInfo)
-{
-  for (Equation* eq : equations)
-    {
-      Subproblem* sp;
-      //
-      //	Except for this one if statement, this fuction is identical
-      //	to the previous one.
-      //
-      if (eq->isOwise())
-	break;
-      long nrVariables = eq->fastNrVariables();
-      if (nrVariables >= 0)
-	{
-	  //
-	  //	Fast case.
-	  //
-	  context.clear(nrVariables);
-	  if (eq->getLhsAutomaton()->match(subject, context, sp, extensionInfo))
-	    {
-	      if (sp != 0 || RewritingContext::getTraceStatus())
-		goto slowCase;
-	      if (extensionInfo == 0 || extensionInfo->matchedWhole())
-		eq->getRhsBuilder().replace(subject, context);
-	      else
-		{
-		  subject->partialReplace(eq->getRhsBuilder().construct(context),
-					  extensionInfo);
-		}
-	      context.incrementEqCount();
-	      context.finished();
-	      MemoryCell::okToCollectGarbage();
-	      return true;
-	    }
-	}
-      else
-	{
-	  //
-	  //	General case.
-	  //
-	  nrVariables = eq->getNrProtectedVariables();
-	  context.clear(nrVariables);
-	  if (eq->getLhsAutomaton()->match(subject, context, sp, extensionInfo))
-	    {
-	    slowCase:
-	      if (sp == 0 || sp->solve(true, context))
-		{
-		  if (!(eq->hasCondition()) || eq->checkCondition(subject, context, sp))
-		    {
-		      bool trace = RewritingContext::getTraceStatus();
-		      if (trace)
-			{
-			  context.tracePreEqRewrite(subject, eq, RewritingContext::NORMAL);
-			  if (context.traceAbort())
-			    {
-			      delete sp;
-			      context.finished();
-			      break;
-			    }
-			}
-		      if (extensionInfo == 0 || extensionInfo->matchedWhole())
-			eq->getRhsBuilder().replace(subject, context);
-		      else
-			{
-			  subject->partialReplace(eq->getRhsBuilder().construct(context),
-						  extensionInfo);
-			}
-		      context.incrementEqCount();
-		      if (trace)
-			context.tracePostEqRewrite(subject);
-		      delete sp;
-		      context.finished();
-		      MemoryCell::okToCollectGarbage();
-		      return true;
-		    }
-		}
-	      delete sp;
-	    }
-	}
-      context.finished();
-      MemoryCell::okToCollectGarbage();  // matching process may create new DAG nodes
+EquationTable::applyReplaceNoOwise(DagNode *subject,
+                                   RewritingContext &context,
+                                   ExtensionInfo *extensionInfo) {
+    for (Equation *eq : equations) {
+        Subproblem *sp;
+        //
+        //	Except for this one if statement, this fuction is identical
+        //	to the previous one.
+        //
+        if (eq->isOwise())
+            break;
+        long nrVariables = eq->fastNrVariables();
+        if (nrVariables >= 0) {
+            //
+            //	Fast case.
+            //
+            context.clear(nrVariables);
+            if (eq->getLhsAutomaton()->match(subject, context, sp, extensionInfo)) {
+                if (sp != 0 || RewritingContext::getTraceStatus())
+                    goto slowCase;
+                if (extensionInfo == 0 || extensionInfo->matchedWhole())
+                    eq->getRhsBuilder().replace(subject, context);
+                else {
+                    subject->partialReplace(eq->getRhsBuilder().construct(context),
+                                            extensionInfo);
+                }
+                context.incrementEqCount();
+                context.finished();
+                MemoryCell::okToCollectGarbage();
+                return true;
+            }
+        } else {
+            //
+            //	General case.
+            //
+            nrVariables = eq->getNrProtectedVariables();
+            context.clear(nrVariables);
+            if (eq->getLhsAutomaton()->match(subject, context, sp, extensionInfo)) {
+                slowCase:
+                if (sp == 0 || sp->solve(true, context)) {
+                    if (!(eq->hasCondition()) || eq->checkCondition(subject, context, sp)) {
+                        bool trace = RewritingContext::getTraceStatus();
+                        if (trace) {
+                            context.tracePreEqRewrite(subject, eq, RewritingContext::NORMAL);
+                            if (context.traceAbort()) {
+                                delete sp;
+                                context.finished();
+                                break;
+                            }
+                        }
+                        if (extensionInfo == 0 || extensionInfo->matchedWhole())
+                            eq->getRhsBuilder().replace(subject, context);
+                        else {
+                            subject->partialReplace(eq->getRhsBuilder().construct(context),
+                                                    extensionInfo);
+                        }
+                        context.incrementEqCount();
+                        if (trace)
+                            context.tracePostEqRewrite(subject);
+                        delete sp;
+                        context.finished();
+                        MemoryCell::okToCollectGarbage();
+                        return true;
+                    }
+                }
+                delete sp;
+            }
+        }
+        context.finished();
+        MemoryCell::okToCollectGarbage();  // matching process may create new DAG nodes
     }
-  return false;
+    return false;
 }
 
 void
-EquationTable::resetEachEquation()
-{
-  for (Equation* eq : equations)
-    eq->reset();
+EquationTable::resetEachEquation() {
+    for (Equation *eq : equations)
+        eq->reset();
 }
 
 #ifdef DUMP
@@ -242,7 +214,7 @@ EquationTable::dumpEquationTable(ostream& s, int indentLevel)
     {
       LhsAutomaton* a = eq->getLhsAutomaton();
       if (a != 0)
-	a->dump(s, *eq, indentLevel);
+    a->dump(s, *eq, indentLevel);
     }
 }
 #endif

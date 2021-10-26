@@ -42,26 +42,24 @@
 #include "returnInstruction.hh"
 
 ReturnInstruction::ReturnInstruction(int returnSlot)
-  : returnSlot(returnSlot)
-{
-  setOpCode(RETURN);
+        : returnSlot(returnSlot) {
+    setOpCode(RETURN);
 }
 
 void
-ReturnInstruction::execute(StackMachine* machine) const
-{
-  //
-  //    Get the stack frame containing the pointer to us.
-  //
-  Frame* frame = machine->getTopFrame();
-  //
-  //    Get value to return.
-  //
-  DagNode* v = frame->getSlot(returnSlot);
-  //
-  //	Finish up using parent class code.
-  //
-  returnResultAndContinue(machine, frame, v);
+ReturnInstruction::execute(StackMachine *machine) const {
+    //
+    //    Get the stack frame containing the pointer to us.
+    //
+    Frame *frame = machine->getTopFrame();
+    //
+    //    Get value to return.
+    //
+    DagNode *v = frame->getSlot(returnSlot);
+    //
+    //	Finish up using parent class code.
+    //
+    returnResultAndContinue(machine, frame, v);
 }
 
 #ifdef DUMP

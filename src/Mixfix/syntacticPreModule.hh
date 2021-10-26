@@ -25,6 +25,7 @@
 //
 #ifndef _syntacticPreModule_hh_
 #define _syntacticPreModule_hh_
+
 #include <set>
 #include "preModule.hh"
 #include "lineNumber.hh"
@@ -34,199 +35,239 @@
 #include "moduleDatabase.hh"
 
 class SyntacticPreModule
-  : public PreModule,
-    public LineNumber,
-    public SyntaxContainer,
-    private SharedTokens
-    
-{
-  NO_COPYING(SyntacticPreModule);
+        : public PreModule,
+          public LineNumber,
+          public SyntaxContainer,
+          private SharedTokens {
+    NO_COPYING(SyntacticPreModule);
 
 public:
-  enum HookType
-  {
-    ID_HOOK,
-    OP_HOOK,
-    TERM_HOOK
-  };
+    enum HookType {
+        ID_HOOK,
+        OP_HOOK,
+        TERM_HOOK
+    };
 
-  SyntacticPreModule(Token startToken, Token moduleName, Interpreter* owner);
-  ~SyntacticPreModule();
+    SyntacticPreModule(Token startToken, Token moduleName, Interpreter *owner);
 
-  void loseFocus();
-  void finishModule(Token endToken);
-  bool isComplete();
+    ~SyntacticPreModule();
 
-  void addParameter2(Token name, ModuleExpression* theory);
-  void addImport(Token modeToken, ModuleExpression* expr);
+    void loseFocus();
 
-  void addSortDecl(const Vector<Token>& sortDecl);
-  void addSubsortDecl(const Vector<Token>& subsortDecl);
-  void addOpDecl(const Vector<Token>& opName);
-  void addStratDecl(Token opName);
-  void makeDeclsConsistent();
+    void finishModule(Token endToken);
 
-  void addType(bool kind, const Vector<Token>& tokens);
-  void convertSortsToKinds();
-  void setFlag(int flag);
-  void setPrec(Token range);
-  void setGather(const Vector<Token>& gather);
-  void setMetadata(Token metaDataTok);
-  void setFormat(const Vector<Token>& format);
-  void setIdentity(const Vector<Token>& identity);
-  void setStrat(const Vector<Token>& strategy);
-  void setFrozen(const Vector<Token>& frozen);
-  void setPoly(const Vector<Token>& polyArgs);
-  void setLatexMacro(const string& latexMacro);
-  void addHook(HookType type, Token name, const Vector<Token>& details);
-  void addVarDecl(Token varName);
-  void addStatement(const Vector<Token>& statement);
-  VisibleModule* getFlatSignature();
-  VisibleModule* getFlatModule();
+    bool isComplete();
 
-  const ModuleDatabase::ImportMap* getAutoImports() const;
+    void addParameter2(Token name, ModuleExpression *theory);
 
-  void dump();
-  void showModule(ostream& s = cout);
-  //
-  //	Utility functions - maybe they should go elsewhere?
-  //
-  static void printGather(ostream& s, const Vector<int>& gather);
-  static void printFormat(ostream& s, const Vector<int>& format);
-  static bool checkFormatString(const char* string);
+    void addImport(Token modeToken, ModuleExpression *expr);
+
+    void addSortDecl(const Vector<Token> &sortDecl);
+
+    void addSubsortDecl(const Vector<Token> &subsortDecl);
+
+    void addOpDecl(const Vector<Token> &opName);
+
+    void addStratDecl(Token opName);
+
+    void makeDeclsConsistent();
+
+    void addType(bool kind, const Vector<Token> &tokens);
+
+    void convertSortsToKinds();
+
+    void setFlag(int flag);
+
+    void setPrec(Token range);
+
+    void setGather(const Vector<Token> &gather);
+
+    void setMetadata(Token metaDataTok);
+
+    void setFormat(const Vector<Token> &format);
+
+    void setIdentity(const Vector<Token> &identity);
+
+    void setStrat(const Vector<Token> &strategy);
+
+    void setFrozen(const Vector<Token> &frozen);
+
+    void setPoly(const Vector<Token> &polyArgs);
+
+    void setLatexMacro(const string &latexMacro);
+
+    void addHook(HookType type, Token name, const Vector<Token> &details);
+
+    void addVarDecl(Token varName);
+
+    void addStatement(const Vector<Token> &statement);
+
+    VisibleModule *getFlatSignature();
+
+    VisibleModule *getFlatModule();
+
+    const ModuleDatabase::ImportMap *getAutoImports() const;
+
+    void dump();
+
+    void showModule(ostream &s = cout);
+
+    //
+    //	Utility functions - maybe they should go elsewhere?
+    //
+    static void printGather(ostream &s, const Vector<int> &gather);
+
+    static void printFormat(ostream &s, const Vector<int> &format);
+
+    static bool checkFormatString(const char *string);
 
 private:
-  struct Hook
-  {
-    HookType type;
-    int name;
-    Vector<Token> details;
-  };
-
-  struct OpDecl
-  {
-    Token prefixName;
-    int defIndex;
-    union
-    {
-      Symbol* symbol;
-      int polymorphIndex;
+    struct Hook {
+        HookType type;
+        int name;
+        Vector<Token> details;
     };
-    bool originator;  // did we originate this symbol in our flat module?
-    int bubbleSpecIndex;
-  };
 
-  struct OpDef
-  {
-    OpDef();
+    struct OpDecl {
+        Token prefixName;
+        int defIndex;
+        union {
+            Symbol *symbol;
+            int polymorphIndex;
+        };
+        bool originator;  // did we originate this symbol in our flat module?
+        int bubbleSpecIndex;
+    };
 
-    Vector<Type> types;
-    Vector<Token> identity;
-    Vector<Hook> special;
-    Vector<int> strategy;
-    NatSet frozen;
-    NatSet polyArgs;
-    int prec;
-    Vector<int> gather;
-    Vector<int> format;
-    int metadata;
-    SymbolType symbolType;
-    string latexMacro;
-    //
-    //	Filled out from types after connected components are determined.
-    //
-    Vector<Sort*> domainAndRange;
-  };
+    struct OpDef {
+        OpDef();
 
-  struct StratDecl
-  {
-    StratDecl() : metadata(NONE) {}
+        Vector<Type> types;
+        Vector<Token> identity;
+        Vector<Hook> special;
+        Vector<int> strategy;
+        NatSet frozen;
+        NatSet polyArgs;
+        int prec;
+        Vector<int> gather;
+        Vector<int> format;
+        int metadata;
+        SymbolType symbolType;
+        string latexMacro;
+        //
+        //	Filled out from types after connected components are determined.
+        //
+        Vector<Sort *> domainAndRange;
+    };
 
-    Vector<Token> names;
-    Vector<Type> types;
-    int metadata;
-    //
-    // Filled out from types after connected components are determined.
-    //
-    Vector<Sort*> domainAndSubject;
-  };
+    struct StratDecl {
+        StratDecl() : metadata(NONE) {}
 
-  void process();
+        Vector<Token> names;
+        Vector<Type> types;
+        int metadata;
+        //
+        // Filled out from types after connected components are determined.
+        //
+        Vector<Sort *> domainAndSubject;
+    };
 
-  static void printAttributes(ostream& s, const OpDef& opDef);
-  static void printAttributes(ostream& s, const StratDecl& stratDecl);
-  static void printSortTokenVector(ostream& s, const Vector<Token>& sorts);
+    void process();
 
-  void regretToInform(Entity* doomedEntity);
-  int findHook(const Vector<Hook>& hookList, HookType type, int name);
+    static void printAttributes(ostream &s, const OpDef &opDef);
 
-  Symbol* findHookSymbol(const Vector<Token>& fullName);
-  void printOpDef(ostream& s, int defIndex);
-  void printStratDecl(ostream& s, const StratDecl& decl);
-  bool defaultFixUp(OpDef& opDef, Symbol* symbol);
-  bool defaultFixUp(OpDef& opDef, int index);
-  void extractSpecialTerms(const Vector<Token>& bubble,
-			   int begin,
-			   ConnectedComponent* component,
-			   Vector<Term*>& terms);
-  Symbol* extractSpecialSymbol(const Vector<Token>& bubble, int& pos);
-  void processImports();
-  void processSorts();
-  Sort* getSort(Token token);
-  void checkOpTypes();
-  void checkType(const Type& type);
-  void computeOpTypes();
-  void computeStrategyTypes();
-  Sort* computeType(const Type& type);
-  void processOps();
-  void fixUpSymbols();
-  void fixUpSymbol(const OpDecl& opDecl);
-  void fixUpPolymorph(const OpDecl& opDecl);
-  void processStrategies();
-  void processStatements();
-  bool compatible(int endTokenCode);
+    static void printAttributes(ostream &s, const StratDecl &stratDecl);
 
-  int startTokenCode;
-  Bool lastSawOpDecl;
-  Bool isStrategy;
-  Bool isCompleteFlag;
-  Vector<Vector<Token> > sortDecls;
-  Vector<Vector<Token> > subsortDecls;
-  Vector<OpDecl> opDecls;
-  Vector<OpDef> opDefs;
-  Vector<StratDecl> stratDecls;
-  Vector<Vector<Token> > statements;
-  set<int> potentialLabels;
-  set<int> potentialRuleLabels;
-  ModuleDatabase::ImportMap autoImports;
-  VisibleModule* flatModule;
+    static void printSortTokenVector(ostream &s, const Vector<Token> &sorts);
+
+    void regretToInform(Entity *doomedEntity);
+
+    int findHook(const Vector<Hook> &hookList, HookType type, int name);
+
+    Symbol *findHookSymbol(const Vector<Token> &fullName);
+
+    void printOpDef(ostream &s, int defIndex);
+
+    void printStratDecl(ostream &s, const StratDecl &decl);
+
+    bool defaultFixUp(OpDef &opDef, Symbol *symbol);
+
+    bool defaultFixUp(OpDef &opDef, int index);
+
+    void extractSpecialTerms(const Vector<Token> &bubble,
+                             int begin,
+                             ConnectedComponent *component,
+                             Vector<Term *> &terms);
+
+    Symbol *extractSpecialSymbol(const Vector<Token> &bubble, int &pos);
+
+    void processImports();
+
+    void processSorts();
+
+    Sort *getSort(Token token);
+
+    void checkOpTypes();
+
+    void checkType(const Type &type);
+
+    void computeOpTypes();
+
+    void computeStrategyTypes();
+
+    Sort *computeType(const Type &type);
+
+    void processOps();
+
+    void fixUpSymbols();
+
+    void fixUpSymbol(const OpDecl &opDecl);
+
+    void fixUpPolymorph(const OpDecl &opDecl);
+
+    void processStrategies();
+
+    void processStatements();
+
+    bool compatible(int endTokenCode);
+
+    int startTokenCode;
+    Bool lastSawOpDecl;
+    Bool isStrategy;
+    Bool isCompleteFlag;
+    Vector<Vector<Token> > sortDecls;
+    Vector<Vector<Token> > subsortDecls;
+    Vector<OpDecl> opDecls;
+    Vector<OpDef> opDefs;
+    Vector<StratDecl> stratDecls;
+    Vector<Vector<Token> > statements;
+    set<int> potentialLabels;
+    set<int> potentialRuleLabels;
+    ModuleDatabase::ImportMap autoImports;
+    VisibleModule *flatModule;
 };
 
 inline bool
-SyntacticPreModule::isComplete()
-{
-  return isCompleteFlag;
+SyntacticPreModule::isComplete() {
+    return isCompleteFlag;
 }
 
 inline void
-SyntacticPreModule::addSortDecl(const Vector<Token>& sortDecl)
-{
-  if (sortDecl.empty())
-    IssueWarning("skipped empty sort declaration.");  // would be nice to have a line number
-  else
-    sortDecls.append(sortDecl);
+SyntacticPreModule::addSortDecl(const Vector<Token> &sortDecl) {
+    if (sortDecl.empty())
+        IssueWarning("skipped empty sort declaration.");  // would be nice to have a line number
+    else
+        sortDecls.append(sortDecl);
 }
 
 inline void
-SyntacticPreModule::addSubsortDecl(const Vector<Token>& subsortDecl)
-{
-  subsortDecls.append(subsortDecl);
+SyntacticPreModule::addSubsortDecl(const Vector<Token> &subsortDecl) {
+    subsortDecls.append(subsortDecl);
 }
 
-inline const ModuleDatabase::ImportMap*
-SyntacticPreModule::getAutoImports() const
-{
-  return &autoImports;
+inline const ModuleDatabase::ImportMap *
+SyntacticPreModule::getAutoImports() const {
+    return &autoImports;
 }
 
 #endif

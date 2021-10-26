@@ -25,37 +25,42 @@
 //
 #ifndef _NA_DagNode_hh_
 #define _NA_DagNode_hh_
+
 #include "dagNode.hh"
 
-class NA_DagNode : public DagNode
-{
+class NA_DagNode : public DagNode {
 public:
-  NA_DagNode(NA_Symbol* symbol);
-  //
-  //    Functions required by theory interface.
-  //
-  //	The following functions are left to the derived class to handle:
-  //
-  //	int compareArguments(const DagNode* other) const
-  //	void overwriteWithClone(DagNode* old);
-  //	DagNode* makeClone();
-  //
-  RawDagArgumentIterator* arguments();
-  DagNode* copyWithReplacement(int argIndex, DagNode* replacement);
-  DagNode* copyWithReplacement(Vector<RedexPosition>& redexStack,
-			       int first,
-			       int last);
+    NA_DagNode(NA_Symbol *symbol);
+
+    //
+    //    Functions required by theory interface.
+    //
+    //	The following functions are left to the derived class to handle:
+    //
+    //	int compareArguments(const DagNode* other) const
+    //	void overwriteWithClone(DagNode* old);
+    //	DagNode* makeClone();
+    //
+    RawDagArgumentIterator *arguments();
+
+    DagNode *copyWithReplacement(int argIndex, DagNode *replacement);
+
+    DagNode *copyWithReplacement(Vector<RedexPosition> &redexStack,
+                                 int first,
+                                 int last);
 
 private:
-  DagNode* markArguments();
-  DagNode* copyEagerUptoReduced2();
-  DagNode* copyAll2();
-  void clearCopyPointers2();
+    DagNode *markArguments();
+
+    DagNode *copyEagerUptoReduced2();
+
+    DagNode *copyAll2();
+
+    void clearCopyPointers2();
 };
 
 inline
-NA_DagNode::NA_DagNode(NA_Symbol* symbol) : DagNode(symbol)
-{
+NA_DagNode::NA_DagNode(NA_Symbol *symbol) : DagNode(symbol) {
 }
 
 #endif

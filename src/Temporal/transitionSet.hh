@@ -38,40 +38,43 @@
 //
 #ifndef _transitionSet_hh_
 #define _transitionSet_hh_
+
 #include <map>
 #include "natSet.hh"
 #include "bdd.hh"
 
 typedef pair<NatSet, Bdd> Transition;  // HACK
 
-class TransitionSet
-{
+class TransitionSet {
 public:
-  typedef map<NatSet, Bdd> TransitionMap;
+    typedef map <NatSet, Bdd> TransitionMap;
 
-  void insert(const Transition& transition);
-  void insert(const TransitionSet& transitionSet);
-  void product(const TransitionSet& ts1, const TransitionSet& ts2);
-  void swap(TransitionSet& other);
-  void rename(const TransitionSet& original, const Vector<int>& renaming);
+    void insert(const Transition &transition);
 
-  const TransitionMap& getMap() const;
-  void dump(ostream& s, int indentLevel = 0) const;
+    void insert(const TransitionSet &transitionSet);
+
+    void product(const TransitionSet &ts1, const TransitionSet &ts2);
+
+    void swap(TransitionSet &other);
+
+    void rename(const TransitionSet &original, const Vector<int> &renaming);
+
+    const TransitionMap &getMap() const;
+
+    void dump(ostream &s, int indentLevel = 0) const;
 
 private:
-  TransitionMap transitionMap;
+    TransitionMap transitionMap;
 };
 
 inline void
-TransitionSet::swap(TransitionSet& other)
-{
-  transitionMap.swap(other.transitionMap);
+TransitionSet::swap(TransitionSet &other) {
+    transitionMap.swap(other.transitionMap);
 }
 
-inline const TransitionSet::TransitionMap&
-TransitionSet::getMap() const
-{
-  return transitionMap;
+inline const TransitionSet::TransitionMap &
+TransitionSet::getMap() const {
+    return transitionMap;
 }
 
 #endif

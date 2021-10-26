@@ -25,29 +25,30 @@
 //
 #ifndef _oneTask_hh_
 #define _oneTask_hh_
+
 #include "strategicTask.hh"
 #include "strategicSearch.hh"
 
-class OneTask : public StrategicTask
-{
-  NO_COPYING(OneTask);
+class OneTask : public StrategicTask {
+    NO_COPYING(OneTask);
 
 public:
-  OneTask(StrategicSearch& searchObject,
-	  int startIndex,
-	  StrategyExpression* strategy,
-	  StrategyStackManager::StackId pending,
-	  StrategicExecution* sibling,
-	  StrategicProcess* insertionPoint);
+    OneTask(StrategicSearch &searchObject,
+            int startIndex,
+            StrategyExpression *strategy,
+            StrategyStackManager::StackId pending,
+            StrategicExecution *sibling,
+            StrategicProcess *insertionPoint);
 
-  //
-  //	Call-backs for interesting events.
-  //
-  virtual Survival executionSucceeded(int resultIndex, StrategicProcess* insertionPoint);
-  virtual Survival executionsExhausted(StrategicProcess* insertionPoint);
+    //
+    //	Call-backs for interesting events.
+    //
+    virtual Survival executionSucceeded(int resultIndex, StrategicProcess *insertionPoint);
+
+    virtual Survival executionsExhausted(StrategicProcess *insertionPoint);
 
 private:
-  StrategyStackManager::StackId pending;
+    StrategyStackManager::StackId pending;
 };
 
 #endif

@@ -25,41 +25,43 @@
 //
 #ifndef _metaModuleCache_hh_
 #define _metaModuleCache_hh_
+
 #include "importModule.hh"
 
-class MetaModuleCache : public Entity::User
-{
-  NO_COPYING(MetaModuleCache);
+class MetaModuleCache : public Entity::User {
+    NO_COPYING(MetaModuleCache);
 
 public:
-  MetaModuleCache();
-  ~MetaModuleCache();
+    MetaModuleCache();
 
-  MetaModule* find(DagNode* dag);
-  void insert(DagNode* dag, MetaModule* module);
-  void flush();
+    ~MetaModuleCache();
+
+    MetaModule *find(DagNode *dag);
+
+    void insert(DagNode *dag, MetaModule *module);
+
+    void flush();
 
 private:
-  enum Sizes
-    {
-      DEFAULT_MAX_SIZE = 4, //  this is the normal maximum size of the cache
-      MIN_MAX_SIZE = 1,  // this is the smallest custom maximum size allowed
-      MAX_MAX_SIZE = 1024  // this is the largest custom maximum size allowed
+    enum Sizes {
+        DEFAULT_MAX_SIZE = 4, //  this is the normal maximum size of the cache
+        MIN_MAX_SIZE = 1,  // this is the smallest custom maximum size allowed
+        MAX_MAX_SIZE = 1024  // this is the largest custom maximum size allowed
     };
 
-  struct Pair
-  {
-    void clear();
+    struct Pair {
+        void clear();
 
-    DagRoot* dag;
-    MetaModule* module;
-  };
+        DagRoot *dag;
+        MetaModule *module;
+    };
 
-  void regretToInform(Entity* doomedEntity);
-  MetaModule* moveToFront(int chosen);
+    void regretToInform(Entity *doomedEntity);
 
-  static int maxSize;
-  Vector<Pair> cache;
+    MetaModule *moveToFront(int chosen);
+
+    static int maxSize;
+    Vector<Pair> cache;
 };
 
 #endif

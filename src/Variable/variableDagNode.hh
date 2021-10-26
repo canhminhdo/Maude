@@ -25,80 +25,95 @@
 //
 #ifndef _variableDagNode_hh_
 #define _variableDagNode_hh_
+
 #include "dagNode.hh"
 #include "namedEntity.hh"
 
-class VariableDagNode : public DagNode, public NamedEntity
-{
-  NO_COPYING(VariableDagNode);
+class VariableDagNode : public DagNode, public NamedEntity {
+    NO_COPYING(VariableDagNode);
 
 public:
-  VariableDagNode(Symbol* symbol, int name, int index);
-  
-  RawDagArgumentIterator* arguments();
-  size_t getHashValue();
-  int compareArguments(const DagNode* other) const;
-  void overwriteWithClone(DagNode* old);
-  DagNode* makeClone();
-  DagNode* copyWithReplacement(int argIndex, DagNode* replacement);
-  DagNode* copyWithReplacement(Vector<RedexPosition>& redexStack,
-			       int first,
-			       int last);
-  //
-  //	Unification member functions.
-  //
-  ReturnResult computeBaseSortForGroundSubterms(bool warnAboutUnimplemented);
-  /*
-  bool computeSolvedForm2(DagNode* rhs,
-			  Substitution& solution,
-			  Subproblem*& returnedSubproblem,
-			  ExtensionInfo* extensionInfo);
-  */
-  bool computeSolvedForm2(DagNode* rhs, UnificationContext& solution, PendingUnificationStack& pending);
+    VariableDagNode(Symbol *symbol, int name, int index);
 
-  void insertVariables2(NatSet& occurs);
-  DagNode* instantiate2(const Substitution& substitution, bool maintainInvariants);
-  //
-  //	Narrowing member functions.
-  //
-  bool indexVariables2(NarrowingVariableInfo& indicies, int baseIndex);
-  DagNode* instantiateWithCopies2(const Substitution& substitution, const Vector<DagNode*>& eagerCopies);
-  //
-  //	Function needed for variant matching.
-  //
-  void indexVariables(VariableInfo& indicies);
-  //
-  //	Functions specific to VariableDagNode.
-  //  
-  int getIndex() const;
-  VariableDagNode* lastVariableInChain(Substitution& solution);
+    RawDagArgumentIterator *arguments();
+
+    size_t getHashValue();
+
+    int compareArguments(const DagNode *other) const;
+
+    void overwriteWithClone(DagNode *old);
+
+    DagNode *makeClone();
+
+    DagNode *copyWithReplacement(int argIndex, DagNode *replacement);
+
+    DagNode *copyWithReplacement(Vector<RedexPosition> &redexStack,
+                                 int first,
+                                 int last);
+
+    //
+    //	Unification member functions.
+    //
+    ReturnResult computeBaseSortForGroundSubterms(bool warnAboutUnimplemented);
+
+    /*
+    bool computeSolvedForm2(DagNode* rhs,
+                Substitution& solution,
+                Subproblem*& returnedSubproblem,
+                ExtensionInfo* extensionInfo);
+    */
+    bool computeSolvedForm2(DagNode *rhs, UnificationContext &solution, PendingUnificationStack &pending);
+
+    void insertVariables2(NatSet &occurs);
+
+    DagNode *instantiate2(const Substitution &substitution, bool maintainInvariants);
+
+    //
+    //	Narrowing member functions.
+    //
+    bool indexVariables2(NarrowingVariableInfo &indicies, int baseIndex);
+
+    DagNode *instantiateWithCopies2(const Substitution &substitution, const Vector<DagNode *> &eagerCopies);
+
+    //
+    //	Function needed for variant matching.
+    //
+    void indexVariables(VariableInfo &indicies);
+
+    //
+    //	Functions specific to VariableDagNode.
+    //
+    int getIndex() const;
+
+    VariableDagNode *lastVariableInChain(Substitution &solution);
 
 private:
-  DagNode* markArguments();
-  DagNode* copyEagerUptoReduced2();
-  DagNode* copyAll2();
-  void clearCopyPointers2();
+    DagNode *markArguments();
 
-  bool safeVirtualReplacement(VariableDagNode* oldVar,
-			      VariableDagNode* newVar,
-			      UnificationContext& solution,
-			      PendingUnificationStack& pending);
+    DagNode *copyEagerUptoReduced2();
 
-  int index;
+    DagNode *copyAll2();
+
+    void clearCopyPointers2();
+
+    bool safeVirtualReplacement(VariableDagNode *oldVar,
+                                VariableDagNode *newVar,
+                                UnificationContext &solution,
+                                PendingUnificationStack &pending);
+
+    int index;
 };
 
 inline
-VariableDagNode::VariableDagNode(Symbol* symbol, int name, int index)
-  : DagNode(symbol),
-    NamedEntity(name),
-    index(index)
-{
+VariableDagNode::VariableDagNode(Symbol *symbol, int name, int index)
+        : DagNode(symbol),
+          NamedEntity(name),
+          index(index) {
 }
 
 inline int
-VariableDagNode::getIndex() const
-{
-  return index;
+VariableDagNode::getIndex() const {
+    return index;
 }
 
 #endif

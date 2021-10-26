@@ -26,57 +26,53 @@
 //
 #ifndef _dagRoot_hh_
 #define _dagRoot_hh_
+
 #include "rootContainer.hh"
 
-class DagRoot : private RootContainer
-{
+class DagRoot : private RootContainer {
 public:
-  DagRoot(DagNode* initial = 0);
-  ~DagRoot();
-  DagNode* getNode() const;
-  void setNode(DagNode* node);
- 
-private:
-  void markReachableNodes();
+    DagRoot(DagNode *initial = 0);
 
-  DagNode* nodePointer;
+    ~DagRoot();
+
+    DagNode *getNode() const;
+
+    void setNode(DagNode *node);
+
+private:
+    void markReachableNodes();
+
+    DagNode *nodePointer;
 };
 
 inline
-DagRoot::DagRoot(DagNode* initial)
-{
-  nodePointer = initial;
-  if (initial != 0)
-    link();
+DagRoot::DagRoot(DagNode *initial) {
+    nodePointer = initial;
+    if (initial != 0)
+        link();
 }
 
 inline
-DagRoot::~DagRoot()
-{
-  if (nodePointer != 0)
-    unlink();
+DagRoot::~DagRoot() {
+    if (nodePointer != 0)
+        unlink();
 }
 
-inline DagNode*
-DagRoot::getNode() const
-{
-  return nodePointer;
+inline DagNode *
+DagRoot::getNode() const {
+    return nodePointer;
 }
 
 inline void
-DagRoot::setNode(DagNode* node)
-{
-  if (node == 0)
-    {
-      if (nodePointer != 0)
-	unlink();
+DagRoot::setNode(DagNode *node) {
+    if (node == 0) {
+        if (nodePointer != 0)
+            unlink();
+    } else {
+        if (nodePointer == 0)
+            link();
     }
-  else
-    {
-      if (nodePointer == 0)
-	link();
-    }
-  nodePointer = node;
+    nodePointer = node;
 }
 
 #endif

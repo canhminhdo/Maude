@@ -27,46 +27,45 @@
 //
 #ifndef _freeInstruction_hh_
 #define _freeInstruction_hh_
+
 #include "nonFinalExtor.hh"
 
-class FreeInstruction : public NonFinalExtor
-{
-  NO_COPYING(FreeInstruction);
+class FreeInstruction : public NonFinalExtor {
+    NO_COPYING(FreeInstruction);
 
 public:
-  enum FreeOpCodes
-    {
-      FREE_NULLARY_CTOR,
-      FREE_UNARY_CTOR,
-      FREE_BINARY_CTOR,
-      FREE_TERNARY_CTOR,
+    enum FreeOpCodes {
+        FREE_NULLARY_CTOR,
+        FREE_UNARY_CTOR,
+        FREE_BINARY_CTOR,
+        FREE_TERNARY_CTOR,
 
-      FREE_NULLARY_EXTOR,
-      FREE_UNARY_EXTOR,
-      FREE_BINARY_EXTOR,
-      FREE_TERNARY_EXTOR,
+        FREE_NULLARY_EXTOR,
+        FREE_UNARY_EXTOR,
+        FREE_BINARY_EXTOR,
+        FREE_TERNARY_EXTOR,
 
-      FREE_NULLARY_CTOR_FINAL,
-      FREE_UNARY_CTOR_FINAL,
-      FREE_BINARY_CTOR_FINAL,
-      FREE_TERNARY_CTOR_FINAL,
+        FREE_NULLARY_CTOR_FINAL,
+        FREE_UNARY_CTOR_FINAL,
+        FREE_BINARY_CTOR_FINAL,
+        FREE_TERNARY_CTOR_FINAL,
 
-      FREE_NULLARY_EXTOR_FINAL,
-      FREE_UNARY_EXTOR_FINAL,
-      FREE_BINARY_EXTOR_FINAL,
-      FREE_TERNARY_EXTOR_FINAL,
+        FREE_NULLARY_EXTOR_FINAL,
+        FREE_UNARY_EXTOR_FINAL,
+        FREE_BINARY_EXTOR_FINAL,
+        FREE_TERNARY_EXTOR_FINAL,
     };
 
-  FreeInstruction(FreeSymbol* symbol, int destIndex = 0, Instruction* nextInstruction = 0);
+    FreeInstruction(FreeSymbol *symbol, int destIndex = 0, Instruction *nextInstruction = 0);
 
-  void execute(StackMachine* machine) const;
+    void execute(StackMachine *machine) const;
 
 #ifdef DUMP
-  void dump(ostream& s, int indentLevel);
+    void dump(ostream& s, int indentLevel);
 #endif
 
 private:
-  FreeSymbol* const symbol;  // our symbol
+    FreeSymbol *const symbol;  // our symbol
 };
 
 #endif

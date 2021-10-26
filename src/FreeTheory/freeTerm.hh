@@ -26,127 +26,154 @@
 
 #ifndef _freeTerm_hh_
 #define _freeTerm_hh_
+
 #include "term.hh"
 #include "freeSubterm.hh"
 
-class FreeTerm : public Term
-{
+class FreeTerm : public Term {
 public:
-  FreeTerm(FreeSymbol* symbol, const Vector<Term*>& arguments);
-  ~FreeTerm();
-  //
-  //	functions required by theory interface
-  //
-  RawArgumentIterator* arguments();
-  void deepSelfDestruct();
-  Term* deepCopy2(SymbolMap* translator) const;
-  Term* normalize(bool full, bool& changed);
-  int compareArguments(const Term* other) const;
-  int compareArguments(const DagNode* other) const;
-  void findEagerVariables(bool atTop, NatSet& eagerVariables) const;
-  void analyseConstraintPropagation(NatSet& BoundUniquely) const;
-  LhsAutomaton* compileLhs2(bool matchAtTop,
-			    const VariableInfo& variableInfo,
-			    NatSet& boundUniquely,
-			    bool& subproblemLikely);
-  void markEagerArguments(int nrVariables,
-			  const NatSet& eagerVariables,
-			  Vector<int>& problemVariables);
-  DagNode* dagify2();
+    FreeTerm(FreeSymbol *symbol, const Vector<Term *> &arguments);
 
-  void findAvailableTerms(TermBag& availableTerms, bool eagerContext, bool atTop);
-  int compileRhs2(RhsBuilder& rhsBuilder,
-		  VariableInfo& variableInfo,
-		  TermBag& availableTerms,
-		  bool eagerContext);
-  //
-  //	Optional stuff that is easy to define for free theory.
-  //
-  bool earlyMatchFailOnInstanceOf(const Term* other) const;
-  bool subsumes(const Term* other, bool sameVariableSet) const;
-  int partialCompareArguments(const Substitution& partialSubstitution,
-			      DagNode* other) const;
+    ~FreeTerm();
 
-  void computeMatchIndices() const;
-  //
-  //	Functions particular to free terms.
-  //
-  FreeSymbol* symbol() const;
-  Term* locateSubterm(const Vector<int>& position, int backup = 0);
-  Term* locateSubterm2(Vector<int>& position);
-  int getSlotIndex() const;
-  void setSlotIndex(int index);
-  void setVisitedFlag(bool state);
-  void findActiveSlots(NatSet& slots);
-  FreeRemainder* compileRemainder(Equation* equation, const Vector<int>& slotTranslation);
-  bool  scanFreeSkeleton(const NatSet& usedVariables,
-			 Vector<int>& path,
-			 FreePositionTable& positions,
-			 NatSet& boundVariables,
-			 Vector<FreeSubterm>& subterms);
-  void resetSlotIndices();
+    //
+    //	functions required by theory interface
+    //
+    RawArgumentIterator *arguments();
+
+    void deepSelfDestruct();
+
+    Term *deepCopy2(SymbolMap *translator) const;
+
+    Term *normalize(bool full, bool &changed);
+
+    int compareArguments(const Term *other) const;
+
+    int compareArguments(const DagNode *other) const;
+
+    void findEagerVariables(bool atTop, NatSet &eagerVariables) const;
+
+    void analyseConstraintPropagation(NatSet &BoundUniquely) const;
+
+    LhsAutomaton *compileLhs2(bool matchAtTop,
+                              const VariableInfo &variableInfo,
+                              NatSet &boundUniquely,
+                              bool &subproblemLikely);
+
+    void markEagerArguments(int nrVariables,
+                            const NatSet &eagerVariables,
+                            Vector<int> &problemVariables);
+
+    DagNode *dagify2();
+
+    void findAvailableTerms(TermBag &availableTerms, bool eagerContext, bool atTop);
+
+    int compileRhs2(RhsBuilder &rhsBuilder,
+                    VariableInfo &variableInfo,
+                    TermBag &availableTerms,
+                    bool eagerContext);
+
+    //
+    //	Optional stuff that is easy to define for free theory.
+    //
+    bool earlyMatchFailOnInstanceOf(const Term *other) const;
+
+    bool subsumes(const Term *other, bool sameVariableSet) const;
+
+    int partialCompareArguments(const Substitution &partialSubstitution,
+                                DagNode *other) const;
+
+    void computeMatchIndices() const;
+
+    //
+    //	Functions particular to free terms.
+    //
+    FreeSymbol *symbol() const;
+
+    Term *locateSubterm(const Vector<int> &position, int backup = 0);
+
+    Term *locateSubterm2(Vector<int> &position);
+
+    int getSlotIndex() const;
+
+    void setSlotIndex(int index);
+
+    void setVisitedFlag(bool state);
+
+    void findActiveSlots(NatSet &slots);
+
+    FreeRemainder *compileRemainder(Equation *equation, const Vector<int> &slotTranslation);
+
+    bool scanFreeSkeleton(const NatSet &usedVariables,
+                          Vector<int> &path,
+                          FreePositionTable &positions,
+                          NatSet &boundVariables,
+                          Vector<FreeSubterm> &subterms);
+
+    void resetSlotIndices();
 
 private:
-  FreeTerm(const FreeTerm& original, FreeSymbol* symbol, SymbolMap* translator);
+    FreeTerm(const FreeTerm &original, FreeSymbol *symbol, SymbolMap *translator);
 
-  struct CP_Sequence;
+    struct CP_Sequence;
 
-  static void findConstraintPropagationSequence(const Vector<FreeOccurrence>& aliens,
-						const NatSet& boundUniquely,
-						CP_Sequence& bestSequence);
-  static void findConstraintPropagationSequence(const Vector<FreeOccurrence>& aliens,
-						Vector<int>& currentSequence,
-						const NatSet& boundUniquely,
-						int step,
-						CP_Sequence& bestSequence);
-  static bool remainingAliensContain(const Vector<FreeOccurrence>& aliens,
-				     Vector<int>& currentSequence,
-				     int step,
-				     int us,
-				     const NatSet& interestingVariables);
-  void scanFreeSkeleton(Vector<FreeOccurrence>& freeSymbols,
-			Vector<FreeOccurrence>& otherSymbols,
-			int parent = -1,
-			int argIndex = -1);
-  void compileRhsAliens(RhsBuilder& rhsBuilder,
-			VariableInfo& variableInfo,
-			TermBag& availableTerms,
-			bool eagerContext,
-			int& maxArity,
-			int& nrFree);
-  int compileRhs3(FreeRhsAutomaton* automaton,
-		  RhsBuilder& rhsBuilder,
-		  VariableInfo& variableInfo,
-		  TermBag& availableTerms,
-		  bool eagerContext);
+    static void findConstraintPropagationSequence(const Vector<FreeOccurrence> &aliens,
+                                                  const NatSet &boundUniquely,
+                                                  CP_Sequence &bestSequence);
 
-  Vector<Term*> argArray;
-  short slotIndex;
-  Bool visitedFlag;
+    static void findConstraintPropagationSequence(const Vector<FreeOccurrence> &aliens,
+                                                  Vector<int> &currentSequence,
+                                                  const NatSet &boundUniquely,
+                                                  int step,
+                                                  CP_Sequence &bestSequence);
+
+    static bool remainingAliensContain(const Vector<FreeOccurrence> &aliens,
+                                       Vector<int> &currentSequence,
+                                       int step,
+                                       int us,
+                                       const NatSet &interestingVariables);
+
+    void scanFreeSkeleton(Vector<FreeOccurrence> &freeSymbols,
+                          Vector<FreeOccurrence> &otherSymbols,
+                          int parent = -1,
+                          int argIndex = -1);
+
+    void compileRhsAliens(RhsBuilder &rhsBuilder,
+                          VariableInfo &variableInfo,
+                          TermBag &availableTerms,
+                          bool eagerContext,
+                          int &maxArity,
+                          int &nrFree);
+
+    int compileRhs3(FreeRhsAutomaton *automaton,
+                    RhsBuilder &rhsBuilder,
+                    VariableInfo &variableInfo,
+                    TermBag &availableTerms,
+                    bool eagerContext);
+
+    Vector<Term *> argArray;
+    short slotIndex;
+    Bool visitedFlag;
 };
 
-inline FreeSymbol*
-FreeTerm::symbol() const
-{
-  return safeCast(FreeSymbol*, Term::symbol());
+inline FreeSymbol *
+FreeTerm::symbol() const {
+    return safeCast(FreeSymbol*, Term::symbol());
 }
 
 inline int
-FreeTerm::getSlotIndex() const
-{
-  return slotIndex;
+FreeTerm::getSlotIndex() const {
+    return slotIndex;
 }
 
 inline void
-FreeTerm::setSlotIndex(int index)
-{
-  slotIndex = index;
+FreeTerm::setSlotIndex(int index) {
+    slotIndex = index;
 }
 
 inline void
-FreeTerm::setVisitedFlag(bool state)
-{
-  visitedFlag = state;
+FreeTerm::setVisitedFlag(bool state) {
+    visitedFlag = state;
 }
 
 #endif

@@ -25,18 +25,17 @@
 //
 #ifndef _sequenceSearch_hh_
 #define _sequenceSearch_hh_
+
 #include "cacheableState.hh"
 
-class SequenceSearch : public CacheableState
-{
+class SequenceSearch : public CacheableState {
 public:
-  enum SearchType
-  {
-    ONE_STEP,
-    AT_LEAST_ONE_STEP,
-    ANY_STEPS,
-    NORMAL_FORM
-  };
+    enum SearchType {
+        ONE_STEP,
+        AT_LEAST_ONE_STEP,
+        ANY_STEPS,
+        NORMAL_FORM
+    };
 };
 
 #endif

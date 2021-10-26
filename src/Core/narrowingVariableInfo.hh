@@ -25,59 +25,59 @@
 //
 #ifndef _narrowingVariableInfo_hh_
 #define _narrowingVariableInfo_hh_
+
 #include "variable.hh"
 
-class NarrowingVariableInfo
-{
-  NO_COPYING(NarrowingVariableInfo);
+class NarrowingVariableInfo {
+    NO_COPYING(NarrowingVariableInfo);
 
 public:
-  NarrowingVariableInfo() {}
+    NarrowingVariableInfo() {}
 
-  int getNrVariables() const;
-  //
-  //	These two functions map between indexes and variables.
-  //
-  int variable2Index(VariableDagNode* variableTerm);
-  int variable2IndexNoAdd(VariableDagNode* variableTerm) const;
-  VariableDagNode* index2Variable(int index) const;
-  //
-  //	Forgets all but the first variables seen.
-  //	This hack is needed to deal with variables in blocker terms.
-  //
-  void forgetAllBut(int nrFirstVariables);
+    int getNrVariables() const;
 
-  void copy(const NarrowingVariableInfo& other);
+    //
+    //	These two functions map between indexes and variables.
+    //
+    int variable2Index(VariableDagNode *variableTerm);
+
+    int variable2IndexNoAdd(VariableDagNode *variableTerm) const;
+
+    VariableDagNode *index2Variable(int index) const;
+
+    //
+    //	Forgets all but the first variables seen.
+    //	This hack is needed to deal with variables in blocker terms.
+    //
+    void forgetAllBut(int nrFirstVariables);
+
+    void copy(const NarrowingVariableInfo &other);
 
 private:
-  //
-  //	Should probably use a hash table for scalability.
-  //
-  Vector<VariableDagNode*> variables;
+    //
+    //	Should probably use a hash table for scalability.
+    //
+    Vector<VariableDagNode *> variables;
 };
 
 inline int
-NarrowingVariableInfo::getNrVariables() const
-{
-  return variables.size();
+NarrowingVariableInfo::getNrVariables() const {
+    return variables.size();
 }
 
-inline VariableDagNode*
-NarrowingVariableInfo::index2Variable(int index) const
-{
-  return variables[index];
-}
-
-inline void
-NarrowingVariableInfo::forgetAllBut(int nrFirstVariables)
-{
-  variables.resize(nrFirstVariables);
+inline VariableDagNode *
+NarrowingVariableInfo::index2Variable(int index) const {
+    return variables[index];
 }
 
 inline void
-NarrowingVariableInfo::copy(const NarrowingVariableInfo& other)
-{
-  variables = other.variables;
+NarrowingVariableInfo::forgetAllBut(int nrFirstVariables) {
+    variables.resize(nrFirstVariables);
+}
+
+inline void
+NarrowingVariableInfo::copy(const NarrowingVariableInfo &other) {
+    variables = other.variables;
 }
 
 #endif

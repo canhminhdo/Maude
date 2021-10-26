@@ -28,78 +28,77 @@
 #ifndef _sequenceAssignment_hh_
 #define _sequenceAssignment_hh_
 
-class SequenceAssignment
-{
+class SequenceAssignment {
 public:
-  SequenceAssignment(int nrLhsVariables, int nrRhsVariables);
+    SequenceAssignment(int nrLhsVariables, int nrRhsVariables);
 
-  void setLhsBound(int varIndex, int bound);
-  void setRhsBound(int varIndex, int bound);
-  //
-  //	Solutions are recorded as a sequence of moves on a grid. The number
-  //	of free variables needed to express the correpsonding unifier is 1 plus
-  //	the number of moves.
-  //
-  enum Move
-    {
-      NEXT_RIGHT = 1,
-      NEXT_LEFT = 2,
-      NEXT_BOTH = NEXT_RIGHT | NEXT_LEFT
+    void setLhsBound(int varIndex, int bound);
+
+    void setRhsBound(int varIndex, int bound);
+
+    //
+    //	Solutions are recorded as a sequence of moves on a grid. The number
+    //	of free variables needed to express the correpsonding unifier is 1 plus
+    //	the number of moves.
+    //
+    enum Move {
+        NEXT_RIGHT = 1,
+        NEXT_LEFT = 2,
+        NEXT_BOTH = NEXT_RIGHT | NEXT_LEFT
     };
 
-  static int leftDelta(int move);
-  static int rightDelta(int move);
+    static int leftDelta(int move);
 
-  typedef Vector<int> Solution;
+    static int rightDelta(int move);
 
-  bool findNextSolution(bool findFirst);
-  const Solution& getSolution() const;
+    typedef Vector<int> Solution;
+
+    bool findNextSolution(bool findFirst);
+
+    const Solution &getSolution() const;
 
 private:
-  typedef Vector<int> IntVec;
+    typedef Vector<int> IntVec;
 
-  void computeBoundSum(const IntVec& bounds, IntVec& boundSum);
-  bool checkAndMakeMove(int move, int& lIndex, int& rIndex);
-  int unmakeMove(int moveIndex, int& lIndex, int& rIndex);
-  
-  IntVec lhsBounds;
-  IntVec rhsBounds;
-  IntVec lhsBoundSum;
-  IntVec rhsBoundSum;
-  IntVec lhsCount;
-  IntVec rhsCount;
+    void computeBoundSum(const IntVec &bounds, IntVec &boundSum);
 
-  Solution currentSolution;
+    bool checkAndMakeMove(int move, int &lIndex, int &rIndex);
+
+    int unmakeMove(int moveIndex, int &lIndex, int &rIndex);
+
+    IntVec lhsBounds;
+    IntVec rhsBounds;
+    IntVec lhsBoundSum;
+    IntVec rhsBoundSum;
+    IntVec lhsCount;
+    IntVec rhsCount;
+
+    Solution currentSolution;
 };
 
 inline void
-SequenceAssignment::setLhsBound(int varIndex, int bound)
-{
-  lhsBounds[varIndex] = bound;
+SequenceAssignment::setLhsBound(int varIndex, int bound) {
+    lhsBounds[varIndex] = bound;
 }
 
 inline void
-SequenceAssignment::setRhsBound(int varIndex, int bound)
-{
-  rhsBounds[varIndex] = bound;
+SequenceAssignment::setRhsBound(int varIndex, int bound) {
+    rhsBounds[varIndex] = bound;
 }
 
-inline const SequenceAssignment::Solution&
-SequenceAssignment::getSolution() const
-{
-  return currentSolution;
-}
-
-inline int
-SequenceAssignment::leftDelta(int move)
-{
-  return move >> 1;
+inline const SequenceAssignment::Solution &
+SequenceAssignment::getSolution() const {
+    return currentSolution;
 }
 
 inline int
-SequenceAssignment::rightDelta(int move)
-{
-  return move & 1;
+SequenceAssignment::leftDelta(int move) {
+    return move >> 1;
+}
+
+inline int
+SequenceAssignment::rightDelta(int move) {
+    return move & 1;
 }
 
 #endif

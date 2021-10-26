@@ -26,30 +26,34 @@
 #ifndef _compiler_hh_
 #define _compiler_hh_
 
-class Compiler
-{
-  NO_COPYING(Compiler);
+class Compiler {
+    NO_COPYING(Compiler);
 
 public:
-  Compiler();
-  ~Compiler();
+    Compiler();
 
-  bool makeExecutable(SyntacticPreModule* module, bool countRewrites);
-  void runExecutable();
-  DagNode* inputGraph(Int64& nrRewrites, Int64& cpu, Int64& real);
-  void invalidate(SyntacticPreModule* module);
+    ~Compiler();
 
-  static void outputGraph(DagNode* dagNode);
+    bool makeExecutable(SyntacticPreModule *module, bool countRewrites);
+
+    void runExecutable();
+
+    DagNode *inputGraph(Int64 &nrRewrites, Int64 &cpu, Int64 &real);
+
+    void invalidate(SyntacticPreModule *module);
+
+    static void outputGraph(DagNode *dagNode);
 
 private:
-  static const string& makeBaseName();
-  static void depthFirstTraversal(DagNode* dagNode, PointerSet& visited);
+    static const string &makeBaseName();
 
-  bool fullCompile(SyntacticPreModule* module, bool countRewrites);
+    static void depthFirstTraversal(DagNode *dagNode, PointerSet &visited);
 
-  SyntacticPreModule* currentExecutable;
-  bool compiledWithCount;
-  int currentNrSymbols;
+    bool fullCompile(SyntacticPreModule *module, bool countRewrites);
+
+    SyntacticPreModule *currentExecutable;
+    bool compiledWithCount;
+    int currentNrSymbols;
 };
 
 #endif

@@ -25,29 +25,30 @@
 //
 #ifndef _ACU_ArgumentIterator_hh_
 #define _ACU_ArgumentIterator_hh_
+
 #include "rawArgumentIterator.hh"
 
-class ACU_ArgumentIterator : public RawArgumentIterator
-{
+class ACU_ArgumentIterator : public RawArgumentIterator {
 public:
-  ACU_ArgumentIterator(const Vector<ACU_Term::Pair>* arguments);
+    ACU_ArgumentIterator(const Vector<ACU_Term::Pair> *arguments);
 
-  bool valid() const;
-  Term* argument() const;
-  void next();
+    bool valid() const;
+
+    Term *argument() const;
+
+    void next();
 
 private:
-  const Vector<ACU_Term::Pair>* argArray;
-  int position;
-  int multiplicityRemaining;
+    const Vector<ACU_Term::Pair> *argArray;
+    int position;
+    int multiplicityRemaining;
 };
 
 inline
-ACU_ArgumentIterator::ACU_ArgumentIterator(const Vector<ACU_Term::Pair>* arguments)
-{
-  argArray = arguments;
-  position = 0;
-  multiplicityRemaining = (*arguments)[0].multiplicity;
+ACU_ArgumentIterator::ACU_ArgumentIterator(const Vector<ACU_Term::Pair> *arguments) {
+    argArray = arguments;
+    position = 0;
+    multiplicityRemaining = (*arguments)[0].multiplicity;
 }
 
 #endif

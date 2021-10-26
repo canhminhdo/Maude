@@ -25,29 +25,30 @@
 //
 #ifndef _concatenationStrategy_hh_
 #define _concatenationStrategy_hh_
+
 #include "strategyExpression.hh"
 
-class ConcatenationStrategy : public StrategyExpression
-{
+class ConcatenationStrategy : public StrategyExpression {
 public:
-  ConcatenationStrategy(const Vector<StrategyExpression*>& strategies);
-  ~ConcatenationStrategy();
+    ConcatenationStrategy(const Vector<StrategyExpression *> &strategies);
 
-  const Vector<StrategyExpression*>& getStrategies() const;
+    ~ConcatenationStrategy();
 
-  bool check(VariableInfo& indices, const TermSet& boundVars);
-  void process();
+    const Vector<StrategyExpression *> &getStrategies() const;
 
-  StrategicExecution::Survival decompose(StrategicSearch& searchObject, DecompositionProcess* remainder);
+    bool check(VariableInfo &indices, const TermSet &boundVars);
+
+    void process();
+
+    StrategicExecution::Survival decompose(StrategicSearch &searchObject, DecompositionProcess *remainder);
 
 private:
-  const Vector<StrategyExpression*> strategies;
+    const Vector<StrategyExpression *> strategies;
 };
 
-inline const Vector<StrategyExpression*>&
-ConcatenationStrategy::getStrategies() const
-{
-  return strategies;
+inline const Vector<StrategyExpression *> &
+ConcatenationStrategy::getStrategies() const {
+    return strategies;
 }
 
 #endif

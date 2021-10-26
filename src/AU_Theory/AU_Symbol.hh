@@ -25,113 +25,131 @@
 //
 #ifndef _AU_Symbol_hh_
 #define _AU_Symbol_hh_
+
 #include "associativeSymbol.hh"
 
-class AU_Symbol : public AssociativeSymbol
-{
+class AU_Symbol : public AssociativeSymbol {
 public:
-  AU_Symbol(int id,
-	    const Vector<int>& strategy,
-	    bool memoFlag,
-	    bool leftId = false,
-	    bool rightId = false,
-	    Term* identity = 0);
-  //
-  //    Member functions required by theory interface.
-  //
-  Term* makeTerm(const Vector<Term*>& args);
-  DagNode* makeDagNode(const Vector<DagNode*>& args);
-  void computeBaseSort(DagNode* subject);
-  void normalizeAndComputeTrueSort(DagNode* subject, RewritingContext& context);
-  bool eqRewrite(DagNode* subject, RewritingContext& context);
-  DagNode* ruleRewrite(DagNode* subject, RewritingContext& context);
-  void stackArguments(DagNode* subject,
-		      Vector<RedexPosition>& stack,
-		      int parentIndex,
-		      bool respectFrozen,
-		      bool eagerContext);
-  Term* termify(DagNode* dagNode);
-  //
-  //    Member functions overiding default handling.
-  //
-  void postOpDeclarationPass();
-  void compileEquations();
-  //
-  //	Member functions particular to AU_Symbol.
-  //
-  bool leftId() const;
-  bool rightId() const;
-  bool oneSidedId() const;
-  bool useDeque() const;
-  int calculateNrSubjectsMatched(DagNode* d,
-				 bool leftEnd,  // match starts at left extreme
-				 bool rightEnd,  // match end at right extreme
-				 bool& nasty);
-  //
-  //	Unification stuff (A only).
-  //
-  void computeGeneralizedSort(const SortBdds& sortBdds,
-			      const Vector<int>& realToBdd,
-			      DagNode* subject,
-			      Vector<Bdd>& generalizedSort);
+    AU_Symbol(int id,
+              const Vector<int> &strategy,
+              bool memoFlag,
+              bool leftId = false,
+              bool rightId = false,
+              Term *identity = 0);
 
-  void computeGeneralizedSort2(const SortBdds& sortBdds,
-			       const Vector<int>& realToBdd,
-			       DagNode* subject,
-			       Vector<Bdd>& outputBdds);
+    //
+    //    Member functions required by theory interface.
+    //
+    Term *makeTerm(const Vector<Term *> &args);
 
-  UnificationSubproblem* makeUnificationSubproblem();
-  // int unificationPriority() const;  // happy with default for the moment
-  bool canResolveTheoryClash();
+    DagNode *makeDagNode(const Vector<DagNode *> &args);
 
-  //
-  //	Hash cons stuff.
-  //
-  DagNode* makeCanonical(DagNode* original, HashConsSet* hcs);
-  DagNode* makeCanonicalCopy(DagNode* original, HashConsSet* hcs);
+    void computeBaseSort(DagNode *subject);
+
+    void normalizeAndComputeTrueSort(DagNode *subject, RewritingContext &context);
+
+    bool eqRewrite(DagNode *subject, RewritingContext &context);
+
+    DagNode *ruleRewrite(DagNode *subject, RewritingContext &context);
+
+    void stackArguments(DagNode *subject,
+                        Vector<RedexPosition> &stack,
+                        int parentIndex,
+                        bool respectFrozen,
+                        bool eagerContext);
+
+    Term *termify(DagNode *dagNode);
+
+    //
+    //    Member functions overiding default handling.
+    //
+    void postOpDeclarationPass();
+
+    void compileEquations();
+
+    //
+    //	Member functions particular to AU_Symbol.
+    //
+    bool leftId() const;
+
+    bool rightId() const;
+
+    bool oneSidedId() const;
+
+    bool useDeque() const;
+
+    int calculateNrSubjectsMatched(DagNode *d,
+                                   bool leftEnd,  // match starts at left extreme
+                                   bool rightEnd,  // match end at right extreme
+                                   bool &nasty);
+
+    //
+    //	Unification stuff (A only).
+    //
+    void computeGeneralizedSort(const SortBdds &sortBdds,
+                                const Vector<int> &realToBdd,
+                                DagNode *subject,
+                                Vector<Bdd> &generalizedSort);
+
+    void computeGeneralizedSort2(const SortBdds &sortBdds,
+                                 const Vector<int> &realToBdd,
+                                 DagNode *subject,
+                                 Vector<Bdd> &outputBdds);
+
+    UnificationSubproblem *makeUnificationSubproblem();
+
+    // int unificationPriority() const;  // happy with default for the moment
+    bool canResolveTheoryClash();
+
+    //
+    //	Hash cons stuff.
+    //
+    DagNode *makeCanonical(DagNode *original, HashConsSet *hcs);
+
+    DagNode *makeCanonicalCopy(DagNode *original, HashConsSet *hcs);
 
 private:
-  bool rewriteAtTop(AU_DagNode* subject, RewritingContext& context);
-  bool rewriteAtTopNoOwise(AU_DagNode* subject, RewritingContext& context);
-  bool complexStrategy(AU_DagNode* subject, RewritingContext& context);
-  bool memoStrategy(MemoTable::SourceSet& from,
-		    DagNode* subject,
-		    RewritingContext& context);
-  void copyAndReduceSubterms(AU_DagNode* subject, RewritingContext& context);
+    bool rewriteAtTop(AU_DagNode *subject, RewritingContext &context);
 
-  const Bool leftIdFlag;
-  const Bool rightIdFlag;
-  const Bool oneSidedIdFlag;
-  //
-  //	Deque represention of arguments can be used if there is no
-  //	one-sided identity, no fancy strategy and there are no equations
-  //	at the top.
-  //
-  Bool useDequeFlag;
+    bool rewriteAtTopNoOwise(AU_DagNode *subject, RewritingContext &context);
+
+    bool complexStrategy(AU_DagNode *subject, RewritingContext &context);
+
+    bool memoStrategy(MemoTable::SourceSet &from,
+                      DagNode *subject,
+                      RewritingContext &context);
+
+    void copyAndReduceSubterms(AU_DagNode *subject, RewritingContext &context);
+
+    const Bool leftIdFlag;
+    const Bool rightIdFlag;
+    const Bool oneSidedIdFlag;
+    //
+    //	Deque represention of arguments can be used if there is no
+    //	one-sided identity, no fancy strategy and there are no equations
+    //	at the top.
+    //
+    Bool useDequeFlag;
 };
 
 inline bool
-AU_Symbol::leftId() const
-{
-  return leftIdFlag;
+AU_Symbol::leftId() const {
+    return leftIdFlag;
 }
 
 inline bool
-AU_Symbol::rightId() const
-{
-  return rightIdFlag;
+AU_Symbol::rightId() const {
+    return rightIdFlag;
 }
 
 inline bool
-AU_Symbol::oneSidedId() const
-{
-  return oneSidedIdFlag;
+AU_Symbol::oneSidedId() const {
+    return oneSidedIdFlag;
 }
 
 inline bool
-AU_Symbol::useDeque() const
-{
-  return useDequeFlag;
+AU_Symbol::useDeque() const {
+    return useDequeFlag;
 }
 
 #endif

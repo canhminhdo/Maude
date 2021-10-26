@@ -30,115 +30,115 @@
 //
 #ifndef _pendingUnificationStack_hh_
 #define _pendingUnificationStack_hh_
+
 #include "simpleRootContainer.hh"
 #include "substitution.hh"
 
-class PendingUnificationStack : private SimpleRootContainer
-{
-  NO_COPYING(PendingUnificationStack);
+class PendingUnificationStack : private SimpleRootContainer {
+    NO_COPYING(PendingUnificationStack);
 
 public:
-  typedef int Marker;
+    typedef int Marker;
 
-  PendingUnificationStack();
-  ~PendingUnificationStack();
+    PendingUnificationStack();
 
-  void push(Symbol* controllingSymbol, DagNode* lhs, DagNode* rhs, bool marked = false);
-  bool resolveTheoryClash(DagNode* lhs, DagNode* rhs);
+    ~PendingUnificationStack();
 
-  Marker checkPoint() const;
-  void restore(Marker mark);
+    void push(Symbol *controllingSymbol, DagNode *lhs, DagNode *rhs, bool marked = false);
 
-  bool solve(bool findFirst, UnificationContext& solution);
+    bool resolveTheoryClash(DagNode *lhs, DagNode *rhs);
 
-  void flagAsIncomplete(Symbol* symbol);
-  bool isIncomplete() const;
+    Marker checkPoint() const;
 
-  void dump(ostream& s);
+    void restore(Marker mark);
+
+    bool solve(bool findFirst, UnificationContext &solution);
+
+    void flagAsIncomplete(Symbol *symbol);
+
+    bool isIncomplete() const;
+
+    void dump(ostream &s);
 
 private:
-  struct Theory
-  {
-    Symbol* controllingSymbol;	// controlling symbol for this theory
-    int firstProblemInTheory;	// index into stack of first problem in this theory that isn't active (or NONE)
-  };
-
-  struct PendingUnification
-  {
-    int theoryIndex;		// index into the theory table
-    int nextProblemInTheory;	// index into the stack for the next problem in our theory that isn't active (or NONE)
-    DagNode* lhs;
-    DagNode* rhs;
-    bool marked;		// set this to force the lhs to collapse;
-  };
-
-  struct ActiveSubproblem
-  {
-    int theoryIndex;		// index into the theory table
-    int savedFirstProblem;	// saved value of firstProblemInTheory
-    UnificationSubproblem* subproblem;
-  };
-
-  void markReachableNodes();
-  int chooseTheoryToSolve();
-  bool makeNewSubproblem(UnificationContext& solution);
-  void killTopSubproblem();
-
-  Vector<Theory> theoryTable;
-  Vector<PendingUnification> unificationStack;
-  Vector<ActiveSubproblem> subproblemStack;
-  NatSet incompleteSymbols;
-  //
-  //	Cycle handling.
-  //
-  enum Status
-    {
-      UNEXPLORED = -1,
-      EXPLORED = -2
+    struct Theory {
+        Symbol *controllingSymbol;    // controlling symbol for this theory
+        int firstProblemInTheory;    // index into stack of first problem in this theory that isn't active (or NONE)
     };
 
-  enum SpecialTheory
-    {
-      COMPOUND_CYCLE = -2
+    struct PendingUnification {
+        int theoryIndex;        // index into the theory table
+        int nextProblemInTheory;    // index into the stack for the next problem in our theory that isn't active (or NONE)
+        DagNode *lhs;
+        DagNode *rhs;
+        bool marked;        // set this to force the lhs to collapse;
     };
 
-  int findCycle(UnificationContext& solution);
-  int findCycleFrom(int index, UnificationContext& solution);
-  //
-  //	variableStatus[i] holds the index of the variable occuring in variable i's binding that we are about to explore;
-  //	or one of the special values:
-  //	  UNEXPLORED : haven't visited variable i on this cycle check
-  //	  EXPLORED : fully explored variable i and didn't find cycle
-  //
-  Vector<int> variableStatus;
-  //
-  //	variableOrder stores the variable indices in an order which they can be safely instantiated.
-  //
-  Vector<int> variableOrder;
+    struct ActiveSubproblem {
+        int theoryIndex;        // index into the theory table
+        int savedFirstProblem;    // saved value of firstProblemInTheory
+        UnificationSubproblem *subproblem;
+    };
+
+    void markReachableNodes();
+
+    int chooseTheoryToSolve();
+
+    bool makeNewSubproblem(UnificationContext &solution);
+
+    void killTopSubproblem();
+
+    Vector<Theory> theoryTable;
+    Vector<PendingUnification> unificationStack;
+    Vector<ActiveSubproblem> subproblemStack;
+    NatSet incompleteSymbols;
+    //
+    //	Cycle handling.
+    //
+    enum Status {
+        UNEXPLORED = -1,
+        EXPLORED = -2
+    };
+
+    enum SpecialTheory {
+        COMPOUND_CYCLE = -2
+    };
+
+    int findCycle(UnificationContext &solution);
+
+    int findCycleFrom(int index, UnificationContext &solution);
+
+    //
+    //	variableStatus[i] holds the index of the variable occuring in variable i's binding that we are about to explore;
+    //	or one of the special values:
+    //	  UNEXPLORED : haven't visited variable i on this cycle check
+    //	  EXPLORED : fully explored variable i and didn't find cycle
+    //
+    Vector<int> variableStatus;
+    //
+    //	variableOrder stores the variable indices in an order which they can be safely instantiated.
+    //
+    Vector<int> variableOrder;
 };
 
 inline PendingUnificationStack::Marker
-PendingUnificationStack::checkPoint() const
-{
-  return unificationStack.size();
+PendingUnificationStack::checkPoint() const {
+    return unificationStack.size();
 }
 
 inline void
-PendingUnificationStack::flagAsIncomplete(Symbol* symbol)
-{
-  int index = symbol->getIndexWithinModule();
-  if (!(incompleteSymbols.contains(index)))
-    {
-      incompleteSymbols.insert(index);
-      IssueWarning("Unification modulo the theory of operator " << QUOTE(symbol) <<
-		    " has encountered an instance for which it may not be complete.");
+PendingUnificationStack::flagAsIncomplete(Symbol *symbol) {
+    int index = symbol->getIndexWithinModule();
+    if (!(incompleteSymbols.contains(index))) {
+        incompleteSymbols.insert(index);
+        IssueWarning("Unification modulo the theory of operator " << QUOTE(symbol) <<
+                                                                  " has encountered an instance for which it may not be complete.");
     }
 }
 
 inline bool
-PendingUnificationStack::isIncomplete() const
-{
-  return !(incompleteSymbols.empty());
+PendingUnificationStack::isIncomplete() const {
+    return !(incompleteSymbols.empty());
 }
 
 #endif

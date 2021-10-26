@@ -29,35 +29,33 @@
 #ifndef _moduleItem_hh_
 #define _moduleItem_hh_
 
-class ModuleItem
-{
+class ModuleItem {
 public:
-  void setModuleInfo(Module* module, int indexWithinModule);
-  Module* getModule() const;
-  int getIndexWithinModule() const;
+    void setModuleInfo(Module *module, int indexWithinModule);
+
+    Module *getModule() const;
+
+    int getIndexWithinModule() const;
 
 private:
-  Module* parentModule;
-  int indexWithinParent;
+    Module *parentModule;
+    int indexWithinParent;
 };
 
 inline void
-ModuleItem::setModuleInfo(Module* module, int indexWithinModule)
-{
-  parentModule = module;
-  indexWithinParent = indexWithinModule;
+ModuleItem::setModuleInfo(Module *module, int indexWithinModule) {
+    parentModule = module;
+    indexWithinParent = indexWithinModule;
 }
 
-inline Module*
-ModuleItem::getModule() const
-{
-  return parentModule;
+inline Module *
+ModuleItem::getModule() const {
+    return parentModule;
 }
 
 inline int
-ModuleItem::getIndexWithinModule() const
-{
-  return indexWithinParent;
+ModuleItem::getIndexWithinModule() const {
+    return indexWithinParent;
 }
 
 #endif

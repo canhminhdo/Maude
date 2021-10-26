@@ -25,33 +25,37 @@
 //
 #ifndef _SMT_EngineWrapper_hh_
 #define _SMT_EngineWrapper_hh_
+
 #include "gmpxx.h"
 
-class SMT_EngineWrapper
-{
+class SMT_EngineWrapper {
 public:
-  enum Result
-    {
-      BAD_DAG = -2,
-      SAT_UNKNOWN = -1,
-      UNSAT = 0,
-      SAT = 1
+    enum Result {
+        BAD_DAG = -2,
+        SAT_UNKNOWN = -1,
+        UNSAT = 0,
+        SAT = 1
     };
 
-  virtual ~SMT_EngineWrapper() {}
+    virtual ~SMT_EngineWrapper() {}
 
-  //
-  //	Extra functionality for when we do full abstraction of SMT solving.
-  //
-  virtual Result assertDag(DagNode* dag) = 0;
-  virtual Result checkDag(DagNode* dag) = 0;
-  virtual void clearAssertions() = 0;
-  virtual void push() = 0;
-  virtual void pop() = 0;
-  //
-  //	Make a Maude variable corresponding to a fresh SMT variable.
-  //
-  virtual VariableDagNode* makeFreshVariable(Term* baseVariable, const mpz_class& number) = 0;
+    //
+    //	Extra functionality for when we do full abstraction of SMT solving.
+    //
+    virtual Result assertDag(DagNode *dag) = 0;
+
+    virtual Result checkDag(DagNode *dag) = 0;
+
+    virtual void clearAssertions() = 0;
+
+    virtual void push() = 0;
+
+    virtual void pop() = 0;
+
+    //
+    //	Make a Maude variable corresponding to a fresh SMT variable.
+    //
+    virtual VariableDagNode *makeFreshVariable(Term *baseVariable, const mpz_class &number) = 0;
 };
 
 #endif

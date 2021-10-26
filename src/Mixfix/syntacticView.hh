@@ -26,65 +26,69 @@
 //
 #ifndef _syntacticView_hh_
 #define _syntacticView_hh_
+
 #include <list>
 #include "view.hh"
 
-class SyntacticView : public View
-{
+class SyntacticView : public View {
 public:
-  SyntacticView(Token viewName, Interpreter* owner);
+    SyntacticView(Token viewName, Interpreter *owner);
 
-  void addParameter2(Token name, ModuleExpression* theory);
-  //
-  //	We need to deal with variable declarations and op->term mappings.
-  //
-  void addVarDecl(Token varName);
-  void addType(bool kind, const Vector<Token>& tokens);
-  void addOpTermMapping(const Vector<Token>& fromOp, const Vector<Token>& toTerm);
-  void addStratExprMapping(const Vector<Token>& fromExpr, const Vector<Token>& toExpr);
-  //
-  //	Show view command only makes sense for object level views.
-  //
-  void showView(ostream& s);
-  
+    void addParameter2(Token name, ModuleExpression *theory);
+
+    //
+    //	We need to deal with variable declarations and op->term mappings.
+    //
+    void addVarDecl(Token varName);
+
+    void addType(bool kind, const Vector<Token> &tokens);
+
+    void addOpTermMapping(const Vector<Token> &fromOp, const Vector<Token> &toTerm);
+
+    void addStratExprMapping(const Vector<Token> &fromExpr, const Vector<Token> &toExpr);
+
+    //
+    //	Show view command only makes sense for object level views.
+    //
+    void showView(ostream &s);
+
 private:
 
-  struct VarDecl
-  {
-    Token varName;
-    bool lastWithCurrentDef;
-  };
+    struct VarDecl {
+        Token varName;
+        bool lastWithCurrentDef;
+    };
 
-  struct BubblePair
-  {
-    Vector<Token> fromBubble;
-    Vector<Token> toBubble;
-  };
+    struct BubblePair {
+        Vector<Token> fromBubble;
+        Vector<Token> toBubble;
+    };
 
-  typedef list<VarDecl> VarDeclList;
-  typedef list<Type> TypeList;
-  typedef list<BubblePair> OpTermList;
-  typedef list<BubblePair> StratExprList;
+    typedef list<VarDecl> VarDeclList;
+    typedef list<Type> TypeList;
+    typedef list<BubblePair> OpTermList;
+    typedef list<BubblePair> StratExprList;
 
-  //
-  //	Override virtual function from view.
-  //
-  bool handleTermAndExprMappings();
-  //
-  //	Internal function.
-  //
-  bool handleVarDecls();
+    //
+    //	Override virtual function from view.
+    //
+    bool handleTermAndExprMappings();
 
-  VarDeclList varDecls;		// list of variable aliases declared
-  TypeList varDefs;		// list of sorts used in variable declarations
-  OpTermList opTermList;	// list of op->term mappings stored as unparsed bubble pairs
-  StratExprList stratExprList;	// list of strat->expr mappings stored as unparsed bubble pairs
-  //
-  //	We need to keep track of our own variable aliases, separate from those of
-  //	our fromTheory and toModule.
-  //
-  MixfixModule::AliasMap fromTheoryVariableAliases;
-  MixfixModule::AliasMap toModuleVariableAliases;
+    //
+    //	Internal function.
+    //
+    bool handleVarDecls();
+
+    VarDeclList varDecls;        // list of variable aliases declared
+    TypeList varDefs;        // list of sorts used in variable declarations
+    OpTermList opTermList;    // list of op->term mappings stored as unparsed bubble pairs
+    StratExprList stratExprList;    // list of strat->expr mappings stored as unparsed bubble pairs
+    //
+    //	We need to keep track of our own variable aliases, separate from those of
+    //	our fromTheory and toModule.
+    //
+    MixfixModule::AliasMap fromTheoryVariableAliases;
+    MixfixModule::AliasMap toModuleVariableAliases;
 };
 
 #endif

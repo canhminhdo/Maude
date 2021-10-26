@@ -27,13 +27,14 @@
 //
 #ifndef _freeUnarySymbol_hh_
 #define _freeUnarySymbol_hh_
+
 #include "freeSymbol.hh"
 
-class FreeUnarySymbol : public FreeSymbol
-{
+class FreeUnarySymbol : public FreeSymbol {
 public:
-  FreeUnarySymbol(int id);
-  bool eqRewrite(DagNode* subject, RewritingContext& context);
+    FreeUnarySymbol(int id);
+
+    bool eqRewrite(DagNode *subject, RewritingContext &context);
 };
 
 #endif

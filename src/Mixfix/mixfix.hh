@@ -27,48 +27,91 @@
 #define _mixfix_hh_
 
 class Timer;
+
 class AutoWrapBuffer;
+
 class Token;
+
 class FileTable;
+
 class DirectoryManager;
+
 class SyntacticPreModule;
+
 class PreModule;
+
 class MixfixModule;
+
 class ImportModule;
+
 class ImportTranslation;
+
 class UserLevelRewritingContext;
+
 class QuotedIdentifierSymbol;
+
 class QuotedIdentifierTerm;
+
 class QuotedIdentifierDagNode;
+
 class QuotedIdentifierOpSymbol;
+
 class LoopSymbol;
+
 class SymbolType;
+
 class XmlBuffer;
+
 class MaudemlBuffer;
+
 class Interpreter;
+
 class Compiler;
+
 class ProfileModule;
+
 class MixfixParser;
+
 class VisibleModule;
+
 class CommonTokens;
+
 class MetadataStore;
+
 class ModuleExpression;
+
 class Renaming;
+
 class ModuleCache;
+
 class View;
+
 class SyntacticView;
+
 class ModuleDatabase;
+
 class ViewDatabase;
+
 class Entity;
+
 class SyntaxContainer;
+
 class FreshVariableSource;
+
 class PrintAttribute;
+
 class CacheableRewritingContext;
+
 class ViewExpression;
+
 class ViewCache;
+
 class EnclosingObject;
+
 class Argument;
+
 class Parameter;
+
 class ParameterDatabase;
 
 //

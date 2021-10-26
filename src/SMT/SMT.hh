@@ -27,16 +27,21 @@
 #define _SMT_hh_
 
 class SMT_Base;
+
 class SMT_Symbol;
 
 class SMT_NumberSymbol;
+
 class SMT_NumberTerm;
+
 class SMT_NumberDagNode;
 
 class SMT_Info;
+
 class SMT_EngineWrapper;
 
 class SMT_RewriteSearchState;
+
 class SMT_RewriteSequenceSearch;
 
 #endif

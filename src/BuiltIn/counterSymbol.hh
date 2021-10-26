@@ -25,32 +25,36 @@
 //
 #ifndef _counterSymbol_hh_
 #define _counterSymbol_hh_
+
 #include <list>
 #include <stack>
 #include "numberOpSymbol.hh"
 
-class CounterSymbol : public NumberOpSymbol
-{
+class CounterSymbol : public NumberOpSymbol {
 public:
-  CounterSymbol(int id);
+    CounterSymbol(int id);
 
-  bool attachData(const Vector<Sort*>& opDeclaration,
-		  const char* purpose,
-		  const Vector<const char*>& data);
-  void getDataAttachments(const Vector<Sort*>& opDeclaration,
-			  Vector<const char*>& purposes,
-			  Vector<Vector<const char*> >& data);
-  void resetRules();
-  //void saveHiddenState();
-  //void restoreHiddenState();
-  bool eqRewrite(DagNode* subject, RewritingContext& context);
-  DagNode* ruleRewrite(DagNode* subject, RewritingContext& context);
+    bool attachData(const Vector<Sort *> &opDeclaration,
+                    const char *purpose,
+                    const Vector<const char *> &data);
+
+    void getDataAttachments(const Vector<Sort *> &opDeclaration,
+                            Vector<const char *> &purposes,
+                            Vector<Vector<const char *> > &data);
+
+    void resetRules();
+
+    //void saveHiddenState();
+    //void restoreHiddenState();
+    bool eqRewrite(DagNode *subject, RewritingContext &context);
+
+    DagNode *ruleRewrite(DagNode *subject, RewritingContext &context);
 
 private:
-  //typedef stack<mpz_class, list<mpz_class> > MpzStack;  // optimize for the empty case
+    //typedef stack<mpz_class, list<mpz_class> > MpzStack;  // optimize for the empty case
 
-  mpz_class currentValue;
-  // MpzStack currentValueStack;
+    mpz_class currentValue;
+    // MpzStack currentValueStack;
 };
 
 #endif

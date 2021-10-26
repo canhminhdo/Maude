@@ -27,29 +27,29 @@
 //
 #ifndef _termBag_hh_
 #define _termBag_hh_
+
 #include <set>
 
-class TermBag
-{
+class TermBag {
 public:
-  void insertMatchedTerm(Term* term, bool eagerContext);
-  void insertBuiltTerm(Term* term, bool eagerContext);
-  Term* findTerm(Term* term, bool eagerContext);
+    void insertMatchedTerm(Term *term, bool eagerContext);
+
+    void insertBuiltTerm(Term *term, bool eagerContext);
+
+    Term *findTerm(Term *term, bool eagerContext);
 
 private:
-  struct LtTerm
-  {
-    bool
-    operator()(Term* const& t1, Term* const& t2) const
-    {
-      return t1->compare(t2) < 0;
-    }
-  };
+    struct LtTerm {
+        bool
+        operator()(Term *const &t1, Term *const &t2) const {
+            return t1->compare(t2) < 0;
+        }
+    };
 
-  typedef set<Term*, LtTerm> TermSet;
+    typedef set<Term *, LtTerm> TermSet;
 
-  TermSet termsUsableInEagerContext;
-  TermSet termsUsableInLazyContext;
+    TermSet termsUsableInEagerContext;
+    TermSet termsUsableInLazyContext;
 };
 
 #endif

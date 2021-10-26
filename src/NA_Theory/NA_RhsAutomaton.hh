@@ -25,26 +25,28 @@
 //
 #ifndef _NA_RhsAutomaton_hh_
 #define _NA_RhsAutomaton_hh_
+
 #include "rhsAutomaton.hh"
 
-class NA_RhsAutomaton : public RhsAutomaton
-{
-  NO_COPYING(NA_RhsAutomaton);
+class NA_RhsAutomaton : public RhsAutomaton {
+    NO_COPYING(NA_RhsAutomaton);
 
 public:
-  NA_RhsAutomaton(NA_Term* term, int destination);
- 
-  void remapIndices(VariableInfo& variableInfo);
-  DagNode* construct(Substitution& matcher);
-  void replace(DagNode* old, Substitution& matcher);
+    NA_RhsAutomaton(NA_Term *term, int destination);
+
+    void remapIndices(VariableInfo &variableInfo);
+
+    DagNode *construct(Substitution &matcher);
+
+    void replace(DagNode *old, Substitution &matcher);
 
 #ifdef DUMP
-  void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
+    void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
 #endif
 
 private:
-  NA_Term* const term;
-  int destination;
+    NA_Term *const term;
+    int destination;
 };
 
 #endif

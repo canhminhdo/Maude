@@ -23,13 +23,13 @@
 //
 //      Implementation for class MetaLevelOpSymbol.
 //
- 
+
 //      utility stuff
 #include "macros.hh"
 #include "vector.hh"
 #include "pointerMap.hh"
 #include "meta.hh"
- 
+
 //      forward declarations
 #include "interface.hh"
 #include "core.hh"
@@ -42,7 +42,7 @@
 #include "strategyLanguage.hh"
 #include "mixfix.hh"
 #include "SMT.hh"
- 
+
 //      interface class definitions
 #include "symbol.hh"
 #include "dagNode.hh"
@@ -86,7 +86,7 @@
 //      built in class definitions
 #include "succSymbol.hh"
 #include "bindingMacros.hh"
- 
+
 //      front end class definitions
 #include "userLevelRewritingContext.hh"
 #include "quotedIdentifierSymbol.hh"
@@ -125,194 +125,173 @@
 #include "legacyMetaVariant.cc"
 #include "legacyMetaVariantUnify.cc"
 
-MetaLevelOpSymbol::MetaLevelOpSymbol(int id, int nrArgs, const Vector<int>& strategy)
-  : FreeSymbol(id, nrArgs, strategy)
-{
-  shareWith = 0;
-  metaLevel = 0;
+MetaLevelOpSymbol::MetaLevelOpSymbol(int id, int nrArgs, const Vector<int> &strategy)
+        : FreeSymbol(id, nrArgs, strategy) {
+    shareWith = 0;
+    metaLevel = 0;
 }
 
-MetaLevelOpSymbol::~MetaLevelOpSymbol()
-{
-  if (shareWith == 0)
-    delete metaLevel;
+MetaLevelOpSymbol::~MetaLevelOpSymbol() {
+    if (shareWith == 0)
+        delete metaLevel;
 }
 
-MetaLevelOpSymbol::AliasMapParserPair::~AliasMapParserPair()
-{
-  delete parser;
+MetaLevelOpSymbol::AliasMapParserPair::~AliasMapParserPair() {
+    delete parser;
 }
 
 bool
-MetaLevelOpSymbol::okToBind()
-{
-  if (shareWith != 0)
-    return false;
-  if (metaLevel == 0)
-    metaLevel = new MetaLevel;
-  return true;
+MetaLevelOpSymbol::okToBind() {
+    if (shareWith != 0)
+        return false;
+    if (metaLevel == 0)
+        metaLevel = new MetaLevel;
+    return true;
 }
 
 bool
-MetaLevelOpSymbol::attachData(const Vector<Sort*>& opDeclaration,
-			      const char* purpose,
-			      const Vector<const char*>& data)
-{
-  if (data.length() == 1)
-    {
-      const char* opName = data[0];
+MetaLevelOpSymbol::attachData(const Vector<Sort *> &opDeclaration,
+                              const char *purpose,
+                              const Vector<const char *> &data) {
+    if (data.length() == 1) {
+        const char *opName = data[0];
 #define MACRO(SymbolName, NrArgs) \
       if (arity() == NrArgs && strcmp(opName, #SymbolName) == 0) \
-	descentFunction = &MetaLevelOpSymbol::SymbolName; else
+    descentFunction = &MetaLevelOpSymbol::SymbolName; else
+
 #include "descentSignature.cc"
+
 #undef MACRO
-        return FreeSymbol::attachData(opDeclaration, purpose, data);
-      return true;
+            return FreeSymbol::attachData(opDeclaration, purpose, data);
+        return true;
     }
-  return FreeSymbol::attachData(opDeclaration, purpose, data);
+    return FreeSymbol::attachData(opDeclaration, purpose, data);
 }
 
 bool
-MetaLevelOpSymbol::attachSymbol(const char* purpose, Symbol* symbol)
-{
-  if (metaLevel == 0)
-    BIND_SYMBOL(purpose, symbol, shareWith, MetaLevelOpSymbol*);
-  return (okToBind() && metaLevel->bind(purpose, symbol)) ? true :
-    FreeSymbol::attachSymbol(purpose, symbol);
+MetaLevelOpSymbol::attachSymbol(const char *purpose, Symbol *symbol) {
+    if (metaLevel == 0)
+        BIND_SYMBOL(purpose, symbol, shareWith, MetaLevelOpSymbol*);
+    return (okToBind() && metaLevel->bind(purpose, symbol)) ? true :
+           FreeSymbol::attachSymbol(purpose, symbol);
 }
 
 bool
-MetaLevelOpSymbol::attachTerm(const char* purpose, Term* term)
-{
-  return (okToBind() && metaLevel->bind(purpose, term)) ? true :
-    FreeSymbol::attachTerm(purpose, term);
+MetaLevelOpSymbol::attachTerm(const char *purpose, Term *term) {
+    return (okToBind() && metaLevel->bind(purpose, term)) ? true :
+           FreeSymbol::attachTerm(purpose, term);
 }
 
 void
-MetaLevelOpSymbol::copyAttachments(Symbol* original, SymbolMap* map)
-{
-  if (shareWith == 0 && metaLevel == 0)
-    {
-      MetaLevelOpSymbol* orig = safeCast(MetaLevelOpSymbol*, original);
-      descentFunction = orig->descentFunction;
-      MetaLevelOpSymbol* sw = orig->shareWith;
-      if (sw != 0)
-	{
-	  metaLevel = 0;
-	  shareWith = (map == 0) ? sw : safeCast(MetaLevelOpSymbol*, map->translate(sw));
-	}
-      else
-	{
-	  metaLevel = new MetaLevel(orig->metaLevel, map);
-	  shareWith = 0;
-	}
+MetaLevelOpSymbol::copyAttachments(Symbol *original, SymbolMap *map) {
+    if (shareWith == 0 && metaLevel == 0) {
+        MetaLevelOpSymbol *orig = safeCast(MetaLevelOpSymbol*, original);
+        descentFunction = orig->descentFunction;
+        MetaLevelOpSymbol *sw = orig->shareWith;
+        if (sw != 0) {
+            metaLevel = 0;
+            shareWith = (map == 0) ? sw : safeCast(MetaLevelOpSymbol*, map->translate(sw));
+        } else {
+            metaLevel = new MetaLevel(orig->metaLevel, map);
+            shareWith = 0;
+        }
     }
-  FreeSymbol::copyAttachments(original, map);
+    FreeSymbol::copyAttachments(original, map);
 }
 
 void
-MetaLevelOpSymbol::getDataAttachments(const Vector<Sort*>& opDeclaration,
-				      Vector<const char*>& purposes,
-				      Vector<Vector<const char*> >& data)
-{
-  int nrDataAttachments = purposes.length();
-  purposes.resize(nrDataAttachments + 1);
-  purposes[nrDataAttachments] = "MetaLevelOpSymbol";
-  data.resize(nrDataAttachments + 1);
-  data[nrDataAttachments].resize(1);
-  const char*& str = data[nrDataAttachments][0];
+MetaLevelOpSymbol::getDataAttachments(const Vector<Sort *> &opDeclaration,
+                                      Vector<const char *> &purposes,
+                                      Vector<Vector<const char *> > &data) {
+    int nrDataAttachments = purposes.length();
+    purposes.resize(nrDataAttachments + 1);
+    purposes[nrDataAttachments] = "MetaLevelOpSymbol";
+    data.resize(nrDataAttachments + 1);
+    data[nrDataAttachments].resize(1);
+    const char *&str = data[nrDataAttachments][0];
 #define MACRO(SymbolName, NrArgs) \
   if (descentFunction == &MetaLevelOpSymbol::SymbolName) \
     str = #SymbolName; else
+
 #include "descentSignature.cc"
-    CantHappen("unrecognized descentFunction");
+
+            CantHappen("unrecognized descentFunction");
 #undef MACRO
-  FreeSymbol::getDataAttachments(opDeclaration, purposes, data);
+    FreeSymbol::getDataAttachments(opDeclaration, purposes, data);
 }
 
 void
-MetaLevelOpSymbol::getSymbolAttachments(Vector<const char*>& purposes,
-					Vector<Symbol*>& symbols)
-{
-  if (shareWith == 0)
-    metaLevel->getSymbolAttachments(purposes, symbols);
-  else
-    {
-      purposes.append("shareWith");
-      symbols.append(shareWith);
+MetaLevelOpSymbol::getSymbolAttachments(Vector<const char *> &purposes,
+                                        Vector<Symbol *> &symbols) {
+    if (shareWith == 0)
+        metaLevel->getSymbolAttachments(purposes, symbols);
+    else {
+        purposes.append("shareWith");
+        symbols.append(shareWith);
     }
-  FreeSymbol::getSymbolAttachments(purposes, symbols);
+    FreeSymbol::getSymbolAttachments(purposes, symbols);
 }
 
 void
-MetaLevelOpSymbol::getTermAttachments(Vector<const char*>& purposes,
-				      Vector<Term*>& terms)
-{
-  if (shareWith == 0)
-    metaLevel->getTermAttachments(purposes, terms);
-  FreeSymbol::getTermAttachments(purposes, terms);
+MetaLevelOpSymbol::getTermAttachments(Vector<const char *> &purposes,
+                                      Vector<Term *> &terms) {
+    if (shareWith == 0)
+        metaLevel->getTermAttachments(purposes, terms);
+    FreeSymbol::getTermAttachments(purposes, terms);
 }
 
 void
-MetaLevelOpSymbol::postInterSymbolPass()
-{
-  if (shareWith == 0)
-    metaLevel->postInterSymbolPass();
-  else
-    metaLevel = shareWith->metaLevel;
+MetaLevelOpSymbol::postInterSymbolPass() {
+    if (shareWith == 0)
+        metaLevel->postInterSymbolPass();
+    else
+        metaLevel = shareWith->metaLevel;
 }
 
 void
-MetaLevelOpSymbol::reset()
-{
-  if (shareWith == 0 && metaLevel != 0)
-    metaLevel->reset();
+MetaLevelOpSymbol::reset() {
+    if (shareWith == 0 && metaLevel != 0)
+        metaLevel->reset();
 }
 
 bool
-MetaLevelOpSymbol::eqRewrite(DagNode* subject, RewritingContext& context)
-{
-  Assert(this == subject->symbol(), "Bad symbol");
-  Assert(metaLevel != 0, "metaLevel not set for " << this);
-  //if (metaLevel == 0)
-  //  metaLevel = shareWith->metaLevel;
-  FreeDagNode* d = safeCast(FreeDagNode*, subject);
-  int nrArgs = arity();
-  if (standardStrategy())
-    {
-      for (int i = 0; i < nrArgs; i++)
-	d->getArgument(i)->reduce(context);
-      return (this->*descentFunction)(d, context) || FreeSymbol::eqRewrite(subject, context);
+MetaLevelOpSymbol::eqRewrite(DagNode *subject, RewritingContext &context) {
+    Assert(this == subject->symbol(), "Bad symbol");
+    Assert(metaLevel != 0, "metaLevel not set for " << this);
+    //if (metaLevel == 0)
+    //  metaLevel = shareWith->metaLevel;
+    FreeDagNode *d = safeCast(FreeDagNode*, subject);
+    int nrArgs = arity();
+    if (standardStrategy()) {
+        for (int i = 0; i < nrArgs; i++)
+            d->getArgument(i)->reduce(context);
+        return (this->*descentFunction)(d, context) || FreeSymbol::eqRewrite(subject, context);
     }
-  return complexStrategy(subject, context);
+    return complexStrategy(subject, context);
 }
 
 bool
-MetaLevelOpSymbol::complexStrategy(DagNode* subject, RewritingContext& context)
-{
-  FreeDagNode* d = safeCast(FreeDagNode*, subject);
-  //
-  //	Execute user supplied strategy.
-  //
-  //	We can't deal with multiple zeros in strategy, both because
-  //	(1) we have no way to apply user equations at an non-final zero; and
-  //	(2) we have no way to replace semi-eager arguments so that they can be evaluated.
-  //
-  const Vector<int>& userStrategy = getStrategy();
-  int stratLen = userStrategy.length();
-  for (int i = 0; i < stratLen - 1; i++)
-    {
-      int a = userStrategy[i];
-      if(a == 0)
-	{
-	  //
-	  //	Zero must be the end of the strategy and is treated as such.
-	  //
-	  IssueWarning("multiple zeros in strategy for MetaLevelOpSymbol " << QUOTE(this) << " not supported.");
-	  break;
-	}
-      else
-	d->getArgument(a - 1)->reduce(context);
+MetaLevelOpSymbol::complexStrategy(DagNode *subject, RewritingContext &context) {
+    FreeDagNode *d = safeCast(FreeDagNode*, subject);
+    //
+    //	Execute user supplied strategy.
+    //
+    //	We can't deal with multiple zeros in strategy, both because
+    //	(1) we have no way to apply user equations at an non-final zero; and
+    //	(2) we have no way to replace semi-eager arguments so that they can be evaluated.
+    //
+    const Vector<int> &userStrategy = getStrategy();
+    int stratLen = userStrategy.length();
+    for (int i = 0; i < stratLen - 1; i++) {
+        int a = userStrategy[i];
+        if (a == 0) {
+            //
+            //	Zero must be the end of the strategy and is treated as such.
+            //
+            IssueWarning("multiple zeros in strategy for MetaLevelOpSymbol " << QUOTE(this) << " not supported.");
+            break;
+        } else
+            d->getArgument(a - 1)->reduce(context);
     }
-  return (this->*descentFunction)(d, context) || FreeSymbol::eqRewrite(subject, context);
+    return (this->*descentFunction)(d, context) || FreeSymbol::eqRewrite(subject, context);
 }

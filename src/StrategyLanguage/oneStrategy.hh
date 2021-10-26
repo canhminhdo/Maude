@@ -25,29 +25,30 @@
 //
 #ifndef _oneStrategy_hh_
 #define _oneStrategy_hh_
+
 #include "strategyExpression.hh"
 
-class OneStrategy : public StrategyExpression
-{
+class OneStrategy : public StrategyExpression {
 public:
-  OneStrategy(StrategyExpression* strategy);
-  ~OneStrategy();
+    OneStrategy(StrategyExpression *strategy);
 
-  StrategyExpression* getStrategy() const;
+    ~OneStrategy();
 
-  bool check(VariableInfo& indices, const TermSet& boundVars);
-  void process();
+    StrategyExpression *getStrategy() const;
 
-  StrategicExecution::Survival decompose(StrategicSearch& searchObject, DecompositionProcess* remainder);
+    bool check(VariableInfo &indices, const TermSet &boundVars);
+
+    void process();
+
+    StrategicExecution::Survival decompose(StrategicSearch &searchObject, DecompositionProcess *remainder);
 
 private:
-  StrategyExpression* strategy;
+    StrategyExpression *strategy;
 };
 
-inline StrategyExpression*
-OneStrategy::getStrategy() const
-{
-  return strategy;
+inline StrategyExpression *
+OneStrategy::getStrategy() const {
+    return strategy;
 }
 
 #endif

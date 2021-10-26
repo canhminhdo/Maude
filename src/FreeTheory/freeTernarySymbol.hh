@@ -27,15 +27,16 @@
 //
 #ifndef _freeTernarySymbol_hh_
 #define _freeTernarySymbol_hh_
+
 #include "freeSymbol.hh"
 
-class FreeTernarySymbol : public FreeSymbol
-{
-  NO_COPYING(FreeTernarySymbol);
+class FreeTernarySymbol : public FreeSymbol {
+    NO_COPYING(FreeTernarySymbol);
 
 public:
-  FreeTernarySymbol(int id);
-  bool eqRewrite(DagNode* subject, RewritingContext& context);
+    FreeTernarySymbol(int id);
+
+    bool eqRewrite(DagNode *subject, RewritingContext &context);
 };
 
 #endif

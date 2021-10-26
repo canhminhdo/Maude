@@ -25,73 +25,83 @@
 //
 #ifndef _equalitySymbol_hh_
 #define _equalitySymbol_hh_
+
 #include "freeSymbol.hh"
 #include "cachedDag.hh"
 #include "fullCompiler.hh"
 
-class EqualitySymbol : public FreeSymbol
-{
+class EqualitySymbol : public FreeSymbol {
 public:
-  EqualitySymbol(int id, const Vector<int>& strategy);
+    EqualitySymbol(int id, const Vector<int> &strategy);
 
-  bool attachData(const Vector<Sort*>& opDeclaration,
-		  const char* purpose,
-		  const Vector<const char*>& data);
-  bool attachTerm(const char* purpose, Term* term);
-  void copyAttachments(Symbol* original, SymbolMap* map);
-  void getDataAttachments(const Vector<Sort*>& opDeclaration,
-			  Vector<const char*>& purposes,
-			  Vector<Vector<const char*> >& data);
-  void getTermAttachments(Vector<const char*>& purposes,
-			  Vector<Term*>& terms);
+    bool attachData(const Vector<Sort *> &opDeclaration,
+                    const char *purpose,
+                    const Vector<const char *> &data);
 
-  void postInterSymbolPass();
-  void reset();
-  bool eqRewrite(DagNode* subject, RewritingContext& context);
-  //
-  //	We don't accept or compile any equations.
-  //
-  bool acceptEquation(Equation* equation);
-  void compileEquations();
-  bool domainSortAlwaysLeqThan(Sort* sort, int argNr);
-  //
-  //	MVM stuff.
-  //
-  Instruction* generateFinalInstruction(const Vector<int>& argumentSlots);
-  Instruction* generateInstruction(int destination, const Vector<int>& argumentSlots, Instruction* nextInstruction);
-  void stackMachineCompile();
-  Instruction* getEqualInstructionSequence() const;
-  Instruction* getNotEqualInstructionSequence() const;
+    bool attachTerm(const char *purpose, Term *term);
+
+    void copyAttachments(Symbol *original, SymbolMap *map);
+
+    void getDataAttachments(const Vector<Sort *> &opDeclaration,
+                            Vector<const char *> &purposes,
+                            Vector<Vector<const char *> > &data);
+
+    void getTermAttachments(Vector<const char *> &purposes,
+                            Vector<Term *> &terms);
+
+    void postInterSymbolPass();
+
+    void reset();
+
+    bool eqRewrite(DagNode *subject, RewritingContext &context);
+
+    //
+    //	We don't accept or compile any equations.
+    //
+    bool acceptEquation(Equation *equation);
+
+    void compileEquations();
+
+    bool domainSortAlwaysLeqThan(Sort *sort, int argNr);
+
+    //
+    //	MVM stuff.
+    //
+    Instruction *generateFinalInstruction(const Vector<int> &argumentSlots);
+
+    Instruction *generateInstruction(int destination, const Vector<int> &argumentSlots, Instruction *nextInstruction);
+
+    void stackMachineCompile();
+
+    Instruction *getEqualInstructionSequence() const;
+
+    Instruction *getNotEqualInstructionSequence() const;
 
 #ifdef COMPILER
-  void generateCode(CompilationContext& context) const;
+    void generateCode(CompilationContext& context) const;
 #endif
 
 private:
-  CachedDag equalTerm;
-  CachedDag notEqualTerm;
+    CachedDag equalTerm;
+    CachedDag notEqualTerm;
 };
 
 inline void
-EqualitySymbol::stackMachineCompile()
-{
-  if (equalTerm.getInstructionSequence() == 0)
-    {
-      equalTerm.generateInstructionSequence();
-      notEqualTerm.generateInstructionSequence();
+EqualitySymbol::stackMachineCompile() {
+    if (equalTerm.getInstructionSequence() == 0) {
+        equalTerm.generateInstructionSequence();
+        notEqualTerm.generateInstructionSequence();
     }
 }
 
-inline Instruction*
-EqualitySymbol::getEqualInstructionSequence() const
-{
-  return equalTerm.getInstructionSequence();
+inline Instruction *
+EqualitySymbol::getEqualInstructionSequence() const {
+    return equalTerm.getInstructionSequence();
 }
 
-inline Instruction*
-EqualitySymbol::getNotEqualInstructionSequence() const
-{
-  return notEqualTerm.getInstructionSequence();
+inline Instruction *
+EqualitySymbol::getNotEqualInstructionSequence() const {
+    return notEqualTerm.getInstructionSequence();
 }
 
 #endif

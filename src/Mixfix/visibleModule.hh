@@ -25,45 +25,60 @@
 //
 #ifndef _visibleModule_hh_
 #define _visibleModule_hh_
+
 #include "importModule.hh"
 
-class VisibleModule : public ImportModule
-{
-  NO_COPYING(VisibleModule);
+class VisibleModule : public ImportModule {
+    NO_COPYING(VisibleModule);
 
 public:
-  VisibleModule(int name, ModuleType moduleType, Interpreter* owner);
+    VisibleModule(int name, ModuleType moduleType, Interpreter *owner);
 
-  Interpreter* getOwner() const;
+    Interpreter *getOwner() const;
 
-  void showSummary(ostream& s);
-  void showKinds(ostream& s) const;
-  void showSortsAndSubsorts(ostream& s) const;
-  void showModule(ostream& s, bool all) const;
-  void showPolymorphs(ostream& s, bool indent, bool all) const;
-  void showOps(ostream& s, bool indent, bool all) const;
-  void showVars(ostream& s, bool indent) const;
-  void showMbs(ostream& s, bool indent, bool all) const;
-  void showEqs(ostream& s, bool indent, bool all) const;
-  void showRls(ostream& s, bool indent, bool all) const;
-  void showStrats(ostream& s, bool indent, bool all) const;
-  void showSds(ostream& s, bool indent, bool all) const;
+    void showSummary(ostream &s);
+
+    void showKinds(ostream &s) const;
+
+    void showSortsAndSubsorts(ostream &s) const;
+
+    void showModule(ostream &s, bool all) const;
+
+    void showPolymorphs(ostream &s, bool indent, bool all) const;
+
+    void showOps(ostream &s, bool indent, bool all) const;
+
+    void showVars(ostream &s, bool indent) const;
+
+    void showMbs(ostream &s, bool indent, bool all) const;
+
+    void showEqs(ostream &s, bool indent, bool all) const;
+
+    void showRls(ostream &s, bool indent, bool all) const;
+
+    void showStrats(ostream &s, bool indent, bool all) const;
+
+    void showSds(ostream &s, bool indent, bool all) const;
 
 private:
-  void showSorts1(ostream& s, bool indent, bool all) const;
-  void showSubsorts(ostream& s, bool indent, bool all) const;
-  void showPolymorphDecl(ostream& s, bool indent, int index) const;
-  void showPolymorphAttributes(ostream& s, int index) const;
-  void showDecls(ostream& s, bool indent, int index, bool all) const;
-  void showAttributes(ostream& s, Symbol* symbol, int opDeclIndex) const;
+    void showSorts1(ostream &s, bool indent, bool all) const;
 
-  Interpreter* const owner;
+    void showSubsorts(ostream &s, bool indent, bool all) const;
+
+    void showPolymorphDecl(ostream &s, bool indent, int index) const;
+
+    void showPolymorphAttributes(ostream &s, int index) const;
+
+    void showDecls(ostream &s, bool indent, int index, bool all) const;
+
+    void showAttributes(ostream &s, Symbol *symbol, int opDeclIndex) const;
+
+    Interpreter *const owner;
 };
 
-inline Interpreter*
-VisibleModule::getOwner() const
-{
-  return owner;
+inline Interpreter *
+VisibleModule::getOwner() const {
+    return owner;
 }
 
 #endif

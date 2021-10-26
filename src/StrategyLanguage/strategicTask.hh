@@ -25,64 +25,67 @@
 //
 #ifndef _stategicTask_hh_
 #define _stategicTask_hh_
+
 #include <set>
 #include "strategicExecution.hh"
 #include "strategyStackManager.hh"
 #include "variableBindingsManager.hh"
 
-class StrategicTask : public StrategicExecution
-{
-  NO_COPYING(StrategicTask);
+class StrategicTask : public StrategicExecution {
+    NO_COPYING(StrategicTask);
 
 public:
-  StrategicTask(StrategicTask* master);
-  StrategicTask(StrategicExecution* sibling);
-  StrategicTask(StrategicExecution* sibling,
-		VariableBindingsManager::ContextId ctx);
-  ~StrategicTask();
-  //
-  //	Call-backs for interesting events.
-  //
-  virtual Survival executionSucceeded(int resultIndex, StrategicProcess* insertionPoint) = 0;
-  virtual Survival executionsExhausted(StrategicProcess* insertionPoint) = 0;
+    StrategicTask(StrategicTask *master);
 
-  bool alreadySeen(int dagIndex, StrategyStackManager::StackId stackId);
+    StrategicTask(StrategicExecution *sibling);
 
-  //
-  // Each task has a variable bindings context associated
-  //
-  VariableBindingsManager::ContextId getVarsContext() const;
+    StrategicTask(StrategicExecution *sibling,
+                  VariableBindingsManager::ContextId ctx);
+
+    ~StrategicTask();
+
+    //
+    //	Call-backs for interesting events.
+    //
+    virtual Survival executionSucceeded(int resultIndex, StrategicProcess *insertionPoint) = 0;
+
+    virtual Survival executionsExhausted(StrategicProcess *insertionPoint) = 0;
+
+    bool alreadySeen(int dagIndex, StrategyStackManager::StackId stackId);
+
+    //
+    // Each task has a variable bindings context associated
+    //
+    VariableBindingsManager::ContextId getVarsContext() const;
 
 protected:
-  StrategicExecution* getDummyExecution();
+    StrategicExecution *getDummyExecution();
 
 private:
-  //
-  //	A state is an index to a dag and a stack identifier.
-  //
-  typedef pair<int, StrategyStackManager::StackId> State;
-  typedef set<State> SeenSet;
-  //
-  //	To simplify coding, the head and tail of our list of slaves
-  //	(processes and tasks working for us) is stored as a dummy
-  //	execution, essentially forming a circular list.
-  //
-  StrategicExecution slaveList;
-  SeenSet seenSet;
+    //
+    //	A state is an index to a dag and a stack identifier.
+    //
+    typedef pair<int, StrategyStackManager::StackId> State;
+    typedef set <State> SeenSet;
+    //
+    //	To simplify coding, the head and tail of our list of slaves
+    //	(processes and tasks working for us) is stored as a dummy
+    //	execution, essentially forming a circular list.
+    //
+    StrategicExecution slaveList;
+    SeenSet seenSet;
 
-  VariableBindingsManager::ContextId varsContext;
+    VariableBindingsManager::ContextId varsContext;
 };
 
-inline StrategicExecution*
-StrategicTask::getDummyExecution()
-{
-  return &slaveList;
+inline StrategicExecution *
+StrategicTask::getDummyExecution() {
+    return &slaveList;
 }
 
 inline VariableBindingsManager::ContextId
-StrategicTask::getVarsContext() const
-{
-  return varsContext;
+StrategicTask::getVarsContext() const {
+    return varsContext;
 }
 
 #endif

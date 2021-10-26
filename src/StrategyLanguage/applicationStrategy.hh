@@ -25,100 +25,100 @@
 //
 #ifndef _applicationStrategy_hh_
 #define _applicationStrategy_hh_
+
 #include "strategyExpression.hh"
 #include "cachedDag.hh"
 #include "variableInfo.hh"
 
-class ApplicationStrategy : public StrategyExpression
-{
+class ApplicationStrategy : public StrategyExpression {
 public:
-  //
-  //	label == NONE means try all rules, labeled or not.
-  //
-  ApplicationStrategy(int label,
-		      const Vector<Term*>& variables,
-		      const Vector<Term*>& values,
-		      const Vector<StrategyExpression*>& strategies);
-  ~ApplicationStrategy();
+    //
+    //	label == NONE means try all rules, labeled or not.
+    //
+    ApplicationStrategy(int label,
+                        const Vector<Term *> &variables,
+                        const Vector<Term *> &values,
+                        const Vector<StrategyExpression *> &strategies);
 
-  void setTop();
-  bool getTop() const;
-  int getLabel() const;
-  const Vector<Term*>& getVariables() const;
-  Vector<CachedDag>& getValues();
-  const Vector<CachedDag>& getValues() const;
-  const Vector<StrategyExpression*>& getStrategies() const;
+    ~ApplicationStrategy();
 
-  bool check(VariableInfo& indices, const TermSet& boundVars);
-  void process();
+    void setTop();
 
-  bool areSubsDagsReduced() const;
-  void setSubsDagsReduced();
+    bool getTop() const;
 
-  StrategicExecution::Survival decompose(StrategicSearch& searchObject, DecompositionProcess* remainder);
+    int getLabel() const;
+
+    const Vector<Term *> &getVariables() const;
+
+    Vector<CachedDag> &getValues();
+
+    const Vector<CachedDag> &getValues() const;
+
+    const Vector<StrategyExpression *> &getStrategies() const;
+
+    bool check(VariableInfo &indices, const TermSet &boundVars);
+
+    void process();
+
+    bool areSubsDagsReduced() const;
+
+    void setSubsDagsReduced();
+
+    StrategicExecution::Survival decompose(StrategicSearch &searchObject, DecompositionProcess *remainder);
 
 private:
-  bool top;					// restrict rewrites to top of term
-  const int label;
-  Vector<Term*> variables;			// substitution
-  Vector<CachedDag> valueDags;
-  Vector<StrategyExpression*> strategies;	// strategies for searches in conditions
-  VariableInfo varInfo;				// variable information for the substitution values
-  bool subsDagsAreReduced;
+    bool top;                    // restrict rewrites to top of term
+    const int label;
+    Vector<Term *> variables;            // substitution
+    Vector<CachedDag> valueDags;
+    Vector<StrategyExpression *> strategies;    // strategies for searches in conditions
+    VariableInfo varInfo;                // variable information for the substitution values
+    bool subsDagsAreReduced;
 };
 
 inline void
-ApplicationStrategy::setTop()
-{
-  top = true;
+ApplicationStrategy::setTop() {
+    top = true;
 }
 
 inline bool
-ApplicationStrategy::getTop() const
-{
-  return top;
+ApplicationStrategy::getTop() const {
+    return top;
 }
 
 inline int
-ApplicationStrategy::getLabel() const
-{
-  return label;
+ApplicationStrategy::getLabel() const {
+    return label;
 }
 
-inline const Vector<Term*>&
-ApplicationStrategy::getVariables() const
-{
-  return variables;
+inline const Vector<Term *> &
+ApplicationStrategy::getVariables() const {
+    return variables;
 }
 
-inline Vector<CachedDag>&
-ApplicationStrategy::getValues()
-{
-  return valueDags;
+inline Vector<CachedDag> &
+ApplicationStrategy::getValues() {
+    return valueDags;
 }
 
-inline const Vector<CachedDag>&
-ApplicationStrategy::getValues() const
-{
-  return valueDags;
+inline const Vector<CachedDag> &
+ApplicationStrategy::getValues() const {
+    return valueDags;
 }
 
-inline const Vector<StrategyExpression*>&
-ApplicationStrategy::getStrategies() const
-{
-  return strategies;
+inline const Vector<StrategyExpression *> &
+ApplicationStrategy::getStrategies() const {
+    return strategies;
 }
 
 inline bool
-ApplicationStrategy::areSubsDagsReduced() const
-{
-  return subsDagsAreReduced;
+ApplicationStrategy::areSubsDagsReduced() const {
+    return subsDagsAreReduced;
 }
 
 inline void
-ApplicationStrategy::setSubsDagsReduced()
-{
-  subsDagsAreReduced = true;
+ApplicationStrategy::setSubsDagsReduced() {
+    subsDagsAreReduced = true;
 }
 
 #endif

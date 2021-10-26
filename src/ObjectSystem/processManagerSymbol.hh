@@ -25,6 +25,7 @@
 //
 #ifndef _processManagerSymbol_hh_
 #define _processManagerSymbol_hh_
+
 #include <sys/types.h>
 #include <map>
 #include "externalObjectManagerSymbol.hh"
@@ -35,115 +36,132 @@
 #include "dagRoot.hh"
 
 class ProcessManagerSymbol
-  : public ExternalObjectManagerSymbol,
-    public PseudoThread
-{
-  NO_COPYING(ProcessManagerSymbol);
+        : public ExternalObjectManagerSymbol,
+          public PseudoThread {
+    NO_COPYING(ProcessManagerSymbol);
 
 public:
-  ProcessManagerSymbol(int id);
+    ProcessManagerSymbol(int id);
 
-  bool attachData(const Vector<Sort*>& opDeclaration,
-		  const char* purpose,
-		  const Vector<const char*>& data);
-  bool attachSymbol(const char* purpose, Symbol* symbol);
-  void copyAttachments(Symbol* original, SymbolMap* map);
-  void getDataAttachments(const Vector<Sort*>& opDeclaration,
-			  Vector<const char*>& purposes,
-			  Vector<Vector<const char*> >& data);
-  void getSymbolAttachments(Vector<const char*>& purposes,
-			    Vector<Symbol*>& symbols);
-  //
-  //	Overridden methods from ExternalObjectManagerSymbol.
-  //
-  bool handleManagerMessage(DagNode* message, ObjectSystemRewritingContext& context);
-  bool handleMessage(DagNode* message, ObjectSystemRewritingContext& context);
-  void cleanUp(DagNode* objectId);
-  //
-  //	Overridden method from PseudoThread.
-  //
-  void doChildExit(pid_t childPid);
-  //
-  //	Static function to disable/enable this class.
-  //
-  static void setAllowProcesses(bool flag);
+    bool attachData(const Vector<Sort *> &opDeclaration,
+                    const char *purpose,
+                    const Vector<const char *> &data);
+
+    bool attachSymbol(const char *purpose, Symbol *symbol);
+
+    void copyAttachments(Symbol *original, SymbolMap *map);
+
+    void getDataAttachments(const Vector<Sort *> &opDeclaration,
+                            Vector<const char *> &purposes,
+                            Vector<Vector<const char *> > &data);
+
+    void getSymbolAttachments(Vector<const char *> &purposes,
+                              Vector<Symbol *> &symbols);
+
+    //
+    //	Overridden methods from ExternalObjectManagerSymbol.
+    //
+    bool handleManagerMessage(DagNode *message, ObjectSystemRewritingContext &context);
+
+    bool handleMessage(DagNode *message, ObjectSystemRewritingContext &context);
+
+    void cleanUp(DagNode *objectId);
+
+    //
+    //	Overridden method from PseudoThread.
+    //
+    void doChildExit(pid_t childPid);
+
+    //
+    //	Static function to disable/enable this class.
+    //
+    static void setAllowProcesses(bool flag);
 
 private:
-  enum SpecialValues
-    {
-     ERROR_BUFFER_SIZE = 256
+    enum SpecialValues {
+        ERROR_BUFFER_SIZE = 256
     };
 
-  struct ChildProcess
-  {
-    ChildProcess();
-    //
-    //	Sockets connected to this process.
-    //
-    int ioSocket;
-    int errSocket;
-    //
-    //	If we make a request for an async notification of a child exit
-    //	we need to save a pointer to the original context and the waitForExit()
-    //	message so we can generate an exited() reply.
-    //
-    ObjectSystemRewritingContext* waitContext;
-    DagRoot waitMessage;
-  };
+    struct ChildProcess {
+        ChildProcess();
 
-  typedef map<pid_t, ChildProcess> ProcessMap;
+        //
+        //	Sockets connected to this process.
+        //
+        int ioSocket;
+        int errSocket;
+        //
+        //	If we make a request for an async notification of a child exit
+        //	we need to save a pointer to the original context and the waitForExit()
+        //	message so we can generate an exited() reply.
+        //
+        ObjectSystemRewritingContext *waitContext;
+        DagRoot waitMessage;
+    };
 
-  bool createProcess(FreeDagNode* message, ObjectSystemRewritingContext& context);
-  bool waitForExit(FreeDagNode* message, ObjectSystemRewritingContext& context);
-  bool signalProcess(FreeDagNode* message, ObjectSystemRewritingContext& context);
+    typedef map<pid_t, ChildProcess> ProcessMap;
 
-  int checkStringList(DagNode* stringList);
-  char* const* makeStringArray(DagNode*  zeroArgument,
-			       DagNode* remainingArguments,
-			       int nrRemainingArguments);
-  bool getChildProcess(DagNode* processArg, int& processId, ChildProcess*& cpp);
-  bool makeNonblockingSocketPair(int pair[2],
-				 FreeDagNode* message,
-				 ObjectSystemRewritingContext& context,
-				 bool readOnly);
-  bool makeCloseOnExitPipe(int pair[2],
-			   FreeDagNode* message,
-			   ObjectSystemRewritingContext& context);
-  void exitedReply(pid_t processId,
-		   int exitCode,
-		   FreeDagNode* originalMessage,
-		   ObjectSystemRewritingContext& context);
-  void errorReply(const Rope& errorMessage,
-		  FreeDagNode* originalMessage,
-		  ObjectSystemRewritingContext& context);
-    
-  static int getSignalNumber(const char* signalString);
-  static const char* getSignalName(int signalNumber);
-  //
-  //	Shared flag to disable the functionality of this class.
-  //
-  static bool allowProcesses;
-  //
-  //	Process subsystem signature (generated by macro expansion).
-  //
+    bool createProcess(FreeDagNode *message, ObjectSystemRewritingContext &context);
+
+    bool waitForExit(FreeDagNode *message, ObjectSystemRewritingContext &context);
+
+    bool signalProcess(FreeDagNode *message, ObjectSystemRewritingContext &context);
+
+    int checkStringList(DagNode *stringList);
+
+    char *const *makeStringArray(DagNode *zeroArgument,
+                                 DagNode *remainingArguments,
+                                 int nrRemainingArguments);
+
+    bool getChildProcess(DagNode *processArg, int &processId, ChildProcess *&cpp);
+
+    bool makeNonblockingSocketPair(int pair[2],
+                                   FreeDagNode *message,
+                                   ObjectSystemRewritingContext &context,
+                                   bool readOnly);
+
+    bool makeCloseOnExitPipe(int pair[2],
+                             FreeDagNode *message,
+                             ObjectSystemRewritingContext &context);
+
+    void exitedReply(pid_t processId,
+                     int exitCode,
+                     FreeDagNode *originalMessage,
+                     ObjectSystemRewritingContext &context);
+
+    void errorReply(const Rope &errorMessage,
+                    FreeDagNode *originalMessage,
+                    ObjectSystemRewritingContext &context);
+
+    static int getSignalNumber(const char *signalString);
+
+    static const char *getSignalName(int signalNumber);
+
+    //
+    //	Shared flag to disable the functionality of this class.
+    //
+    static bool allowProcesses;
+    //
+    //	Process subsystem signature (generated by macro expansion).
+    //
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   SymbolClass* SymbolName;
+
 #include "processSignature.cc"
+
 #undef MACRO
 
-  ProcessMap childProcesses;
+    ProcessMap childProcesses;
 };
 
 inline void
-ProcessManagerSymbol::setAllowProcesses(bool flag)
-{
-  allowProcesses = flag;
+ProcessManagerSymbol::setAllowProcesses(bool flag) {
+    allowProcesses = flag;
 }
 
 inline
-ProcessManagerSymbol::ChildProcess::ChildProcess()
-{
-  waitContext = 0;
+ProcessManagerSymbol::ChildProcess::ChildProcess() {
+    waitContext = 0;
 }
 
 #endif

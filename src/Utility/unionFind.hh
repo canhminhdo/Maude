@@ -26,35 +26,35 @@
 #ifndef _unionFind_hh_
 #define _unionFind_hh_
 
-class UnionFind
-{
+class UnionFind {
 public:
-  int makeElement();
-  int findRep(int element) const;
-  void formUnion(int e1, int e2);
-  int elementCount() const;
-  void clear();
+    int makeElement();
+
+    int findRep(int element) const;
+
+    void formUnion(int e1, int e2);
+
+    int elementCount() const;
+
+    void clear();
 
 private:
-  struct Element
-    {
-      int next;
-      int rank;
+    struct Element {
+        int next;
+        int rank;
     };
 
-  mutable Vector<Element> vector;
+    mutable Vector<Element> vector;
 };
 
 inline int
-UnionFind::elementCount() const
-{
-  return vector.length();
+UnionFind::elementCount() const {
+    return vector.length();
 }
 
 inline void
-UnionFind::clear()
-{
-  vector.clear();
+UnionFind::clear() {
+    vector.clear();
 }
 
 #endif

@@ -28,111 +28,111 @@
 //
 #ifndef _positionState_hh_
 #define _positionState_hh_
+
 #include <stack>
 #include "redexPosition.hh"
 
-class PositionState
-{
-  NO_COPYING(PositionState);
+class PositionState {
+    NO_COPYING(PositionState);
 
 public:
-  enum Flags
-  {
-    RESPECT_FROZEN = 1,
-    SET_UNSTACKABLE = 128
-  };
+    enum Flags {
+        RESPECT_FROZEN = 1,
+        SET_UNSTACKABLE = 128
+    };
 
-  typedef int PositionIndex;
-  //
-  //	For returning a pair of dags. First dag is the rebuilt dag up to the root,
-  //	second dag is the replacement, possibily extended by extension information
-  //	when only part of the redex is replaced (useful for tracing).
-  //
-  typedef pair<DagNode*, DagNode*> DagPair;
+    typedef int PositionIndex;
+    //
+    //	For returning a pair of dags. First dag is the rebuilt dag up to the root,
+    //	second dag is the replacement, possibily extended by extension information
+    //	when only part of the redex is replaced (useful for tracing).
+    //
+    typedef pair<DagNode *, DagNode *> DagPair;
 
-  //
-  //	maxDepth = -1		means at top, no extension
-  //	maxDepth = 0		means at top, with extension
-  //	maxDepth = UNBOUNDED	means all the way down to the leaf nodes, with extension
-  //
-  PositionState(DagNode* top, int flags = 0, int minDepth = 0, int maxDepth = -1);
-  ~PositionState();
+    //
+    //	maxDepth = -1		means at top, no extension
+    //	maxDepth = 0		means at top, with extension
+    //	maxDepth = UNBOUNDED	means all the way down to the leaf nodes, with extension
+    //
+    PositionState(DagNode *top, int flags = 0, int minDepth = 0, int maxDepth = -1);
 
-  bool findNextPosition();  // should this be protected?
-  DagNode* getDagNode() const;
-  DagNode* getDagNode(PositionIndex index) const;
-  ExtensionInfo* getExtensionInfo();
-  PositionIndex getPositionIndex() const;
-  DagPair rebuildDag(DagNode* replacement) const;
-  DagPair rebuildDag(DagNode* replacement, ExtensionInfo* extInfo, PositionIndex index) const;
-  DagNode* rebuildAndInstantiateDag(DagNode* replacement,
-				    Substitution& substitution,
-				    int firstVariable,
-				    int lastVariable,
-				    PositionIndex = DEFAULT) const;
-  int getFlags() const;
+    ~PositionState();
+
+    bool findNextPosition();  // should this be protected?
+    DagNode *getDagNode() const;
+
+    DagNode *getDagNode(PositionIndex index) const;
+
+    ExtensionInfo *getExtensionInfo();
+
+    PositionIndex getPositionIndex() const;
+
+    DagPair rebuildDag(DagNode *replacement) const;
+
+    DagPair rebuildDag(DagNode *replacement, ExtensionInfo *extInfo, PositionIndex index) const;
+
+    DagNode *rebuildAndInstantiateDag(DagNode *replacement,
+                                      Substitution &substitution,
+                                      int firstVariable,
+                                      int lastVariable,
+                                      PositionIndex = DEFAULT) const;
+
+    int getFlags() const;
 
 private:
-  bool exploreNextPosition();
+    bool exploreNextPosition();
 
-  const int flags;
-  const int minDepth;
-  const int maxDepth;
-  bool extensionInfoValid;	// need separate flag because 0 is a valid extensionInfo value
-  ExtensionInfo* extensionInfo;
-  //
-  //	For breathfirst traversal over positions.
-  //
-  Vector<RedexPosition> positionQueue;
-  Vector<int> depth;
-  PositionIndex nextToExplore;
-  PositionIndex nextToReturn;
+    const int flags;
+    const int minDepth;
+    const int maxDepth;
+    bool extensionInfoValid;    // need separate flag because 0 is a valid extensionInfo value
+    ExtensionInfo *extensionInfo;
+    //
+    //	For breathfirst traversal over positions.
+    //
+    Vector<RedexPosition> positionQueue;
+    Vector<int> depth;
+    PositionIndex nextToExplore;
+    PositionIndex nextToReturn;
 };
 
 inline int
-PositionState::getFlags() const
-{
-  return flags;
+PositionState::getFlags() const {
+    return flags;
 }
 
-inline DagNode*
-PositionState::getDagNode() const
-{
-  Assert(nextToReturn >= 0, "findNextPosition() not called");
-  return positionQueue[nextToReturn].node();
+inline DagNode *
+PositionState::getDagNode() const {
+    Assert(nextToReturn >= 0, "findNextPosition() not called");
+    return positionQueue[nextToReturn].node();
 }
 
-inline DagNode*
-PositionState::getDagNode(PositionIndex index) const
-{
-  Assert(index >= 0 && index <= nextToReturn, "bad index " << index << " nextToReturn = " << nextToReturn);
-  return positionQueue[index].node();
+inline DagNode *
+PositionState::getDagNode(PositionIndex index) const {
+    Assert(index >= 0 && index <= nextToReturn, "bad index " << index << " nextToReturn = " << nextToReturn);
+    return positionQueue[index].node();
 }
 
-inline ExtensionInfo* 
-PositionState::getExtensionInfo()
-{
-  Assert(nextToReturn >= 0, "findNextPosition() not called");
-  if (!extensionInfoValid)
-    {
-      extensionInfo = getDagNode()->makeExtensionInfo();
-      extensionInfoValid = true;
+inline ExtensionInfo *
+PositionState::getExtensionInfo() {
+    Assert(nextToReturn >= 0, "findNextPosition() not called");
+    if (!extensionInfoValid) {
+        extensionInfo = getDagNode()->makeExtensionInfo();
+        extensionInfoValid = true;
     }
-  return extensionInfo;
+    return extensionInfo;
 }
 
 inline PositionState::PositionIndex
-PositionState::getPositionIndex() const
-{
-  Assert(nextToReturn >= 0, "findNextPosition() not called");
-  return nextToReturn;
+PositionState::getPositionIndex() const {
+    Assert(nextToReturn >= 0, "findNextPosition() not called");
+    return nextToReturn;
 }
 
 inline PositionState::DagPair
-PositionState::rebuildDag(DagNode* replacement) const
-{
-  Assert(nextToReturn >= 0, "findNextPosition() not called");
-  return rebuildDag(replacement, extensionInfo, nextToReturn);
+PositionState::rebuildDag(DagNode *replacement) const {
+    Assert(nextToReturn >= 0, "findNextPosition() not called");
+    return rebuildDag(replacement, extensionInfo, nextToReturn);
 }
 
 #endif

@@ -25,35 +25,39 @@
 //
 #ifndef _SMT_NumberSymbol_hh_
 #define _SMT_NumberSymbol_hh_
+
 #include "NA_Symbol.hh"
 #include "SMT_Base.hh"
 
-class SMT_NumberSymbol : public NA_Symbol, public SMT_Base
-{
+class SMT_NumberSymbol : public NA_Symbol, public SMT_Base {
 public:
-  SMT_NumberSymbol(int id);
-  //
-  //	Standard functionality for managing hooks.
-  //
-  bool attachData(const Vector<Sort*>& opDeclaration,
-		  const char* purpose,
-		  const Vector<const char*>& data);
-  void copyAttachments(Symbol* original, SymbolMap* map);
-  void getDataAttachments(const Vector<Sort*>& opDeclaration,
-			  Vector<const char*>& purposes,
-			  Vector<Vector<const char*> >& data);
+    SMT_NumberSymbol(int id);
 
-  //
-  //	For NA_Symbol base.
-  //
-  Term* termify(DagNode* dagNode);
-  //
-  //	For SMT_Base.
-  //
-  void fillOutSMT_Info(SMT_Info& info);
+    //
+    //	Standard functionality for managing hooks.
+    //
+    bool attachData(const Vector<Sort *> &opDeclaration,
+                    const char *purpose,
+                    const Vector<const char *> &data);
+
+    void copyAttachments(Symbol *original, SymbolMap *map);
+
+    void getDataAttachments(const Vector<Sort *> &opDeclaration,
+                            Vector<const char *> &purposes,
+                            Vector<Vector<const char *> > &data);
+
+    //
+    //	For NA_Symbol base.
+    //
+    Term *termify(DagNode *dagNode);
+
+    //
+    //	For SMT_Base.
+    //
+    void fillOutSMT_Info(SMT_Info &info);
 
 private:
-  int numberSystem;
+    int numberSystem;
 };
 
 #endif

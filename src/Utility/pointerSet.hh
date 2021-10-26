@@ -31,93 +31,115 @@
 #ifndef _pointerSet_hh_
 #define _pointerSet_hh_
 
-class PointerSet
-{
+class PointerSet {
 public:
-  PointerSet();
-  PointerSet(const PointerSet& original);
-  virtual ~PointerSet();
+    PointerSet();
 
-  //
-  //	If these four members are never called then we guarentee that
-  //	hash(void*) will never be called. These may be useful in situations
-  //	where the hash function is expensive and caching it would be awkward.
-  //
-  int insert(void* p);
-  void subtract(void* p);
-  bool contains(void* p) const;
-  int pointer2Index(void *p) const;
-  //
-  //	Alternative members - hash value must be provided with the pointer.
-  //
-  int insert(void* p, unsigned int rawHashValue);
-  void subtract(void* p, unsigned int rawHashValue);
-  bool contains(void* p, unsigned int rawHashValue) const;
-  int pointer2Index(void *p, unsigned int rawHashValue) const;
+    PointerSet(const PointerSet &original);
 
-  void makeEmpty();
-  void insert(const PointerSet& other);
-  void subtract(const PointerSet& other);
-  void intersect(const PointerSet& other);
-  PointerSet& operator=(const PointerSet& original);
-  bool empty() const;
-  bool contains(const PointerSet& other) const;
-  bool disjoint(const PointerSet& other) const;
-  int cardinality() const;
-  bool operator==(const PointerSet& other) const;
-  bool operator!=(const PointerSet& other) const;
-  void* index2Pointer(int i) const;
-  void swap(PointerSet& other);
+    virtual ~PointerSet();
+
+    //
+    //	If these four members are never called then we guarentee that
+    //	hash(void*) will never be called. These may be useful in situations
+    //	where the hash function is expensive and caching it would be awkward.
+    //
+    int insert(void *p);
+
+    void subtract(void *p);
+
+    bool contains(void *p) const;
+
+    int pointer2Index(void *p) const;
+
+    //
+    //	Alternative members - hash value must be provided with the pointer.
+    //
+    int insert(void *p, unsigned int rawHashValue);
+
+    void subtract(void *p, unsigned int rawHashValue);
+
+    bool contains(void *p, unsigned int rawHashValue) const;
+
+    int pointer2Index(void *p, unsigned int rawHashValue) const;
+
+    void makeEmpty();
+
+    void insert(const PointerSet &other);
+
+    void subtract(const PointerSet &other);
+
+    void intersect(const PointerSet &other);
+
+    PointerSet &operator=(const PointerSet &original);
+
+    bool empty() const;
+
+    bool contains(const PointerSet &other) const;
+
+    bool disjoint(const PointerSet &other) const;
+
+    int cardinality() const;
+
+    bool operator==(const PointerSet &other) const;
+
+    bool operator!=(const PointerSet &other) const;
+
+    void *index2Pointer(int i) const;
+
+    void swap(PointerSet &other);
 
 protected:
-  virtual unsigned int hash(void* pointer) const;
-  virtual bool isEqual(void* pointer1, void* pointer2) const;
+    virtual unsigned int hash(void *pointer) const;
+
+    virtual bool isEqual(void *pointer1, void *pointer2) const;
 
 #ifndef NO_ASSERT
-  //
-  //	Allow analysis/debugging of collisions.
-  //
-  virtual void collision(void* pointer1,
-			 unsigned int rawHashValue1, 
-			 void* pointer2,
-			 unsigned int rawHashValue2,
-			 unsigned int tableSize,
-			 unsigned int disputedSlot) const {}
+    //
+    //	Allow analysis/debugging of collisions.
+    //
+    virtual void collision(void* pointer1,
+               unsigned int rawHashValue1,
+               void* pointer2,
+               unsigned int rawHashValue2,
+               unsigned int tableSize,
+               unsigned int disputedSlot) const {}
 #endif
 
 private:
-  enum Parameters
-  {
-    STARTING_HASH_TABLE_SIZE = 8
-  };
+    enum Parameters {
+        STARTING_HASH_TABLE_SIZE = 8
+    };
 
-  struct Pair
-  {
-    void* pointer;
-    unsigned int rawHashValue;
-  };
+    struct Pair {
+        void *pointer;
+        unsigned int rawHashValue;
+    };
 
-  static int localHash(unsigned int rawHashValue);
-  static int localHash2(unsigned int rawHashValue);
-  bool isEqual(const Pair& pair, void* p, unsigned int rawHashValue) const;
-  int findEntry(void* p, unsigned int rawHashValue) const;
-  void resize(int minSize);
-  void rehash();
+    static int localHash(unsigned int rawHashValue);
 
-  Vector<Pair> pointerTable;
-  Vector<int> hashTable;
+    static int localHash2(unsigned int rawHashValue);
+
+    bool isEqual(const Pair &pair, void *p, unsigned int rawHashValue) const;
+
+    int findEntry(void *p, unsigned int rawHashValue) const;
+
+    void resize(int minSize);
+
+    void rehash();
+
+    Vector<Pair> pointerTable;
+    Vector<int> hashTable;
 };
 
 inline
-PointerSet::PointerSet()
-{
+PointerSet::PointerSet() {
 }
 
 inline
-PointerSet::PointerSet(const PointerSet& original)
-  : pointerTable(original.pointerTable),
-    hashTable(original.hashTable)
-{
+PointerSet::PointerSet(const PointerSet &original)
+        : pointerTable(original.pointerTable),
+          hashTable(original.hashTable) {
 }
 
 //
@@ -125,99 +147,85 @@ PointerSet::PointerSet(const PointerSet& original)
 //
 
 inline int
-PointerSet::insert(void* p)
-{
-  return insert(p, hash(p));
+PointerSet::insert(void *p) {
+    return insert(p, hash(p));
 }
 
 inline void
-PointerSet::subtract(void* p)
-{
-  if (pointerTable.length() != 0)
-    subtract(p, hash(p));
+PointerSet::subtract(void *p) {
+    if (pointerTable.length() != 0)
+        subtract(p, hash(p));
 }
 
 inline bool
-PointerSet::contains(void* p) const
-{
-  return pointerTable.length() != 0 && hashTable[findEntry(p, hash(p))] != UNUSED;
+PointerSet::contains(void *p) const {
+    return pointerTable.length() != 0 && hashTable[findEntry(p, hash(p))] != UNUSED;
 }
 
 inline int
-PointerSet::pointer2Index(void *p) const
-{
-  return (pointerTable.length() != 0) ? hashTable[findEntry(p, hash(p))] : NONE;
+PointerSet::pointer2Index(void *p) const {
+    return (pointerTable.length() != 0) ? hashTable[findEntry(p, hash(p))] : NONE;
 }
 
 //
 //	Alternative versions.
 //
 inline bool
-PointerSet::contains(void* p, unsigned int rawHashValue) const
-{
-  return pointerTable.length() != 0 && hashTable[findEntry(p, rawHashValue)] != UNUSED;
+PointerSet::contains(void *p, unsigned int rawHashValue) const {
+    return pointerTable.length() != 0 && hashTable[findEntry(p, rawHashValue)] != UNUSED;
 }
 
 inline int
-PointerSet::pointer2Index(void *p, unsigned int rawHashValue) const
-{
-  return (pointerTable.length() != 0) ? hashTable[findEntry(p, rawHashValue)] : NONE;
-} 
+PointerSet::pointer2Index(void *p, unsigned int rawHashValue) const {
+    return (pointerTable.length() != 0) ? hashTable[findEntry(p, rawHashValue)] : NONE;
+}
 
 //
 //	Remaining member functions
 //
 
 inline void
-PointerSet::makeEmpty()
-{
-  pointerTable.contractTo(0);
-  hashTable.contractTo(0);
+PointerSet::makeEmpty() {
+    pointerTable.contractTo(0);
+    hashTable.contractTo(0);
 }
 
-inline PointerSet&
-PointerSet::operator=(const PointerSet& original)
-{
-  pointerTable = original.pointerTable;  // deep copy
-  hashTable = original.hashTable;  // deep copy
-  return *this;
+inline PointerSet &
+PointerSet::operator=(const PointerSet &original) {
+    pointerTable = original.pointerTable;  // deep copy
+    hashTable = original.hashTable;  // deep copy
+    return *this;
 }
 
 inline bool
-PointerSet::empty() const
-{
-  return pointerTable.length() == 0;
+PointerSet::empty() const {
+    return pointerTable.length() == 0;
 }
 
 inline int
-PointerSet::cardinality() const
-{
-  return pointerTable.length();
+PointerSet::cardinality() const {
+    return pointerTable.length();
 }
 
 inline bool
-PointerSet::operator==(const PointerSet& other) const
-{
-  return pointerTable.length() == other.pointerTable.length() && contains(other);
+PointerSet::operator==(const PointerSet &other) const {
+    return pointerTable.length() == other.pointerTable.length() && contains(other);
 }
 
 inline bool
-PointerSet::operator!=(const PointerSet& other) const
-{
-  return !(*this == other);
+PointerSet::operator!=(const PointerSet &other) const {
+    return !(*this == other);
 }
 
-inline void*
-PointerSet::index2Pointer(int i) const
-{
-  return pointerTable[i].pointer;
+inline void *
+PointerSet::index2Pointer(int i) const {
+    return pointerTable[i].pointer;
 }
 
 inline void
-PointerSet::swap(PointerSet& other)
-{
-  pointerTable.swap(other.pointerTable);
-  hashTable.swap(other.hashTable);
+PointerSet::swap(PointerSet &other) {
+    pointerTable.swap(other.pointerTable);
+    hashTable.swap(other.hashTable);
 }
 
 #endif

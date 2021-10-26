@@ -26,35 +26,36 @@
 //
 #ifndef _freeFast3RhsAutomaton_hh_
 #define _freeFast3RhsAutomaton_hh_
+
 #include "freeRhsAutomaton.hh"
 
-class FreeFast3RhsAutomaton : public FreeRhsAutomaton
-{
+class FreeFast3RhsAutomaton : public FreeRhsAutomaton {
 public:
-  //
-  //	We hook in code for dummy arguments here.
-  //
-  void remapIndices(VariableInfo& variableInfo);
-  //
-  //	We just replace a couple of virtual functions with ones optimized for this case.
-  //
-  DagNode* construct(Substitution& matcher);
-  void replace(DagNode* old, Substitution& matcher);
+    //
+    //	We hook in code for dummy arguments here.
+    //
+    void remapIndices(VariableInfo &variableInfo);
+
+    //
+    //	We just replace a couple of virtual functions with ones optimized for this case.
+    //
+    DagNode *construct(Substitution &matcher);
+
+    void replace(DagNode *old, Substitution &matcher);
 
 private:
-  struct FastInstruction
-    {
-      Symbol* symbol;
-      int sources[3];
-      int destination;
+    struct FastInstruction {
+        Symbol *symbol;
+        int sources[3];
+        int destination;
     };
 
-  static void fillOutArgs(const FastInstruction& instr,
-			  Substitution& matcher,
-			  FreeDagNode* d);
+    static void fillOutArgs(const FastInstruction &instr,
+                            Substitution &matcher,
+                            FreeDagNode *d);
 
-  Vector<FastInstruction>::size_type nrInstructions;  // so we can get this without accounting for null vector possibility
-  Vector<FastInstruction> fastInstructions;
+    Vector<FastInstruction>::size_type nrInstructions;  // so we can get this without accounting for null vector possibility
+    Vector<FastInstruction> fastInstructions;
 };
 
 #endif

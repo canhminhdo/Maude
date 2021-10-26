@@ -25,32 +25,30 @@
 //
 #ifndef _namedEntity_hh_
 #define _namedEntity_hh_
- 
-class NamedEntity
-{
+
+class NamedEntity {
 public:
-  NamedEntity(int id);
-  int id() const;
+    NamedEntity(int id);
+
+    int id() const;
 
 private:
-  const int name;
+    const int name;
 };
 
 inline
 NamedEntity::NamedEntity(int id)
-  : name(id)
-{
+        : name(id) {
 }
 
 inline int
-NamedEntity::id() const
-{
-  return name;
+NamedEntity::id() const {
+    return name;
 }
 
 //
 //	Output function for NamedEntity must be defined by library user.
 //
-ostream& operator<<(ostream& s, const NamedEntity* e);
+ostream &operator<<(ostream &s, const NamedEntity *e);
 
 #endif

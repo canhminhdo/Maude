@@ -26,15 +26,16 @@
 #ifndef _sharedTokens_hh_
 #define _sharedTokens_hh_
 
-class SharedTokens
-{
+class SharedTokens {
 public:
-  SharedTokens();
+    SharedTokens();
 
 protected:
 #define MACRO(Name, String) \
   static int Name;
+
 #include "specialTokens.cc"
+
 #undef MACRO
 };
 

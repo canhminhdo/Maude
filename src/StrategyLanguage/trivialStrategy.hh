@@ -25,27 +25,28 @@
 //
 #ifndef _trivialStrategy_hh_
 #define _trivialStrategy_hh_
+
 #include "strategyExpression.hh"
 
-class TrivialStrategy : public StrategyExpression
-{
+class TrivialStrategy : public StrategyExpression {
 public:
-  TrivialStrategy(bool result);
-  bool getResult() const;
+    TrivialStrategy(bool result);
 
-  bool check(VariableInfo& indices, const TermSet& boundVars);
-  void process();
+    bool getResult() const;
 
-  StrategicExecution::Survival decompose(StrategicSearch& searchObject, DecompositionProcess* remainder);
+    bool check(VariableInfo &indices, const TermSet &boundVars);
+
+    void process();
+
+    StrategicExecution::Survival decompose(StrategicSearch &searchObject, DecompositionProcess *remainder);
 
 private:
-  const bool result;
+    const bool result;
 };
 
 inline bool
-TrivialStrategy::getResult() const
-{
-  return result;
+TrivialStrategy::getResult() const {
+    return result;
 }
 
 #endif

@@ -25,201 +25,218 @@
 //
 #ifndef _sortTable_hh_
 #define _sortTable_hh_
+
 #include <set>
 #include "bdd.hh"
 #include "opDeclaration.hh"
 #include "fullCompiler.hh"
 #include "connectedComponent.hh"
 
-class SortTable
-{
-  NO_COPYING(SortTable);
+class SortTable {
+    NO_COPYING(SortTable);
 
 public:
-  enum CtorStatus
-  {
-    IS_CTOR = 1,
-    IS_NON_CTOR = 2,
-    IS_COMPLEX = IS_CTOR | IS_NON_CTOR
-  };
-  
-  SortTable(int arity);
-  int arity() const;
-  void addOpDeclaration(const Vector<Sort*>& domainAndRange,
-			bool constructorFlag);
-  const Vector<OpDeclaration>& getOpDeclarations() const;
-  /* const */ ConnectedComponent* rangeComponent() const;
-  const ConnectedComponent* domainComponent(int argNr) const;
-  Sort* getRangeSort() const;
-  Sort* getSingleNonErrorSort() const;
-  int getCtorStatus() const;
-  virtual void compileOpDeclarations();
-  virtual void fillInSortInfo(Term* subject) = 0;
-  virtual void finalizeSortInfo();
-  virtual bool canProduceErrorSort() const;
-  int traverse(int position, int sortIndex) const;
-  bool kindLevelDeclarationsOnly() const;
-  const NatSet& getMaximalOpDeclSet(Sort* target);
-  //
-  //	Unification stuff.
-  //
-  virtual void computeSortFunctionBdds(const SortBdds& sortBdds, Vector<Bdd>& sortFunctionBdds) const;
-  virtual void computeGeneralizedSort(const SortBdds& sortBdds,
-				      const Vector<int>& realToBdd,  // first BDD variable for each free real variable
-				      DagNode* subject,
-				      Vector<Bdd>& generalizedSort) { CantHappen("not implemented"); }
+    enum CtorStatus {
+        IS_CTOR = 1,
+        IS_NON_CTOR = 2,
+        IS_COMPLEX = IS_CTOR | IS_NON_CTOR
+    };
 
-  virtual void computeGeneralizedSort2(const SortBdds& sortBdds,
-				       const Vector<int>& realToBdd,  // first BDD variable for each free real variable
-				       DagNode* subject,
-				       Vector<Bdd>& generalizedSort) { CantHappen("not implemented"); }
+    SortTable(int arity);
+
+    int arity() const;
+
+    void addOpDeclaration(const Vector<Sort *> &domainAndRange,
+                          bool constructorFlag);
+
+    const Vector<OpDeclaration> &getOpDeclarations() const;
+
+    /* const */ ConnectedComponent *rangeComponent() const;
+
+    const ConnectedComponent *domainComponent(int argNr) const;
+
+    Sort *getRangeSort() const;
+
+    Sort *getSingleNonErrorSort() const;
+
+    int getCtorStatus() const;
+
+    virtual void compileOpDeclarations();
+
+    virtual void fillInSortInfo(Term *subject) = 0;
+
+    virtual void finalizeSortInfo();
+
+    virtual bool canProduceErrorSort() const;
+
+    int traverse(int position, int sortIndex) const;
+
+    bool kindLevelDeclarationsOnly() const;
+
+    const NatSet &getMaximalOpDeclSet(Sort *target);
+
+    //
+    //	Unification stuff.
+    //
+    virtual void computeSortFunctionBdds(const SortBdds &sortBdds, Vector<Bdd> &sortFunctionBdds) const;
+
+    virtual void computeGeneralizedSort(const SortBdds &sortBdds,
+                                        const Vector<int> &realToBdd,  // first BDD variable for each free real variable
+                                        DagNode *subject,
+                                        Vector<Bdd> &generalizedSort) { CantHappen("not implemented"); }
+
+    virtual void computeGeneralizedSort2(const SortBdds &sortBdds,
+                                         const Vector<int> &realToBdd,  // first BDD variable for each free real variable
+                                         DagNode *subject,
+                                         Vector<Bdd> &generalizedSort) { CantHappen("not implemented"); }
 
 #ifdef COMPILER
-  void generateSortDiagram(CompilationContext& context) const;
+    void generateSortDiagram(CompilationContext& context) const;
 #endif
 
 protected:
-  bool specialSortHandling() const;
-  int ctorTraverse(int position, int sortIndex) const;
+    bool specialSortHandling() const;
+
+    int ctorTraverse(int position, int sortIndex) const;
 
 #ifdef DUMP
-  void dumpSortDiagram(ostream& s, int indentLevel);
+    void dumpSortDiagram(ostream& s, int indentLevel);
 #endif
 
 private:
-  typedef Vector<Bdd> BddVector;
-  typedef Vector<BddVector> BddTable;
+    typedef Vector<Bdd> BddVector;
+    typedef Vector<BddVector> BddTable;
 
-  struct Node;
-  struct SpanningTree;
-  
-  void buildSortDiagram();
-  void buildCtorDiagram();
-  void sortErrorAnalysis(bool preregProblem,
-			 const set<int>& badTerminals);
-  void computeMaximalOpDeclSetTable();
-  bool domainSubsumes(int subsumer, int victim) const;
-  int findStateNumber(Vector<NatSet>& stateSet, const NatSet& state);
-  int findMinSortIndex(const NatSet& state, bool& unique);
-  bool partiallySubsumes(int subsumer, int victim, int argNr);
-  void minimize(NatSet& alive, int argNr);
+    struct Node;
+    struct SpanningTree;
 
-  void computeBddVector(const SortBdds& sortBdds,
-			int bddVarNr,
-			int argNr,
-			BddTable& table,
-			int nodeNr) const;
-  // void panic() const;  // HACK
+    void buildSortDiagram();
 
-  bool containsConstructor(const NatSet& state, bool& unique);
-  static bool partlyMoreGeneral(const OpDeclaration& subsumer,
-				const OpDeclaration& victim,
-				int argNr);
-  static bool ctorSubsumes(const OpDeclaration& subsumer,
-			   const OpDeclaration& victim,
-			   int argNr);
-  void minimizeWrtCtor(NatSet& alive, int argNr) const;
+    void buildCtorDiagram();
 
-  void linearComputeSortFunctionBdds(const SortBdds& sortBdds, Vector<Bdd>& sortFunctionBdds) const;
-  void recursiveComputeSortFunctionBdds(const SortBdds& sortBdds, Vector<Bdd>& sortFunctionBdds) const;
+    void sortErrorAnalysis(bool preregProblem,
+                           const set<int> &badTerminals);
 
-  const int nrArgs;
-  Vector<OpDeclaration> opDeclarations;
-  Vector<ConnectedComponent*> componentVector;
-  Vector<int> sortDiagram;
-  Sort* singleNonErrorSort;  // if we can only generate one non error sort
-  Vector<int> ctorDiagram;
-  int ctorStatus;  // place holder
-  Vector<NatSet> maximalOpDeclSetTable;  // indices of maximal op decls with range <= each sort
+    void computeMaximalOpDeclSetTable();
+
+    bool domainSubsumes(int subsumer, int victim) const;
+
+    int findStateNumber(Vector<NatSet> &stateSet, const NatSet &state);
+
+    int findMinSortIndex(const NatSet &state, bool &unique);
+
+    bool partiallySubsumes(int subsumer, int victim, int argNr);
+
+    void minimize(NatSet &alive, int argNr);
+
+    void computeBddVector(const SortBdds &sortBdds,
+                          int bddVarNr,
+                          int argNr,
+                          BddTable &table,
+                          int nodeNr) const;
+    // void panic() const;  // HACK
+
+    bool containsConstructor(const NatSet &state, bool &unique);
+
+    static bool partlyMoreGeneral(const OpDeclaration &subsumer,
+                                  const OpDeclaration &victim,
+                                  int argNr);
+
+    static bool ctorSubsumes(const OpDeclaration &subsumer,
+                             const OpDeclaration &victim,
+                             int argNr);
+
+    void minimizeWrtCtor(NatSet &alive, int argNr) const;
+
+    void linearComputeSortFunctionBdds(const SortBdds &sortBdds, Vector<Bdd> &sortFunctionBdds) const;
+
+    void recursiveComputeSortFunctionBdds(const SortBdds &sortBdds, Vector<Bdd> &sortFunctionBdds) const;
+
+    const int nrArgs;
+    Vector<OpDeclaration> opDeclarations;
+    Vector<ConnectedComponent *> componentVector;
+    Vector<int> sortDiagram;
+    Sort *singleNonErrorSort;  // if we can only generate one non error sort
+    Vector<int> ctorDiagram;
+    int ctorStatus;  // place holder
+    Vector<NatSet> maximalOpDeclSetTable;  // indices of maximal op decls with range <= each sort
 };
 
 inline int
-SortTable::arity() const
-{
-  return nrArgs;
+SortTable::arity() const {
+    return nrArgs;
 }
 
-inline const NatSet&
-SortTable::getMaximalOpDeclSet(Sort* target)
-{
-  if (maximalOpDeclSetTable.isNull())
-    computeMaximalOpDeclSetTable();
-  return maximalOpDeclSetTable[target->index()];
+inline const NatSet &
+SortTable::getMaximalOpDeclSet(Sort *target) {
+    if (maximalOpDeclSetTable.isNull())
+        computeMaximalOpDeclSetTable();
+    return maximalOpDeclSetTable[target->index()];
 }
 
 inline bool
-SortTable::specialSortHandling() const
-{
-  return sortDiagram.isNull();
+SortTable::specialSortHandling() const {
+    return sortDiagram.isNull();
 }
 
-inline void 
-SortTable::addOpDeclaration(const Vector<Sort*>& domainAndRange, bool constructorFlag)
-{
-  Assert(domainAndRange.length() - 1 == nrArgs,
-	 "bad domain length of " <<
-	 domainAndRange.length() - 1 << " instead of " << nrArgs);
-  int nrOpDeclarations = opDeclarations.length();
-  opDeclarations.resize(nrOpDeclarations + 1);
-  opDeclarations[nrOpDeclarations].setInfo(domainAndRange, constructorFlag);
-  ctorStatus |= constructorFlag ? IS_CTOR : IS_NON_CTOR;
+inline void
+SortTable::addOpDeclaration(const Vector<Sort *> &domainAndRange, bool constructorFlag) {
+    Assert(domainAndRange.length() - 1 == nrArgs,
+           "bad domain length of " <<
+                                   domainAndRange.length() - 1 << " instead of " << nrArgs);
+    int nrOpDeclarations = opDeclarations.length();
+    opDeclarations.resize(nrOpDeclarations + 1);
+    opDeclarations[nrOpDeclarations].setInfo(domainAndRange, constructorFlag);
+    ctorStatus |= constructorFlag ? IS_CTOR : IS_NON_CTOR;
 }
 
-inline const Vector<OpDeclaration>&
-SortTable::getOpDeclarations() const
-{
-  return opDeclarations;
+inline const Vector<OpDeclaration> &
+SortTable::getOpDeclarations() const {
+    return opDeclarations;
 }
 
-inline /* const */ ConnectedComponent*
-SortTable::rangeComponent() const
-{
-  return opDeclarations[0].getDomainAndRange()[nrArgs]->component();
+inline /* const */ ConnectedComponent *
+SortTable::rangeComponent() const {
+    return opDeclarations[0].getDomainAndRange()[nrArgs]->component();
 }
 
-inline Sort*
-SortTable::getRangeSort() const
-{
-  //
-  //	If an operator has been declared with multiple range sort, this
-  //	function just returns the first, which is good enough for some
-  //	purposes.
-  //
-  return opDeclarations[0].getDomainAndRange()[nrArgs];
+inline Sort *
+SortTable::getRangeSort() const {
+    //
+    //	If an operator has been declared with multiple range sort, this
+    //	function just returns the first, which is good enough for some
+    //	purposes.
+    //
+    return opDeclarations[0].getDomainAndRange()[nrArgs];
 }
 
-inline const ConnectedComponent*
-SortTable::domainComponent(int argNr) const
-{
-  return opDeclarations[0].getDomainAndRange()[argNr]->component();
+inline const ConnectedComponent *
+SortTable::domainComponent(int argNr) const {
+    return opDeclarations[0].getDomainAndRange()[argNr]->component();
 }
 
-inline Sort*
-SortTable::getSingleNonErrorSort() const
-{
-  return singleNonErrorSort;
+inline Sort *
+SortTable::getSingleNonErrorSort() const {
+    return singleNonErrorSort;
 }
 
 inline int
-SortTable::getCtorStatus() const
-{
-  return ctorStatus;
+SortTable::getCtorStatus() const {
+    return ctorStatus;
 }
 
 inline int
-SortTable::traverse(int position, int sortIndex) const
-{
-  /*
-  if (position + sortIndex >= sortDiagram.length())  // HACK
-    panic();
-  */
-  return sortDiagram[position + sortIndex];
+SortTable::traverse(int position, int sortIndex) const {
+    /*
+    if (position + sortIndex >= sortDiagram.length())  // HACK
+      panic();
+    */
+    return sortDiagram[position + sortIndex];
 }
 
 inline int
-SortTable::ctorTraverse(int position, int sortIndex) const
-{
-  return ctorDiagram[position + sortIndex];
+SortTable::ctorTraverse(int position, int sortIndex) const {
+    return ctorDiagram[position + sortIndex];
 }
 
 #endif

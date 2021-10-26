@@ -31,63 +31,68 @@
 //
 #ifndef _veryWeakAlternationAutomaton_hh_
 #define _veryWeakAlternationAutomaton_hh_
+
 #include "bddUser.hh"
 #include "transitionSet.hh"
 #include "natSet.hh"
 
-class VeryWeakAlternatingAutomaton : private BddUser
-{
+class VeryWeakAlternatingAutomaton : private BddUser {
 public:
-  VeryWeakAlternatingAutomaton(LogicFormula* formula, int top);
+    VeryWeakAlternatingAutomaton(LogicFormula *formula, int top);
 
-  int getNrStates() const;
-  int getNrFinalStates() const;
-  const TransitionSet& getInitialStates();
-  const TransitionSet& getTransitionSet(int stateIndex) const;
-  void computeFairnessSet(const Transition& transition,
-			  NatSet& fairnessSet);
-  void dump(ostream& s) const;
+    int getNrStates() const;
+
+    int getNrFinalStates() const;
+
+    const TransitionSet &getInitialStates();
+
+    const TransitionSet &getTransitionSet(int stateIndex) const;
+
+    void computeFairnessSet(const Transition &transition,
+                            NatSet &fairnessSet);
+
+    void dump(ostream &s) const;
 
 private:
-  void dnf(int subformulaIndex, TransitionSet& result);
-  void computeTransitionSet(int subformulaIndex);
-  void reachabilityOpt();
-  void findReachable(const TransitionSet& ts);
-  bool checkFairness(const Transition& transition, int finalStateIndex) const;
+    void dnf(int subformulaIndex, TransitionSet &result);
 
-  TransitionSet initialStates;
-  Vector<TransitionSet> states;
-  Vector<int> finalStates;
-  //
-  //	Temporary data used during construction.
-  //
-  LogicFormula* const formula;
-  int nrNewStates;
-  Vector<int> renaming;
+    void computeTransitionSet(int subformulaIndex);
+
+    void reachabilityOpt();
+
+    void findReachable(const TransitionSet &ts);
+
+    bool checkFairness(const Transition &transition, int finalStateIndex) const;
+
+    TransitionSet initialStates;
+    Vector<TransitionSet> states;
+    Vector<int> finalStates;
+    //
+    //	Temporary data used during construction.
+    //
+    LogicFormula *const formula;
+    int nrNewStates;
+    Vector<int> renaming;
 };
 
 inline int
-VeryWeakAlternatingAutomaton::getNrStates() const
-{
-  return states.length();
+VeryWeakAlternatingAutomaton::getNrStates() const {
+    return states.length();
 }
 
 inline int
-VeryWeakAlternatingAutomaton::getNrFinalStates() const
-{
-  return finalStates.length();
+VeryWeakAlternatingAutomaton::getNrFinalStates() const {
+    return finalStates.length();
 }
 
-inline const TransitionSet&
-VeryWeakAlternatingAutomaton::getInitialStates()
-{
-  return initialStates;
+inline const TransitionSet &
+VeryWeakAlternatingAutomaton::getInitialStates() {
+    return initialStates;
 }
 
-inline const TransitionSet&
-VeryWeakAlternatingAutomaton::getTransitionSet(int stateIndex) const
-{
-  return states[stateIndex];
+inline const TransitionSet &
+VeryWeakAlternatingAutomaton::getTransitionSet(int stateIndex) const {
+    return states[stateIndex];
 }
 
 #endif

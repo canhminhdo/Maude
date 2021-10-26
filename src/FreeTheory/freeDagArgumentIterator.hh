@@ -26,25 +26,25 @@
 #ifndef _freeDagArgumentIterator_hh_
 #define _freeDagArgumentIterator_hh_
 
-class FreeDagArgumentIterator : public RawDagArgumentIterator
-{
+class FreeDagArgumentIterator : public RawDagArgumentIterator {
 public:
-  FreeDagArgumentIterator(DagNode** first, int nrArgs);
+    FreeDagArgumentIterator(DagNode **first, int nrArgs);
 
-  bool valid() const;
-  DagNode* argument() const;
-  void next();
+    bool valid() const;
+
+    DagNode *argument() const;
+
+    void next();
 
 private:
-  DagNode** position;
-  int nrRemaining;
+    DagNode **position;
+    int nrRemaining;
 };
 
 inline
-FreeDagArgumentIterator::FreeDagArgumentIterator(DagNode** first, int nrArgs)
-{
-  position = first;
-  nrRemaining = nrArgs;
+FreeDagArgumentIterator::FreeDagArgumentIterator(DagNode **first, int nrArgs) {
+    position = first;
+    nrRemaining = nrArgs;
 }
 
 #endif

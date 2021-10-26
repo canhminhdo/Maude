@@ -25,98 +25,100 @@
 //
 #ifndef _SMT_RewriteSearchState_hh_
 #define _SMT_RewriteSearchState_hh_
+
 #include "gmpxx.h"
 #include "cacheableState.hh"
 #include "simpleRootContainer.hh"
 #include "natSet.hh"
 
 class SMT_RewriteSearchState :
-  public CacheableState, // HACK
-  private SimpleRootContainer
-{
+        public CacheableState, // HACK
+        private SimpleRootContainer {
 public:
-  enum Flags
-  {
-    GC_CONTEXT = 2,		// delete context in our dtor
-    GC_ENGINE = 4		// delete SMT engine in our dtor
-  };
+    enum Flags {
+        GC_CONTEXT = 2,        // delete context in our dtor
+        GC_ENGINE = 4        // delete SMT engine in our dtor
+    };
 
-  SMT_RewriteSearchState(RewritingContext* context,
-			 DagNode* constraint,
-			 const SMT_Info& smtInfo,
-			 SMT_EngineWrapper* engine,
-			 const mpz_class& avoidVariableNumber = 0,  // variable numbers <= this will be avoided
-			 int flags = 0);
-  ~SMT_RewriteSearchState();
+    SMT_RewriteSearchState(RewritingContext *context,
+                           DagNode *constraint,
+                           const SMT_Info &smtInfo,
+                           SMT_EngineWrapper *engine,
+                           const mpz_class &avoidVariableNumber = 0,  // variable numbers <= this will be avoided
+                           int flags = 0);
 
-  bool findNextRewrite();
-  DagNode* getNewState() const;
-  DagNode* getNewConstraint() const;
-  const mpz_class& getMaxVariableNumber() const;  // max variable number in new pair
-  RewritingContext* getContext() const;
-  Rule* getRule() const;
+    ~SMT_RewriteSearchState();
+
+    bool findNextRewrite();
+
+    DagNode *getNewState() const;
+
+    DagNode *getNewConstraint() const;
+
+    const mpz_class &getMaxVariableNumber() const;  // max variable number in new pair
+    RewritingContext *getContext() const;
+
+    Rule *getRule() const;
 
 private:
-  void markReachableNodes();
+    void markReachableNodes();
 
-  bool checkAndConvertState();
-  bool nextSolution();
-  bool checkConsistancy();
-  bool instantiateCondition(const Vector<ConditionFragment*>& condition, DagNode*& instantiation);
+    bool checkAndConvertState();
 
-  RewritingContext* const context;  // context with substitution
-  DagNode* const constraint;
-  const SMT_Info& smtInfo;  // information about SMT sort; might get folded into wrapper
-  SMT_EngineWrapper* const engine;  // wrapper to call the SMT engine
-  const mpz_class avoidVariableNumber;
-  const int flags;
-  //
-  //	Information extracted from starting pair.
-  //
-  DagNode* state;
-  //
-  //	Current state of search.
-  //
-  int ruleIndex;  // index of rule currently being consisdered
-  Rule* currentRule;  // pointer to rule currently being considered
-  Subproblem* matchingSubproblem;  // matching subproblem associated with current rule
-  NatSet boundToFresh;  // indices of variables that are currently bound to freshly created variables
-  //
-  //	Most recent result.
-  //
-  mpz_class newVariableNumber;  // number of largest fresh variables that appears in newState
-  DagNode* newState;  // valid after findNextRewrite() returns true
-  DagNode* newConstraint;
+    bool nextSolution();
+
+    bool checkConsistancy();
+
+    bool instantiateCondition(const Vector<ConditionFragment *> &condition, DagNode *&instantiation);
+
+    RewritingContext *const context;  // context with substitution
+    DagNode *const constraint;
+    const SMT_Info &smtInfo;  // information about SMT sort; might get folded into wrapper
+    SMT_EngineWrapper *const engine;  // wrapper to call the SMT engine
+    const mpz_class avoidVariableNumber;
+    const int flags;
+    //
+    //	Information extracted from starting pair.
+    //
+    DagNode *state;
+    //
+    //	Current state of search.
+    //
+    int ruleIndex;  // index of rule currently being consisdered
+    Rule *currentRule;  // pointer to rule currently being considered
+    Subproblem *matchingSubproblem;  // matching subproblem associated with current rule
+    NatSet boundToFresh;  // indices of variables that are currently bound to freshly created variables
+    //
+    //	Most recent result.
+    //
+    mpz_class newVariableNumber;  // number of largest fresh variables that appears in newState
+    DagNode *newState;  // valid after findNextRewrite() returns true
+    DagNode *newConstraint;
 };
 
-inline RewritingContext*
-SMT_RewriteSearchState::getContext() const
-{
-  return context;
+inline RewritingContext *
+SMT_RewriteSearchState::getContext() const {
+    return context;
 }
 
-inline DagNode*
-SMT_RewriteSearchState::getNewState() const
-{
-  return newState;
+inline DagNode *
+SMT_RewriteSearchState::getNewState() const {
+    return newState;
 }
 
-inline DagNode*
-SMT_RewriteSearchState::getNewConstraint() const
-{
-  return newConstraint;
+inline DagNode *
+SMT_RewriteSearchState::getNewConstraint() const {
+    return newConstraint;
 }
 
-inline const mpz_class&
-SMT_RewriteSearchState::getMaxVariableNumber() const
-{
-  return newVariableNumber;
+inline const mpz_class &
+SMT_RewriteSearchState::getMaxVariableNumber() const {
+    return newVariableNumber;
 }
 
-inline Rule*
-SMT_RewriteSearchState::getRule() const
-{
-  return currentRule;
+inline Rule *
+SMT_RewriteSearchState::getRule() const {
+    return currentRule;
 }
 
 #endif

@@ -26,49 +26,47 @@
 #ifndef _rawRootContainer_hh_
 #define _rawRootContainer_hh_
 
-class RawRootContainer
-{
+class RawRootContainer {
 public:
-  static void markPhase();
+    static void markPhase();
 
 protected:
-  void link();
-  void unlink();
-  virtual void markReachableNodes() = 0;
+    void link();
+
+    void unlink();
+
+    virtual void markReachableNodes() = 0;
 
 private:
-  static RootContainer* listHead;
+    static RootContainer *listHead;
 
-  RootContainer* next;
-  RootContainer* prev;
+    RootContainer *next;
+    RootContainer *prev;
 };
 
 inline
-RootContainer::link()
-{
-  prev = 0;
-  next = listHead;
-  if (listHead != 0)
-    listHead->prev = this;
-  listHead = this;
+RootContainer::link() {
+    prev = 0;
+    next = listHead;
+    if (listHead != 0)
+        listHead->prev = this;
+    listHead = this;
 }
 
 inline
-RootContainer::unlink()
-{
-  if (next != 0)
-    next->prev = prev;
-  if (prev != 0)
-    prev->next = next;
-  else
-    listHead = next;
+RootContainer::unlink() {
+    if (next != 0)
+        next->prev = prev;
+    if (prev != 0)
+        prev->next = next;
+    else
+        listHead = next;
 }
 
 inline void
-RootContainer::markPhase()
-{
-  for (RootContainer* p = listHead; p; p = p->next)
-    p->markReachableNodes();
+RootContainer::markPhase() {
+    for (RootContainer *p = listHead; p; p = p->next)
+        p->markReachableNodes();
 }
 
 #endif

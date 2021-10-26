@@ -25,37 +25,40 @@
 //
 #ifndef _sortConstraint_hh_
 #define _sortConstraint_hh_
+
 #include "preEquation.hh"
 
-class SortConstraint : public PreEquation
-{
+class SortConstraint : public PreEquation {
 public:
-  SortConstraint(int label,
-		 Term* lhs,
-		 Sort* sort,
-		 const Vector<ConditionFragment*>& condition = noCondition);
+    SortConstraint(int label,
+                   Term *lhs,
+                   Sort *sort,
+                   const Vector<ConditionFragment *> &condition = noCondition);
 
-  Sort* getSort() const;
-  void check();
-  void preprocess();
-  void compile(bool compileLhs);
-  void print(ostream& s) const;
+    Sort *getSort() const;
+
+    void check();
+
+    void preprocess();
+
+    void compile(bool compileLhs);
+
+    void print(ostream &s) const;
 
 private:
-  int traceBeginTrial(DagNode* subject, RewritingContext& context) const;
+    int traceBeginTrial(DagNode *subject, RewritingContext &context) const;
 
-  Sort* sort;
+    Sort *sort;
 };
 
-inline Sort*
-SortConstraint::getSort() const
-{
-  return sort;
+inline Sort *
+SortConstraint::getSort() const {
+    return sort;
 }
 
 //
 //      Output function for SortConstraint must be defined by library user
 //
-ostream& operator<<(ostream& s, const SortConstraint* sortConstraint);
+ostream &operator<<(ostream &s, const SortConstraint *sortConstraint);
 
 #endif

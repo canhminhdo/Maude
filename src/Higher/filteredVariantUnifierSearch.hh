@@ -30,37 +30,39 @@
 //
 #ifndef _filteredVariantUnifierSearch_hh_
 #define _filteredVariantUnifierSearch_hh_
+
 #include "variantSearch.hh"
 #include "variantUnifierFilter.hh"
 
-class FilteredVariantUnifierSearch : public VariantSearch
-{
-  NO_COPYING(FilteredVariantUnifierSearch);
+class FilteredVariantUnifierSearch : public VariantSearch {
+    NO_COPYING(FilteredVariantUnifierSearch);
 
 public:
-  //
-  //	Only flags that can reasonably be passed are DELETE_FRESH_VARIABLE_GENERATOR
-  //	and CHECK_VARIABLE_NAMES. UNIFICATION_MODE and IRREDUNDANT_MODE are always
-  //	passed to the VariantSearch base object.
-  //
-  FilteredVariantUnifierSearch(RewritingContext* context,
-			       const Vector<DagNode*>& blockerDags,
-			       FreshVariableGenerator* freshVariableGenerator,
-			       int flags = DELETE_FRESH_VARIABLE_GENERATOR | CHECK_VARIABLE_NAMES,
-			       int incomingVariableFamily = NONE);
-  bool findNextUnifier();
-  const Vector<DagNode*>& getCurrentUnifier(int& nrFreeVariables, int& variableFamily);
-  bool filteringIncomplete() const;
+    //
+    //	Only flags that can reasonably be passed are DELETE_FRESH_VARIABLE_GENERATOR
+    //	and CHECK_VARIABLE_NAMES. UNIFICATION_MODE and IRREDUNDANT_MODE are always
+    //	passed to the VariantSearch base object.
+    //
+    FilteredVariantUnifierSearch(RewritingContext *context,
+                                 const Vector<DagNode *> &blockerDags,
+                                 FreshVariableGenerator *freshVariableGenerator,
+                                 int flags = DELETE_FRESH_VARIABLE_GENERATOR | CHECK_VARIABLE_NAMES,
+                                 int incomingVariableFamily = NONE);
+
+    bool findNextUnifier();
+
+    const Vector<DagNode *> &getCurrentUnifier(int &nrFreeVariables, int &variableFamily);
+
+    bool filteringIncomplete() const;
 
 private:
-  const int flags;
-  VariantUnifierFilter unifiers;
+    const int flags;
+    VariantUnifierFilter unifiers;
 };
 
 inline bool
-FilteredVariantUnifierSearch::filteringIncomplete() const
-{
-  return unifiers.filteringIncomplete();
+FilteredVariantUnifierSearch::filteringIncomplete() const {
+    return unifiers.filteringIncomplete();
 }
 
 #endif

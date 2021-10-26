@@ -25,105 +25,103 @@
 //
 #ifndef _cachedDag_hh_
 #define _cachedDag_hh_
+
 #include "dagRoot.hh"
 #include "instruction.hh"
 
-class CachedDag
-{
+class CachedDag {
 public:
-  CachedDag(Term* t = 0);
-  ~CachedDag();
+    CachedDag(Term *t = 0);
 
-  void setTerm(Term* t);
-  Term* getTerm() const;
-  bool normalize();
-  void prepare();
-  DagNode* getDag();
-  DagRoot* getDagRoot();
-  void reset();
-  //
-  //	MVM stuff.
-  //
-  void generateInstructionSequence();
-  Instruction* getInstructionSequence() const;
+    ~CachedDag();
+
+    void setTerm(Term *t);
+
+    Term *getTerm() const;
+
+    bool normalize();
+
+    void prepare();
+
+    DagNode *getDag();
+
+    DagRoot *getDagRoot();
+
+    void reset();
+
+    //
+    //	MVM stuff.
+    //
+    void generateInstructionSequence();
+
+    Instruction *getInstructionSequence() const;
 
 private:
-  Term* term;
-  DagRoot dag;
-  Instruction* instructionSequence;
+    Term *term;
+    DagRoot dag;
+    Instruction *instructionSequence;
 };
 
 inline
-CachedDag::CachedDag(Term* t)
-{
-  term = t;
-  instructionSequence = 0;
+CachedDag::CachedDag(Term *t) {
+    term = t;
+    instructionSequence = 0;
 }
 
 inline
-CachedDag::~CachedDag()
-{
-  delete instructionSequence;
-  if (term != 0)
-    term->deepSelfDestruct();
+CachedDag::~CachedDag() {
+    delete instructionSequence;
+    if (term != 0)
+        term->deepSelfDestruct();
 }
 
 inline void
-CachedDag::setTerm(Term* t)
-{
-  term = t;
-  dag.setNode(0);
+CachedDag::setTerm(Term *t) {
+    term = t;
+    dag.setNode(0);
 }
 
-inline Term*
-CachedDag::getTerm() const
-{
-  return term;
+inline Term *
+CachedDag::getTerm() const {
+    return term;
 }
 
 inline bool
-CachedDag::normalize()
-{
-  bool changed;
-  term = term->normalize(true, changed);
-  return changed;
+CachedDag::normalize() {
+    bool changed;
+    term = term->normalize(true, changed);
+    return changed;
 }
 
-inline DagNode*
-CachedDag::getDag()
-{
-  DagNode* d = dag.getNode();
-  if (d == 0)
-    {
-      d = term->term2Dag(term->getSortIndex() != Sort::SORT_UNKNOWN);  // HACK
-      dag.setNode(d);
+inline DagNode *
+CachedDag::getDag() {
+    DagNode *d = dag.getNode();
+    if (d == 0) {
+        d = term->term2Dag(term->getSortIndex() != Sort::SORT_UNKNOWN);  // HACK
+        dag.setNode(d);
     }
-  return d;
+    return d;
 }
 
-inline DagRoot*
-CachedDag::getDagRoot()
-{
-  (void) getDag();
-  return &dag;
-}
-
-inline void
-CachedDag::generateInstructionSequence()
-{
-  instructionSequence = term->term2InstructionSequence();
-}
-
-inline Instruction*
-CachedDag::getInstructionSequence() const
-{
-  return instructionSequence;
+inline DagRoot *
+CachedDag::getDagRoot() {
+    (void) getDag();
+    return &dag;
 }
 
 inline void
-CachedDag::reset()
-{
-  dag.setNode(0);  // so dag can be garbage collected
+CachedDag::generateInstructionSequence() {
+    instructionSequence = term->term2InstructionSequence();
+}
+
+inline Instruction *
+CachedDag::getInstructionSequence() const {
+    return instructionSequence;
+}
+
+inline void
+CachedDag::reset() {
+    dag.setNode(0);  // so dag can be garbage collected
 }
 
 #endif

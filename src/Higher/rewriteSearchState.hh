@@ -25,43 +25,44 @@
 //
 #ifndef _rewriteSearchState_hh_
 #define _rewriteSearchState_hh_
+
 #include "searchState.hh"
 
-class RewriteSearchState : public SearchState
-{
-  NO_COPYING(RewriteSearchState);
+class RewriteSearchState : public SearchState {
+    NO_COPYING(RewriteSearchState);
 
 public:
-  enum Flags
-  {
-    ALLOW_NONEXEC = 32,
-    SET_UNREWRITABLE = 256
-  };
+    enum Flags {
+        ALLOW_NONEXEC = 32,
+        SET_UNREWRITABLE = 256
+    };
 
-  //
-  //	context is passed through to SearchState where it is used to construct
-  //	matching substitutions in.
-  //
-  //	label may be UNDEFINED to make any rule usable.
-  //
-  //	maxDepth may be NONE to force at top rewrites without extension;
-  //	otherwise rewriting is done with extension and maxDepth may be
-  //	UNBOUNDED to indicate no bound.
-  //
-  RewriteSearchState(RewritingContext* context,
-		     int label = UNDEFINED,
-		     int flags = 0,
-		     int minDepth = 0,
-		     int maxDepth = NONE);
+    //
+    //	context is passed through to SearchState where it is used to construct
+    //	matching substitutions in.
+    //
+    //	label may be UNDEFINED to make any rule usable.
+    //
+    //	maxDepth may be NONE to force at top rewrites without extension;
+    //	otherwise rewriting is done with extension and maxDepth may be
+    //	UNBOUNDED to indicate no bound.
+    //
+    RewriteSearchState(RewritingContext *context,
+                       int label = UNDEFINED,
+                       int flags = 0,
+                       int minDepth = 0,
+                       int maxDepth = NONE);
 
-  Rule* getRule() const;
-  DagNode* getReplacement() const;
-  bool findNextRewrite();
+    Rule *getRule() const;
+
+    DagNode *getReplacement() const;
+
+    bool findNextRewrite();
 
 private:
-  const int label;
-  const bool withExtension;
-  int ruleIndex;
+    const int label;
+    const bool withExtension;
+    int ruleIndex;
 };
 
 #endif

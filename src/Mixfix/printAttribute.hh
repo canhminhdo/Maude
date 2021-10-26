@@ -26,41 +26,40 @@
 #ifndef _printAttribute_hh_
 #define _printAttribute_hh_
 
-class PrintAttribute
-{
+class PrintAttribute {
 public:
-  void fillOut(const PreEquation& statement,
-	       const Vector<int>& names, 
-	       const Vector<Sort*>& sorts);
-  int getNrItems() const;
-  int getTokenCode(int i) const;
-  int getVariableIndex(int i) const;
+    void fillOut(const PreEquation &statement,
+                 const Vector<int> &names,
+                 const Vector<Sort *> &sorts);
 
-  void print(ostream& s, const VariableInfo& variableInfo) const;  // for show
-  void print(ostream& s, const Substitution& substitution) const;  // for runtime
+    int getNrItems() const;
+
+    int getTokenCode(int i) const;
+
+    int getVariableIndex(int i) const;
+
+    void print(ostream &s, const VariableInfo &variableInfo) const;  // for show
+    void print(ostream &s, const Substitution &substitution) const;  // for runtime
 
 private:
-  static int findVariableIndex(const VariableInfo& variableInfo, int name, Sort* sort);
+    static int findVariableIndex(const VariableInfo &variableInfo, int name, Sort *sort);
 
-  Vector<int> items;  // -ve values are variable indices
+    Vector<int> items;  // -ve values are variable indices
 };
 
 inline int
-PrintAttribute::getNrItems() const
-{
-  return items.size();
+PrintAttribute::getNrItems() const {
+    return items.size();
 }
 
 inline int
-PrintAttribute::getTokenCode(int i) const
-{
-  return items[i] > 0 ? items[i] : NONE;
+PrintAttribute::getTokenCode(int i) const {
+    return items[i] > 0 ? items[i] : NONE;
 }
 
 inline int
-PrintAttribute::getVariableIndex(int i) const
-{
-  return items[i] < 0 ? (-1 - items[i]) : NONE;
+PrintAttribute::getVariableIndex(int i) const {
+    return items[i] < 0 ? (-1 - items[i]) : NONE;
 }
 
 #endif

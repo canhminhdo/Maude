@@ -27,6 +27,7 @@
 //
 #ifndef _ACU_UnificationSubproblem2_hh_
 #define _ACU_UnificationSubproblem2_hh_
+
 #include <list>
 #include "unificationSubproblem.hh"
 #include "simpleRootContainer.hh"
@@ -38,76 +39,85 @@
 #include "substitution.hh"
 #include "pendingUnificationStack.hh"
 
-class ACU_UnificationSubproblem2 : public UnificationSubproblem, private SimpleRootContainer
-{
-  NO_COPYING(ACU_UnificationSubproblem2);
+class ACU_UnificationSubproblem2 : public UnificationSubproblem, private SimpleRootContainer {
+    NO_COPYING(ACU_UnificationSubproblem2);
 
 public:
-  ACU_UnificationSubproblem2(ACU_Symbol* topSymbol);
-  ~ACU_UnificationSubproblem2();
+    ACU_UnificationSubproblem2(ACU_Symbol *topSymbol);
 
-  void addUnification(DagNode* lhs, DagNode* rhs, bool marked, UnificationContext& solution);
-  bool solve(bool findFirst, UnificationContext& solution, PendingUnificationStack& pending);
+    ~ACU_UnificationSubproblem2();
+
+    void addUnification(DagNode *lhs, DagNode *rhs, bool marked, UnificationContext &solution);
+
+    bool solve(bool findFirst, UnificationContext &solution, PendingUnificationStack &pending);
 
 #ifdef DUMP
-  //void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
+    //void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
 #endif
 
 private:
-  //  DagNodeSet subterms;
+    //  DagNodeSet subterms;
 
-  struct Entry
-  {
-    Vector<int> element;	// practical basis elements will fit in 32-bit machine integers
-    NatSet remainder;		// which subterms will be assigned by remaining elements
-    int index;
-  };
+    struct Entry {
+        Vector<int> element;    // practical basis elements will fit in 32-bit machine integers
+        NatSet remainder;        // which subterms will be assigned by remaining elements
+        int index;
+    };
 
-  typedef list<Entry> Basis;
-  typedef list<NatSet> NatSetList;
+    typedef list<Entry> Basis;
+    typedef list<NatSet> NatSetList;
 
-  void markReachableNodes();
+    void markReachableNodes();
 
-  int setMultiplicity(DagNode* dagNode, int multiplicity, UnificationContext& solution);
-  void killCancelledSubterms(int nrOldSubterms);
-  void unsolve(int index, UnificationContext& solution);
+    int setMultiplicity(DagNode *dagNode, int multiplicity, UnificationContext &solution);
 
-  void classify(int subtermIndex,
-		UnificationContext& solution,
-		bool& canTakeIdentity,
-		int& upperBound,
-		Symbol*& stableSymbol);
-  bool buildAndSolveDiophantineSystem(UnificationContext& solution);
-  bool nextSelection(bool findFirst);
-  bool nextSelectionWithIdentity(bool findFirst);
-  bool includable(Basis::const_iterator potential);
-  bdd computeLegalSelections();
-  bool buildSolution(UnificationContext& solution, PendingUnificationStack& pending);
-  int reuseVariable(int selectionIndex);
+    void killCancelledSubterms(int nrOldSubterms);
 
-  ACU_Symbol* topSymbol;
-  Vector<DagNode*> subterms;
-  list<Vector<int> > unifications;
+    void unsolve(int index, UnificationContext &solution);
 
-  Basis basis;
-  Vector<int> multiplicities;
-  NatSet accumulator;
-  Vector<int> totals;
-  Vector<int> upperBounds;
-  NatSet needToCover;
-  NatSet uncovered;
-  Vector<Basis::const_iterator> selection;
-  Basis::const_iterator current;
-  Substitution savedSubstitution;
-  Substitution preSolveSubstitution;
-  PendingUnificationStack::Marker savedPendingState;
-  //
-  //	Needed for identity case.
-  //
-  NatSetList old;
-  NatSet selectionSet;
-  AllSat* maximalSelections;
-  NatSet markedSubterms;  // indices of subterms that have been marked
+    void classify(int subtermIndex,
+                  UnificationContext &solution,
+                  bool &canTakeIdentity,
+                  int &upperBound,
+                  Symbol *&stableSymbol);
+
+    bool buildAndSolveDiophantineSystem(UnificationContext &solution);
+
+    bool nextSelection(bool findFirst);
+
+    bool nextSelectionWithIdentity(bool findFirst);
+
+    bool includable(Basis::const_iterator potential);
+
+    bdd computeLegalSelections();
+
+    bool buildSolution(UnificationContext &solution, PendingUnificationStack &pending);
+
+    int reuseVariable(int selectionIndex);
+
+    ACU_Symbol *topSymbol;
+    Vector<DagNode *> subterms;
+    list<Vector<int> > unifications;
+
+    Basis basis;
+    Vector<int> multiplicities;
+    NatSet accumulator;
+    Vector<int> totals;
+    Vector<int> upperBounds;
+    NatSet needToCover;
+    NatSet uncovered;
+    Vector<Basis::const_iterator> selection;
+    Basis::const_iterator current;
+    Substitution savedSubstitution;
+    Substitution preSolveSubstitution;
+    PendingUnificationStack::Marker savedPendingState;
+    //
+    //	Needed for identity case.
+    //
+    NatSetList old;
+    NatSet selectionSet;
+    AllSat *maximalSelections;
+    NatSet markedSubterms;  // indices of subterms that have been marked
 };
 
 #endif

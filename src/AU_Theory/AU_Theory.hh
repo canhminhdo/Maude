@@ -27,18 +27,31 @@
 #define _AU_Theory_hh_
 
 class AU_Symbol;
+
 class AU_Term;
+
 class AU_ArgumentIterator;
+
 class AU_BaseDagNode;
+
 class AU_DagNode;
+
 class AU_DequeDagNode;
+
 class AU_DagArgumentIterator;
+
 class AU_DequeDagArgumentIterator;
+
 class AU_LhsAutomaton;
+
 class AU_RhsAutomaton;
+
 class AU_Layer;
+
 class AU_Subproblem;
+
 class AU_ExtensionInfo;
+
 class AU_UnificationSubproblem;
 
 #endif

@@ -25,39 +25,40 @@
 //
 #ifndef _ACU_BndVarLhsAutomaton_hh_
 #define _ACU_BndVarLhsAutomaton_hh_
+
 #include "ACU_CollectorLhsAutomaton.hh"
 
-class ACU_BndVarLhsAutomaton : public ACU_CollectorLhsAutomaton
-{
-  NO_COPYING(ACU_BndVarLhsAutomaton);
+class ACU_BndVarLhsAutomaton : public ACU_CollectorLhsAutomaton {
+    NO_COPYING(ACU_BndVarLhsAutomaton);
 
 public:
-  ACU_BndVarLhsAutomaton(ACU_Symbol* symbol,
-			 bool matchAtTop,
-			 bool collapsePossible,
-			 int nrVariables,
-			 VariableTerm* stripper,
-			 VariableTerm* collector);
-  //
-  //	Standard ACU_LhsAutomaton operations.
-  //
-  bool match(DagNode* subject,
-             Substitution& solution,
-             Subproblem*& returnedSubproblem,
-             ExtensionInfo* extensionInfo);
+    ACU_BndVarLhsAutomaton(ACU_Symbol *symbol,
+                           bool matchAtTop,
+                           bool collapsePossible,
+                           int nrVariables,
+                           VariableTerm *stripper,
+                           VariableTerm *collector);
+
+    //
+    //	Standard ACU_LhsAutomaton operations.
+    //
+    bool match(DagNode *subject,
+               Substitution &solution,
+               Subproblem *&returnedSubproblem,
+               ExtensionInfo *extensionInfo);
 
 #ifdef DUMP
-  void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
+    void dump(ostream& s, const VariableInfo& variableInfo, int indentLevel);
 #endif
 
 private:
-  //
-  //	The stripper variable strips off one argument. It must have
-  //	an element sort that cannot take the identity and thus it is
-  //	guaranteed bound to a single alien.
-  //
-  const int stripperVarIndex;
-  Sort* const stripperSort;
+    //
+    //	The stripper variable strips off one argument. It must have
+    //	an element sort that cannot take the identity and thus it is
+    //	guaranteed bound to a single alien.
+    //
+    const int stripperVarIndex;
+    Sort *const stripperSort;
 };
 
 #endif

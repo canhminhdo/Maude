@@ -25,26 +25,27 @@
 //
 #ifndef _viewDatabase_hh_
 #define _viewDatabase_hh_
+
 #include <map>
 
-class ViewDatabase
-{
-  NO_COPYING(ViewDatabase);
+class ViewDatabase {
+    NO_COPYING(ViewDatabase);
 
 public:
-  ViewDatabase(){}
-  ~ViewDatabase();
+    ViewDatabase() {}
 
-  bool insertView(int name, View* view);  // true if existing view displaced
-  View* getView(int name) const;  // 0 if doesn't exist
-  bool deleteView(int name);  // true if view deleted
+    ~ViewDatabase();
 
-  void showNamedViews(ostream& s) const;
+    bool insertView(int name, View *view);  // true if existing view displaced
+    View *getView(int name) const;  // 0 if doesn't exist
+    bool deleteView(int name);  // true if view deleted
+
+    void showNamedViews(ostream &s) const;
 
 private:
-  typedef map<int, View*> ViewMap;
+    typedef map<int, View *> ViewMap;
 
-  ViewMap viewMap;
+    ViewMap viewMap;
 };
 
 #endif

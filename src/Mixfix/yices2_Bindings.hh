@@ -29,49 +29,56 @@
 #include <map>
 #include "yices.h"
 
-class VariableGenerator : public SMT_EngineWrapper
-{
+class VariableGenerator : public SMT_EngineWrapper {
 public:
-  VariableGenerator(const SMT_Info& smtInfo);
-  ~VariableGenerator();
-  //
-  //	Virtual functions for SMT solving.
-  //
-  Result assertDag(DagNode* dag);
-  Result checkDag(DagNode* dag);
-  void clearAssertions();
-  void push();
-  void pop();
+    VariableGenerator(const SMT_Info &smtInfo);
 
-  VariableDagNode* makeFreshVariable(Term* baseVariable, const mpz_class& number);
+    ~VariableGenerator();
+
+    //
+    //	Virtual functions for SMT solving.
+    //
+    Result assertDag(DagNode *dag);
+
+    Result checkDag(DagNode *dag);
+
+    void clearAssertions();
+
+    void push();
+
+    void pop();
+
+    VariableDagNode *makeFreshVariable(Term *baseVariable, const mpz_class &number);
 
 private:
-  //
-  //	We identify Maude variables that correspond to SMT variables by a pair
-  //	where the first component in the variable's sort's index within its module
-  //	and the second component is the variables name.
-  //
-  typedef pair<int, int> SortIndexVariableNamePair;
-  //
-  //	When we generate SMT variables on-the-fly we keep track of them in a map.
-  //
-  typedef map<SortIndexVariableNamePair, term_t> VariableMap;
+    //
+    //	We identify Maude variables that correspond to SMT variables by a pair
+    //	where the first component in the variable's sort's index within its module
+    //	and the second component is the variables name.
+    //
+    typedef pair<int, int> SortIndexVariableNamePair;
+    //
+    //	When we generate SMT variables on-the-fly we keep track of them in a map.
+    //
+    typedef map<SortIndexVariableNamePair, term_t> VariableMap;
 
-  term_t makeVariable(VariableDagNode* v);
-  term_t makeBooleanExpr(DagNode* dag);
-  term_t dagToYices2(DagNode* dag);
+    term_t makeVariable(VariableDagNode *v);
 
-  const SMT_Info& smtInfo;
+    term_t makeBooleanExpr(DagNode *dag);
 
-  VariableMap variableMap;
-  //
-  //	Yices2 objects.
-  //
-  context_t* smtContext;
-  //
-  //	Global counter of number of objects using Yices2.
-  //
-  static int nrUsers;
+    term_t dagToYices2(DagNode *dag);
+
+    const SMT_Info &smtInfo;
+
+    VariableMap variableMap;
+    //
+    //	Yices2 objects.
+    //
+    context_t *smtContext;
+    //
+    //	Global counter of number of objects using Yices2.
+    //
+    static int nrUsers;
 };
 
 #endif

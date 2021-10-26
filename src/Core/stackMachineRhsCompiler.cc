@@ -42,80 +42,73 @@
 #include "stackMachineRhsCompiler.hh"
 
 void
-StackMachineRhsCompiler::recordFunctionEval(Symbol* symbol, int destination, const Vector<int>& argumentSlots)
-{
-  int nrFunctionEvaluations = functionEvaluations.size();
-  functionEvaluations.expandBy(1);
-  FunctionEval& f = functionEvaluations[nrFunctionEvaluations];
+StackMachineRhsCompiler::recordFunctionEval(Symbol *symbol, int destination, const Vector<int> &argumentSlots) {
+    int nrFunctionEvaluations = functionEvaluations.size();
+    functionEvaluations.expandBy(1);
+    FunctionEval &f = functionEvaluations[nrFunctionEvaluations];
 
-  f.symbol = symbol;
-  f.destination = destination;
-  f.argumentSlots = argumentSlots;  // deep copy
+    f.symbol = symbol;
+    f.destination = destination;
+    f.argumentSlots = argumentSlots;  // deep copy
 }
 
-Instruction*
-StackMachineRhsCompiler::compileInstructionSequence()
-{
-  //
-  //	Deal with degenerate case of bare variable.
-  //
-  FunctionEval& first = functionEvaluations[0];
-  if (first.symbol == 0)
-    {
-      NatSet activeSlots;
-      int source = first.argumentSlots[0];
-      activeSlots.insert(source);
-      Instruction* nextInstruction = new ReturnInstruction(source);
-      nextInstruction->setActiveSlots(activeSlots);
-      return nextInstruction;
+Instruction *
+StackMachineRhsCompiler::compileInstructionSequence() {
+    //
+    //	Deal with degenerate case of bare variable.
+    //
+    FunctionEval &first = functionEvaluations[0];
+    if (first.symbol == 0) {
+        NatSet activeSlots;
+        int source = first.argumentSlots[0];
+        activeSlots.insert(source);
+        Instruction *nextInstruction = new ReturnInstruction(source);
+        nextInstruction->setActiveSlots(activeSlots);
+        return nextInstruction;
     }
 
-  NatSet activeSlots;
-  Instruction* nextInstruction = 0;
-  int nrFunctionEvaluations = functionEvaluations.size();
-  for (int i = nrFunctionEvaluations - 1; i >= 0; --i)
-    {
-      FunctionEval& f = functionEvaluations[i];
-      Assert(f.symbol != 0, "null f.symbol when nrFunctionEvaluations = " << nrFunctionEvaluations);
+    NatSet activeSlots;
+    Instruction *nextInstruction = 0;
+    int nrFunctionEvaluations = functionEvaluations.size();
+    for (int i = nrFunctionEvaluations - 1; i >= 0; --i) {
+        FunctionEval &f = functionEvaluations[i];
+        Assert(f.symbol != 0, "null f.symbol when nrFunctionEvaluations = " << nrFunctionEvaluations);
 
-      activeSlots.subtract(f.destination);
-      for (int i : f.argumentSlots)
-	activeSlots.insert(i);
-	    
-      Instruction* newInstruction = (nextInstruction == 0) ? 
-	f.symbol->generateFinalInstruction(f.argumentSlots) :
-	f.symbol->generateInstruction(f.destination, f.argumentSlots, nextInstruction);
-      if (newInstruction == 0)
-	{
-	  //
-	  //	Didn't generate an instruction (maybe an unimplemented case).
-	  //	Warn, clean up and bail.
-	  //
-	  IssueWarning("stack machine compilation not supported for " << f.symbol);
-	  delete nextInstruction;
-	  return 0;
-	}
-      newInstruction->setActiveSlots(activeSlots);
-      nextInstruction = newInstruction;
+        activeSlots.subtract(f.destination);
+        for (int i : f.argumentSlots)
+            activeSlots.insert(i);
+
+        Instruction *newInstruction = (nextInstruction == 0) ?
+                                      f.symbol->generateFinalInstruction(f.argumentSlots) :
+                                      f.symbol->generateInstruction(f.destination, f.argumentSlots, nextInstruction);
+        if (newInstruction == 0) {
+            //
+            //	Didn't generate an instruction (maybe an unimplemented case).
+            //	Warn, clean up and bail.
+            //
+            IssueWarning("stack machine compilation not supported for " << f.symbol);
+            delete nextInstruction;
+            return 0;
+        }
+        newInstruction->setActiveSlots(activeSlots);
+        nextInstruction = newInstruction;
     }
 
-  return nextInstruction;
+    return nextInstruction;
 }
 
 void
-StackMachineRhsCompiler::dump(ostream& s, const VariableInfo& variableInfo, int indentLevel)
-{
-  s << Indent(indentLevel) << "Begin{StackMachineRhsCompiler}\n";
-  for (FunctionEval& i : functionEvaluations)
-    {
-      s << Indent(indentLevel + 1);
-      if (i.symbol == 0)
-	s << "(return)\t";
-      else
-	s << i.symbol << "\t";
-      s << "destination = " << i.destination << "\targs = ";
-      for (int k : i.argumentSlots)
-	s << k << ' ';
+StackMachineRhsCompiler::dump(ostream &s, const VariableInfo &variableInfo, int indentLevel) {
+    s << Indent(indentLevel) << "Begin{StackMachineRhsCompiler}\n";
+    for (FunctionEval &i : functionEvaluations) {
+        s << Indent(indentLevel + 1);
+        if (i.symbol == 0)
+            s << "(return)\t";
+        else
+            s << i.symbol << "\t";
+        s << "destination = " << i.destination << "\targs = ";
+        for (int k : i.argumentSlots)
+            s << k << ' ';
     }
-  s << Indent(indentLevel) << "End{StackMachineRhsCompiler}\n";
+    s << Indent(indentLevel) << "End{StackMachineRhsCompiler}\n";
 }

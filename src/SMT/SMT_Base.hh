@@ -26,12 +26,12 @@
 //
 #ifndef _SMT_Base_hh_
 #define _SMT_Base_hh_
+
 #include <map>
 
-class SMT_Base
-{
+class SMT_Base {
 public:
-  virtual void fillOutSMT_Info(SMT_Info& info) = 0;
+    virtual void fillOutSMT_Info(SMT_Info &info) = 0;
 };
 
 #endif

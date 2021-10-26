@@ -27,7 +27,7 @@
 //	utility stuff
 #include "macros.hh"
 #include "vector.hh"
- 
+
 //      forward declarations
 #include "interface.hh"
 #include "core.hh"
@@ -40,84 +40,75 @@
 #include "connectedComponent.hh"
 #include "module.hh"
 
-ConnectedComponent::ConnectedComponent(Sort* firstSort)
-{
-  sortCount = 0;
-  errorFreeFlag = true;
-  Sort* errorSort = new Sort(firstSort->id());
-  firstSort->getModule()->insertSort(errorSort);
-  errorSort->registerConnectedSorts(this);
-  firstSort->registerConnectedSorts(this);
-  nrMaxSorts = sorts.length() - 1;
-  if (nrMaxSorts == 0)
-    {
-      IssueWarning("the connected component in the sort graph that contains sort " <<
-		   QUOTE(firstSort) << " has no maximal sorts due to a cycle.");
-      firstSort->getModule()->markAsBad();
-      return;
+ConnectedComponent::ConnectedComponent(Sort *firstSort) {
+    sortCount = 0;
+    errorFreeFlag = true;
+    Sort *errorSort = new Sort(firstSort->id());
+    firstSort->getModule()->insertSort(errorSort);
+    errorSort->registerConnectedSorts(this);
+    firstSort->registerConnectedSorts(this);
+    nrMaxSorts = sorts.length() - 1;
+    if (nrMaxSorts == 0) {
+        IssueWarning("the connected component in the sort graph that contains sort " <<
+                                                                                     QUOTE(firstSort)
+                                                                                     << " has no maximal sorts due to a cycle.");
+        firstSort->getModule()->markAsBad();
+        return;
     }
-  for (int i = 1; i <= nrMaxSorts; i++)
-    errorSort->insertSubsort(sorts[i]);
-  for (int i = 1; i < sorts.length(); i++)  // sorts.length() may increase
-    sorts[i]->processSubsorts();
-  if (sorts.length() != sortCount)
-    {
-      IssueWarning("the connected component in the sort graph that contains sort " <<
-		   QUOTE(firstSort) << " could not be linearly ordered due to a cycle.");
-      firstSort->getModule()->markAsBad();
-      return;
+    for (int i = 1; i <= nrMaxSorts; i++)
+        errorSort->insertSubsort(sorts[i]);
+    for (int i = 1; i < sorts.length(); i++)  // sorts.length() may increase
+        sorts[i]->processSubsorts();
+    if (sorts.length() != sortCount) {
+        IssueWarning("the connected component in the sort graph that contains sort " <<
+                                                                                     QUOTE(firstSort)
+                                                                                     << " could not be linearly ordered due to a cycle.");
+        firstSort->getModule()->markAsBad();
+        return;
     }
-  for (int i = sortCount - 1; i >= 0; i--)
-    sorts[i]->computeLeqSorts();
+    for (int i = sortCount - 1; i >= 0; i--)
+        sorts[i]->computeLeqSorts();
 
-  lastAllocatedMatchIndex = 0;
+    lastAllocatedMatchIndex = 0;
 }
 
-ConnectedComponent::~ConnectedComponent()
-{
+ConnectedComponent::~ConnectedComponent() {
 }
 
 bool
-ConnectedComponent::leq(int index1, int index2) const
-{
-  Assert(index1 != Sort::SORT_UNKNOWN, "bad index1");
-  Assert(index2 != Sort::SORT_UNKNOWN, "bad index2");
-  return sorts[index2]->getLeqSorts().contains(index1);
+ConnectedComponent::leq(int index1, int index2) const {
+    Assert(index1 != Sort::SORT_UNKNOWN, "bad index1");
+    Assert(index2 != Sort::SORT_UNKNOWN, "bad index2");
+    return sorts[index2]->getLeqSorts().contains(index1);
 }
 
 void
-ConnectedComponent::findMaximalSorts(const NatSet& uSorts, Vector<Sort*>& maxSorts) const
-{
-  NatSet unionSoFar;
-  for (int i = 0; !(unionSoFar.contains(uSorts)); i++)
-    {
-      Assert(i < sortCount, "index overrun");
-      if (uSorts.contains(i) && !(unionSoFar.contains(i)))
-	{
-	  Sort* s = sorts[i];
-	  maxSorts.append(s);
-	  unionSoFar.insert(s->getLeqSorts());
-	}
+ConnectedComponent::findMaximalSorts(const NatSet &uSorts, Vector<Sort *> &maxSorts) const {
+    NatSet unionSoFar;
+    for (int i = 0; !(unionSoFar.contains(uSorts)); i++) {
+        Assert(i < sortCount, "index overrun");
+        if (uSorts.contains(i) && !(unionSoFar.contains(i))) {
+            Sort *s = sorts[i];
+            maxSorts.append(s);
+            unionSoFar.insert(s->getLeqSorts());
+        }
     }
 }
 
 int
-ConnectedComponent::findIndex(const NatSet& leqSorts) const
-{
-  int i = leqSorts.min();
-  for (; i > 0; i--)
-    {
-      if (sorts[i]->getLeqSorts().contains(leqSorts))
-	break;
+ConnectedComponent::findIndex(const NatSet &leqSorts) const {
+    int i = leqSorts.min();
+    for (; i > 0; i--) {
+        if (sorts[i]->getLeqSorts().contains(leqSorts))
+            break;
     }
-  return i;
+    return i;
 }
 
-const NatSet&
-ConnectedComponent::getLeqSorts(int index) const
-{
-  Assert(index != Sort::SORT_UNKNOWN, "bad sort index");
-  return sorts[index]->getLeqSorts();
+const NatSet &
+ConnectedComponent::getLeqSorts(int index) const {
+    Assert(index != Sort::SORT_UNKNOWN, "bad sort index");
+    return sorts[index]->getLeqSorts();
 }
 
 #ifdef DUMP

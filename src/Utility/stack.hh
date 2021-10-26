@@ -25,47 +25,46 @@
 //
 #ifndef _stack_hh_
 #define _stack_hh_
+
 #include "vector.hh"
 
 template<class T>
-class Stack
-{
+class Stack {
 public:
-  bool empty() const;
-  const T& top() const;
-  void pop();
-  void push(const T& item);
+    bool empty() const;
+
+    const T &top() const;
+
+    void pop();
+
+    void push(const T &item);
 
 private:
-  Vector<T> items;
+    Vector<T> items;
 };
 
 template<class T>
 inline bool
-Stack<T>::empty() const
-{
-  return items.empty();
+Stack<T>::empty() const {
+    return items.empty();
 }
 
 template<class T>
-inline const T&
-Stack<T>::top() const
-{
-  return items[items.size() - 1];
-}
-
-template<class T>
-inline void
-Stack<T>::pop()
-{
-  items.contractTo(items.size() - 1);
+inline const T &
+Stack<T>::top() const {
+    return items[items.size() - 1];
 }
 
 template<class T>
 inline void
-Stack<T>::push(const T& item)
-{
-  items.append(item);
+Stack<T>::pop() {
+    items.contractTo(items.size() - 1);
+}
+
+template<class T>
+inline void
+Stack<T>::push(const T &item) {
+    items.append(item);
 }
 
 #endif

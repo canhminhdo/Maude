@@ -28,79 +28,85 @@
 //
 #ifndef _sortBdds_hh_
 #define _sortBdds_hh_
+
 #include "bdd.hh"
 #include "bddUser.hh"
 
-class SortBdds : private BddUser
-{
+class SortBdds : private BddUser {
 public:
-  SortBdds(Module* module);
+    SortBdds(Module *module);
 
-  int getFirstAvailableVariable() const;
-  int getNrVariables(int componentIndex) const;
-  Bdd getGtRelation(int componentIndex) const;
-  Bdd getLeqRelation(int sortIndex) const;
-  Bdd getRemappedLeqRelation(Sort* sort, int firstVariable) const;
-  Bdd applyLeqRelation(Sort* sort, const Vector<Bdd>& argument) const;
-  const Vector<Bdd>& getSortFunction(Symbol* symbol) const;
+    int getFirstAvailableVariable() const;
 
-  void makeIndexVector(int nrBdds, int index, Vector<Bdd>& vec) const;
-  Bdd makeIndexBdd(int firstVariable, int nrVariables, int index) const;
-  void makeVariableVector(int firstVariable, int nrVariables,  Vector<Bdd>& vec) const;  // might delete this eventually
-  void appendVariableVector(int firstBddVariable, int nrBddVariables, Vector<Bdd>& vec) const;
-  Bdd makeVariableBdd(int firstVariable, int nrVariables) const;
+    int getNrVariables(int componentIndex) const;
 
-  void appendIndexVector(int nrBdds, int index, Vector<Bdd>& vec) const;
-  void operatorCompose(Symbol* op, const Vector<Bdd>& inputBdds, Vector<Bdd>& outputBdds) const;
+    Bdd getGtRelation(int componentIndex) const;
+
+    Bdd getLeqRelation(int sortIndex) const;
+
+    Bdd getRemappedLeqRelation(Sort *sort, int firstVariable) const;
+
+    Bdd applyLeqRelation(Sort *sort, const Vector<Bdd> &argument) const;
+
+    const Vector<Bdd> &getSortFunction(Symbol *symbol) const;
+
+    void makeIndexVector(int nrBdds, int index, Vector<Bdd> &vec) const;
+
+    Bdd makeIndexBdd(int firstVariable, int nrVariables, int index) const;
+
+    void
+    makeVariableVector(int firstVariable, int nrVariables, Vector<Bdd> &vec) const;  // might delete this eventually
+    void appendVariableVector(int firstBddVariable, int nrBddVariables, Vector<Bdd> &vec) const;
+
+    Bdd makeVariableBdd(int firstVariable, int nrVariables) const;
+
+    void appendIndexVector(int nrBdds, int index, Vector<Bdd> &vec) const;
+
+    void operatorCompose(Symbol *op, const Vector<Bdd> &inputBdds, Vector<Bdd> &outputBdds) const;
 
 private:
-  struct ComponentInfo
-  {
-    int nrVariables;	// number of bits needed to represent a sort in this component
-    Bdd gtRelation;	// bdd for relation s1 valid /\ s2 valid /\ s1 > s2
-  };
+    struct ComponentInfo {
+        int nrVariables;    // number of bits needed to represent a sort in this component
+        Bdd gtRelation;    // bdd for relation s1 valid /\ s2 valid /\ s1 > s2
+    };
 
-  int calculateNrBits(int nrIndicies);
+    int calculateNrBits(int nrIndicies);
 
-  int maxNrVariables;	// the max number of variables needed for any component
-  //
-  //	For each component we keep the number of variables needed to encode a sort
-  //	in this component and the bdd for relation s1 valid /\ s2 valid /\ s1 > s2.
-  //
-  Vector<ComponentInfo> componentInfo;
-  //
-  //	For each sort s we keep the bdd for the relation x <= s.
-  //
-  Vector<Bdd> leqRelations;
-  //
-  //	For each symbol, we keep a vector of BDDs to hold its sort function - which
-  //	may or may not be filled out.
-  //
-  mutable Vector<Vector<Bdd> > sortFunctions;
+    int maxNrVariables;    // the max number of variables needed for any component
+    //
+    //	For each component we keep the number of variables needed to encode a sort
+    //	in this component and the bdd for relation s1 valid /\ s2 valid /\ s1 > s2.
+    //
+    Vector<ComponentInfo> componentInfo;
+    //
+    //	For each sort s we keep the bdd for the relation x <= s.
+    //
+    Vector<Bdd> leqRelations;
+    //
+    //	For each symbol, we keep a vector of BDDs to hold its sort function - which
+    //	may or may not be filled out.
+    //
+    mutable Vector<Vector<Bdd> > sortFunctions;
 };
 
 inline int
-SortBdds::getFirstAvailableVariable() const
-{
-  return maxNrVariables;
+SortBdds::getFirstAvailableVariable() const {
+    return maxNrVariables;
 }
 
 inline int
-SortBdds::getNrVariables(int componentIndex) const
-{
-  return componentInfo[componentIndex].nrVariables;
+SortBdds::getNrVariables(int componentIndex) const {
+    return componentInfo[componentIndex].nrVariables;
 }
 
 inline Bdd
-SortBdds::getGtRelation(int componentIndex) const
-{
-  return componentInfo[componentIndex].gtRelation;
+SortBdds::getGtRelation(int componentIndex) const {
+    return componentInfo[componentIndex].gtRelation;
 }
 
 inline Bdd
-SortBdds::getLeqRelation(int sortIndex) const
-{
-  return leqRelations[sortIndex];
+SortBdds::getLeqRelation(int sortIndex) const {
+    return leqRelations[sortIndex];
 }
 
 #endif

@@ -31,7 +31,7 @@
 //      forward declarations
 #include "interface.hh"
 #include "core.hh"
- 
+
 //      interface class definitions
 #include "symbol.hh"
 #include "dagNode.hh"
@@ -41,12 +41,11 @@
 #include "cachedDag.hh"
 
 void
-CachedDag::prepare()
-{
-  //
-  //        Mark eager paths in preparation for term to dag conversion.
-  //
-  NatSet emptySet;
-  Vector<int> emptyVector;
-  term->markEagerArguments(0, emptySet, emptyVector);
+CachedDag::prepare() {
+    //
+    //        Mark eager paths in preparation for term to dag conversion.
+    //
+    NatSet emptySet;
+    Vector<int> emptyVector;
+    term->markEagerArguments(0, emptySet, emptyVector);
 }

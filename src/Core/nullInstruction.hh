@@ -25,25 +25,27 @@
 //
 #ifndef _nullInstruction_hh_
 #define _nullInstruction_hh_
+
 #include "instruction.hh"
 
-class NullInstruction : public Instruction
-{
-  NO_COPYING(NullInstruction);
+class NullInstruction : public Instruction {
+    NO_COPYING(NullInstruction);
 
 public:
-  static const Instruction* getNullInstruction();
+    static const Instruction *getNullInstruction();
 
-  void execute(StackMachine* machine) const;
-  virtual void setActiveSlots(const NatSet& slots);
-  virtual void markActiveSlots(const Frame* frame) const;
+    void execute(StackMachine *machine) const;
+
+    virtual void setActiveSlots(const NatSet &slots);
+
+    virtual void markActiveSlots(const Frame *frame) const;
 
 #ifdef DUMP
-  void dump(ostream& s, int indentLevel);
+    void dump(ostream& s, int indentLevel);
 #endif
 
 private:
-  NullInstruction();
+    NullInstruction();
 };
 
 #endif

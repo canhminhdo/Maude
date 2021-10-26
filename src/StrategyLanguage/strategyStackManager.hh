@@ -26,57 +26,55 @@
 #ifndef _strategyStackManager_hh_
 #define _strategyStackManager_hh_
 
-class StrategyStackManager
-{
+class StrategyStackManager {
 public:
-  typedef int StackId;
+    typedef int StackId;
 
-  enum Constants
-  {
-    EMPTY_STACK = 0
-  };
+    enum Constants {
+        EMPTY_STACK = 0
+    };
 
-  StrategyStackManager();
+    StrategyStackManager();
 
-  static StackId emptyStack();
-  bool empty(StackId stackId) const;
-  StrategyExpression* top(StackId stackId) const;
-  StackId pop(StackId stackId) const;
-  StackId push(StackId stackId, StrategyExpression* strategy);
-  
+    static StackId emptyStack();
+
+    bool empty(StackId stackId) const;
+
+    StrategyExpression *top(StackId stackId) const;
+
+    StackId pop(StackId stackId) const;
+
+    StackId push(StackId stackId, StrategyExpression *strategy);
+
 private:
-  struct Entry
-  {
-    StrategyExpression* strategy;
-    StackId restOfStack;
-    //
-    //	This fields are use solelyto keep a linked list of entries having
-    //	the same restOfStack so we can minimize the creation of duplicate
-    //	entries.
-    //
-    StackId firstSuccessor;	// first stack that has us as restOfStack
-    StackId nextPeer;		// next stack that shares our restOfStack
-  };
-  
-  Vector<Entry> stackTable;
+    struct Entry {
+        StrategyExpression *strategy;
+        StackId restOfStack;
+        //
+        //	This fields are use solelyto keep a linked list of entries having
+        //	the same restOfStack so we can minimize the creation of duplicate
+        //	entries.
+        //
+        StackId firstSuccessor;    // first stack that has us as restOfStack
+        StackId nextPeer;        // next stack that shares our restOfStack
+    };
+
+    Vector<Entry> stackTable;
 };
 
 inline bool
-StrategyStackManager::empty(StackId stackId) const
-{
-  return stackId == EMPTY_STACK;
+StrategyStackManager::empty(StackId stackId) const {
+    return stackId == EMPTY_STACK;
 }
 
-inline StrategyExpression* 
-StrategyStackManager::top(StackId stackId) const
-{
-  return stackTable[stackId].strategy;
+inline StrategyExpression *
+StrategyStackManager::top(StackId stackId) const {
+    return stackTable[stackId].strategy;
 }
 
 inline StrategyStackManager::StackId
-StrategyStackManager::pop(StackId stackId) const
-{
-  return stackTable[stackId].restOfStack;
+StrategyStackManager::pop(StackId stackId) const {
+    return stackTable[stackId].restOfStack;
 }
 
 #endif

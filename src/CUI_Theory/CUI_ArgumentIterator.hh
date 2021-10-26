@@ -25,27 +25,28 @@
 //
 #ifndef _CUI_ArgumentIterator_hh_
 #define _CUI_ArgumentIterator_hh_
+
 #include "rawArgumentIterator.hh"
 
-class CUI_ArgumentIterator : public RawArgumentIterator
-{
+class CUI_ArgumentIterator : public RawArgumentIterator {
 public:
-  CUI_ArgumentIterator(const Vector<Term*>& arguments);
+    CUI_ArgumentIterator(const Vector<Term *> &arguments);
 
-  bool valid() const;
-  Term* argument() const;
-  void next();
+    bool valid() const;
+
+    Term *argument() const;
+
+    void next();
 
 private:
-  const Vector<Term*>& argArray;
-  int position;
+    const Vector<Term *> &argArray;
+    int position;
 };
 
 inline
-CUI_ArgumentIterator::CUI_ArgumentIterator(const Vector<Term*>& arguments)
-  : argArray(arguments)
-{
-  position = 0;
+CUI_ArgumentIterator::CUI_ArgumentIterator(const Vector<Term *> &arguments)
+        : argArray(arguments) {
+    position = 0;
 }
 
 #endif

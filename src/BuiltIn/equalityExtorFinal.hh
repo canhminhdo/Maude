@@ -25,25 +25,25 @@
 //
 #ifndef _equalityExtorFinal_hh_
 #define _equalityExtorFinal_hh_
+
 #include "finalInstruction.hh"
 
-class EqualityExtorFinal : public FinalInstruction
-{
-  NO_COPYING(EqualityExtorFinal);
+class EqualityExtorFinal : public FinalInstruction {
+    NO_COPYING(EqualityExtorFinal);
 
 public:
-  EqualityExtorFinal(EqualitySymbol* symbol,  int argIndex0, int argIndex1);
+    EqualityExtorFinal(EqualitySymbol *symbol, int argIndex0, int argIndex1);
 
-  void execute(StackMachine* machine) const;
+    void execute(StackMachine *machine) const;
 
 #ifdef DUMP
-  //void dump(ostream& s, int indentLevel);
+    //void dump(ostream& s, int indentLevel);
 #endif
 
 private:
-  EqualitySymbol* const symbol;
-  const SlotIndex argIndex0;
-  const SlotIndex argIndex1;
+    EqualitySymbol *const symbol;
+    const SlotIndex argIndex0;
+    const SlotIndex argIndex1;
 };
 
 #endif

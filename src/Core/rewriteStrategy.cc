@@ -45,42 +45,38 @@
 #include "compilationContext.hh"
 
 RewriteStrategy::RewriteStrategy(int id,
-				 const Vector<Sort*>& domain,
-				 Sort* subjectSort, Symbol* auxSymbol)
-  : NamedEntity(id),
-    domain(domain),
-    subjectSort(subjectSort),
-    symbol(auxSymbol),
-    simple(domain.length() == 0)
-{
-  Assert(auxSymbol != 0, "null auxiliary symbol");
+                                 const Vector<Sort *> &domain,
+                                 Sort *subjectSort, Symbol *auxSymbol)
+        : NamedEntity(id),
+          domain(domain),
+          subjectSort(subjectSort),
+          symbol(auxSymbol),
+          simple(domain.length() == 0) {
+    Assert(auxSymbol != 0, "null auxiliary symbol");
 
-  // We do not assert anything about subjectSort because it has no use at the moment
+    // We do not assert anything about subjectSort because it has no use at the moment
 }
 
-Term*
-RewriteStrategy::copyAuxiliaryTerm(Term* term, SymbolMap* translation) const
-{
-  Vector<Term*> args(symbol->arity());
+Term *
+RewriteStrategy::copyAuxiliaryTerm(Term *term, SymbolMap *translation) const {
+    Vector<Term *> args(symbol->arity());
 
-  RawArgumentIterator* it = term->arguments();
-  for (size_t i = 0; i < args.size(); i++)
-    {
-      Assert(it->valid(), "non-valid iterator");
+    RawArgumentIterator *it = term->arguments();
+    for (size_t i = 0; i < args.size(); i++) {
+        Assert(it->valid(), "non-valid iterator");
 
-      args[i] = it->argument()->deepCopy(translation);
-      it->next();
+        args[i] = it->argument()->deepCopy(translation);
+        it->next();
     }
-  delete it;
+    delete it;
 
-  return symbol->makeTerm(args);
+    return symbol->makeTerm(args);
 }
 
 void
-RewriteStrategy::addDefinition(StrategyDefinition* sdef)
-{
-  if (simple && (definitions.length() > 0 || sdef->getCondition().length() > 0))
-    simple = false;
+RewriteStrategy::addDefinition(StrategyDefinition *sdef) {
+    if (simple && (definitions.length() > 0 || sdef->getCondition().length() > 0))
+        simple = false;
 
-  definitions.append(sdef);
+    definitions.append(sdef);
 }

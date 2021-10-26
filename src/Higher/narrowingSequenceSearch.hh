@@ -25,116 +25,118 @@
 //
 #ifndef _narrowingSequenceSearch_hh_
 #define _narrowingSequenceSearch_hh_
+
 #include "sequenceSearch.hh"
 #include "matchSearchState.hh"
 #include "protectedDagNodeSet.hh"
 #include "narrowingSearchState.hh"
 
-class NarrowingSequenceSearch : public SequenceSearch
-{
-  NO_COPYING(NarrowingSequenceSearch);
+class NarrowingSequenceSearch : public SequenceSearch {
+    NO_COPYING(NarrowingSequenceSearch);
 
 public:
-  //
-  //	We take responsibility for deleting initial, goal and freshVariableGenerator.
-  //	A null goal can be passed to accept all states whose reachability is consistent
-  //	with searchType and maxDepth.
-  //	In the null goal case a count is available of the number of variables in all
-  //	the previously returned states.
-  //	This number is needed by the metalevel.
-  //
-  NarrowingSequenceSearch(RewritingContext* initial,
-			  SearchType searchType,
-			  Pattern* goal,
-			  int maxDepth,
-			  int narrowingFlags,
-			  FreshVariableGenerator* freshVariableGenerator);
-  ~NarrowingSequenceSearch();
+    //
+    //	We take responsibility for deleting initial, goal and freshVariableGenerator.
+    //	A null goal can be passed to accept all states whose reachability is consistent
+    //	with searchType and maxDepth.
+    //	In the null goal case a count is available of the number of variables in all
+    //	the previously returned states.
+    //	This number is needed by the metalevel.
+    //
+    NarrowingSequenceSearch(RewritingContext *initial,
+                            SearchType searchType,
+                            Pattern *goal,
+                            int maxDepth,
+                            int narrowingFlags,
+                            FreshVariableGenerator *freshVariableGenerator);
 
-  bool findNextMatch();
-  const Pattern* getGoal() const;
-  FreshVariableGenerator* getFreshVariableGenerator() const;
-  NarrowingSearchState* getState() const;
-  const Substitution* getSubstitution() const;
-  RewritingContext* getContext() const;
-  DagNode* getStateDag() const;
-  int getVariableTotalForPreviouslyReturnedStates() const;
-  bool isIncomplete() const;
+    ~NarrowingSequenceSearch();
+
+    bool findNextMatch();
+
+    const Pattern *getGoal() const;
+
+    FreshVariableGenerator *getFreshVariableGenerator() const;
+
+    NarrowingSearchState *getState() const;
+
+    const Substitution *getSubstitution() const;
+
+    RewritingContext *getContext() const;
+
+    DagNode *getStateDag() const;
+
+    int getVariableTotalForPreviouslyReturnedStates() const;
+
+    bool isIncomplete() const;
 
 private:
-  bool findNextInterestingState();
-  bool findNextNormalForm();
+    bool findNextInterestingState();
 
-  RewritingContext* initial;
-  Pattern* const goal;
-  const int maxDepth;
-  const int narrowingFlags;
-  FreshVariableGenerator* freshVariableGenerator;
+    bool findNextNormalForm();
 
-  bool needToTryInitialState;
-  //bool reachingInitialStateOK;
-  bool normalFormNeeded;
-  bool topOfStackFresh;
+    RewritingContext *initial;
+    Pattern *const goal;
+    const int maxDepth;
+    const int narrowingFlags;
+    FreshVariableGenerator *freshVariableGenerator;
 
-  Vector<NarrowingSearchState*> stateStack;
-  MatchSearchState* matchState;
+    bool needToTryInitialState;
+    //bool reachingInitialStateOK;
+    bool normalFormNeeded;
+    bool topOfStackFresh;
 
-  ProtectedDagNodeSet seenSet;
+    Vector<NarrowingSearchState *> stateStack;
+    MatchSearchState *matchState;
 
-  int variableTotalForPreviouslyReturnedStates;
-  int variableTotalForAllReturnedStates;
-  bool incompleteFlag;
+    ProtectedDagNodeSet seenSet;
+
+    int variableTotalForPreviouslyReturnedStates;
+    int variableTotalForAllReturnedStates;
+    bool incompleteFlag;
 };
 
-inline const Pattern*
-NarrowingSequenceSearch::getGoal() const
-{
-  return goal;
+inline const Pattern *
+NarrowingSequenceSearch::getGoal() const {
+    return goal;
 }
 
-inline FreshVariableGenerator* 
-NarrowingSequenceSearch::getFreshVariableGenerator() const
-{
-  return freshVariableGenerator;
+inline FreshVariableGenerator *
+NarrowingSequenceSearch::getFreshVariableGenerator() const {
+    return freshVariableGenerator;
 }
 
-inline const Substitution*
-NarrowingSequenceSearch::getSubstitution() const
-{
-  return matchState->getContext();
+inline const Substitution *
+NarrowingSequenceSearch::getSubstitution() const {
+    return matchState->getContext();
 }
 
-inline NarrowingSearchState*
-NarrowingSequenceSearch::getState() const
-{
-  return stateStack[stateStack.size() - 1];
+inline NarrowingSearchState *
+NarrowingSequenceSearch::getState() const {
+    return stateStack[stateStack.size() - 1];
 }
 
-inline RewritingContext*
-NarrowingSequenceSearch::getContext() const
-{
-  return initial;
+inline RewritingContext *
+NarrowingSequenceSearch::getContext() const {
+    return initial;
 }
 
-inline DagNode*
-NarrowingSequenceSearch::getStateDag() const
-{
-  return stateStack[stateStack.size() - 1]->getContext()->root();
+inline DagNode *
+NarrowingSequenceSearch::getStateDag() const {
+    return stateStack[stateStack.size() - 1]->getContext()->root();
 }
 
 inline int
-NarrowingSequenceSearch::getVariableTotalForPreviouslyReturnedStates() const
-{
-  return variableTotalForPreviouslyReturnedStates;
+NarrowingSequenceSearch::getVariableTotalForPreviouslyReturnedStates() const {
+    return variableTotalForPreviouslyReturnedStates;
 }
 
 inline bool
-NarrowingSequenceSearch::isIncomplete() const
-{
-  //
-  //	Returns true if any incompleteness has been encountered so far.
-  //
-  return incompleteFlag;
+NarrowingSequenceSearch::isIncomplete() const {
+    //
+    //	Returns true if any incompleteness has been encountered so far.
+    //
+    return incompleteFlag;
 }
 
 #endif

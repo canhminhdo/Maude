@@ -28,7 +28,7 @@
 #include "macros.hh"
 #include "vector.hh"
 #include "pointerMap.hh"
- 
+
 //      forward declarations
 #include "interface.hh"
 #include "core.hh"
@@ -58,84 +58,74 @@
 #include "metaOpCache.hh"
 
 local_inline void
-MetaOpCache::Item::clear()
-{
-  delete metaOp;
-  delete state;
+MetaOpCache::Item::clear() {
+    delete metaOp;
+    delete state;
 }
 
 MetaOpCache::MetaOpCache(int maxSize)
-  : maxSize(maxSize)
-{
+        : maxSize(maxSize) {
 }
 
-MetaOpCache::~MetaOpCache()
-{
-  for (int i = cache.length() - 1; i >= 0; i--)
-    cache[i].clear();
+MetaOpCache::~MetaOpCache() {
+    for (int i = cache.length() - 1; i >= 0; i--)
+        cache[i].clear();
 }
 
 bool
-MetaOpCache::sameProblem(FreeDagNode* m1, DagNode* m2, int nrArgumentsToIgnore)
-{
-  Symbol* s = m1->symbol();
-  if (s == m2->symbol())
-    {
-      //
-      //	We don't look at the first argument since that's our module which
-      //	must be equal, and we don't look at the last nrArgumentsToIgnore
-      //	arguments from the tail of the arguments list because the user
-      //	decided not to care about those for deciding if a cached state
-      //	is interesting. Often the last argument holds a solution number
-      //	but that is not required for insert() and remove().
-      //
-      int nrUsefulArgs = s->arity() - nrArgumentsToIgnore;
-      FreeDagNode* m3 = static_cast<FreeDagNode*>(m2);
-      for (int i = 1; i < nrUsefulArgs; i++)
-	{
-	  if (!(m1->getArgument(i)->equal(m3->getArgument(i))))
-	    return false;
-	}
-      return true;
+MetaOpCache::sameProblem(FreeDagNode *m1, DagNode *m2, int nrArgumentsToIgnore) {
+    Symbol *s = m1->symbol();
+    if (s == m2->symbol()) {
+        //
+        //	We don't look at the first argument since that's our module which
+        //	must be equal, and we don't look at the last nrArgumentsToIgnore
+        //	arguments from the tail of the arguments list because the user
+        //	decided not to care about those for deciding if a cached state
+        //	is interesting. Often the last argument holds a solution number
+        //	but that is not required for insert() and remove().
+        //
+        int nrUsefulArgs = s->arity() - nrArgumentsToIgnore;
+        FreeDagNode *m3 = static_cast<FreeDagNode *>(m2);
+        for (int i = 1; i < nrUsefulArgs; i++) {
+            if (!(m1->getArgument(i)->equal(m3->getArgument(i))))
+                return false;
+        }
+        return true;
     }
-  return false;
+    return false;
 }
 
 void
-MetaOpCache::insert(FreeDagNode* metaOp, CacheableState* state, Int64 lastSolutionNr)
-{
-  if (cache.length() < maxSize)
-    cache.expandBy(1);
-  else
-    cache[cache.length() - 1].clear();
-      
-  for (int i = cache.length() - 1; i >= 1; i--)
-    cache[i] = cache[i - 1];
+MetaOpCache::insert(FreeDagNode *metaOp, CacheableState *state, Int64 lastSolutionNr) {
+    if (cache.length() < maxSize)
+        cache.expandBy(1);
+    else
+        cache[cache.length() - 1].clear();
 
-  cache[0].metaOp = new DagRoot(metaOp->makeClone());
-  cache[0].state = state;
-  cache[0].lastSolutionNr = lastSolutionNr;
+    for (int i = cache.length() - 1; i >= 1; i--)
+        cache[i] = cache[i - 1];
+
+    cache[0].metaOp = new DagRoot(metaOp->makeClone());
+    cache[0].state = state;
+    cache[0].lastSolutionNr = lastSolutionNr;
 }
 
 bool
-MetaOpCache::remove(FreeDagNode* metaOp,
-		    CacheableState*& state,
-		    Int64& lastSolutionNr,
-		    int nrArgumentsToIgnore)
-{
-  int nrEntries = cache.length();
-  for (int i = 0; i < nrEntries; i++)
-    {
-      if (sameProblem(metaOp, cache[i].metaOp->getNode(), nrArgumentsToIgnore))
-	{
-	  delete cache[i].metaOp;
-	  state = cache[i].state;
-	  lastSolutionNr = cache[i].lastSolutionNr;
-	  for (i++; i < nrEntries; i++)
-	    cache[i - 1] = cache[i];
-	  cache.contractTo(nrEntries - 1);
-	  return true;
-	}
+MetaOpCache::remove(FreeDagNode *metaOp,
+                    CacheableState *&state,
+                    Int64 &lastSolutionNr,
+                    int nrArgumentsToIgnore) {
+    int nrEntries = cache.length();
+    for (int i = 0; i < nrEntries; i++) {
+        if (sameProblem(metaOp, cache[i].metaOp->getNode(), nrArgumentsToIgnore)) {
+            delete cache[i].metaOp;
+            state = cache[i].state;
+            lastSolutionNr = cache[i].lastSolutionNr;
+            for (i++; i < nrEntries; i++)
+                cache[i - 1] = cache[i];
+            cache.contractTo(nrEntries - 1);
+            return true;
+        }
     }
-  return false;
+    return false;
 }

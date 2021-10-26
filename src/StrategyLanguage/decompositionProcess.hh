@@ -25,48 +25,49 @@
 //
 #ifndef _decompositionProcess_hh_
 #define _decompositionProcess_hh_
+
 #include "strategicProcess.hh"
 #include "strategyStackManager.hh"
 
-class DecompositionProcess : public StrategicProcess
-{
+class DecompositionProcess : public StrategicProcess {
 public:
-  DecompositionProcess(int dagIndex,
-		       StrategyStackManager::StackId pending,
-		       StrategicExecution* taskSibling,
-		       StrategicProcess* other);
-  //
-  //	We can't pass const here because we need to touch original to
-  //	handle double linking both on the task list and the process queue.
-  //
-  DecompositionProcess(DecompositionProcess* original);
+    DecompositionProcess(int dagIndex,
+                         StrategyStackManager::StackId pending,
+                         StrategicExecution *taskSibling,
+                         StrategicProcess *other);
 
-  Survival run(StrategicSearch& searchObject);
-  void pushStrategy(StrategyStackManager& stackManager, StrategyExpression* strategy);
-  StrategyStackManager::StackId getPending() const;
-  int getDagIndex() const;
+    //
+    //	We can't pass const here because we need to touch original to
+    //	handle double linking both on the task list and the process queue.
+    //
+    DecompositionProcess(DecompositionProcess *original);
+
+    Survival run(StrategicSearch &searchObject);
+
+    void pushStrategy(StrategyStackManager &stackManager, StrategyExpression *strategy);
+
+    StrategyStackManager::StackId getPending() const;
+
+    int getDagIndex() const;
 
 private:
-  int dagIndex;
-  StrategyStackManager::StackId pending;
+    int dagIndex;
+    StrategyStackManager::StackId pending;
 };
 
 inline void
-DecompositionProcess::pushStrategy(StrategyStackManager& stackManager, StrategyExpression* strategy)
-{
-  pending = stackManager.push(pending, strategy);
+DecompositionProcess::pushStrategy(StrategyStackManager &stackManager, StrategyExpression *strategy) {
+    pending = stackManager.push(pending, strategy);
 }
 
 inline StrategyStackManager::StackId
-DecompositionProcess::getPending() const
-{
-  return pending;
+DecompositionProcess::getPending() const {
+    return pending;
 }
 
 inline int
-DecompositionProcess::getDagIndex() const
-{
-  return dagIndex;
+DecompositionProcess::getDagIndex() const {
+    return dagIndex;
 }
 
 #endif

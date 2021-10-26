@@ -25,20 +25,19 @@
 //
 #ifndef _parameter_hh_
 #define _parameter_hh_
+
 #include "argument.hh"
 
-class Parameter : public Argument
-{
-  NO_COPYING(Parameter);
+class Parameter : public Argument {
+    NO_COPYING(Parameter);
 
 public:
-  Parameter(int parameterName);
+    Parameter(int parameterName);
 };
 
 inline
 Parameter::Parameter(int parameterName)
-  : Argument(parameterName)
-{
+        : Argument(parameterName) {
 }
 
 #endif

@@ -25,37 +25,38 @@
 //
 #ifndef _iterationStrategy_hh_
 #define _iterationStrategy_hh_
+
 #include "strategyExpression.hh"
 
-class IterationStrategy : public StrategyExpression
-{
+class IterationStrategy : public StrategyExpression {
 public:
-  IterationStrategy(StrategyExpression* child, bool zeroAllowed);
-  ~IterationStrategy();
+    IterationStrategy(StrategyExpression *child, bool zeroAllowed);
 
-  StrategyExpression* getStrategy() const;
-  bool getZeroAllowed() const;
+    ~IterationStrategy();
 
-  bool check(VariableInfo& indices, const TermSet& boundVars);
-  void process();
+    StrategyExpression *getStrategy() const;
 
-  StrategicExecution::Survival decompose(StrategicSearch& searchObject, DecompositionProcess* remainder);
+    bool getZeroAllowed() const;
+
+    bool check(VariableInfo &indices, const TermSet &boundVars);
+
+    void process();
+
+    StrategicExecution::Survival decompose(StrategicSearch &searchObject, DecompositionProcess *remainder);
 
 private:
-  StrategyExpression* const child;
-  StrategyExpression* const star;  // for a s+ expression we keep an s* expression here for decomposition
+    StrategyExpression *const child;
+    StrategyExpression *const star;  // for a s+ expression we keep an s* expression here for decomposition
 };
 
-inline StrategyExpression*
-IterationStrategy::getStrategy() const
-{
-  return child;
+inline StrategyExpression *
+IterationStrategy::getStrategy() const {
+    return child;
 }
 
 inline bool
-IterationStrategy::getZeroAllowed() const
-{
-  return star == 0;
+IterationStrategy::getZeroAllowed() const {
+    return star == 0;
 }
 
 #endif

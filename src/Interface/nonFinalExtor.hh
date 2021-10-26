@@ -25,45 +25,43 @@
 //
 #ifndef _nonFinalExtor_hh_
 #define _nonFinalExtor_hh_
+
 #include "nonFinalInstruction.hh"
 #include "stackMachine.hh"
 
-class NonFinalExtor : public NonFinalInstruction
-{
-  NO_COPYING(NonFinalExtor);
+class NonFinalExtor : public NonFinalInstruction {
+    NO_COPYING(NonFinalExtor);
 
 public:
-  //
-  //	We add capability the capability to push new stack frames,
-  //    by knowing how much of the current stack frame needs to be preserved.
-  //
-  NonFinalExtor(int destinationIndex, Instruction* nextInstruction);
+    //
+    //	We add capability the capability to push new stack frames,
+    //    by knowing how much of the current stack frame needs to be preserved.
+    //
+    NonFinalExtor(int destinationIndex, Instruction *nextInstruction);
 
-  Frame* pushFrame(StackMachine* machine) const;
-  Frame* fastPushFrame(Frame* frame) const;
+    Frame *pushFrame(StackMachine *machine) const;
 
-  void setActiveSlots(const NatSet& slots);
+    Frame *fastPushFrame(Frame *frame) const;
+
+    void setActiveSlots(const NatSet &slots);
 
 private:
-  StackMachine::FrameLift frameLift;
+    StackMachine::FrameLift frameLift;
 };
 
 inline
-NonFinalExtor::NonFinalExtor(int destinationIndex, Instruction* nextInstruction)
-  : NonFinalInstruction(destinationIndex, nextInstruction)
-{
+NonFinalExtor::NonFinalExtor(int destinationIndex, Instruction *nextInstruction)
+        : NonFinalInstruction(destinationIndex, nextInstruction) {
 }
 
-inline Frame*
-NonFinalExtor::pushFrame(StackMachine* machine) const
-{
-  return machine->pushFrame(frameLift);
+inline Frame *
+NonFinalExtor::pushFrame(StackMachine *machine) const {
+    return machine->pushFrame(frameLift);
 }
 
-inline Frame*
-NonFinalExtor::fastPushFrame(Frame* frame) const
-{
-  return StackMachine::fastPushFrame(frame, frameLift);
+inline Frame *
+NonFinalExtor::fastPushFrame(Frame *frame) const {
+    return StackMachine::fastPushFrame(frame, frameLift);
 }
 
 #endif

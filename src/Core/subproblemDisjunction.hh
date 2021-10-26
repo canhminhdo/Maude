@@ -25,30 +25,31 @@
 //
 #ifndef _subproblemDisjunction_hh_
 #define _subproblemDisjunction_hh_
+
 #include "subproblem.hh"
 
-class SubproblemDisjunction : public Subproblem
-{
+class SubproblemDisjunction : public Subproblem {
 public:
-  SubproblemDisjunction();
-  ~SubproblemDisjunction();
+    SubproblemDisjunction();
 
-  void addOption(LocalBinding* difference,
-		 Subproblem* subproblem,
-		 ExtensionInfo* extensionInfo);
-  bool solve(bool findFirst, RewritingContext& solution);
+    ~SubproblemDisjunction();
+
+    void addOption(LocalBinding *difference,
+                   Subproblem *subproblem,
+                   ExtensionInfo *extensionInfo);
+
+    bool solve(bool findFirst, RewritingContext &solution);
 
 private:
-  struct Option
-    {
-      LocalBinding* difference;
-      Subproblem* subproblem;
-      ExtensionInfo* extensionInfo;
+    struct Option {
+        LocalBinding *difference;
+        Subproblem *subproblem;
+        ExtensionInfo *extensionInfo;
     };
-  
-  ExtensionInfo* realExtensionInfo;
-  Vector<Option> options;
-  int selectedOption;
+
+    ExtensionInfo *realExtensionInfo;
+    Vector<Option> options;
+    int selectedOption;
 };
 
 #endif

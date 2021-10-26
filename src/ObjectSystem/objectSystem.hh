@@ -25,16 +25,25 @@
 //
 #ifndef _objectSystem_hh_
 #define _objectSystem_hh_
- 
+
 class ObjectSystemRewritingContext;
+
 class ConfigSymbol;
+
 class ExternalObjectManagerSymbol;
+
 class SocketManagerSymbol;
+
 class FileManagerSymbol;
+
 class StreamManagerSymbol;
+
 class DirectoryManagerSymbol;
+
 class ProcessManagerSymbol;
+
 class TimeManagerSymbol;
+
 class SocketManagerClient;
 
 #endif

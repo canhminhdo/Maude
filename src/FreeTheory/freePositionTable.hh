@@ -29,29 +29,28 @@
 #ifndef _freePositionTable_hh_
 #define _freePositionTable_hh_
 
-class FreePositionTable
-{
+class FreePositionTable {
 public:
-  const Vector<int>& index2Position(int index) const;
-  int position2Index(const Vector<int>& position);
-  int parentIndex(int index) const;
+    const Vector<int> &index2Position(int index) const;
+
+    int position2Index(const Vector<int> &position);
+
+    int parentIndex(int index) const;
 
 private:
-  struct Pair
-  {
-    Vector<int> position;
-    Vector<int> arcs;
-  };
+    struct Pair {
+        Vector<int> position;
+        Vector<int> arcs;
+    };
 
-  int build(const Vector<int>& position, int start);
+    int build(const Vector<int> &position, int start);
 
-  Vector<Pair> table;
+    Vector<Pair> table;
 };
 
-inline const Vector<int>&
-FreePositionTable::index2Position(int index) const
-{
-  return table[index].position;
+inline const Vector<int> &
+FreePositionTable::index2Position(int index) const {
+    return table[index].position;
 }
 
 #endif

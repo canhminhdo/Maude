@@ -27,49 +27,73 @@
 #define _higher_hh_
 
 class Pattern;
+
 class PositionState;
+
 class SearchState;
+
 class RewriteSearchState;
+
 class MatchSearchState;
 
 class CacheableState;
+
 class SequenceSearch;
+
 class RewriteSequenceSearch;
 
 class StateTransitionGraph3;
+
 class StateTransitionGraph;
 
 class EqualityConditionFragment;
+
 class SortTestConditionFragment;
+
 class AssignmentConditionFragment;
+
 class RewriteConditionFragment;
+
 class AssignmentConditionState;
+
 class RewriteConditionState;
 
 class TemporalSymbol;
+
 class ModelCheckerSymbol;
+
 class SatSolverSymbol;
 
 class UnificationProblem;
+
 class IrredundantUnificationProblem;
 
 class NarrowingUnificationProblem;
+
 class NarrowingSearchState;
+
 class NarrowingSequenceSearch;
 
 class UnifierFilter;
+
 class VariantNarrowingSearchState;
+
 class VariantSearch;
+
 class VariantFolder;
 
 class VariantUnificationProblem;
+
 class NarrowingSearchState2;
 
 class NarrowingSearchState3;
+
 class NarrowingSequenceSearch3;
+
 class NarrowingFolder;
 
 class VariantUnifierFilter;
+
 class FilteredVariantUnifierSearch;
 
 class VariantMatchingProblem;

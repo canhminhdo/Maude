@@ -25,87 +25,94 @@
 //
 #ifndef _importTranslation_hh_
 #define _importTranslation_hh_
+
 #include <list>
 #include "strategyLanguage.hh"
 #include "symbolMap.hh"
 #include "pointerMap.hh"
 
-class ImportTranslation : public SymbolMap
-{
-  NO_COPYING(ImportTranslation);
+class ImportTranslation : public SymbolMap {
+    NO_COPYING(ImportTranslation);
 
 public:
-  ImportTranslation(ImportModule* target, Renaming* renaming = 0);
-  void push(Renaming* renaming, ImportModule* target);
-  //
-  //	These three functions are required by our base class.
-  //
-  Symbol* translate(Symbol* symbol);  // returns 0 to indicate op->term mapping in play
-  Term* translateTerm(const Term* term);  // handles op->term mappings on a whole term basis
-  Symbol* findTargetVersionOfSymbol(Symbol* symbol);
-  //
-  //	Other public functions that we provide.
-  //
-  Sort* translate(const Sort* sort);
-  ConnectedComponent* translate(const ConnectedComponent* component);
-  int translateLabel(int id);
-  RewriteStrategy* translate(RewriteStrategy* strat);
-  StrategyExpression* translateExpr(const CallStrategy* cs);
+    ImportTranslation(ImportModule *target, Renaming *renaming = 0);
+
+    void push(Renaming *renaming, ImportModule *target);
+
+    //
+    //	These three functions are required by our base class.
+    //
+    Symbol *translate(Symbol *symbol);  // returns 0 to indicate op->term mapping in play
+    Term *translateTerm(const Term *term);  // handles op->term mappings on a whole term basis
+    Symbol *findTargetVersionOfSymbol(Symbol *symbol);
+
+    //
+    //	Other public functions that we provide.
+    //
+    Sort *translate(const Sort *sort);
+
+    ConnectedComponent *translate(const ConnectedComponent *component);
+
+    int translateLabel(int id);
+
+    RewriteStrategy *translate(RewriteStrategy *strat);
+
+    StrategyExpression *translateExpr(const CallStrategy *cs);
 
 private:
-  ImportTranslation();
-  //
-  //	Typically we have a list of renamings that move stuff from module to module
-  //	until we arrive at the final target module.
-  //
-  typedef list<Renaming*> RenamingList;
-  typedef list<ImportModule*> ModuleList;
+    ImportTranslation();
 
-  static ConnectedComponent* translate(Renaming* renaming,
-				       ImportModule* target,
-				       const ConnectedComponent* old);
-  Symbol* translateRegularSymbol(Symbol* symbol,
-				 RenamingList::const_iterator& opToTerm,
-				 int& opToTermIndex) const;
-  RewriteStrategy* translateStrategy(RewriteStrategy* strat,
-				     RenamingList::const_iterator& stratToExpr,
-				     int& stratToExprIndex) const;
+    //
+    //	Typically we have a list of renamings that move stuff from module to module
+    //	until we arrive at the final target module.
+    //
+    typedef list<Renaming *> RenamingList;
+    typedef list<ImportModule *> ModuleList;
 
-  void splitTranslation(RenamingList::const_iterator firstMapping,
-			ImportTranslation*& prefix,
-			ImportTranslation*& suffix);
+    static ConnectedComponent *translate(Renaming *renaming,
+                                         ImportModule *target,
+                                         const ConnectedComponent *old);
 
-  RenamingList renamings;
-  //
-  //	Usually we only need the last target module because that's the one
-  //	we're translating into. But in the case of an op->term mapping
-  //	we may need to split the ImportTranslation and to do this we
-  //	need an intermediate target.
-  //
-  ModuleList targets;
-  //
-  //	Because translating symbols is the most frequent operation and also
-  //	fairly expensive, we cache translations here.
-  //
-  PointerMap directMap;
+    Symbol *translateRegularSymbol(Symbol *symbol,
+                                   RenamingList::const_iterator &opToTerm,
+                                   int &opToTermIndex) const;
+
+    RewriteStrategy *translateStrategy(RewriteStrategy *strat,
+                                       RenamingList::const_iterator &stratToExpr,
+                                       int &stratToExprIndex) const;
+
+    void splitTranslation(RenamingList::const_iterator firstMapping,
+                          ImportTranslation *&prefix,
+                          ImportTranslation *&suffix);
+
+    RenamingList renamings;
+    //
+    //	Usually we only need the last target module because that's the one
+    //	we're translating into. But in the case of an op->term mapping
+    //	we may need to split the ImportTranslation and to do this we
+    //	need an intermediate target.
+    //
+    ModuleList targets;
+    //
+    //	Because translating symbols is the most frequent operation and also
+    //	fairly expensive, we cache translations here.
+    //
+    PointerMap directMap;
 };
 
 inline
-ImportTranslation::ImportTranslation()
-{
+ImportTranslation::ImportTranslation() {
 }
 
-inline ConnectedComponent*
-ImportTranslation::translate(const ConnectedComponent* component)
-{
-  return translate(component->sort(1))->component();
+inline ConnectedComponent *
+ImportTranslation::translate(const ConnectedComponent *component) {
+    return translate(component->sort(1))->component();
 }
 
 inline void
-ImportTranslation::push(Renaming* renaming, ImportModule* target)
-{
-  renamings.push_front(renaming);
-  targets.push_front(target);
+ImportTranslation::push(Renaming *renaming, ImportModule *target) {
+    renamings.push_front(renaming);
+    targets.push_front(target);
 }
 
 #endif

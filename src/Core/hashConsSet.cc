@@ -40,65 +40,59 @@
 #include "hashConsSet.hh"
 
 int
-HashConsSet::insert(DagNode* d)
-{
-  unsigned int hashValue = d->getHashValue();
-  int index = pointer2Index(d, hashValue);
-  if (index != NONE)
-    {
-      //
-      //	We found a canonical copy of d that is already in the table.
-      //
-      //	There is an issue however that d might have a calculated sort where as
-      //	the canonical copy may not, and using the canonical copy as part of some
-      //	larger insertion where d is subterm could lead to dags in the table
-      //	where unsortedness occurs other than at the top (in the memo case).
-      //
-      //
-      getCanonical(index)->upgradeSortIndex(d);
-      return index;
+HashConsSet::insert(DagNode *d) {
+    unsigned int hashValue = d->getHashValue();
+    int index = pointer2Index(d, hashValue);
+    if (index != NONE) {
+        //
+        //	We found a canonical copy of d that is already in the table.
+        //
+        //	There is an issue however that d might have a calculated sort where as
+        //	the canonical copy may not, and using the canonical copy as part of some
+        //	larger insertion where d is subterm could lead to dags in the table
+        //	where unsortedness occurs other than at the top (in the memo case).
+        //
+        //
+        getCanonical(index)->upgradeSortIndex(d);
+        return index;
     }
-  return PointerSet::insert(d->symbol()->makeCanonical(d, this), hashValue);
+    return PointerSet::insert(d->symbol()->makeCanonical(d, this), hashValue);
 }
 
 int
-HashConsSet::insertCopy(DagNode* d)
-{
-  //
-  //	The only difference form the above function is we never insert the original; if there is
-  //	no existing copy and we're not forced to make a copy because of non-canonical arguments, we
-  //	make a copy anyway.
-  //	This is useful where the original may be reduced in place and is therefore not safe to put
-  //	in a hash cons table.
-  //
-  //	We make an assumption here that that any sort in d is either unknown or unimportant.
-  //
-  unsigned int hashValue = d->getHashValue();
-  int index = pointer2Index(d, hashValue);
-  return (index == NONE) ? PointerSet::insert(d->symbol()->makeCanonicalCopy(d, this), hashValue) : index;
+HashConsSet::insertCopy(DagNode *d) {
+    //
+    //	The only difference form the above function is we never insert the original; if there is
+    //	no existing copy and we're not forced to make a copy because of non-canonical arguments, we
+    //	make a copy anyway.
+    //	This is useful where the original may be reduced in place and is therefore not safe to put
+    //	in a hash cons table.
+    //
+    //	We make an assumption here that that any sort in d is either unknown or unimportant.
+    //
+    unsigned int hashValue = d->getHashValue();
+    int index = pointer2Index(d, hashValue);
+    return (index == NONE) ? PointerSet::insert(d->symbol()->makeCanonicalCopy(d, this), hashValue) : index;
 }
 
 unsigned int
-HashConsSet::hash(void* /* pointer */) const
-{
-  CantHappen("should never be called");
-  return 0;
+HashConsSet::hash(void * /* pointer */) const {
+    CantHappen("should never be called");
+    return 0;
 }
 
 bool
-HashConsSet::isEqual(void* pointer1, void* pointer2) const
-{
-  DagNode* d1 = static_cast<DagNode*>(pointer1);
-  DagNode* d2 = static_cast<DagNode*>(pointer2);
-  return d1->equal(d2);
+HashConsSet::isEqual(void *pointer1, void *pointer2) const {
+    DagNode *d1 = static_cast<DagNode *>(pointer1);
+    DagNode *d2 = static_cast<DagNode *>(pointer2);
+    return d1->equal(d2);
 }
 
 void
-HashConsSet::markReachableNodes()
-{
-  int nrDagNodes = cardinality();
-  for (int i = 0; i < nrDagNodes; ++i)
-    getCanonical(i)->mark();
+HashConsSet::markReachableNodes() {
+    int nrDagNodes = cardinality();
+    for (int i = 0; i < nrDagNodes; ++i)
+        getCanonical(i)->mark();
 }
 
 #ifndef NO_ASSERT
@@ -107,22 +101,22 @@ HashConsSet::markReachableNodes()
 //
 void
 HashConsSet::collision(void* pointer1,
-		       unsigned int rawHashValue1, 
-		       void* pointer2,
-		       unsigned int rawHashValue2,
-		       unsigned int tableSize,
-		       unsigned int disputedSlot) const
+               unsigned int rawHashValue1,
+               void* pointer2,
+               unsigned int rawHashValue2,
+               unsigned int tableSize,
+               unsigned int disputedSlot) const
 {
   ++collisionCounter;
   /*
   DebugAdvisory("HashConsSet::collision() new dag = " << static_cast<DagNode*>(pointer1) <<
-		" hash code = " << rawHashValue1 <<
-		" old dag = " << static_cast<DagNode*>(pointer2) <<
-		" hash code = " << rawHashValue2 <<
-		" hash table size = " << tableSize <<
-		" used = " << cardinality() <<
-		" slot = " << disputedSlot);
+        " hash code = " << rawHashValue1 <<
+        " old dag = " << static_cast<DagNode*>(pointer2) <<
+        " hash code = " << rawHashValue2 <<
+        " hash table size = " << tableSize <<
+        " used = " << cardinality() <<
+        " slot = " << disputedSlot);
   */
 }
-		
+
 #endif

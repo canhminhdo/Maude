@@ -25,169 +25,174 @@
 //
 #ifndef _AU_StackNode_hh_
 #define _AU_StackNode_hh_
+
 #include "argVec.hh"
 #include "symbol.hh"  // HACK
 #include "dagNode.hh"  // HACK
 #include "memoryCell.hh"
 
-class AU_StackNode
-{
-  NO_COPYING(AU_StackNode);
+class AU_StackNode {
+    NO_COPYING(AU_StackNode);
 
 public:
-  AU_StackNode(){}
+    AU_StackNode() {}
 
-  DagNode* first() const;
-  int firstUsed() const;
+    DagNode *first() const;
 
-  AU_StackNode* split(int nrElements, AU_StackNode*& rev) const;
-  static AU_StackNode* pop(AU_StackNode* base);
-  static AU_StackNode* push(AU_StackNode* base, DagNode* dagNode);
-  static AU_StackNode* prepend(AU_StackNode* base,
-			       int nrElements,
-			       const AU_StackNode* fwd,
-			       const AU_StackNode* rev);
+    int firstUsed() const;
 
-  void fwdCopy(ArgVec<DagNode*>::iterator s) const;
-  void revCopy(ArgVec<DagNode*>::iterator s) const;
-  static AU_StackNode* fwdJoin(int nrElements,
-			       ArgVec<DagNode*>::const_iterator s,
-			       AU_StackNode* d);
-  static AU_StackNode* revJoin(int nrElements,
-			       ArgVec<DagNode*>::const_iterator s,
-			       AU_StackNode* d);
-  static AU_StackNode* fwdMake(int nrElements,
-			       ArgVec<DagNode*>::const_iterator s,
-			       AU_StackNode* d = 0);
-  static AU_StackNode* revMake(int nrElements,
-			       ArgVec<DagNode*>::const_iterator s,
-			       AU_StackNode* d = 0);
-  int fwdComputeBaseSort(Symbol* symbol);
-  int revComputeBaseSort(Symbol* symbol);
+    AU_StackNode *split(int nrElements, AU_StackNode *&rev) const;
 
-  int getSortIndex() const;
-  void mark();
+    static AU_StackNode *pop(AU_StackNode *base);
 
-  void* operator new(size_t size);
+    static AU_StackNode *push(AU_StackNode *base, DagNode *dagNode);
+
+    static AU_StackNode *prepend(AU_StackNode *base,
+                                 int nrElements,
+                                 const AU_StackNode *fwd,
+                                 const AU_StackNode *rev);
+
+    void fwdCopy(ArgVec<DagNode *>::iterator s) const;
+
+    void revCopy(ArgVec<DagNode *>::iterator s) const;
+
+    static AU_StackNode *fwdJoin(int nrElements,
+                                 ArgVec<DagNode *>::const_iterator s,
+                                 AU_StackNode *d);
+
+    static AU_StackNode *revJoin(int nrElements,
+                                 ArgVec<DagNode *>::const_iterator s,
+                                 AU_StackNode *d);
+
+    static AU_StackNode *fwdMake(int nrElements,
+                                 ArgVec<DagNode *>::const_iterator s,
+                                 AU_StackNode *d = 0);
+
+    static AU_StackNode *revMake(int nrElements,
+                                 ArgVec<DagNode *>::const_iterator s,
+                                 AU_StackNode *d = 0);
+
+    int fwdComputeBaseSort(Symbol *symbol);
+
+    int revComputeBaseSort(Symbol *symbol);
+
+    int getSortIndex() const;
+
+    void mark();
+
+    void *operator new(size_t size);
 
 #ifdef CHECK_DEQUE
-  static int checkIntegrity(AU_StackNode* p);
+    static int checkIntegrity(AU_StackNode* p);
 #endif
 
 private:
-  enum Values
-  {
-    ELEMENTS_PER_NODE = 4
-  };
+    enum Values {
+        ELEMENTS_PER_NODE = 4
+    };
 
-  static AU_StackNode* fwdCopy(int nrElements,
-			       AU_StackNode* tail,
-			       AU_StackNode const*& sp,
-			       int& si);
-  static AU_StackNode* revCopy(const AU_StackNode* sp, int si);
+    static AU_StackNode *fwdCopy(int nrElements,
+                                 AU_StackNode *tail,
+                                 AU_StackNode const *&sp,
+                                 int &si);
 
-  void setMarked();
-  bool isMarked() const;
-  void setSortIndex(int sortIndex);
-  AU_StackNode* partialClone(int f);
-  //
-  //    Get pointer to MemoryInfo object associated with us.
-  //
-  MemoryInfo* getMemoryInfo();
-  const MemoryInfo* getMemoryInfo() const;
+    static AU_StackNode *revCopy(const AU_StackNode *sp, int si);
 
-  DagNode* args[ELEMENTS_PER_NODE];
-  AU_StackNode* next;
+    void setMarked();
 
-  friend class AU_DequeIter;
+    bool isMarked() const;
+
+    void setSortIndex(int sortIndex);
+
+    AU_StackNode *partialClone(int f);
+
+    //
+    //    Get pointer to MemoryInfo object associated with us.
+    //
+    MemoryInfo *getMemoryInfo();
+
+    const MemoryInfo *getMemoryInfo() const;
+
+    DagNode *args[ELEMENTS_PER_NODE];
+    AU_StackNode *next;
+
+    friend class AU_DequeIter;
 };
 
-inline void*
-AU_StackNode::operator new(size_t size)
-{
-  Assert(size <= sizeof(MemoryCell), "stack node too big");
-  void* m = MemoryCell::allocateMemoryCell();
-  //
-  //	MemoryCell::allocateMemoryCell() no longer sets the half word to
-  //	Sort::SORT_UNKNOWN. This responsibility is shifted to us.
-  //
-  MemoryCell::getMemoryInfo(m)->setHalfWord(Sort::SORT_UNKNOWN);
-  //
-  //	MemoryCell::allocateMemoryCell() no longer clears the memory
-  //	cell flags. This responsibility is shifted to us.
-  //
-  MemoryCell::getMemoryInfo(m)->clearAllFlags();
-  return m;
+inline void *
+AU_StackNode::operator new(size_t size) {
+    Assert(size <= sizeof(MemoryCell), "stack node too big");
+    void *m = MemoryCell::allocateMemoryCell();
+    //
+    //	MemoryCell::allocateMemoryCell() no longer sets the half word to
+    //	Sort::SORT_UNKNOWN. This responsibility is shifted to us.
+    //
+    MemoryCell::getMemoryInfo(m)->setHalfWord(Sort::SORT_UNKNOWN);
+    //
+    //	MemoryCell::allocateMemoryCell() no longer clears the memory
+    //	cell flags. This responsibility is shifted to us.
+    //
+    MemoryCell::getMemoryInfo(m)->clearAllFlags();
+    return m;
 }
 
-inline MemoryInfo*
-AU_StackNode::getMemoryInfo()
-{
-  return MemoryCell::getMemoryInfo(this);
+inline MemoryInfo *
+AU_StackNode::getMemoryInfo() {
+    return MemoryCell::getMemoryInfo(this);
 }
 
-inline const MemoryInfo*
-AU_StackNode::getMemoryInfo() const
-{
-  return MemoryCell::getMemoryInfo(this);
+inline const MemoryInfo *
+AU_StackNode::getMemoryInfo() const {
+    return MemoryCell::getMemoryInfo(this);
 }
 
 inline void
-AU_StackNode::setMarked()
-{
-  getMemoryInfo()->setMarked();
+AU_StackNode::setMarked() {
+    getMemoryInfo()->setMarked();
 }
 
 inline bool
-AU_StackNode::isMarked() const
-{
-  return getMemoryInfo()->isMarked();
+AU_StackNode::isMarked() const {
+    return getMemoryInfo()->isMarked();
 }
 
-inline void 
-AU_StackNode::setSortIndex(int sortIndex)
-{
-  getMemoryInfo()->setHalfWord(sortIndex);
+inline void
+AU_StackNode::setSortIndex(int sortIndex) {
+    getMemoryInfo()->setHalfWord(sortIndex);
 }
 
 inline int
-AU_StackNode::getSortIndex() const
-{
-  return getMemoryInfo()->getHalfWord();
+AU_StackNode::getSortIndex() const {
+    return getMemoryInfo()->getHalfWord();
 }
 
-inline DagNode*
-AU_StackNode::first() const
-{
-  for (DagNode* const* p = args;; ++p)
-    {
-      Assert(p - args < ELEMENTS_PER_NODE, "didn't find non-null pointer");
-      DagNode* t = *p;
-      if (t != 0)
-	return t;
+inline DagNode *
+AU_StackNode::first() const {
+    for (DagNode *const *p = args;; ++p) {
+        Assert(p - args < ELEMENTS_PER_NODE, "didn't find non-null pointer");
+        DagNode *t = *p;
+        if (t != 0)
+            return t;
     }
 }
 
 inline int
-AU_StackNode::firstUsed() const
-{
-  for (int i = 0;; ++i)
-    {
-      Assert(i < ELEMENTS_PER_NODE, "didn't find non-null pointer");
-      if (args[i] != 0)
-	return i;
+AU_StackNode::firstUsed() const {
+    for (int i = 0;; ++i) {
+        Assert(i < ELEMENTS_PER_NODE, "didn't find non-null pointer");
+        if (args[i] != 0)
+            return i;
     }
 }
 
-inline AU_StackNode*
-AU_StackNode::partialClone(int f)
-{
-  AU_StackNode* d = new AU_StackNode;
-  do
-    d->args[f] = args[f];
-  while (++f < ELEMENTS_PER_NODE);
-  d->next = next;
-  return d;
+inline AU_StackNode *
+AU_StackNode::partialClone(int f) {
+    AU_StackNode *d = new AU_StackNode;
+    do
+        d->args[f] = args[f];
+    while (++f < ELEMENTS_PER_NODE);
+    d->next = next;
+    return d;
 }
 
 #endif

@@ -27,36 +27,59 @@
 #define _freeTheory_hh_
 
 class FreeSymbol;
+
 class FreeNullarySymbol;
+
 class FreeUnarySymbol;
+
 class FreeBinarySymbol;
+
 class FreeTernarySymbol;
 
 class FreeTerm;
+
 class FreeArgumentIterator;
+
 class FreeDagNode;
+
 class FreeDagArgumentIterator;
+
 class FreeLhsAutomaton;
 
 class FreeRhsAutomaton;
+
 class FreeNullaryRhsAutomaton;
+
 class FreeUnaryRhsAutomaton;
+
 class FreeBinaryRhsAutomaton;
+
 class FreeTernaryRhsAutomaton;
+
 class FreeFast2RhsAutomaton;
+
 class FreeFast3RhsAutomaton;
 
 class FreeOccurrence;
+
 class FreeNet;
+
 class FreeRemainder;
+
 class FreePositionTable;
+
 class FreeLhsStructs;
 
 class FreeInstruction;
+
 class FreeFastInstruction;
+
 class FreeGeneralCtor;
+
 class FreeGeneralCtorFinal;
+
 class FreeGeneralExtor;
+
 class FreeGeneralExtorFinal;
 
 #endif

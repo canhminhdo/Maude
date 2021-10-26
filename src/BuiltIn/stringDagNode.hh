@@ -25,29 +25,31 @@
 //
 #ifndef _stringDagNode_hh_
 #define _stringDagNode_hh_
+
 #include "rope.hh"
 #include "NA_DagNode.hh"
 
-class StringDagNode : public NA_DagNode
-{
+class StringDagNode : public NA_DagNode {
 public:
-  StringDagNode(StringSymbol* symbol, const Rope& value);
+    StringDagNode(StringSymbol *symbol, const Rope &value);
 
-  size_t getHashValue();
-  int compareArguments(const DagNode* other) const;
-  void overwriteWithClone(DagNode* old);
-  DagNode* makeClone();
+    size_t getHashValue();
 
-  const Rope& getValue() const;
+    int compareArguments(const DagNode *other) const;
+
+    void overwriteWithClone(DagNode *old);
+
+    DagNode *makeClone();
+
+    const Rope &getValue() const;
 
 private:
-  const Rope value;  // assume that sizeof(Rope) <= DagNode::nrWords
+    const Rope value;  // assume that sizeof(Rope) <= DagNode::nrWords
 };
 
-inline const Rope&
-StringDagNode::getValue() const
-{
-  return value;
+inline const Rope &
+StringDagNode::getValue() const {
+    return value;
 }
 
 #endif

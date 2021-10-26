@@ -27,49 +27,46 @@
 #ifndef _sharedValue_hh_
 #define _sharedValue_hh_
 
-template <typename T>
-class SharedValue
-{
+template<typename T>
+class SharedValue {
 public:
-  SharedValue(T* value);
-  SharedValue(const SharedValue& other);
-  ~SharedValue();
-  T* operator->();
+    SharedValue(T *value);
+
+    SharedValue(const SharedValue &other);
+
+    ~SharedValue();
+
+    T *operator->();
 
 private:
-  T* value;
-  int* refCount;
+    T *value;
+    int *refCount;
 };
 
-template <typename T>
-inline T*
-SharedValue<T>::operator->()
-{
-  return value;
+template<typename T>
+inline T *
+SharedValue<T>::operator->() {
+    return value;
 }
 
-template <typename T>
-SharedValue<T>::SharedValue(T* value)
-  : value(value),
-    refCount(new int(1))
-{
+template<typename T>
+SharedValue<T>::SharedValue(T *value)
+        : value(value),
+          refCount(new int(1)) {
 }
 
-template <typename T>
-SharedValue<T>::SharedValue(const SharedValue& other)
-{
-  value = other.value;
-  refCount = other.refCount;
-  ++(*refCount);
+template<typename T>
+SharedValue<T>::SharedValue(const SharedValue &other) {
+    value = other.value;
+    refCount = other.refCount;
+    ++(*refCount);
 }
 
-template <typename T>
-SharedValue<T>::~SharedValue()
-{
-  if (--(*refCount) == 0)
-    {
-      delete value;
-      delete refCount;
+template<typename T>
+SharedValue<T>::~SharedValue() {
+    if (--(*refCount) == 0) {
+        delete value;
+        delete refCount;
     }
 }
 

@@ -25,40 +25,42 @@
 //
 #ifndef _metaModule_hh_
 #define _metaModule_hh_
+
 #include "visibleModule.hh"
 #include "metaOpCache.hh"
 
-class MetaModule : public VisibleModule, public MetaOpCache
-{
-  NO_COPYING(MetaModule);
+class MetaModule : public VisibleModule, public MetaOpCache {
+    NO_COPYING(MetaModule);
 
 public:
-  MetaModule(int name, ModuleType moduleType, Interpreter* owner);
+    MetaModule(int name, ModuleType moduleType, Interpreter *owner);
 
-  void addComplexSymbol(int type, int index, DagNode* identity, DagNode* fixUpInfo);
-  void addComplexSymbol(int type,
-			int index,
-			DagNode* identity,
-			DagNode* fixUpInfo,
-			const Vector<Sort*>& domainAndRange);
-  bool removeComplexSymbol(int& type,
-			   int& index,
-			   DagNode*& identity,
-			   DagNode*& fixUpInfo,
-			   Vector<Sort*>& domainAndRange);
-  void registerRuleLabels();
+    void addComplexSymbol(int type, int index, DagNode *identity, DagNode *fixUpInfo);
+
+    void addComplexSymbol(int type,
+                          int index,
+                          DagNode *identity,
+                          DagNode *fixUpInfo,
+                          const Vector<Sort *> &domainAndRange);
+
+    bool removeComplexSymbol(int &type,
+                             int &index,
+                             DagNode *&identity,
+                             DagNode *&fixUpInfo,
+                             Vector<Sort *> &domainAndRange);
+
+    void registerRuleLabels();
 
 private:
-  struct ComplexSymbol
-  {
-    int type;
-    int index;
-    DagNode* identity;
-    DagNode* fixUpInfo;
-    Vector<Sort*> domainAndRange;
-  };
+    struct ComplexSymbol {
+        int type;
+        int index;
+        DagNode *identity;
+        DagNode *fixUpInfo;
+        Vector<Sort *> domainAndRange;
+    };
 
-  Vector<ComplexSymbol> complexSymbols;
+    Vector<ComplexSymbol> complexSymbols;
 };
 
 #endif

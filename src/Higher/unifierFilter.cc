@@ -49,229 +49,205 @@
 #include "unifierFilter.hh"
 
 UnifierFilter::UnifierFilter(int firstInterestingVariable, int nrInterestingVariables)
-  : firstInterestingVariable(firstInterestingVariable),
-    nrInterestingVariables(nrInterestingVariables)
-{
-  startedExtractingUnifiers = false;
+        : firstInterestingVariable(firstInterestingVariable),
+          nrInterestingVariables(nrInterestingVariables) {
+    startedExtractingUnifiers = false;
 }
 
-UnifierFilter::~UnifierFilter()
-{
-  for (RetainedUnifier* r : mostGeneralSoFar)
-    delete r;
+UnifierFilter::~UnifierFilter() {
+    for (RetainedUnifier *r : mostGeneralSoFar)
+        delete r;
 }
 
 void
-UnifierFilter::markReachableNodes()
-{
-  for (RetainedUnifier* r : mostGeneralSoFar)
-    {
-      const Substitution& unifier = r->unifier;
-      int nrFragile = unifier.nrFragileBindings();
-      for (int j = 0; j < nrFragile; ++j)
-	{
-	  DagNode* d = unifier.value(j);
-	  if (d != 0)
-	    d->mark();
-	}
+UnifierFilter::markReachableNodes() {
+    for (RetainedUnifier *r : mostGeneralSoFar) {
+        const Substitution &unifier = r->unifier;
+        int nrFragile = unifier.nrFragileBindings();
+        for (int j = 0; j < nrFragile; ++j) {
+            DagNode *d = unifier.value(j);
+            if (d != 0)
+                d->mark();
+        }
     }
 }
 
 void
-UnifierFilter::insertUnifier(const Substitution& unifier, int positionIndex, int equationIndex)
-{
-  //
-  //	First we check if it is subsumed by one of the existing unifiers.
-  //
-  for (RetainedUnifier* r : mostGeneralSoFar)
-    {
-      if (subsumes(r, unifier))
-	{
-	  DebugAdvisory("new unifier subsumed");
-	  return;
-	}
+UnifierFilter::insertUnifier(const Substitution &unifier, int positionIndex, int equationIndex) {
+    //
+    //	First we check if it is subsumed by one of the existing unifiers.
+    //
+    for (RetainedUnifier *r : mostGeneralSoFar) {
+        if (subsumes(r, unifier)) {
+            DebugAdvisory("new unifier subsumed");
+            return;
+        }
     }
-  DebugAdvisory("new unifier added");
-  //
-  //	Compile a set of matching automata for this unifier.
-  //
-  RetainedUnifier* newUnifier = new RetainedUnifier(unifier, firstInterestingVariable, nrInterestingVariables);
-  //
-  //	See if this unifier can evict an existing unifier.
-  //
-  RetainedUnifierList::iterator i = mostGeneralSoFar.begin();
-  while (i != mostGeneralSoFar.end())
-    {
-      RetainedUnifierList::iterator next = i;
-      ++next;
+    DebugAdvisory("new unifier added");
+    //
+    //	Compile a set of matching automata for this unifier.
+    //
+    RetainedUnifier *newUnifier = new RetainedUnifier(unifier, firstInterestingVariable, nrInterestingVariables);
+    //
+    //	See if this unifier can evict an existing unifier.
+    //
+    RetainedUnifierList::iterator i = mostGeneralSoFar.begin();
+    while (i != mostGeneralSoFar.end()) {
+        RetainedUnifierList::iterator next = i;
+        ++next;
 
-      RetainedUnifier* potentialVictim = *i;
-      if (subsumes(newUnifier, potentialVictim->unifier))
-	{
-	  DebugAdvisory("new unifier evicted an older unifier");
-	  delete potentialVictim;
-	  mostGeneralSoFar.erase(i);
-	}
+        RetainedUnifier *potentialVictim = *i;
+        if (subsumes(newUnifier, potentialVictim->unifier)) {
+            DebugAdvisory("new unifier evicted an older unifier");
+            delete potentialVictim;
+            mostGeneralSoFar.erase(i);
+        }
 
-      i = next;
+        i = next;
     }
-  //
-  //	Add to the mostGeneralSoFar collection of unifiers.
-  //
-  newUnifier->positionIndex = positionIndex;
-  newUnifier->equationIndex = equationIndex;
-  mostGeneralSoFar.push_back(newUnifier);
-  //cout << "nr unifiers = " << mostGeneralSoFar.size() << ' ';
+    //
+    //	Add to the mostGeneralSoFar collection of unifiers.
+    //
+    newUnifier->positionIndex = positionIndex;
+    newUnifier->equationIndex = equationIndex;
+    mostGeneralSoFar.push_back(newUnifier);
+    //cout << "nr unifiers = " << mostGeneralSoFar.size() << ' ';
 }
 
 bool
-UnifierFilter::getNextSurvivingUnifier(Substitution*& unifier, int& positionIndex, int& equationIndex)
-{
-  if (startedExtractingUnifiers)
-    ++nextUnifier;
-  else
-    {
-      startedExtractingUnifiers = true;
-      nextUnifier = mostGeneralSoFar.begin();
+UnifierFilter::getNextSurvivingUnifier(Substitution *&unifier, int &positionIndex, int &equationIndex) {
+    if (startedExtractingUnifiers)
+        ++nextUnifier;
+    else {
+        startedExtractingUnifiers = true;
+        nextUnifier = mostGeneralSoFar.begin();
     }
 
-  if (nextUnifier == mostGeneralSoFar.end())
-    return false;
+    if (nextUnifier == mostGeneralSoFar.end())
+        return false;
 
-  RetainedUnifier* r = *nextUnifier;
-  unifier = &(r->unifier);
-  positionIndex = r->positionIndex;
-  equationIndex = r->equationIndex;
-  return true;
+    RetainedUnifier *r = *nextUnifier;
+    unifier = &(r->unifier);
+    positionIndex = r->positionIndex;
+    equationIndex = r->equationIndex;
+    return true;
 }
 
 bool
-UnifierFilter::subsumes(const RetainedUnifier* retainedUnifier, const Substitution& unifier)
-{
-  MemoryCell::okToCollectGarbage();  // otherwise we have huge accumulation of junk from matching
-  //
-  //	We check if retained unifier is at least as general as unifier on variables of interest.
-  //
-  int nrVariablesToUse = retainedUnifier->nrVariablesInBindings;
-  int nrSlotsToAllocate = nrVariablesToUse;
-  if (nrSlotsToAllocate == 0)
-    nrSlotsToAllocate = 1;  // substitutions subject to clear() must always have at least one slot
-  RewritingContext matcher(nrSlotsToAllocate);
-  SubproblemAccumulator subproblems;
+UnifierFilter::subsumes(const RetainedUnifier *retainedUnifier, const Substitution &unifier) {
+    MemoryCell::okToCollectGarbage();  // otherwise we have huge accumulation of junk from matching
+    //
+    //	We check if retained unifier is at least as general as unifier on variables of interest.
+    //
+    int nrVariablesToUse = retainedUnifier->nrVariablesInBindings;
+    int nrSlotsToAllocate = nrVariablesToUse;
+    if (nrSlotsToAllocate == 0)
+        nrSlotsToAllocate = 1;  // substitutions subject to clear() must always have at least one slot
+    RewritingContext matcher(nrSlotsToAllocate);
+    SubproblemAccumulator subproblems;
 
-  matcher.clear(nrVariablesToUse);
-  for (int i = 0; i < nrInterestingVariables; ++i)
-    {
-      Subproblem* subproblem;
+    matcher.clear(nrVariablesToUse);
+    for (int i = 0; i < nrInterestingVariables; ++i) {
+        Subproblem *subproblem;
 
-      DebugInfo("Considering interesting variable " << i);
-      DebugInfo("Pattern has " << retainedUnifier->unifier.value(firstInterestingVariable + i));
-      DebugInfo("Pattern term is " << retainedUnifier->interestingBindings[i]);
-      DebugInfo("Subject has " << unifier.value(firstInterestingVariable + i));
+        DebugInfo("Considering interesting variable " << i);
+        DebugInfo("Pattern has " << retainedUnifier->unifier.value(firstInterestingVariable + i));
+        DebugInfo("Pattern term is " << retainedUnifier->interestingBindings[i]);
+        DebugInfo("Subject has " << unifier.value(firstInterestingVariable + i));
 
-      if (retainedUnifier->matchingAutomata[i]->match(unifier.value(firstInterestingVariable + i),
-						      matcher,
-						      subproblem))
-	subproblems.add(subproblem);
-      else
-	{
-	  DebugAdvisory("non subsumption declared on variable " << i);
-	  return false;
-	}
+        if (retainedUnifier->matchingAutomata[i]->match(unifier.value(firstInterestingVariable + i),
+                                                        matcher,
+                                                        subproblem))
+            subproblems.add(subproblem);
+        else {
+            DebugAdvisory("non subsumption declared on variable " << i);
+            return false;
+        }
     }
-  Subproblem* final = subproblems.extractSubproblem();
-  if (final == 0)
-    {
-      DebugAdvisory("no subproblem so declaring subsumption");
-      return true;
+    Subproblem *final = subproblems.extractSubproblem();
+    if (final == 0) {
+        DebugAdvisory("no subproblem so declaring subsumption");
+        return true;
     }
-  bool result = final->solve(true, matcher);
-  DebugAdvisory("solve result = " << result);
-  delete final;
-  return result;
+    bool result = final->solve(true, matcher);
+    DebugAdvisory("solve result = " << result);
+    delete final;
+    return result;
 }
 
-UnifierFilter::RetainedUnifier::RetainedUnifier(const Substitution& original,
-						int firstInterestingVariable,
-						int nrInterestingVariables)
-  : unifier(original.nrFragileBindings()),
-    interestingBindings(nrInterestingVariables),
-    matchingAutomata(nrInterestingVariables)
-{
-  unifier.clone(original);
-  //
-  //	Convert bindings of interesting variables to terms, index their variables, fill in
-  //	sort information and look for potential collapses.
-  //
-  VariableInfo variableInfo;  // does this need to be retained?
-  for (int i = 0; i < nrInterestingVariables; ++i)
-    {
-      DagNode* d = unifier.value(firstInterestingVariable + i);
-      Term* t = d->symbol()->termify(d);
-      t = t->normalize(true);  // needed even though we're in normal form, in order to set hash value
+UnifierFilter::RetainedUnifier::RetainedUnifier(const Substitution &original,
+                                                int firstInterestingVariable,
+                                                int nrInterestingVariables)
+        : unifier(original.nrFragileBindings()),
+          interestingBindings(nrInterestingVariables),
+          matchingAutomata(nrInterestingVariables) {
+    unifier.clone(original);
+    //
+    //	Convert bindings of interesting variables to terms, index their variables, fill in
+    //	sort information and look for potential collapses.
+    //
+    VariableInfo variableInfo;  // does this need to be retained?
+    for (int i = 0; i < nrInterestingVariables; ++i) {
+        DagNode *d = unifier.value(firstInterestingVariable + i);
+        Term *t = d->symbol()->termify(d);
+        t = t->normalize(true);  // needed even though we're in normal form, in order to set hash value
 
-      t->indexVariables(variableInfo); 
-      t->symbol()->fillInSortInfo(t);
-      t->analyseCollapses();
-      interestingBindings[i] = t;
+        t->indexVariables(variableInfo);
+        t->symbol()->fillInSortInfo(t);
+        t->analyseCollapses();
+        interestingBindings[i] = t;
     }
-  //
-  //	Now go through them again, inserting context variable information, inserting abstraction
-  //	variables where needed to handle potential collapses.
-  //
-  for (int i = 0; i < nrInterestingVariables; ++i)
-    {
-      Term* t = interestingBindings[i];
-      for (int j = 0; j < nrInterestingVariables; ++j)
-	{
-	  if (j != i)
-	    {
-	      //
-	      //	Variables from other bindings are in our context.
-	      //
-	      t->addContextVariables(interestingBindings[j]->occursBelow());
-	    }
-	}
-      //
-      //	Recursively compute the context variables for each subterm.
-      //
-      t->determineContextVariables();
-      //
-      //	Insert abstraction variables for subterms that could collapse into
-      //	their enclosing theory; such subterms will need to be treated like
-      //	variables and then their binding subject to an extra match.
-      //
-      t->insertAbstractionVariables(variableInfo);
+    //
+    //	Now go through them again, inserting context variable information, inserting abstraction
+    //	variables where needed to handle potential collapses.
+    //
+    for (int i = 0; i < nrInterestingVariables; ++i) {
+        Term *t = interestingBindings[i];
+        for (int j = 0; j < nrInterestingVariables; ++j) {
+            if (j != i) {
+                //
+                //	Variables from other bindings are in our context.
+                //
+                t->addContextVariables(interestingBindings[j]->occursBelow());
+            }
+        }
+        //
+        //	Recursively compute the context variables for each subterm.
+        //
+        t->determineContextVariables();
+        //
+        //	Insert abstraction variables for subterms that could collapse into
+        //	their enclosing theory; such subterms will need to be treated like
+        //	variables and then their binding subject to an extra match.
+        //
+        t->insertAbstractionVariables(variableInfo);
     }
-  //
-  //	This may also include some abstraction variables.
-  //
-  nrVariablesInBindings = variableInfo.getNrProtectedVariables();
-  //
-  //	Now we know how many variables we will need to save in branching, we
-  //	can safely compile.
-  //
-  NatSet boundUniquely;
-  bool subproblemLikely;
-  for (int i = 0; i < nrInterestingVariables; ++i)
-    {
-      Term* t = interestingBindings[i];
-      DebugInfo("Compiling " << t);
-      matchingAutomata[i] = t->compileLhs(false, variableInfo, boundUniquely, subproblemLikely);
-      //matchingAutomata[i]->dump(cerr, variableInfo);
+    //
+    //	This may also include some abstraction variables.
+    //
+    nrVariablesInBindings = variableInfo.getNrProtectedVariables();
+    //
+    //	Now we know how many variables we will need to save in branching, we
+    //	can safely compile.
+    //
+    NatSet boundUniquely;
+    bool subproblemLikely;
+    for (int i = 0; i < nrInterestingVariables; ++i) {
+        Term *t = interestingBindings[i];
+        DebugInfo("Compiling " << t);
+        matchingAutomata[i] = t->compileLhs(false, variableInfo, boundUniquely, subproblemLikely);
+        //matchingAutomata[i]->dump(cerr, variableInfo);
     }
-  DebugInfo("compiled retained unifier has " << variableInfo.getNrRealVariables() <<
-	    " real variables");
-  DebugInfo("compiled retained unifier has " << variableInfo.getNrProtectedVariables() <<
-	    " protected variables");
+    DebugInfo("compiled retained unifier has " << variableInfo.getNrRealVariables() <<
+                                               " real variables");
+    DebugInfo("compiled retained unifier has " << variableInfo.getNrProtectedVariables() <<
+                                               " protected variables");
 }
 
-UnifierFilter::RetainedUnifier::~RetainedUnifier()
-{
-  int nrInterestingVariables = interestingBindings.size();
-  for (int i = 0; i < nrInterestingVariables; ++i)
-    {
-      delete matchingAutomata[i];
-      interestingBindings[i]->deepSelfDestruct();
+UnifierFilter::RetainedUnifier::~RetainedUnifier() {
+    int nrInterestingVariables = interestingBindings.size();
+    for (int i = 0; i < nrInterestingVariables; ++i) {
+        delete matchingAutomata[i];
+        interestingBindings[i]->deepSelfDestruct();
     }
 }

@@ -25,59 +25,61 @@
 //
 #ifndef _rewriteSequenceSearch_hh_
 #define _rewriteSequenceSearch_hh_
+
 #include "sequenceSearch.hh"
 #include "stateTransitionGraph.hh"
 #include "matchSearchState.hh"
 
-class RewriteSequenceSearch : public SequenceSearch, public StateTransitionGraph
-{
-  NO_COPYING(RewriteSequenceSearch);
+class RewriteSequenceSearch : public SequenceSearch, public StateTransitionGraph {
+    NO_COPYING(RewriteSequenceSearch);
 
 public:
-  RewriteSequenceSearch(RewritingContext* initial,
-			SearchType searchType,
-			Pattern* goal,
-			int maxDepth = -1);
-  ~RewriteSequenceSearch();
+    RewriteSequenceSearch(RewritingContext *initial,
+                          SearchType searchType,
+                          Pattern *goal,
+                          int maxDepth = -1);
 
-  bool findNextMatch();
-  const Pattern* getGoal() const;
-  Rule* getStateRule(int stateNr) const;
-  int getStateNr() const;
-  const Substitution* getSubstitution() const;
-  
+    ~RewriteSequenceSearch();
+
+    bool findNextMatch();
+
+    const Pattern *getGoal() const;
+
+    Rule *getStateRule(int stateNr) const;
+
+    int getStateNr() const;
+
+    const Substitution *getSubstitution() const;
+
 private:
-  int findNextInterestingState();
+    int findNextInterestingState();
 
-  Pattern* const goal;
-  const int maxDepth;
-  int explore;
-  int exploreDepth;
-  int firstDeeperNodeNr;
-  int nextArc;
-  bool needToTryInitialState;
-  bool reachingInitialStateOK;
-  bool normalFormNeeded;
-  MatchSearchState* matchState;
-  int stateNr;
+    Pattern *const goal;
+    const int maxDepth;
+    int explore;
+    int exploreDepth;
+    int firstDeeperNodeNr;
+    int nextArc;
+    bool needToTryInitialState;
+    bool reachingInitialStateOK;
+    bool normalFormNeeded;
+    MatchSearchState *matchState;
+    int stateNr;
 };
 
-inline const Pattern*
-RewriteSequenceSearch::getGoal() const
-{
-  return goal;
+inline const Pattern *
+RewriteSequenceSearch::getGoal() const {
+    return goal;
 }
 
-inline const Substitution*
-RewriteSequenceSearch::getSubstitution() const
-{
-  return matchState->getContext();
+inline const Substitution *
+RewriteSequenceSearch::getSubstitution() const {
+    return matchState->getContext();
 }
 
 inline int
-RewriteSequenceSearch::getStateNr() const
-{
-  return stateNr;
+RewriteSequenceSearch::getStateNr() const {
+    return stateNr;
 }
 
 #endif

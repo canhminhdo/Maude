@@ -25,31 +25,30 @@
 //
 #ifndef _returnInstruction_hh_
 #define _returnInstruction_hh_
+
 #include "finalInstruction.hh"
 
-class ReturnInstruction : public FinalInstruction
-{
-  NO_COPYING(ReturnInstruction);
+class ReturnInstruction : public FinalInstruction {
+    NO_COPYING(ReturnInstruction);
 
 public:
-  ReturnInstruction(int returnSlot);
+    ReturnInstruction(int returnSlot);
 
-  void execute(StackMachine* machine) const;
+    void execute(StackMachine *machine) const;
 
-  SlotIndex getReturnSlot() const;
+    SlotIndex getReturnSlot() const;
 
 #ifdef DUMP
-  void dump(ostream& s, int indentLevel);
+    void dump(ostream& s, int indentLevel);
 #endif
 
 private:
-  const SlotIndex returnSlot;
+    const SlotIndex returnSlot;
 };
 
 inline Instruction::SlotIndex
-ReturnInstruction::getReturnSlot() const
-{
-  return returnSlot;
+ReturnInstruction::getReturnSlot() const {
+    return returnSlot;
 }
 
 #endif
