@@ -42,75 +42,63 @@
 #include "rule.hh"
 #include "rewriteSearchState.hh"
 
-RewriteSearchState::RewriteSearchState(RewritingContext* context,
-				       int label,
-				       int flags,
-				       int minDepth,
-				       int maxDepth)
-  : SearchState(context, flags | RESPECT_FROZEN, minDepth, maxDepth),
-    label(label),
-    withExtension(maxDepth >= 0)
-{
-  Assert(label == NONE || !(getFlags() & SET_UNREWRITABLE),
-	  "shouldn't set unrewritable flag if only looking at rules with a given label");
-  ruleIndex = -1;
+RewriteSearchState::RewriteSearchState(RewritingContext *context,
+                                       int label,
+                                       int flags,
+                                       int minDepth,
+                                       int maxDepth)
+        : SearchState(context, flags | RESPECT_FROZEN, minDepth, maxDepth),
+          label(label),
+          withExtension(maxDepth >= 0) {
+    Assert(label == NONE || !(getFlags() & SET_UNREWRITABLE),
+           "shouldn't set unrewritable flag if only looking at rules with a given label");
+    ruleIndex = -1;
 }
 
 bool
-RewriteSearchState::findNextRewrite()
-{
-  bool rewriteSeenAtCurrentPosition;
-  if (ruleIndex > -1)
-    {
-      if (findNextSolution())
-	return true;
-      rewriteSeenAtCurrentPosition = true;
+RewriteSearchState::findNextRewrite() {
+    bool rewriteSeenAtCurrentPosition;
+    if (ruleIndex > -1) {
+        if (findNextSolution())
+            return true;
+        rewriteSeenAtCurrentPosition = true;
+    } else {
+        if (!findNextPosition())
+            return false;
+        rewriteSeenAtCurrentPosition = false;
     }
-  else
-    {
-      if (!findNextPosition())
-	return false;
-      rewriteSeenAtCurrentPosition = false;
-    }
-  ++ruleIndex;
-  bool allowNonexec = getFlags() & ALLOW_NONEXEC;
-  do
-    {
-      DagNode* d = getDagNode();
-      if (!(d->isUnrewritable()))
-	{
-	  const Vector<Rule*>& rules = d->symbol()->getRules();
-	  for (int nrRules = rules.length(); ruleIndex < nrRules; ruleIndex++)
-	    {
-	      Rule* rl = rules[ruleIndex];
-	      if ((allowNonexec || !(rl->isNonexec())) &&
-		  (label == UNDEFINED || rl->getLabel().id() == label))
-		{
-		  LhsAutomaton* a = withExtension ? rl->getExtLhsAutomaton() :
-		    rl->getNonExtLhsAutomaton();
-		  //cerr << "trying " << rl << " at " << " positionIndex " <<  getPositionIndex() << " dagNode " << getDagNode() << endl;
-		  if (findFirstSolution(rl, a))
-		    return true;
-		}
-	    }
-	  if (!rewriteSeenAtCurrentPosition && (getFlags() & SET_UNREWRITABLE))
-	    d->setUnrewritable();
-	}
-      rewriteSeenAtCurrentPosition = false;
-      ruleIndex = 0;
-    }
-  while (findNextPosition());
-  return false;
+    ++ruleIndex;
+    bool allowNonexec = getFlags() & ALLOW_NONEXEC;
+    do {
+        DagNode *d = getDagNode();
+        if (!(d->isUnrewritable())) {
+            const Vector<Rule *> &rules = d->symbol()->getRules();
+            for (int nrRules = rules.length(); ruleIndex < nrRules; ruleIndex++) {
+                Rule *rl = rules[ruleIndex];
+                if ((allowNonexec || !(rl->isNonexec())) &&
+                    (label == UNDEFINED || rl->getLabel().id() == label)) {
+                    LhsAutomaton *a = withExtension ? rl->getExtLhsAutomaton() :
+                                      rl->getNonExtLhsAutomaton();
+                    //cerr << "trying " << rl << " at " << " positionIndex " <<  getPositionIndex() << " dagNode " << getDagNode() << endl;
+                    if (findFirstSolution(rl, a))
+                        return true;
+                }
+            }
+            if (!rewriteSeenAtCurrentPosition && (getFlags() & SET_UNREWRITABLE))
+                d->setUnrewritable();
+        }
+        rewriteSeenAtCurrentPosition = false;
+        ruleIndex = 0;
+    } while (findNextPosition());
+    return false;
 }
 
-Rule*
-RewriteSearchState::getRule() const
-{
-  return (getDagNode()->symbol()->getRules())[ruleIndex];
+Rule *
+RewriteSearchState::getRule() const {
+    return (getDagNode()->symbol()->getRules())[ruleIndex];
 }
 
-DagNode*
-RewriteSearchState::getReplacement() const
-{
-  return getRule()->getRhsBuilder().construct(*(getContext()));
+DagNode *
+RewriteSearchState::getReplacement() const {
+    return getRule()->getRhsBuilder().construct(*(getContext()));
 }

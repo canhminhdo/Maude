@@ -32,89 +32,80 @@
 #include "stringTable.hh"
 
 inline int
-StringTable::hash(const char* name)
-{
-  int h = 0;
-  for (const char* p = name; *p; p++)
-    h = (3 * h) + *p;	// NOTE Undefined behavior (integer overflow)
-  return h;
+StringTable::hash(const char *name) {
+    int h = 0;
+    for (const char *p = name; *p; p++)
+        h = (3 * h) + *p;    // NOTE Undefined behavior (integer overflow)
+    return h;
 }
 
 inline int
-StringTable::hash2(const char* name)  // 2nd hash function must always return an odd value
+StringTable::hash2(const char *name)  // 2nd hash function must always return an odd value
 {
-  int h = 0;
-  for (const char* p = name; *p; p++)
-    h = (5 * h) ^ *p; // NOTE Undefined behavior (integer overflow)
-  return h | 1;
+    int h = 0;
+    for (const char *p = name; *p; p++)
+        h = (5 * h) ^ *p; // NOTE Undefined behavior (integer overflow)
+    return h | 1;
 }
 
-StringTable::StringTable(int initialSize)
-{
-  int s = 2;
-  while (s < initialSize)
+StringTable::StringTable(int initialSize) {
+    int s = 2;
+    while (s < initialSize)
+        s *= 2;
     s *= 2;
-  s *= 2;
-  hashTable.expandTo(s);
-  for (int i = 0; i < s; i++)
-    hashTable[i] = UNUSED;
+    hashTable.expandTo(s);
+    for (int i = 0; i < s; i++)
+        hashTable[i] = UNUSED;
 }
 
-StringTable::~StringTable()
-{
-  int nrStrings = stringTable.length();
-  for (int i = 0; i < nrStrings; i++)
-    delete [] stringTable[i];
+StringTable::~StringTable() {
+    int nrStrings = stringTable.length();
+    for (int i = 0; i < nrStrings; i++)
+        delete[] stringTable[i];
 }
 
 int
-StringTable::encode(const char* name)
-{
-  int mask = hashTable.length() - 1;
-  int code;
-  int step = 0;
-  for (int i = hash(name);; i += step)
-    {
-      i &= mask;
-      code = hashTable[i];
-      if (code == UNUSED)
-	{
-	  code = stringTable.length();
-	  stringTable.append(strcpy(new char[strlen(name) + 1], name));
-	  if (2 * (code + 1) > hashTable.length())
-	    resize();
-	  else
-	    hashTable[i] = code;
-	  break;
-	}
-      if (strcmp(name, stringTable[code]) == 0)
-	break;
-      if (step == 0)
-	step = hash2(name);
+StringTable::encode(const char *name) {
+    int mask = hashTable.length() - 1;
+    int code;
+    int step = 0;
+    for (int i = hash(name);; i += step) {
+        i &= mask;
+        code = hashTable[i];
+        if (code == UNUSED) {
+            code = stringTable.length();
+            stringTable.append(strcpy(new char[strlen(name) + 1], name));
+            if (2 * (code + 1) > hashTable.length())
+                resize();
+            else
+                hashTable[i] = code;
+            break;
+        }
+        if (strcmp(name, stringTable[code]) == 0)
+            break;
+        if (step == 0)
+            step = hash2(name);
     }
-  return code;
+    return code;
 }
 
 void
-StringTable::resize()
-{
-  int h = 2 * hashTable.length();
-  hashTable.expandTo(h);
-  for (int i = 0; i < h; i++)
-    hashTable[i] = UNUSED;
-  int mask = h - 1;
-  int nrStrings = stringTable.length();
-  for (int i = 0; i < nrStrings; i++)
-    {
-      char* s = stringTable[i];
-      int j = hash(s) & mask;
-      if (hashTable[j] != UNUSED)
-	{
-	  int step = hash2(s);
-	  do
-	    j = (j + step) & mask;
-	  while (hashTable[j] != UNUSED);
-	}
-      hashTable[j] = i;
+StringTable::resize() {
+    int h = 2 * hashTable.length();
+    hashTable.expandTo(h);
+    for (int i = 0; i < h; i++)
+        hashTable[i] = UNUSED;
+    int mask = h - 1;
+    int nrStrings = stringTable.length();
+    for (int i = 0; i < nrStrings; i++) {
+        char *s = stringTable[i];
+        int j = hash(s) & mask;
+        if (hashTable[j] != UNUSED) {
+            int step = hash2(s);
+            do
+                j = (j + step) & mask;
+            while (hashTable[j] != UNUSED);
+        }
+        hashTable[j] = i;
     }
 }

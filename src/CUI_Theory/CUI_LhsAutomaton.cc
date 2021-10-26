@@ -64,89 +64,79 @@
 
 #include "CUI_Matcher.cc"
 
-CUI_LhsAutomaton::CUI_LhsAutomaton(CUI_Symbol* topSymbol,
-				   bool matchAtTop,
-				   Flags flags,
-				   int nrVariables)
-  :  topSymbol(topSymbol),
-     matchAtTop(matchAtTop),
-     flags(flags),
-     local(nrVariables)
-{
-  subpattern0.type = UNDEFINED;
-  subpattern0.automaton = 0;
-  subpattern0.topAutomaton = 0;
-  subpattern1.automaton = 0;
-  subpattern1.topAutomaton = 0;
+CUI_LhsAutomaton::CUI_LhsAutomaton(CUI_Symbol *topSymbol,
+                                   bool matchAtTop,
+                                   Flags flags,
+                                   int nrVariables)
+        : topSymbol(topSymbol),
+          matchAtTop(matchAtTop),
+          flags(flags),
+          local(nrVariables) {
+    subpattern0.type = UNDEFINED;
+    subpattern0.automaton = 0;
+    subpattern0.topAutomaton = 0;
+    subpattern1.automaton = 0;
+    subpattern1.topAutomaton = 0;
 }
 
-CUI_LhsAutomaton::~CUI_LhsAutomaton()
-{
-  delete subpattern0.automaton;
-  delete subpattern0.topAutomaton;
-  delete subpattern1.automaton;
-  delete subpattern1.topAutomaton;
+CUI_LhsAutomaton::~CUI_LhsAutomaton() {
+    delete subpattern0.automaton;
+    delete subpattern0.topAutomaton;
+    delete subpattern1.automaton;
+    delete subpattern1.topAutomaton;
 }
 
 bool
-CUI_LhsAutomaton::addSubpattern(Term* term,
-				const VariableInfo& variableInfo,
-				NatSet& boundUniquely)
-{
-  bool first = (subpattern0.type == UNDEFINED);
-  Subpattern& sp = first ? subpattern0 : subpattern1;
-  if (matchAtTop && (flags & (first ?
-			      (ID1_COLLAPSE | IDEM_COLLAPSE) : 
-			      (ID0_COLLAPSE | IDEM_COLLAPSE))))
-    {
-      //
-      //	Need to compile a top automaton for this subpattern.
-      //
-      VariableInfo localVariableInfo(variableInfo);
-      //
-      //	Ulgy hack to prevent greedy matching because extension
-      //	is shared in idem match.
-      //
-      if (first && (flags & IDEM_COLLAPSE))
-	localVariableInfo.addConditionVariables(term->occursBelow());
-      NatSet local(boundUniquely);
-      bool spl;
-      sp.topAutomaton = term->compileLhs(true, localVariableInfo, local, spl);
+CUI_LhsAutomaton::addSubpattern(Term *term,
+                                const VariableInfo &variableInfo,
+                                NatSet &boundUniquely) {
+    bool first = (subpattern0.type == UNDEFINED);
+    Subpattern &sp = first ? subpattern0 : subpattern1;
+    if (matchAtTop && (flags & (first ?
+                                (ID1_COLLAPSE | IDEM_COLLAPSE) :
+                                (ID0_COLLAPSE | IDEM_COLLAPSE)))) {
+        //
+        //	Need to compile a top automaton for this subpattern.
+        //
+        VariableInfo localVariableInfo(variableInfo);
+        //
+        //	Ulgy hack to prevent greedy matching because extension
+        //	is shared in idem match.
+        //
+        if (first && (flags & IDEM_COLLAPSE))
+            localVariableInfo.addConditionVariables(term->occursBelow());
+        NatSet local(boundUniquely);
+        bool spl;
+        sp.topAutomaton = term->compileLhs(true, localVariableInfo, local, spl);
     }
-  if (term->ground())
-    {
-      sp.type = GROUND_ALIEN;
-      sp.term = term;
-      return false;
+    if (term->ground()) {
+        sp.type = GROUND_ALIEN;
+        sp.term = term;
+        return false;
     }
-  VariableTerm* v = dynamic_cast<VariableTerm*>(term);
-  if (v != 0)
-    {
-      sp.type = VARIABLE;
-      sp.varIndex = v->getIndex();
-      sp.sort = v->getSort();
-      if (flags & UNIQUE_BRANCH)
-	{
-	  boundUniquely.insert(v->getIndex());
-	  return false;
-	}
-      if (first || !matchAtTop || !(flags & IDEM_COLLAPSE))
-	return false;
+    VariableTerm *v = dynamic_cast<VariableTerm *>(term);
+    if (v != 0) {
+        sp.type = VARIABLE;
+        sp.varIndex = v->getIndex();
+        sp.sort = v->getSort();
+        if (flags & UNIQUE_BRANCH) {
+            boundUniquely.insert(v->getIndex());
+            return false;
+        }
+        if (first || !matchAtTop || !(flags & IDEM_COLLAPSE))
+            return false;
+    } else {
+        sp.type = NON_GROUND_ALIEN;
+        if (flags & UNIQUE_BRANCH) {
+            bool spl;
+            sp.automaton = term->compileLhs(false, variableInfo, boundUniquely, spl);
+            return spl;
+        }
     }
-  else
-    {
-      sp.type = NON_GROUND_ALIEN;
-      if (flags & UNIQUE_BRANCH)
-	{
-	  bool spl;
-	  sp.automaton = term->compileLhs(false, variableInfo, boundUniquely, spl);
-	  return spl;
-	}
-    }
-  NatSet local(boundUniquely);
-  bool spl;
-  sp.automaton = term->compileLhs(false, variableInfo, local, spl);
-  return spl;
+    NatSet local(boundUniquely);
+    bool spl;
+    sp.automaton = term->compileLhs(false, variableInfo, local, spl);
+    return spl;
 }
 
 #ifdef DUMP
@@ -167,8 +157,8 @@ CUI_LhsAutomaton::dump(ostream& s, const VariableInfo& variableInfo, int indentL
 
 void
 CUI_LhsAutomaton::Subpattern::dump(ostream& s,
-				   const VariableInfo& variableInfo,
-				   int indentLevel)
+                   const VariableInfo& variableInfo,
+                   int indentLevel)
 {
   s << Indent(indentLevel) << "type = " << type << '\n';
   switch (type)
@@ -180,9 +170,9 @@ CUI_LhsAutomaton::Subpattern::dump(ostream& s,
       break;
     case VARIABLE:
       s << Indent(indentLevel) << "varIndex = " << varIndex << " \"" <<
-	variableInfo.index2Variable(varIndex) << "\"\tsort = \"" << sort << "\"\n";
+    variableInfo.index2Variable(varIndex) << "\"\tsort = \"" << sort << "\"\n";
       if (automaton == 0)
-	break;
+    break;
       // fall thru
     case NON_GROUND_ALIEN:
       s << Indent(indentLevel) << "automaton =\n";
@@ -200,25 +190,25 @@ ostream&
 operator<<(ostream& s, CUI_LhsAutomaton::Flags flags)
 {
   static const char* const names[] = {"GREEDY_MATCH_OK",
-				      "UNIQUE_BRANCH",
-				      "FORWARD",
-				      "REVERSE",
-				      "CONDITIONAL_REVERSE",
-				      "ID0_COLLAPSE",
-				      "ID1_COLLAPSE",
-				      "IDEM_COLLAPSE"};
+                      "UNIQUE_BRANCH",
+                      "FORWARD",
+                      "REVERSE",
+                      "CONDITIONAL_REVERSE",
+                      "ID0_COLLAPSE",
+                      "ID1_COLLAPSE",
+                      "IDEM_COLLAPSE"};
   s << '{';
   int m = 1;
   bool already = false;
   for (int i = 0; i < 8; i++)
     {
       if (flags & m)
-	{
-	  if (already)
-	    s << ", ";
-	  s << names[i];
-	  already = true;
-	}
+    {
+      if (already)
+        s << ", ";
+      s << names[i];
+      already = true;
+    }
       m <<= 1;
     }
   s << '}';
@@ -229,9 +219,9 @@ ostream&
 operator<<(ostream& s, CUI_LhsAutomaton::PatternType type)
 {
   static const char* const names[] = {"UNDEFINED",
-				      "GROUND_ALIEN",
-				      "VARIABLE",
-				      "NON_GROUND_ALIEN"};
+                      "GROUND_ALIEN",
+                      "VARIABLE",
+                      "NON_GROUND_ALIEN"};
   s << names[type];
   return s;
 }

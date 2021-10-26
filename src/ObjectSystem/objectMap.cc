@@ -24,70 +24,61 @@
 //	Map from object identifier to (object, message queue) pairs.
 //
 
-struct ConfigSymbol::MessageQueue
-{
-  MessageQueue();
+struct ConfigSymbol::MessageQueue {
+    MessageQueue();
 
-  void markReachableNodes() const;
+    void markReachableNodes() const;
 
-  DagNode* object;
-  list<DagNode*> messages;
+    DagNode *object;
+    list<DagNode *> messages;
 };
 
-ConfigSymbol::MessageQueue::MessageQueue()
-{
-  object = 0;
+ConfigSymbol::MessageQueue::MessageQueue() {
+    object = 0;
 }
 
 void
-ConfigSymbol::MessageQueue::markReachableNodes() const
-{
-  if (object != 0)
-    object->mark();
-  for (DagNode* d : messages)
-    d->mark();
+ConfigSymbol::MessageQueue::markReachableNodes() const {
+    if (object != 0)
+        object->mark();
+    for (DagNode *d : messages)
+        d->mark();
 }
 
-struct ConfigSymbol::dagNodeLt
-{
-  bool operator()(const DagNode* d1, const DagNode* d2) const
-    {
-      return d1->compare(d2) < 0;
+struct ConfigSymbol::dagNodeLt {
+    bool operator()(const DagNode *d1, const DagNode *d2) const {
+        return d1->compare(d2) < 0;
     }
 };
 
 class ConfigSymbol::ObjectMap
- : public map<DagNode*, MessageQueue, dagNodeLt>,
-   private SimpleRootContainer
-{
+        : public map<DagNode *, MessageQueue, dagNodeLt>,
+          private SimpleRootContainer {
 public:
-  void dump(ostream& s, int indentLevel = 0);
+    void dump(ostream &s, int indentLevel = 0);
 
 private:
-  void markReachableNodes();
+    void markReachableNodes();
 };
 
 void
-ConfigSymbol::ObjectMap::markReachableNodes()
-{
-  for (auto& i : *this)
-    i.second.markReachableNodes();
+ConfigSymbol::ObjectMap::markReachableNodes() {
+    for (auto &i : *this)
+        i.second.markReachableNodes();
 }
 
 void
-ConfigSymbol::ObjectMap::dump(ostream& s, int indentLevel)
-{
-  s << Indent(indentLevel) << "begin{ObjectMap}\n";
-  for (auto& i : *this)
-    {
-      s << Indent(indentLevel + 1) << i.first << '\n';
-      if (i.second.object == 0)
-	s << Indent(indentLevel + 2) << "*** NO OBJECT ***\n";
-      else
-	s << Indent(indentLevel + 2) << i.second.object << '\n';
-      for (DagNode* d : i.second.messages)
-	s << Indent(indentLevel + 2) << d << '\n';
-      s << '\n';
+ConfigSymbol::ObjectMap::dump(ostream &s, int indentLevel) {
+    s << Indent(indentLevel) << "begin{ObjectMap}\n";
+    for (auto &i : *this) {
+        s << Indent(indentLevel + 1) << i.first << '\n';
+        if (i.second.object == 0)
+            s << Indent(indentLevel + 2) << "*** NO OBJECT ***\n";
+        else
+            s << Indent(indentLevel + 2) << i.second.object << '\n';
+        for (DagNode *d : i.second.messages)
+            s << Indent(indentLevel + 2) << d << '\n';
+        s << '\n';
     }
-  s << Indent(indentLevel) << "end{ObjectMap}\n";
+    s << Indent(indentLevel) << "end{ObjectMap}\n";
 }

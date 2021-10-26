@@ -25,229 +25,203 @@
 //
 
 void
-Interpreter::loop(const Vector<Token>& subject)
-{
-  if (DagNode* d = makeDag(subject))
-    {
-      savedLoopSubject = subject;  // deep copy
-      VisibleModule* fm = currentModule->getFlatModule();
-      startUsingModule(fm);
-      CacheableRewritingContext* context = new CacheableRewritingContext(d);
-      if (getFlag(EREWRITE_LOOP_MODE))
-	context->setObjectMode(ObjectSystemRewritingContext::EXTERNAL);
-      doLoop(context, fm);
+Interpreter::loop(const Vector<Token> &subject) {
+    if (DagNode *d = makeDag(subject)) {
+        savedLoopSubject = subject;  // deep copy
+        VisibleModule *fm = currentModule->getFlatModule();
+        startUsingModule(fm);
+        CacheableRewritingContext *context = new CacheableRewritingContext(d);
+        if (getFlag(EREWRITE_LOOP_MODE))
+            context->setObjectMode(ObjectSystemRewritingContext::EXTERNAL);
+        doLoop(context, fm);
     }
 }
 
 bool
-Interpreter::contLoop2(const Vector<Token>& input)
-{
-  CacheableRewritingContext* savedContext = safeCast(CacheableRewritingContext*, savedState);
-  if (savedContext != 0)
-    {
-      DagNode* d = savedContext->root();
-      if (LoopSymbol* l = dynamic_cast<LoopSymbol*>(d->symbol()))
-	{
-	  VisibleModule* fm = savedModule;
-	  savedState = 0;
-	  savedModule = 0;
-	  continueFunc = 0;
-	  l->injectInput(d, input);
-	  doLoop(savedContext, fm);
-	  return true;
-	}
-      else
-	IssueWarning("bad loop state.");
-      delete savedState;  // loses any external objects
-      savedState = 0;
-    }
-  else
-    IssueWarning("no loop state.");
-  return false;
+Interpreter::contLoop2(const Vector<Token> &input) {
+    CacheableRewritingContext *savedContext = safeCast(CacheableRewritingContext*, savedState);
+    if (savedContext != 0) {
+        DagNode *d = savedContext->root();
+        if (LoopSymbol *l = dynamic_cast<LoopSymbol *>(d->symbol())) {
+            VisibleModule *fm = savedModule;
+            savedState = 0;
+            savedModule = 0;
+            continueFunc = 0;
+            l->injectInput(d, input);
+            doLoop(savedContext, fm);
+            return true;
+        } else
+            IssueWarning("bad loop state.");
+        delete savedState;  // loses any external objects
+        savedState = 0;
+    } else
+        IssueWarning("no loop state.");
+    return false;
 }
 
 void
-Interpreter::contLoop(const Vector<Token>& input)
-{
-  if (!contLoop2(input) && savedLoopSubject.length() != 0)
-    {
-      Vector<Token> savedInput(input);  // in case input gets overwritten, say in debugger
-      IssueAdvisory("attempting to reinitialize loop.");
-      if (DagNode* d = makeDag(savedLoopSubject))
-	{
-	  VisibleModule* fm = currentModule->getFlatModule();
-	  startUsingModule(fm);
-	  CacheableRewritingContext* context = new CacheableRewritingContext(d);
-	  if (getFlag(EREWRITE_LOOP_MODE))
-	    context->setObjectMode(ObjectSystemRewritingContext::EXTERNAL);
-	  doLoop(context, fm);
-	  if (contLoop2(savedInput))
-	    return;
-	}
-      IssueAdvisory("unable to reinitialize loop.");
+Interpreter::contLoop(const Vector<Token> &input) {
+    if (!contLoop2(input) && savedLoopSubject.length() != 0) {
+        Vector<Token> savedInput(input);  // in case input gets overwritten, say in debugger
+        IssueAdvisory("attempting to reinitialize loop.");
+        if (DagNode *d = makeDag(savedLoopSubject)) {
+            VisibleModule *fm = currentModule->getFlatModule();
+            startUsingModule(fm);
+            CacheableRewritingContext *context = new CacheableRewritingContext(d);
+            if (getFlag(EREWRITE_LOOP_MODE))
+                context->setObjectMode(ObjectSystemRewritingContext::EXTERNAL);
+            doLoop(context, fm);
+            if (contLoop2(savedInput))
+                return;
+        }
+        IssueAdvisory("unable to reinitialize loop.");
     }
 }
 
 void
-Interpreter::doLoop(CacheableRewritingContext* context, VisibleModule* module)
-{
-  if (getFlag(AUTO_CLEAR_RULES))
-    module->resetRules();
+Interpreter::doLoop(CacheableRewritingContext *context, VisibleModule *module) {
+    if (getFlag(AUTO_CLEAR_RULES))
+        module->resetRules();
 #ifdef QUANTIFY_REWRITING
-  quantify_start_recording_data();
+    quantify_start_recording_data();
 #endif
-  Timer timer(getFlag(SHOW_LOOP_TIMING));
-  //
-  //	Use chosen rewriting algorithm
-  //
-  if (getFlag(EREWRITE_LOOP_MODE))
-    {
-      context->fairStart(NONE, 1);
-      context->externalRewrite();
-    }
-  else
-    context->ruleRewrite(NONE);
-  
-  timer.stop();
-#ifdef QUANTIFY_REWRITING
-  quantify_stop_recording_data();
-#endif
-  clearContinueInfo();
-  if (UserLevelRewritingContext::aborted())
-    {
-      delete context;
-      (void) module->unprotect();
-    }
-  else
-    {
-      if (getFlag(SHOW_LOOP_STATS))
-	printStats(timer, *context, getFlag(SHOW_LOOP_TIMING));
-      DagNode* r = context->root();
-      if (LoopSymbol* l = dynamic_cast<LoopSymbol*>(r->symbol()))
-	{
-	  Vector<int> bubble;
-	  l->extractOutput(r, bubble);
-	  printBubble(cout, bubble);
-	}
-      else
-	cout << "non-loop result " << r->getSort() << ": " << r << '\n';
-      cout.flush();
+    Timer timer(getFlag(SHOW_LOOP_TIMING));
+    //
+    //	Use chosen rewriting algorithm
+    //
+    if (getFlag(EREWRITE_LOOP_MODE)) {
+        context->fairStart(NONE, 1);
+        context->externalRewrite();
+    } else
+        context->ruleRewrite(NONE);
 
-      savedState = context;
-      savedModule = module;
-      continueFunc = getFlag(EREWRITE_LOOP_MODE) ?
-	&Interpreter::eRewriteCont :
-	&Interpreter::rewriteCont;
+    timer.stop();
+#ifdef QUANTIFY_REWRITING
+    quantify_stop_recording_data();
+#endif
+    clearContinueInfo();
+    if (UserLevelRewritingContext::aborted()) {
+        delete context;
+        (void) module->unprotect();
+    } else {
+        if (getFlag(SHOW_LOOP_STATS))
+            printStats(timer, *context, getFlag(SHOW_LOOP_TIMING));
+        DagNode *r = context->root();
+        if (LoopSymbol *l = dynamic_cast<LoopSymbol *>(r->symbol())) {
+            Vector<int> bubble;
+            l->extractOutput(r, bubble);
+            printBubble(cout, bubble);
+        } else
+            cout << "non-loop result " << r->getSort() << ": " << r << '\n';
+        cout.flush();
+
+        savedState = context;
+        savedModule = module;
+        continueFunc = getFlag(EREWRITE_LOOP_MODE) ?
+                       &Interpreter::eRewriteCont :
+                       &Interpreter::rewriteCont;
     }
-  UserLevelRewritingContext::clearDebug();  // even if we didn't start in debug mode
+    UserLevelRewritingContext::clearDebug();  // even if we didn't start in debug mode
 }
 
 void
-Interpreter::printBubble(ostream& s, const Vector<int>& bubble)
-{
-  bool ansiActive = false;
-  bool needSpace = false;
-  int nrTokens = bubble.length();
-  for (int i = 0; i < nrTokens; i++)
-    {
-      const char* n = Token::name(bubble[i]);
-      //
-      //	Single character case.
-      //
-      if (n[0] != 0 && n[1] == 0)
-	{
-	  switch (n[0])
-	    {
-	    case '(':	case ')':	case '[':	case ']':
-	    case '{':	case '}':	case ',':
-	      needSpace = false;
-	      break;
-	    default:
-	      if (needSpace)
-		s << ' ';
-	      needSpace = true;
-	    }
-	  s << n[0];
-	  continue;
-	}
-      //
-      //	First character backslash case.
-      //
-      if (n[0] == '\\')
-	{
-	  if (n[2] == 0)
-	    {
-	      switch (n[1])
-		{
-		case 'n':
-		  {
-		    s << '\n';
-		    needSpace = false;
-		    continue;
-		  }
-		case 't':
-		  {
-		    s << '\t';
-		    needSpace = false;
-		    continue;
-		  }
-		case 's':
-		  {
-		    s << ' ';
-		    needSpace = false;
-		    continue;
-		  }
-		case '\\':
-		  {
-		    if (needSpace)
-		      s << ' ';
-		    s << '\\';
-		    needSpace = true;
-		    continue;
-		  }
-		  //
-		  //	ANSI stuff.
-		  //
+Interpreter::printBubble(ostream &s, const Vector<int> &bubble) {
+    bool ansiActive = false;
+    bool needSpace = false;
+    int nrTokens = bubble.length();
+    for (int i = 0; i < nrTokens; i++) {
+        const char *n = Token::name(bubble[i]);
+        //
+        //	Single character case.
+        //
+        if (n[0] != 0 && n[1] == 0) {
+            switch (n[0]) {
+                case '(':
+                case ')':
+                case '[':
+                case ']':
+                case '{':
+                case '}':
+                case ',':
+                    needSpace = false;
+                    break;
+                default:
+                    if (needSpace)
+                        s << ' ';
+                    needSpace = true;
+            }
+            s << n[0];
+            continue;
+        }
+        //
+        //	First character backslash case.
+        //
+        if (n[0] == '\\') {
+            if (n[2] == 0) {
+                switch (n[1]) {
+                    case 'n': {
+                        s << '\n';
+                        needSpace = false;
+                        continue;
+                    }
+                    case 't': {
+                        s << '\t';
+                        needSpace = false;
+                        continue;
+                    }
+                    case 's': {
+                        s << ' ';
+                        needSpace = false;
+                        continue;
+                    }
+                    case '\\': {
+                        if (needSpace)
+                            s << ' ';
+                        s << '\\';
+                        needSpace = true;
+                        continue;
+                    }
+                        //
+                        //	ANSI stuff.
+                        //
 #define MACRO(m, t) \
 case m: { s << Tty(Tty::t); ansiActive = true; continue; }
+
 #include "ansiEscapeSequences.cc"
+
 #undef MACRO
-		case 'o':
-		  {
-		    s << Tty(Tty::RESET);
-		    ansiActive = false;
-		    continue;
-		  }
-		}
-	    }
-	  else if (n[1] == '`' &&  n[3] == 0)
-	    {
-	      switch (n[2])
-		{
-		case '(':
-		case ')':
-		case '[':
-		case ']':
-		case '{':
-		case '}':
-		case ',':
-		  if (needSpace)
-		    s << ' ';
-		  s << n[2];
-		  needSpace = true;
-		  continue;
-		}
-	    }
-	}
-      //
-      //	Normal case.
-      //
-      if (needSpace)
-	s << ' ';
-      s << n;
-      needSpace = true;
+                    case 'o': {
+                        s << Tty(Tty::RESET);
+                        ansiActive = false;
+                        continue;
+                    }
+                }
+            } else if (n[1] == '`' && n[3] == 0) {
+                switch (n[2]) {
+                    case '(':
+                    case ')':
+                    case '[':
+                    case ']':
+                    case '{':
+                    case '}':
+                    case ',':
+                        if (needSpace)
+                            s << ' ';
+                        s << n[2];
+                        needSpace = true;
+                        continue;
+                }
+            }
+        }
+        //
+        //	Normal case.
+        //
+        if (needSpace)
+            s << ' ';
+        s << n;
+        needSpace = true;
     }
-  if (ansiActive)
-    s << Tty(Tty::RESET);
-  s << '\n';
+    if (ansiActive)
+        s << Tty(Tty::RESET);
+    s << '\n';
 }

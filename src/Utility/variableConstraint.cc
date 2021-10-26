@@ -27,58 +27,53 @@
 #include "variableConstraint.hh"
 
 bool
-VariableConstraint::intersect(VariableConstraint other)
-{
-  //
-  //	We check if our constraint is compatible with some other
-  //	constraint. If not we return false.
-  //	If so we return true and our constraint is updated to the intersection;
-  //	i.e. the weakest constraint that satisfies both parent constraints.
-  //
-  if (hasTheoryConstraint())
-    {
-      if (other.hasTheoryConstraint())
-        {
-	  if (getTheoryConstraint() == other.getTheoryConstraint())
-	    {
-	      //
-	      //	Really we are just conjuncting TAKE_EMPTY_FLAG
-	      //	flags because the other bits are equal.
-	      //
-	      constraint &= other.constraint;
-	      return true;
-	    }
-	  //
-	  //	Different theories mean unsatisfiable constraint.
-	  //
-	  return false;
+VariableConstraint::intersect(VariableConstraint other) {
+    //
+    //	We check if our constraint is compatible with some other
+    //	constraint. If not we return false.
+    //	If so we return true and our constraint is updated to the intersection;
+    //	i.e. the weakest constraint that satisfies both parent constraints.
+    //
+    if (hasTheoryConstraint()) {
+        if (other.hasTheoryConstraint()) {
+            if (getTheoryConstraint() == other.getTheoryConstraint()) {
+                //
+                //	Really we are just conjuncting TAKE_EMPTY_FLAG
+                //	flags because the other bits are equal.
+                //
+                constraint &= other.constraint;
+                return true;
+            }
+            //
+            //	Different theories mean unsatisfiable constraint.
+            //
+            return false;
         }
-      //
-      //	Theory constraint is always tighter that upperBound
-      //	constraint so just conjunct in TAKE_EMPTY_FLAG.
-      //
-      constraint &= (other.constraint | ~TAKE_EMPTY_FLAG);
-      return true;
-   }
-  if (other.hasTheoryConstraint())
-    {
-      //
-      //	Theory constraint is always tighter that upperBound
-      //	constraint so just conjunct in TAKE_EMPTY_FLAG.
-      //
-      constraint = other.constraint & (constraint | ~TAKE_EMPTY_FLAG);
-      return true;
+        //
+        //	Theory constraint is always tighter that upperBound
+        //	constraint so just conjunct in TAKE_EMPTY_FLAG.
+        //
+        constraint &= (other.constraint | ~TAKE_EMPTY_FLAG);
+        return true;
     }
-  //
-  //	Take the tighter upperBound and the conjunction of the TAKE_EMPTY_FLAGs.
-  //
-  int upperBound = constraint >> INDEX_SHIFT;
-  int otherUpperBound = other.constraint >> INDEX_SHIFT;
-  if (otherUpperBound != 0 && (upperBound == 0 || otherUpperBound < upperBound))
-    upperBound = otherUpperBound;
-  constraint = (upperBound << INDEX_SHIFT) |
-    (TAKE_EMPTY_FLAG & constraint & other.constraint);
-  return true;
+    if (other.hasTheoryConstraint()) {
+        //
+        //	Theory constraint is always tighter that upperBound
+        //	constraint so just conjunct in TAKE_EMPTY_FLAG.
+        //
+        constraint = other.constraint & (constraint | ~TAKE_EMPTY_FLAG);
+        return true;
+    }
+    //
+    //	Take the tighter upperBound and the conjunction of the TAKE_EMPTY_FLAGs.
+    //
+    int upperBound = constraint >> INDEX_SHIFT;
+    int otherUpperBound = other.constraint >> INDEX_SHIFT;
+    if (otherUpperBound != 0 && (upperBound == 0 || otherUpperBound < upperBound))
+        upperBound = otherUpperBound;
+    constraint = (upperBound << INDEX_SHIFT) |
+                 (TAKE_EMPTY_FLAG & constraint & other.constraint);
+    return true;
 }
 
 /*
@@ -118,13 +113,12 @@ VariableConstraint::absorb(VariableConstraint& other)
 }
 */
 
-ostream&
-operator<<(ostream& s, VariableConstraint c)
-{
-  if (c.hasTheoryConstraint())
-    s << "theory=" << c.getTheoryConstraint();
-  else
-    s << "bound=" << c.getUpperBound();
-  s << " takeEmpty=" << c.canTakeEmpty();
-  return s;
+ostream &
+operator<<(ostream &s, VariableConstraint c) {
+    if (c.hasTheoryConstraint())
+        s << "theory=" << c.getTheoryConstraint();
+    else
+        s << "bound=" << c.getUpperBound();
+    s << " takeEmpty=" << c.canTakeEmpty();
+    return s;
 }

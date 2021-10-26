@@ -46,31 +46,28 @@
 #include "freeDagNode.hh"
 #include "freeNullaryRhsAutomaton.hh"
 
-DagNode*
-FreeNullaryRhsAutomaton::construct(Substitution& matcher)
-{
-  DagNode* d = new FREE_DAG_NODE(symbol);
-  matcher.bind(destination, d);
-  return d;
+DagNode *
+FreeNullaryRhsAutomaton::construct(Substitution &matcher) {
+    DagNode *d = new FREE_DAG_NODE(symbol);
+    matcher.bind(destination, d);
+    return d;
 }
 
 void
-FreeNullaryRhsAutomaton::replace(DagNode* old, Substitution& matcher)
-{
-  (void) new(old) FREE_DAG_NODE(symbol);
+FreeNullaryRhsAutomaton::replace(DagNode *old, Substitution &matcher) {
+    (void) new(old) FREE_DAG_NODE(symbol);
 }
 
 void
-FreeNullaryRhsAutomaton::remapIndices(VariableInfo& variableInfo)
-{
-  //
-  //	Standard processing.
-  //
-  FreeRhsAutomaton::remapIndices(variableInfo);
-  //
-  //	Make fast copy.
-  //
-  const Instruction& instr = instructions[0];
-  symbol = instr.symbol;
-  destination = instr.destination;
+FreeNullaryRhsAutomaton::remapIndices(VariableInfo &variableInfo) {
+    //
+    //	Standard processing.
+    //
+    FreeRhsAutomaton::remapIndices(variableInfo);
+    //
+    //	Make fast copy.
+    //
+    const Instruction &instr = instructions[0];
+    symbol = instr.symbol;
+    destination = instr.destination;
 }

@@ -45,34 +45,31 @@
 #include "freeDagNode.hh"
 #include "freeUnaryRhsAutomaton.hh"
 
-DagNode*
-FreeUnaryRhsAutomaton::construct(Substitution& matcher)
-{
-  FreeDagNode* d = new FREE_DAG_NODE(symbol);
-  d->internal[0] = matcher.value(source);
-  matcher.bind(destination, d);
-  return d;
+DagNode *
+FreeUnaryRhsAutomaton::construct(Substitution &matcher) {
+    FreeDagNode *d = new FREE_DAG_NODE(symbol);
+    d->internal[0] = matcher.value(source);
+    matcher.bind(destination, d);
+    return d;
 }
 
 void
-FreeUnaryRhsAutomaton::replace(DagNode* old, Substitution& matcher)
-{
-  FreeDagNode* d = new(old) FREE_DAG_NODE(symbol);
-  d->internal[0] = matcher.value(source);
+FreeUnaryRhsAutomaton::replace(DagNode *old, Substitution &matcher) {
+    FreeDagNode *d = new(old) FREE_DAG_NODE(symbol);
+    d->internal[0] = matcher.value(source);
 }
 
 void
-FreeUnaryRhsAutomaton::remapIndices(VariableInfo& variableInfo)
-{
-  //
-  //	Standard processing.
-  //
-  FreeRhsAutomaton::remapIndices(variableInfo);
-  //
-  //	Make fast copy.
-  //
-  const Instruction& instr = instructions[0];
-  symbol = instr.symbol;
-  source = instr.sources[0];
-  destination = instr.destination;
+FreeUnaryRhsAutomaton::remapIndices(VariableInfo &variableInfo) {
+    //
+    //	Standard processing.
+    //
+    FreeRhsAutomaton::remapIndices(variableInfo);
+    //
+    //	Make fast copy.
+    //
+    const Instruction &instr = instructions[0];
+    symbol = instr.symbol;
+    source = instr.sources[0];
+    destination = instr.destination;
 }

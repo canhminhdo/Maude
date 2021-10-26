@@ -33,64 +33,56 @@
 #include "logicFormula.hh"
 
 int
-LogicFormula::makeProp(int propIndex)
-{
-  int nrNodes = nodes.length();
-  for (int i = 0; i < nrNodes; i++)
-    {
-      Node& n = nodes[i];
-      if (n.op == PROPOSITION && n.args[0] == propIndex)
-	return i;
+LogicFormula::makeProp(int propIndex) {
+    int nrNodes = nodes.length();
+    for (int i = 0; i < nrNodes; i++) {
+        Node &n = nodes[i];
+        if (n.op == PROPOSITION && n.args[0] == propIndex)
+            return i;
     }
-  nodes.expandBy(1);
-  Node& n = nodes[nrNodes];
-  n.op = PROPOSITION;
-  n.args[0] = propIndex;
-  n.propositional = true;
-  return nrNodes;
+    nodes.expandBy(1);
+    Node &n = nodes[nrNodes];
+    n.op = PROPOSITION;
+    n.args[0] = propIndex;
+    n.propositional = true;
+    return nrNodes;
 }
 
 int
-LogicFormula::makeOp(Op op, int firstArg, int secondArg)
-{
-  int nrNodes = nodes.length();
-  for (int i = 0; i < nrNodes; i++)
-    {
-      Node& n = nodes[i];
-      if (n.op == op && n.args[0] == firstArg && n.args[1] == secondArg)
-	return i;
+LogicFormula::makeOp(Op op, int firstArg, int secondArg) {
+    int nrNodes = nodes.length();
+    for (int i = 0; i < nrNodes; i++) {
+        Node &n = nodes[i];
+        if (n.op == op && n.args[0] == firstArg && n.args[1] == secondArg)
+            return i;
     }
-  nodes.expandBy(1);
-  Node& n = nodes[nrNodes];
-  n.op = op;
-  n.args[0] = firstArg;
-  n.args[1] = secondArg;
-  n.propositional = false;
-  switch (op)
-    {
-    case AND:
-    case OR:
-      {
-	if (!(nodes[secondArg].propositional))
-	  break;
-	// fall thru
-      }
-    case NOT:
-      {
-	if (!(nodes[firstArg].propositional))
-	  break;
-	// fall thru
-      }
-    case LTL_TRUE:
-    case LTL_FALSE:
-      {
-	n.propositional = true;
-	break;
-      }
-    default:
-      break;
+    nodes.expandBy(1);
+    Node &n = nodes[nrNodes];
+    n.op = op;
+    n.args[0] = firstArg;
+    n.args[1] = secondArg;
+    n.propositional = false;
+    switch (op) {
+        case AND:
+        case OR: {
+            if (!(nodes[secondArg].propositional))
+                break;
+            // fall thru
+        }
+        case NOT: {
+            if (!(nodes[firstArg].propositional))
+                break;
+            // fall thru
+        }
+        case LTL_TRUE:
+        case LTL_FALSE: {
+            n.propositional = true;
+            break;
+        }
+        default:
+            break;
     }
-  return nrNodes;
+    return nrNodes;
 }
 
 /*
@@ -219,43 +211,40 @@ LogicFormula::isNegation(int f1, int f2) const
 */
 
 void
-LogicFormula::dump(ostream& s)
-{
-  int nrNodes = nodes.length();
-  for (int i = 0; i < nrNodes; i++)
-    {
-      s << i << '\t';
-      Node& n = nodes[i];
-      switch (n.op)
-	{
-	case PROPOSITION:
-	  s << "prop" << n.args[0];
-	  break;
-	case LTL_TRUE:
-	  s << "True";
-	  break;
-	case LTL_FALSE:
-	  s << "False";
-	  break;
-	case NOT:
-	  s << "~ " << n.args[0];
-	  break;
-	case NEXT:
-	  s << "@ " << n.args[0];
-	  break;
-	case AND:
-	  s << n.args[0] << " /\\ " << n.args[1];
-	  break;
-	case OR:
-	  s << n.args[0] << " \\/ " << n.args[1];
-	  break;
-	case UNTIL:
-	  s << n.args[0] << " U " << n.args[1];
-	  break;
-	case RELEASE:
-	  s << n.args[0] << " R " << n.args[1];
-	  break;
-	}
-      s << '\n';
+LogicFormula::dump(ostream &s) {
+    int nrNodes = nodes.length();
+    for (int i = 0; i < nrNodes; i++) {
+        s << i << '\t';
+        Node &n = nodes[i];
+        switch (n.op) {
+            case PROPOSITION:
+                s << "prop" << n.args[0];
+                break;
+            case LTL_TRUE:
+                s << "True";
+                break;
+            case LTL_FALSE:
+                s << "False";
+                break;
+            case NOT:
+                s << "~ " << n.args[0];
+                break;
+            case NEXT:
+                s << "@ " << n.args[0];
+                break;
+            case AND:
+                s << n.args[0] << " /\\ " << n.args[1];
+                break;
+            case OR:
+                s << n.args[0] << " \\/ " << n.args[1];
+                break;
+            case UNTIL:
+                s << n.args[0] << " U " << n.args[1];
+                break;
+            case RELEASE:
+                s << n.args[0] << " R " << n.args[1];
+                break;
+        }
+        s << '\n';
     }
 }

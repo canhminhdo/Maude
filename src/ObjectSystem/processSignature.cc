@@ -28,21 +28,37 @@
 //	The format is:
 //		MACRO(symbols name, symbols C++ class, number of args)
 //
-  MACRO(socketManagerSymbol, SocketManagerSymbol, 0)
-  MACRO(succSymbol, SuccSymbol, 1)
-  MACRO(stringSymbol, StringSymbol, 0)
-  MACRO(nilStringListSymbol, Symbol, 0)
-  MACRO(stringListSymbol, AU_Symbol, 2)
-  MACRO(emptyProcessOptionSetSymbol, Symbol, 0)
-  MACRO(normalExitSymbol, Symbol, 1)
-  MACRO(terminatedBySignalSymbol, Symbol, 1)
+MACRO(socketManagerSymbol, SocketManagerSymbol,
+0)
+MACRO(succSymbol, SuccSymbol,
+1)
+MACRO(stringSymbol, StringSymbol,
+0)
+MACRO(nilStringListSymbol, Symbol,
+0)
+MACRO(stringListSymbol, AU_Symbol,
+2)
+MACRO(emptyProcessOptionSetSymbol, Symbol,
+0)
+MACRO(normalExitSymbol, Symbol,
+1)
+MACRO(terminatedBySignalSymbol, Symbol,
+1)
 
-  MACRO(processOidSymbol, FreeSymbol, 1)
+MACRO(processOidSymbol, FreeSymbol,
+1)
 
-  MACRO(createProcessMsg, FreeSymbol, 5)
-  MACRO(createdProcessMsg, Symbol, 5)
-  MACRO(signalProcessMsg, FreeSymbol, 3)
-  MACRO(signaledProcessMsg, Symbol, 3)
-  MACRO(waitForExitMsg, FreeSymbol, 2)
-  MACRO(exitedMsg, Symbol, 3)
-  MACRO(processErrorMsg, Symbol, 3)
+MACRO(createProcessMsg, FreeSymbol,
+5)
+MACRO(createdProcessMsg, Symbol,
+5)
+MACRO(signalProcessMsg, FreeSymbol,
+3)
+MACRO(signaledProcessMsg, Symbol,
+3)
+MACRO(waitForExitMsg, FreeSymbol,
+2)
+MACRO(exitedMsg, Symbol,
+3)
+MACRO(processErrorMsg, Symbol,
+3)

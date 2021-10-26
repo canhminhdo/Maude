@@ -40,18 +40,16 @@
 #include "NA_DagNode.hh"
 #include "NA_LhsAutomaton.hh"
 
-NA_LhsAutomaton::NA_LhsAutomaton(NA_Term* term) : term(term)
-{
+NA_LhsAutomaton::NA_LhsAutomaton(NA_Term *term) : term(term) {
 }
 
 bool
-NA_LhsAutomaton::match(DagNode* subject,
-		       Substitution& /* solution */,
-		       Subproblem*& returnedSubproblem,
-		       ExtensionInfo* /* extensionInfo */)
-{
-  returnedSubproblem = 0;
-  return term->equal(subject);
+NA_LhsAutomaton::match(DagNode *subject,
+                       Substitution & /* solution */,
+                       Subproblem *&returnedSubproblem,
+                       ExtensionInfo * /* extensionInfo */) {
+    returnedSubproblem = 0;
+    return term->equal(subject);
 }
 
 #ifdef DUMP

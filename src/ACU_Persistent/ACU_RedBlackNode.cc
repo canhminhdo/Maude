@@ -53,57 +53,50 @@
 #include "ACU_Copy.cc"
 #include "ACU_Find.cc"
 
-ACU_RedBlackNode*
-ACU_RedBlackNode::blackNode(ACU_RedBlackNode* key,
-			    ACU_RedBlackNode* left,
-			    ACU_RedBlackNode* right)
-{
-  return new ACU_RedBlackNode(key->getDagNode(),
-			      key->getMultiplicity(),
-			      left,
-			      right);
+ACU_RedBlackNode *
+ACU_RedBlackNode::blackNode(ACU_RedBlackNode *key,
+                            ACU_RedBlackNode *left,
+                            ACU_RedBlackNode *right) {
+    return new ACU_RedBlackNode(key->getDagNode(),
+                                key->getMultiplicity(),
+                                left,
+                                right);
 }
 
 //
 //	Experimental hash consing code
 //
-ACU_RedBlackNode*
-ACU_RedBlackNode::canonicalRebuild(HashConsSet* hcs)
-{
-  //
-  //	Horribly inefficient - recode it after we determine it is worthwhile.
-  //
-  bool needRebuild = false;
-  ACU_RedBlackNode* left = getLeft();
-  if (left)
-    {
-      ACU_RedBlackNode* canonicalLeft = left->canonicalRebuild(hcs);
-      if (left != canonicalLeft)
-	{
-	  left = canonicalLeft;
-	  needRebuild = true;
-	}
+ACU_RedBlackNode *
+ACU_RedBlackNode::canonicalRebuild(HashConsSet *hcs) {
+    //
+    //	Horribly inefficient - recode it after we determine it is worthwhile.
+    //
+    bool needRebuild = false;
+    ACU_RedBlackNode *left = getLeft();
+    if (left) {
+        ACU_RedBlackNode *canonicalLeft = left->canonicalRebuild(hcs);
+        if (left != canonicalLeft) {
+            left = canonicalLeft;
+            needRebuild = true;
+        }
     }
-  ACU_RedBlackNode* right = getRight();
-  if (right)
-    {
-      ACU_RedBlackNode* canonicalRight = right->canonicalRebuild(hcs);
-      if (right != canonicalRight)
-	{
-	  right = canonicalRight;
-	  needRebuild = true;
-	}
+    ACU_RedBlackNode *right = getRight();
+    if (right) {
+        ACU_RedBlackNode *canonicalRight = right->canonicalRebuild(hcs);
+        if (right != canonicalRight) {
+            right = canonicalRight;
+            needRebuild = true;
+        }
     }
-  DagNode* d = getDagNode();
-  DagNode* c = hcs->getCanonical(hcs->insert(d));
-  if (needRebuild || c != d)
-    {
-      ACU_RedBlackNode* n = new ACU_RedBlackNode(c, getMultiplicity(), left, right, getMaxMult());
-      n->makeRedIfRed(this);
-      n->setSortIndex(getSortIndex());
-      return n;
+    DagNode *d = getDagNode();
+    DagNode *c = hcs->getCanonical(hcs->insert(d));
+    if (needRebuild || c != d) {
+        ACU_RedBlackNode *n = new ACU_RedBlackNode(c, getMultiplicity(), left, right, getMaxMult());
+        n->makeRedIfRed(this);
+        n->setSortIndex(getSortIndex());
+        return n;
     }
-  return this;
+    return this;
 }
 
 #ifdef CHECK_TREE
@@ -130,27 +123,27 @@ ACU_RedBlackNode::checkRedBlackProperty(int& height)
     {
       ok = l->checkRedBlackProperty(height);
       if (getDagNode()->compare(l->getDagNode()) <= 0)
-	{
-	  cerr << "order violation " << getDagNode() <<
-	    " <= " << l->getDagNode() << endl;
-	  ok = false;
-	}
+    {
+      cerr << "order violation " << getDagNode() <<
+        " <= " << l->getDagNode() << endl;
+      ok = false;
+    }
     }
   int rHeight = 0;
   if (ACU_RedBlackNode* r = getRight())
     {
       ok = r->checkRedBlackProperty(rHeight) && ok;
       if (getDagNode()->compare(r->getDagNode()) >= 0)
-	{
-	  cerr << "order violation " << getDagNode() <<
-	    " >= " << r->getDagNode() << endl;
-	  ok = false;
-	}
+    {
+      cerr << "order violation " << getDagNode() <<
+        " >= " << r->getDagNode() << endl;
+      ok = false;
+    }
     }
   if (height != rHeight)
     {
       cerr << "black height violation " << height <<
-	" != " << rHeight << endl;
+    " != " << rHeight << endl;
       ok = false;
     }
   if (!isRed())
@@ -161,29 +154,24 @@ ACU_RedBlackNode::checkRedBlackProperty(int& height)
 #endif
 
 void
-ACU_RedBlackNode::dump(ostream& s, int indent)
-{
-  s << Indent(indent) <<
-    "address = " << this <<
-    "\tdagNode = " << getDagNode() <<
-    "\tmultiplicity = " << getMultiplicity() <<
-    "\tcolor = " << (isRed() ? "red" : "black") << endl;
+ACU_RedBlackNode::dump(ostream &s, int indent) {
+    s << Indent(indent) <<
+      "address = " << this <<
+      "\tdagNode = " << getDagNode() <<
+      "\tmultiplicity = " << getMultiplicity() <<
+      "\tcolor = " << (isRed() ? "red" : "black") << endl;
 
-  s << Indent(indent) << "left = ";
-  if (ACU_RedBlackNode* l = getLeft())
-    {
-      s << '\n';
-      l->dump(s, indent + 1);
-    }
-  else
-    s << "null\n";
+    s << Indent(indent) << "left = ";
+    if (ACU_RedBlackNode *l = getLeft()) {
+        s << '\n';
+        l->dump(s, indent + 1);
+    } else
+        s << "null\n";
 
-  s << Indent(indent) << "right = ";
-  if (ACU_RedBlackNode* r = getRight())
-    {
-      s << '\n';
-      r->dump(s, indent + 1);
-    }
-  else
-    s << "null\n";
+    s << Indent(indent) << "right = ";
+    if (ACU_RedBlackNode *r = getRight()) {
+        s << '\n';
+        r->dump(s, indent + 1);
+    } else
+        s << "null\n";
 }

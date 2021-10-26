@@ -32,66 +32,59 @@
 //
 
 bool
-FreePreNet::subsumesWrtReducedFringe(Term* subsumer,
-				     Term* victim,
-				     int currentPositionIndex,
-				     const NatSet& reducedFringe)
-{
-  if (!(reducedFringe.contains(currentPositionIndex)))
-    {
-      //
-      //	We haven't reached the fringe so we must be in part of the term that
-      //	has been matched on our current arc.
-      //
-      if (FreeTerm* sf = dynamic_cast<FreeTerm*>(subsumer))
-	{
-	  //
-	  //	Current position is not at or below reduced fringe and subsumer
-	  //	subterm has a free symbol on top.
-	  //	Therefore this free symbol will have been matched in
-	  //	the subject and we may be able to do better than naive subsumption.
-	  //
-	  FreeTerm* vf = dynamic_cast<FreeTerm*>(victim);
-	  if (vf != 0)
-	    {
-	      Assert(sf->symbol() == vf->symbol(), "free symbol clash");
-	      //
-	      //	victim subterm has the same free symbol on top; check if
-	      //	subsumers arguments subsume victims arguments.
-	      //
-	      Vector<int> argPosition(positions.index2Position(currentPositionIndex));
-	      int newComponent = argPosition.length();
-	      argPosition.expandBy(1);
+FreePreNet::subsumesWrtReducedFringe(Term *subsumer,
+                                     Term *victim,
+                                     int currentPositionIndex,
+                                     const NatSet &reducedFringe) {
+    if (!(reducedFringe.contains(currentPositionIndex))) {
+        //
+        //	We haven't reached the fringe so we must be in part of the term that
+        //	has been matched on our current arc.
+        //
+        if (FreeTerm *sf = dynamic_cast<FreeTerm *>(subsumer)) {
+            //
+            //	Current position is not at or below reduced fringe and subsumer
+            //	subterm has a free symbol on top.
+            //	Therefore this free symbol will have been matched in
+            //	the subject and we may be able to do better than naive subsumption.
+            //
+            FreeTerm *vf = dynamic_cast<FreeTerm *>(victim);
+            if (vf != 0) {
+                Assert(sf->symbol() == vf->symbol(), "free symbol clash");
+                //
+                //	victim subterm has the same free symbol on top; check if
+                //	subsumers arguments subsume victims arguments.
+                //
+                Vector<int> argPosition(positions.index2Position(currentPositionIndex));
+                int newComponent = argPosition.length();
+                argPosition.expandBy(1);
 
-	      ArgumentIterator subsumerArgs(*subsumer);
-	      ArgumentIterator victimArgs(*victim);
-	      for (int i = 0; subsumerArgs.valid(); i++)
-		{
-		  argPosition[newComponent] = i;
-		  if (!(subsumesWrtReducedFringe(subsumerArgs.argument(),
-						 victimArgs.argument(),
-						 positions.position2Index(argPosition),
-						 reducedFringe)))
-		    return false;
-		  subsumerArgs.next();
-		  victimArgs.next();
-		}
-	      return true;
-	    }
-	  else
-	    {
-	      //
-	      //	We treat the victims subterm as being a variable
-	      //	of the victims subterms sort, and try to subsume it.
-	      //
-	      return subsumesWrtReducedFringe(sf,
-					      victim->getSort()->getLeqSorts(),
-					      currentPositionIndex,
-					      reducedFringe);
-	    }
-	}
+                ArgumentIterator subsumerArgs(*subsumer);
+                ArgumentIterator victimArgs(*victim);
+                for (int i = 0; subsumerArgs.valid(); i++) {
+                    argPosition[newComponent] = i;
+                    if (!(subsumesWrtReducedFringe(subsumerArgs.argument(),
+                                                   victimArgs.argument(),
+                                                   positions.position2Index(argPosition),
+                                                   reducedFringe)))
+                        return false;
+                    subsumerArgs.next();
+                    victimArgs.next();
+                }
+                return true;
+            } else {
+                //
+                //	We treat the victims subterm as being a variable
+                //	of the victims subterms sort, and try to subsume it.
+                //
+                return subsumesWrtReducedFringe(sf,
+                                                victim->getSort()->getLeqSorts(),
+                                                currentPositionIndex,
+                                                reducedFringe);
+            }
+        }
     }
-  return subsumer->subsumes(victim, false);  // can't do any better naive subsumption
+    return subsumer->subsumes(victim, false);  // can't do any better naive subsumption
 }
 
 //
@@ -102,49 +95,43 @@ FreePreNet::subsumesWrtReducedFringe(Term* subsumer,
 //
 
 bool
-FreePreNet::subsumesWrtReducedFringe(Term* subsumer,
-				     const NatSet& rangeSorts,
-				     int currentPositionIndex,
-				     const NatSet& reducedFringe)
-{
-  if (!(reducedFringe.contains(currentPositionIndex)))
-    {
-      //
-      //	We haven't reached the fringe so we must be in part of the term that
-      //	has been matched on our current arc.
-      //
-      if (dynamic_cast<FreeTerm*>(subsumer) != 0)
-	{
-	  Symbol* symbol = subsumer->symbol();
-	  int nrArgs = symbol->arity();
-	  Vector<NatSet> domainSorts(nrArgs);
-	  symbol->computePossibleDomainSorts(rangeSorts, domainSorts);
-	  
-	  Vector<int> argPosition(positions.index2Position(currentPositionIndex));
-	  int newComponent = argPosition.length();
-	  argPosition.expandBy(1);
+FreePreNet::subsumesWrtReducedFringe(Term *subsumer,
+                                     const NatSet &rangeSorts,
+                                     int currentPositionIndex,
+                                     const NatSet &reducedFringe) {
+    if (!(reducedFringe.contains(currentPositionIndex))) {
+        //
+        //	We haven't reached the fringe so we must be in part of the term that
+        //	has been matched on our current arc.
+        //
+        if (dynamic_cast<FreeTerm *>(subsumer) != 0) {
+            Symbol *symbol = subsumer->symbol();
+            int nrArgs = symbol->arity();
+            Vector<NatSet> domainSorts(nrArgs);
+            symbol->computePossibleDomainSorts(rangeSorts, domainSorts);
 
-	  ArgumentIterator subsumerArgs(*subsumer);
-	  for (int i = 0; subsumerArgs.valid(); i++)
-	    {
-	      argPosition[newComponent] = i;
-	      if (!(subsumesWrtReducedFringe(subsumerArgs.argument(),
-					     domainSorts[i],
-					     positions.position2Index(argPosition),
-					     reducedFringe)))
-		return false;
-	      subsumerArgs.next();
-	    }
-	  return true;
-	}
-      else if (VariableTerm* v = dynamic_cast<VariableTerm*>(subsumer))
-	{
-	  //
-	  //	Must be linear and be able to cover all the range sorts.
-	  //
-	  return (!(v->occursInContext().contains(v->getIndex())) &&
-		  v->getSort()->getLeqSorts().contains(rangeSorts));
-	}
+            Vector<int> argPosition(positions.index2Position(currentPositionIndex));
+            int newComponent = argPosition.length();
+            argPosition.expandBy(1);
+
+            ArgumentIterator subsumerArgs(*subsumer);
+            for (int i = 0; subsumerArgs.valid(); i++) {
+                argPosition[newComponent] = i;
+                if (!(subsumesWrtReducedFringe(subsumerArgs.argument(),
+                                               domainSorts[i],
+                                               positions.position2Index(argPosition),
+                                               reducedFringe)))
+                    return false;
+                subsumerArgs.next();
+            }
+            return true;
+        } else if (VariableTerm *v = dynamic_cast<VariableTerm *>(subsumer)) {
+            //
+            //	Must be linear and be able to cover all the range sorts.
+            //
+            return (!(v->occursInContext().contains(v->getIndex())) &&
+                    v->getSort()->getLeqSorts().contains(rangeSorts));
+        }
     }
-  return false;
+    return false;
 }

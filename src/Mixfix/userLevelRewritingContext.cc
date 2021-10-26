@@ -45,7 +45,7 @@
 #include "dagNode.hh"
 #include "higher.hh"
 #include "rawDagArgumentIterator.hh"
- 
+
 //      core class definitions
 #include "redexPosition.hh"
 #include "variableSymbol.hh"
@@ -77,495 +77,437 @@
 
 bool UserLevelRewritingContext::tracePostFlag = false;
 const char UserLevelRewritingContext::header[] = "*********** ";
-ostream* UserLevelRewritingContext::printAttrStream = &cout;
+ostream *UserLevelRewritingContext::printAttrStream = &cout;
 
-UserLevelRewritingContext::UserLevelRewritingContext(DagNode* root)
-  : ObjectSystemRewritingContext(root),
-    parent(0),
-    purpose(TOP_LEVEL_EVAL),
-    localTraceFlag(true)
-{
+UserLevelRewritingContext::UserLevelRewritingContext(DagNode *root)
+        : ObjectSystemRewritingContext(root),
+          parent(0),
+          purpose(TOP_LEVEL_EVAL),
+          localTraceFlag(true) {
 }
 
-UserLevelRewritingContext::UserLevelRewritingContext(DagNode* root,
-						     UserLevelRewritingContext* parent,
-						     int purpose,
-						     bool localTraceFlag)
-  : ObjectSystemRewritingContext(root),
-    parent(parent),
-    purpose(purpose),
-    localTraceFlag(localTraceFlag)
-{
+UserLevelRewritingContext::UserLevelRewritingContext(DagNode *root,
+                                                     UserLevelRewritingContext *parent,
+                                                     int purpose,
+                                                     bool localTraceFlag)
+        : ObjectSystemRewritingContext(root),
+          parent(parent),
+          purpose(purpose),
+          localTraceFlag(localTraceFlag) {
 }
 
-RewritingContext*
-UserLevelRewritingContext::makeSubcontext(DagNode* root, int purpose)
-{
-  return new UserLevelRewritingContext(root, this, purpose,
-				       localTraceFlag &&
-				       (purpose != CONDITION_EVAL || interpreter.getFlag(Interpreter::TRACE_CONDITION)));
+RewritingContext *
+UserLevelRewritingContext::makeSubcontext(DagNode *root, int purpose) {
+    return new UserLevelRewritingContext(root, this, purpose,
+                                         localTraceFlag &&
+                                         (purpose != CONDITION_EVAL ||
+                                          interpreter.getFlag(Interpreter::TRACE_CONDITION)));
 }
 
 bool
-UserLevelRewritingContext::dontTrace(const DagNode* redex, const PreEquation* pe)
-{
-  Symbol* symbol = redex->symbol();
-  return (interpreter.getFlag(Interpreter::TRACE_SELECT) &&
-	  !(interpreter.traceId(symbol->id()) ||
-	    (pe != 0 && interpreter.traceId(pe->getLabel().id())))) ||
-    interpreter.excludedModule(symbol->getModule()->id()) ||
-    (pe == 0 && !interpreter.getFlag(Interpreter::TRACE_BUILTIN));
+UserLevelRewritingContext::dontTrace(const DagNode *redex, const PreEquation *pe) {
+    Symbol *symbol = redex->symbol();
+    return (interpreter.getFlag(Interpreter::TRACE_SELECT) &&
+            !(interpreter.traceId(symbol->id()) ||
+              (pe != 0 && interpreter.traceId(pe->getLabel().id())))) ||
+           interpreter.excludedModule(symbol->getModule()->id()) ||
+           (pe == 0 && !interpreter.getFlag(Interpreter::TRACE_BUILTIN));
 }
 
 void
-UserLevelRewritingContext::checkForPrintAttribute(MixfixModule::ItemType itemType, const PreEquation* item)
-{
-  if (item != 0)
-    {
-      MixfixModule* m = safeCast(MixfixModule*, item->getModule());
-      const PrintAttribute* pa = m->getPrintAttribute(itemType, item);
-      if (pa != 0)
-	{
-	  pa->print(*printAttrStream, *this);
-	  if (interpreter.getFlag(Interpreter::PRINT_ATTRIBUTE_NEWLINE))
-	    *printAttrStream << '\n';
-	  printAttrStream->flush();
-	}
+UserLevelRewritingContext::checkForPrintAttribute(MixfixModule::ItemType itemType, const PreEquation *item) {
+    if (item != 0) {
+        MixfixModule *m = safeCast(MixfixModule*, item->getModule());
+        const PrintAttribute *pa = m->getPrintAttribute(itemType, item);
+        if (pa != 0) {
+            pa->print(*printAttrStream, *this);
+            if (interpreter.getFlag(Interpreter::PRINT_ATTRIBUTE_NEWLINE))
+                *printAttrStream << '\n';
+            printAttrStream->flush();
+        }
     }
 }
 
 void
-UserLevelRewritingContext::tracePreEqRewrite(DagNode* redex,
-					     const Equation* equation,
-					     int type)
-{
-  //
-  //	All unusual situations during an equational rewrite are funneled
-  //	through this function, by setting the traceFlag in class Module.
-  //	This is so that rewriting only has to test a single flag
-  //	to get off the fast case, and into the (slow) exception case.
-  //
-  //	Possible unusual situations:
-  //	(1) Profiling is enabled
-  //	(2) Statement print attributes are enabled
-  //	(3) Aborting the computation
-  //	(4) Single stepping in debugger
-  //	(5) Breakpoints are enabled
-  //	(6) ^C interrupt
-  //	(7) Info interrupt
-  //	(8) Tracing is enabled
-  //
-  if (interpreter.getFlag(Interpreter::PROFILE))
-    {
-      safeCast(ProfileModule*, root()->symbol()->getModule())->
-	profileEqRewrite(redex, equation, type);
+UserLevelRewritingContext::tracePreEqRewrite(DagNode *redex,
+                                             const Equation *equation,
+                                             int type) {
+    //
+    //	All unusual situations during an equational rewrite are funneled
+    //	through this function, by setting the traceFlag in class Module.
+    //	This is so that rewriting only has to test a single flag
+    //	to get off the fast case, and into the (slow) exception case.
+    //
+    //	Possible unusual situations:
+    //	(1) Profiling is enabled
+    //	(2) Statement print attributes are enabled
+    //	(3) Aborting the computation
+    //	(4) Single stepping in debugger
+    //	(5) Breakpoints are enabled
+    //	(6) ^C interrupt
+    //	(7) Info interrupt
+    //	(8) Tracing is enabled
+    //
+    if (interpreter.getFlag(Interpreter::PROFILE)) {
+        safeCast(ProfileModule*, root()->symbol()->getModule())->
+                profileEqRewrite(redex, equation, type);
     }
-  if (interpreter.getFlag(Interpreter::PRINT_ATTRIBUTE))
-    checkForPrintAttribute(MetadataStore::EQUATION, equation);
-  //
-  //	handeDebug() takes care of abort, single stepping, breakpoints,
-  //	^C interrupts and info interrupts, single these are common to
-  //	all rewrite types.
-  //
-  if (handleDebug(redex, equation) ||
-      !localTraceFlag ||
-      !(interpreter.getFlag(Interpreter::TRACE_EQ)) ||
-      dontTrace(redex, equation))
-    {
-      tracePostFlag = false;
-      return;
+    if (interpreter.getFlag(Interpreter::PRINT_ATTRIBUTE))
+        checkForPrintAttribute(MetadataStore::EQUATION, equation);
+    //
+    //	handeDebug() takes care of abort, single stepping, breakpoints,
+    //	^C interrupts and info interrupts, single these are common to
+    //	all rewrite types.
+    //
+    if (handleDebug(redex, equation) ||
+        !localTraceFlag ||
+        !(interpreter.getFlag(Interpreter::TRACE_EQ)) ||
+        dontTrace(redex, equation)) {
+        tracePostFlag = false;
+        return;
     }
-  tracePostFlag = true;
+    tracePostFlag = true;
 
-  if (interpreter.getFlag(Interpreter::TRACE_BODY))
-    cout << header << "equation\n";
-  if (equation == 0)
-    {
-      if (type == RewritingContext::BUILTIN)
-	cout << "(built-in equation for symbol " << redex->symbol() << ")\n";
-      else if (type == RewritingContext::MEMOIZED)
-	cout << "(memo table lookup for symbol " << redex->symbol() << ")\n";
+    if (interpreter.getFlag(Interpreter::TRACE_BODY))
+        cout << header << "equation\n";
+    if (equation == 0) {
+        if (type == RewritingContext::BUILTIN)
+            cout << "(built-in equation for symbol " << redex->symbol() << ")\n";
+        else if (type == RewritingContext::MEMOIZED)
+            cout << "(memo table lookup for symbol " << redex->symbol() << ")\n";
+    } else {
+        if (interpreter.getFlag(Interpreter::TRACE_BODY)) {
+            cout << equation << '\n';
+            if (interpreter.getFlag(Interpreter::TRACE_SUBSTITUTION))
+                printSubstitution(*this, *equation);
+        } else {
+            const Label &label = equation->getLabel();
+            if (label.id() == NONE)
+                cout << "(unlabeled equation)\n";
+            else
+                cout << &label << '\n';
+        }
     }
-  else
-    {
-      if (interpreter.getFlag(Interpreter::TRACE_BODY))
-	{
-	  cout << equation << '\n';
-	  if (interpreter.getFlag(Interpreter::TRACE_SUBSTITUTION))
-	    printSubstitution(*this, *equation);
-	}
-      else
-	{
-	  const Label& label = equation->getLabel();
-	  if (label.id() == NONE)
-	    cout << "(unlabeled equation)\n";
-	  else
-	    cout << &label << '\n';
-	}
-    }
-  if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
-    cout << "Old: " << root() << '\n';
-  if (interpreter.getFlag(Interpreter::TRACE_REWRITE))
-    cout << redex << "\n--->\n";
-  DebugAdvisory(static_cast<void*>(redex));
+    if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
+        cout << "Old: " << root() << '\n';
+    if (interpreter.getFlag(Interpreter::TRACE_REWRITE))
+        cout << redex << "\n--->\n";
+    DebugAdvisory(static_cast<void *>(redex));
 }
 
 void
-UserLevelRewritingContext::tracePostEqRewrite(DagNode* replacement)
-{
-  if (tracePostFlag)
-    {
-      Assert(!abortFlag, "abort flag set");
-      if (interpreter.getFlag(Interpreter::TRACE_REWRITE))
-	cout << replacement << '\n';
-      DebugAdvisory(static_cast<void*>(replacement));
-      if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
-	cout << "New: " << root() << '\n';
+UserLevelRewritingContext::tracePostEqRewrite(DagNode *replacement) {
+    if (tracePostFlag) {
+        Assert(!abortFlag, "abort flag set");
+        if (interpreter.getFlag(Interpreter::TRACE_REWRITE))
+            cout << replacement << '\n';
+        DebugAdvisory(static_cast<void *>(replacement));
+        if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
+            cout << "New: " << root() << '\n';
     }
 }
 
 void
-UserLevelRewritingContext::tracePreRuleRewrite(DagNode* redex, const Rule* rule)
-{
-  if (redex == 0)
-    {
-      //
-      //	Dummy rewrite; need to ignore the following
-      //	tracePostRuleRewrite() call.
-      //	This capability is used by ConfigSymbol.
-      //
-      tracePostFlag = false;
-      return;
+UserLevelRewritingContext::tracePreRuleRewrite(DagNode *redex, const Rule *rule) {
+    if (redex == 0) {
+        //
+        //	Dummy rewrite; need to ignore the following
+        //	tracePostRuleRewrite() call.
+        //	This capability is used by ConfigSymbol.
+        //
+        tracePostFlag = false;
+        return;
     }
 
-  if (interpreter.getFlag(Interpreter::PROFILE))
-    {
-      safeCast(ProfileModule*, root()->symbol()->getModule())->
-	profileRlRewrite(redex, rule);
+    if (interpreter.getFlag(Interpreter::PROFILE)) {
+        safeCast(ProfileModule*, root()->symbol()->getModule())->
+                profileRlRewrite(redex, rule);
     }
-  if (interpreter.getFlag(Interpreter::PRINT_ATTRIBUTE))
-    checkForPrintAttribute(MetadataStore::RULE, rule);
+    if (interpreter.getFlag(Interpreter::PRINT_ATTRIBUTE))
+        checkForPrintAttribute(MetadataStore::RULE, rule);
 
-  if (handleDebug(redex, rule) ||
-      !localTraceFlag ||
-      !(interpreter.getFlag(Interpreter::TRACE_RL)) ||
-      dontTrace(redex, rule))
-    {
-      tracePostFlag = false;
-      return;
+    if (handleDebug(redex, rule) ||
+        !localTraceFlag ||
+        !(interpreter.getFlag(Interpreter::TRACE_RL)) ||
+        dontTrace(redex, rule)) {
+        tracePostFlag = false;
+        return;
     }
-  tracePostFlag = true;
-  if (interpreter.getFlag(Interpreter::TRACE_BODY))
-    cout << header << "rule\n";
-  if (rule == 0)
-    cout << "(built-in rule for symbol " << redex->symbol() << ")\n";
-  else
-    {
-      if (interpreter.getFlag(Interpreter::TRACE_BODY))
-	{
-	  cout << rule << '\n';
-	  if (interpreter.getFlag(Interpreter::TRACE_SUBSTITUTION))
-	    printSubstitution(*this, *rule);
-	}
-      else
-	{
-	  const Label& label = rule->getLabel();
-	  if (label.id() == NONE)
-	    cout << "(unlabeled rule)\n";
-	  else
-	    cout << &label << '\n';
-	}
+    tracePostFlag = true;
+    if (interpreter.getFlag(Interpreter::TRACE_BODY))
+        cout << header << "rule\n";
+    if (rule == 0)
+        cout << "(built-in rule for symbol " << redex->symbol() << ")\n";
+    else {
+        if (interpreter.getFlag(Interpreter::TRACE_BODY)) {
+            cout << rule << '\n';
+            if (interpreter.getFlag(Interpreter::TRACE_SUBSTITUTION))
+                printSubstitution(*this, *rule);
+        } else {
+            const Label &label = rule->getLabel();
+            if (label.id() == NONE)
+                cout << "(unlabeled rule)\n";
+            else
+                cout << &label << '\n';
+        }
     }
-  if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
-    cout << "Old: " << root() << '\n';
-  if (interpreter.getFlag(Interpreter::TRACE_REWRITE))
-    cout << redex << "\n--->\n";
+    if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
+        cout << "Old: " << root() << '\n';
+    if (interpreter.getFlag(Interpreter::TRACE_REWRITE))
+        cout << redex << "\n--->\n";
 }
 
 void
-UserLevelRewritingContext::tracePostRuleRewrite(DagNode* replacement)
-{
-  if (tracePostFlag)
-    {
-      if (interpreter.getFlag(Interpreter::TRACE_REWRITE))
-	cout << replacement << '\n';
-      if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
-	cout << "New: " << root() << '\n';
+UserLevelRewritingContext::tracePostRuleRewrite(DagNode *replacement) {
+    if (tracePostFlag) {
+        if (interpreter.getFlag(Interpreter::TRACE_REWRITE))
+            cout << replacement << '\n';
+        if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
+            cout << "New: " << root() << '\n';
     }
 }
 
 void
-UserLevelRewritingContext::traceNarrowingStep(Rule* rule,
-					      DagNode* redex,
-					      DagNode* replacement,
-					      const NarrowingVariableInfo* variableInfo,
-					      const Substitution* substitution,
-					      DagNode* newState)
-{
-  if (handleDebug(redex, rule) ||
-      !localTraceFlag ||
-      !(interpreter.getFlag(Interpreter::TRACE_RL)) ||
-      dontTrace(redex, rule))
-    return;
+UserLevelRewritingContext::traceNarrowingStep(Rule *rule,
+                                              DagNode *redex,
+                                              DagNode *replacement,
+                                              const NarrowingVariableInfo *variableInfo,
+                                              const Substitution *substitution,
+                                              DagNode *newState) {
+    if (handleDebug(redex, rule) ||
+        !localTraceFlag ||
+        !(interpreter.getFlag(Interpreter::TRACE_RL)) ||
+        dontTrace(redex, rule))
+        return;
 
-  if (interpreter.getFlag(Interpreter::TRACE_BODY))
-    {
-      cout << Tty(Tty::MAGENTA) << header << "narrowing step\n" << Tty(Tty::RESET) << rule << '\n';
-      if (interpreter.getFlag(Interpreter::TRACE_SUBSTITUTION))
-	{
-	  cout << "Rule variable bindings:\n";
-	  printSubstitution(*substitution, *rule);
+    if (interpreter.getFlag(Interpreter::TRACE_BODY)) {
+        cout << Tty(Tty::MAGENTA) << header << "narrowing step\n" << Tty(Tty::RESET) << rule << '\n';
+        if (interpreter.getFlag(Interpreter::TRACE_SUBSTITUTION)) {
+            cout << "Rule variable bindings:\n";
+            printSubstitution(*substitution, *rule);
 
-	  cout << "Subject variable bindings:\n";
-	  int nrSubjectVariables = variableInfo->getNrVariables();
-	  if (nrSubjectVariables == 0)
-	    cout << "empty substitution\n";
-	  else
-	    {
-	      int variableBase = rule->getModule()->getMinimumSubstitutionSize();
-	      for (int i = 0; i < nrSubjectVariables; ++i)
-		{
-		  DagNode* v = variableInfo->index2Variable(i);
-		  DagNode* d = substitution->value(variableBase + i);
-		  Assert(v != 0, "null variable");
-		  cout << v << " --> ";
-		  if (d == 0)
-		    cout << "(unbound)\n";
-		  else
-		    cout << d << '\n';
-		}
-	    }
-	}
+            cout << "Subject variable bindings:\n";
+            int nrSubjectVariables = variableInfo->getNrVariables();
+            if (nrSubjectVariables == 0)
+                cout << "empty substitution\n";
+            else {
+                int variableBase = rule->getModule()->getMinimumSubstitutionSize();
+                for (int i = 0; i < nrSubjectVariables; ++i) {
+                    DagNode *v = variableInfo->index2Variable(i);
+                    DagNode *d = substitution->value(variableBase + i);
+                    Assert(v != 0, "null variable");
+                    cout << v << " --> ";
+                    if (d == 0)
+                        cout << "(unbound)\n";
+                    else
+                        cout << d << '\n';
+                }
+            }
+        }
     }
-  if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
-    cout << "Old: " << root() << '\n';
-  if (interpreter.getFlag(Interpreter::TRACE_REWRITE))
-    cout << redex << "\n--->\n" << replacement << '\n';
-  if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
-    cout << "New: " << newState << '\n';
+    if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
+        cout << "Old: " << root() << '\n';
+    if (interpreter.getFlag(Interpreter::TRACE_REWRITE))
+        cout << redex << "\n--->\n" << replacement << '\n';
+    if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
+        cout << "New: " << newState << '\n';
 }
 
 void
-UserLevelRewritingContext::traceVariantNarrowingStep(Equation* equation,
-						     const Vector<DagNode*>& oldVariantSubstitution,
-						     DagNode* redex,
-						     DagNode* replacement,
-						     const NarrowingVariableInfo& variableInfo,
-						     const Substitution* substitution,
-						     DagNode* newState,
-						     const Vector<DagNode*>& newVariantSubstitution,
-						     const NarrowingVariableInfo& originalVariables)
-{
-  if (handleDebug(redex, equation) ||
-      !localTraceFlag ||
-      !(interpreter.getFlag(Interpreter::TRACE_EQ)) ||
-      dontTrace(redex, equation))
-    return;
+UserLevelRewritingContext::traceVariantNarrowingStep(Equation *equation,
+                                                     const Vector<DagNode *> &oldVariantSubstitution,
+                                                     DagNode *redex,
+                                                     DagNode *replacement,
+                                                     const NarrowingVariableInfo &variableInfo,
+                                                     const Substitution *substitution,
+                                                     DagNode *newState,
+                                                     const Vector<DagNode *> &newVariantSubstitution,
+                                                     const NarrowingVariableInfo &originalVariables) {
+    if (handleDebug(redex, equation) ||
+        !localTraceFlag ||
+        !(interpreter.getFlag(Interpreter::TRACE_EQ)) ||
+        dontTrace(redex, equation))
+        return;
 
-  if (interpreter.getFlag(Interpreter::TRACE_BODY))
-    {
-      cout << Tty(Tty::CYAN) << header << "variant narrowing step\n" << Tty(Tty::RESET) << equation << '\n';
-      if (interpreter.getFlag(Interpreter::TRACE_SUBSTITUTION))
-	{
-	  cout << "Equation variable bindings:\n";
-	  printSubstitution(*substitution, *equation);
+    if (interpreter.getFlag(Interpreter::TRACE_BODY)) {
+        cout << Tty(Tty::CYAN) << header << "variant narrowing step\n" << Tty(Tty::RESET) << equation << '\n';
+        if (interpreter.getFlag(Interpreter::TRACE_SUBSTITUTION)) {
+            cout << "Equation variable bindings:\n";
+            printSubstitution(*substitution, *equation);
 
-	  cout << "Old variant variable bindings:\n";
-	  int nrSubjectVariables = variableInfo.getNrVariables();
-	  if (nrSubjectVariables == 0)
-	    cout << "empty substitution\n";
-	  else
-	    {
-	      int variableBase = equation->getModule()->getMinimumSubstitutionSize();
-	      for (int i = 0; i < nrSubjectVariables; ++i)
-		{
-		  DagNode* v = variableInfo.index2Variable(i);
-		  DagNode* d = substitution->value(variableBase + i);
-		  Assert(v != 0, "null variable");
-		  /*
-		  DebugAdvisory(static_cast<void*>(v) << " --> " <<
-				static_cast<void*>(d) << " / " <<
-				static_cast<void*>(d->symbol()));
-		  */
+            cout << "Old variant variable bindings:\n";
+            int nrSubjectVariables = variableInfo.getNrVariables();
+            if (nrSubjectVariables == 0)
+                cout << "empty substitution\n";
+            else {
+                int variableBase = equation->getModule()->getMinimumSubstitutionSize();
+                for (int i = 0; i < nrSubjectVariables; ++i) {
+                    DagNode *v = variableInfo.index2Variable(i);
+                    DagNode *d = substitution->value(variableBase + i);
+                    Assert(v != 0, "null variable");
+                    /*
+                    DebugAdvisory(static_cast<void*>(v) << " --> " <<
+                          static_cast<void*>(d) << " / " <<
+                          static_cast<void*>(d->symbol()));
+                    */
 
-		  cout << v << " --> ";
-		  if (d == 0)
-		    cout << "(unbound)\n";
-		  else
-		    cout << d << '\n';
-		}
-	    }
-	}
+                    cout << v << " --> ";
+                    if (d == 0)
+                        cout << "(unbound)\n";
+                    else
+                        cout << d << '\n';
+                }
+            }
+        }
     }
-  if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
-    {
-      cout << "\nOld variant: " << root() << '\n';
-      printSubstitution(oldVariantSubstitution, originalVariables);
-      cout << '\n';
+    if (interpreter.getFlag(Interpreter::TRACE_WHOLE)) {
+        cout << "\nOld variant: " << root() << '\n';
+        printSubstitution(oldVariantSubstitution, originalVariables);
+        cout << '\n';
     }
-  if (interpreter.getFlag(Interpreter::TRACE_REWRITE))
-    cout << redex << "\n--->\n" << replacement << '\n';
-  if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
-    {
-      cout << "\nNew variant: " << newState << '\n';
-      printSubstitution(newVariantSubstitution, originalVariables);
-      cout << '\n';
+    if (interpreter.getFlag(Interpreter::TRACE_REWRITE))
+        cout << redex << "\n--->\n" << replacement << '\n';
+    if (interpreter.getFlag(Interpreter::TRACE_WHOLE)) {
+        cout << "\nNew variant: " << newState << '\n';
+        printSubstitution(newVariantSubstitution, originalVariables);
+        cout << '\n';
     }
 }
 
 void
-UserLevelRewritingContext::traceStrategyCall(StrategyDefinition* sdef,
-					     DagNode* callDag,
-					     DagNode* subject,
-					     const Substitution* substitution)
-{
-  if (interpreter.getFlag(Interpreter::PROFILE))
-    {
-      safeCast(ProfileModule*, root()->symbol()->getModule())->profileSdRewrite(subject, sdef);
+UserLevelRewritingContext::traceStrategyCall(StrategyDefinition *sdef,
+                                             DagNode *callDag,
+                                             DagNode *subject,
+                                             const Substitution *substitution) {
+    if (interpreter.getFlag(Interpreter::PROFILE)) {
+        safeCast(ProfileModule*, root()->symbol()->getModule())->profileSdRewrite(subject, sdef);
     }
-  if (interpreter.getFlag(Interpreter::PRINT_ATTRIBUTE))
-    checkForPrintAttribute(MetadataStore::STRAT_DEF, sdef);
+    if (interpreter.getFlag(Interpreter::PRINT_ATTRIBUTE))
+        checkForPrintAttribute(MetadataStore::STRAT_DEF, sdef);
 
-  if (handleDebug(callDag, sdef) ||
-      !localTraceFlag ||
-      !(interpreter.getFlag(Interpreter::TRACE_SD)) ||
-      dontTrace(callDag, sdef))
-    return;
+    if (handleDebug(callDag, sdef) ||
+        !localTraceFlag ||
+        !(interpreter.getFlag(Interpreter::TRACE_SD)) ||
+        dontTrace(callDag, sdef))
+        return;
 
-  if (interpreter.getFlag(Interpreter::TRACE_BODY))
-    {
-      cout << header << "strategy call\n";
-      cout << sdef << '\n';
-      // callDags uses the auxiliary symbol we should print it readable
-      if (callDag->symbol()->arity() > 0)
-	{
-	  cout << "call term --> " << Token::name(sdef->getStrategy()->id()) << "(";
-	  RawDagArgumentIterator* arg = callDag->arguments();
-	  while (arg->valid())
-	    {
-	      cout << arg->argument();
-	      arg->next();
+    if (interpreter.getFlag(Interpreter::TRACE_BODY)) {
+        cout << header << "strategy call\n";
+        cout << sdef << '\n';
+        // callDags uses the auxiliary symbol we should print it readable
+        if (callDag->symbol()->arity() > 0) {
+            cout << "call term --> " << Token::name(sdef->getStrategy()->id()) << "(";
+            RawDagArgumentIterator *arg = callDag->arguments();
+            while (arg->valid()) {
+                cout << arg->argument();
+                arg->next();
 
-	      if (arg->valid()) cout << ", ";
-	    }
-	  cout << ")" << endl;
-	  delete arg;
-	}
-      if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
-	cout << "subject --> " << subject << endl;
-      if (interpreter.getFlag(Interpreter::TRACE_SUBSTITUTION))
-	printSubstitution(*substitution, *sdef);
-    }
-  else
-    {
-      const Label& label = sdef->getLabel();
-      int stratId = sdef->getStrategy()->id();
-      if (label.id() == NONE)
-	cout << Token::name(stratId) << " (unlabeled definition)\n";
-      else
-	cout << &label << '\n';
+                if (arg->valid()) cout << ", ";
+            }
+            cout << ")" << endl;
+            delete arg;
+        }
+        if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
+            cout << "subject --> " << subject << endl;
+        if (interpreter.getFlag(Interpreter::TRACE_SUBSTITUTION))
+            printSubstitution(*substitution, *sdef);
+    } else {
+        const Label &label = sdef->getLabel();
+        int stratId = sdef->getStrategy()->id();
+        if (label.id() == NONE)
+            cout << Token::name(stratId) << " (unlabeled definition)\n";
+        else
+            cout << &label << '\n';
     }
 }
 
 void
-UserLevelRewritingContext::tracePreScApplication(DagNode* subject, const SortConstraint* sc)
-{
-  if (interpreter.getFlag(Interpreter::PROFILE))
-    {
-      safeCast(ProfileModule*, root()->symbol()->getModule())->
-	profileMbRewrite(subject, sc);
+UserLevelRewritingContext::tracePreScApplication(DagNode *subject, const SortConstraint *sc) {
+    if (interpreter.getFlag(Interpreter::PROFILE)) {
+        safeCast(ProfileModule*, root()->symbol()->getModule())->
+                profileMbRewrite(subject, sc);
     }
-  if (interpreter.getFlag(Interpreter::PRINT_ATTRIBUTE))
-    checkForPrintAttribute(MetadataStore::MEMB_AX, sc);
+    if (interpreter.getFlag(Interpreter::PRINT_ATTRIBUTE))
+        checkForPrintAttribute(MetadataStore::MEMB_AX, sc);
 
-  if (handleDebug(subject, sc) ||
-      !localTraceFlag ||
-      !(interpreter.getFlag(Interpreter::TRACE_MB)) ||
-      dontTrace(subject, sc))
-    return;
-  if (interpreter.getFlag(Interpreter::TRACE_BODY))
-    cout << header << "membership axiom\n";
-  if (sc == 0)
-    cout << "(built-in membership axiom for symbol " << subject->symbol() << ")\n";
-  else
-    {
-      if (interpreter.getFlag(Interpreter::TRACE_BODY))
-	{
-	  cout << sc << '\n';
-	  if (interpreter.getFlag(Interpreter::TRACE_SUBSTITUTION))
-	    printSubstitution(*this, *sc);
-	}
-      else
-	{
-	  const Label& label = sc->getLabel();
-	  if (label.id() == NONE)
-	    cout << "(unlabeled membership axiom)\n";
-	  else
-	    cout << &label << '\n';
-	}
+    if (handleDebug(subject, sc) ||
+        !localTraceFlag ||
+        !(interpreter.getFlag(Interpreter::TRACE_MB)) ||
+        dontTrace(subject, sc))
+        return;
+    if (interpreter.getFlag(Interpreter::TRACE_BODY))
+        cout << header << "membership axiom\n";
+    if (sc == 0)
+        cout << "(built-in membership axiom for symbol " << subject->symbol() << ")\n";
+    else {
+        if (interpreter.getFlag(Interpreter::TRACE_BODY)) {
+            cout << sc << '\n';
+            if (interpreter.getFlag(Interpreter::TRACE_SUBSTITUTION))
+                printSubstitution(*this, *sc);
+        } else {
+            const Label &label = sc->getLabel();
+            if (label.id() == NONE)
+                cout << "(unlabeled membership axiom)\n";
+            else
+                cout << &label << '\n';
+        }
     }
-  if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
-    cout << "Whole: " << root() << '\n';
-  //
-  //	Coverity discovered bug - sc could be 0.
-  //
-  if (interpreter.getFlag(Interpreter::TRACE_REWRITE))
-    cout << subject->getSort() << ": " << subject << " becomes " << sc->getSort() << '\n';  // BUG
+    if (interpreter.getFlag(Interpreter::TRACE_WHOLE))
+        cout << "Whole: " << root() << '\n';
+    //
+    //	Coverity discovered bug - sc could be 0.
+    //
+    if (interpreter.getFlag(Interpreter::TRACE_REWRITE))
+        cout << subject->getSort() << ": " << subject << " becomes " << sc->getSort() << '\n';  // BUG
 }
 
 void
-UserLevelRewritingContext::printSubstitution(const Vector<DagNode*>& substitution,
-					     const NarrowingVariableInfo& variableInfo)
-{
-  int nrVariables = substitution.size();
-  for (int i = 0; i < nrVariables; ++i)
-    {
-      DagNode* v = variableInfo.index2Variable(i);
-      DagNode* b = substitution[i];
-      cout << v << " --> " << b << '\n';
+UserLevelRewritingContext::printSubstitution(const Vector<DagNode *> &substitution,
+                                             const NarrowingVariableInfo &variableInfo) {
+    int nrVariables = substitution.size();
+    for (int i = 0; i < nrVariables; ++i) {
+        DagNode *v = variableInfo.index2Variable(i);
+        DagNode *b = substitution[i];
+        cout << v << " --> " << b << '\n';
     }
 }
 
 void
-UserLevelRewritingContext::printSubstitution(const Substitution& substitution,
-					     const NarrowingVariableInfo& variableInfo)
-{
-  int nrVariables = substitution.nrFragileBindings();
-  for (int i = 0; i < nrVariables; ++i)
-    {
-      DagNode* v = variableInfo.index2Variable(i);
-      DagNode* b = substitution.value(i);
-      cout << v << " --> " << b << '\n';
+UserLevelRewritingContext::printSubstitution(const Substitution &substitution,
+                                             const NarrowingVariableInfo &variableInfo) {
+    int nrVariables = substitution.nrFragileBindings();
+    for (int i = 0; i < nrVariables; ++i) {
+        DagNode *v = variableInfo.index2Variable(i);
+        DagNode *b = substitution.value(i);
+        cout << v << " --> " << b << '\n';
     }
 }
 
 void
-UserLevelRewritingContext::printSubstitution(const Substitution& substitution,
-					     const VariableInfo& varInfo,
-					     const NatSet& ignoredIndices)
-{
-  int nrVars = varInfo.getNrRealVariables();
-  bool printedVariable = false;
-  for (int i = 0; i < nrVars; i++)
-    {
-      if (ignoredIndices.contains(i))
-	continue;
+UserLevelRewritingContext::printSubstitution(const Substitution &substitution,
+                                             const VariableInfo &varInfo,
+                                             const NatSet &ignoredIndices) {
+    int nrVars = varInfo.getNrRealVariables();
+    bool printedVariable = false;
+    for (int i = 0; i < nrVars; i++) {
+        if (ignoredIndices.contains(i))
+            continue;
 
-      Term* v = varInfo.index2Variable(i);
-      DagNode* d = substitution.value(i);
-	  /*
-	  DebugAdvisory(static_cast<void*>(v) << " --> " <<
-			static_cast<void*>(d) << " / " <<
-			((d == 0) ? static_cast<void*>(0) : static_cast<void*>(d->symbol())));
-	  */
-      Assert(v != 0, "null variable");
-      cout << v << " --> ";
-      if (d == 0)
-	cout << "(unbound)\n";
-      else
-	cout << d << '\n';
-      printedVariable = true;
+        Term *v = varInfo.index2Variable(i);
+        DagNode *d = substitution.value(i);
+        /*
+        DebugAdvisory(static_cast<void*>(v) << " --> " <<
+              static_cast<void*>(d) << " / " <<
+              ((d == 0) ? static_cast<void*>(0) : static_cast<void*>(d->symbol())));
+        */
+        Assert(v != 0, "null variable");
+        cout << v << " --> ";
+        if (d == 0)
+            cout << "(unbound)\n";
+        else
+            cout << d << '\n';
+        printedVariable = true;
     }
-  if (!printedVariable)
-    cout << "empty substitution\n";
+    if (!printedVariable)
+        cout << "empty substitution\n";
 }

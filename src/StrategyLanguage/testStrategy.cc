@@ -46,73 +46,63 @@
 #include "strategicSearch.hh"
 #include "testStrategy.hh"
 
-TestStrategy::TestStrategy(Term* patternTerm, int depth, const Vector<ConditionFragment*>& condition)
-  : pattern(patternTerm, depth >= 0, condition, true),
-    depth(depth)
-{
-  // need to do something about recovery
+TestStrategy::TestStrategy(Term *patternTerm, int depth, const Vector<ConditionFragment *> &condition)
+        : pattern(patternTerm, depth >= 0, condition, true),
+          depth(depth) {
+    // need to do something about recovery
 }
 
 bool
-TestStrategy::check(VariableInfo& indices, const TermSet& boundVars)
-{
-  // Check that the unbound variables are defined in the context and
-  // builds a translation map between context indices and pattern indices
-  const NatSet& unboundSet = pattern.getUnboundVariables();
-  size_t nrVars = pattern.getNrRealVariables();
+TestStrategy::check(VariableInfo &indices, const TermSet &boundVars) {
+    // Check that the unbound variables are defined in the context and
+    // builds a translation map between context indices and pattern indices
+    const NatSet &unboundSet = pattern.getUnboundVariables();
+    size_t nrVars = pattern.getNrRealVariables();
 
-  indexTranslation.resize(0);
+    indexTranslation.resize(0);
 
-  for (size_t k = 0; k < nrVars; k++)
-    {
-      Term* var = pattern.index2Variable(k);
+    for (size_t k = 0; k < nrVars; k++) {
+        Term *var = pattern.index2Variable(k);
 
-      // var is not bound outside the pattern
-      if (boundVars.term2Index(var) == NONE)
-	{
-	  if (unboundSet.contains(k))
-	    {
-	      IssueWarning(*pattern.getLhs() << ": variable " << QUOTE(var) <<
-		" is used before it is bound in condition of test strategy.");
+        // var is not bound outside the pattern
+        if (boundVars.term2Index(var) == NONE) {
+            if (unboundSet.contains(k)) {
+                IssueWarning(*pattern.getLhs() << ": variable " << QUOTE(var) <<
+                                               " is used before it is bound in condition of test strategy.");
 
-	      return false;
-	    }
-	}
-      else
-	{
-	  int outerIndex = indices.variable2Index(static_cast<VariableTerm*>(var));
-	  indexTranslation.append(make_pair(k, outerIndex));
-	}
+                return false;
+            }
+        } else {
+            int outerIndex = indices.variable2Index(static_cast<VariableTerm *>(var));
+            indexTranslation.append(make_pair(k, outerIndex));
+        }
     }
-  return true;
+    return true;
 }
 
 void
-TestStrategy::process()
-{
-  pattern.prepare();
+TestStrategy::process() {
+    pattern.prepare();
 }
 
 StrategicExecution::Survival
-TestStrategy::decompose(StrategicSearch& searchObject, DecompositionProcess* remainder)
-{
-  RewritingContext* context = searchObject.getContext();
-  RewritingContext* newContext = context->makeSubcontext(searchObject.getCanonical(remainder->getDagIndex()));
-  MatchSearchState* state = new MatchSearchState(newContext, &pattern, MatchSearchState::GC_CONTEXT |
-						 MatchSearchState::GC_SUBSTITUTION, 0, depth);
+TestStrategy::decompose(StrategicSearch &searchObject, DecompositionProcess *remainder) {
+    RewritingContext *context = searchObject.getContext();
+    RewritingContext *newContext = context->makeSubcontext(searchObject.getCanonical(remainder->getDagIndex()));
+    MatchSearchState *state = new MatchSearchState(newContext, &pattern, MatchSearchState::GC_CONTEXT |
+                                                                         MatchSearchState::GC_SUBSTITUTION, 0, depth);
 
-  // Applies the variable bindings
-  if (!indexTranslation.isNull())
-    {
-      VariableBindingsManager::ContextId varBinds = remainder->getOwner()->getVarsContext();
-      Vector<Term*> vars;
-      Vector<DagRoot*> values;
-      searchObject.buildInitialSubstitution(varBinds, pattern, indexTranslation, vars, values);
-      state->setInitialSubstitution(vars, values);
+    // Applies the variable bindings
+    if (!indexTranslation.isNull()) {
+        VariableBindingsManager::ContextId varBinds = remainder->getOwner()->getVarsContext();
+        Vector<Term *> vars;
+        Vector<DagRoot *> values;
+        searchObject.buildInitialSubstitution(varBinds, pattern, indexTranslation, vars, values);
+        state->setInitialSubstitution(vars, values);
     }
 
-  bool result = state->findNextMatch();
-  state->transferCountTo(*context);
-  delete state;
-  return result ? StrategicExecution::SURVIVE : StrategicExecution::DIE;
+    bool result = state->findNextMatch();
+    state->transferCountTo(*context);
+    delete state;
+    return result ? StrategicExecution::SURVIVE : StrategicExecution::DIE;
 }

@@ -25,179 +25,163 @@
 //
 
 void
-Interpreter::printDecisionTime(const Timer& timer)
-{
-  Int64 real;
-  Int64 virt;
-  Int64 prof;
-  if (getFlag(SHOW_STATS) && getFlag(SHOW_TIMING) &&
-      timer.isRunning() && timer.getTimes(real, virt, prof))
-    {
-      cout << "Decision time: " << prof / 1000 << "ms cpu (" <<
-	real / 1000 << "ms real)\n";
+Interpreter::printDecisionTime(const Timer &timer) {
+    Int64 real;
+    Int64 virt;
+    Int64 prof;
+    if (getFlag(SHOW_STATS) && getFlag(SHOW_TIMING) &&
+        timer.isRunning() && timer.getTimes(real, virt, prof)) {
+        cout << "Decision time: " << prof / 1000 << "ms cpu (" <<
+             real / 1000 << "ms real)\n";
     }
 }
 
 void
-Interpreter::match(const Vector<Token>& bubble, bool withExtension, Int64 limit)
-{
-  VisibleModule* fm = currentModule->getFlatModule();
-  Term* patternTerm;
-  Term* subjectTerm;
-  Vector<ConditionFragment*> condition;
-  if (!(fm->parseMatchCommand(bubble, patternTerm, subjectTerm, condition)))
-    return;
+Interpreter::match(const Vector<Token> &bubble, bool withExtension, Int64 limit) {
+    VisibleModule *fm = currentModule->getFlatModule();
+    Term *patternTerm;
+    Term *subjectTerm;
+    Vector<ConditionFragment *> condition;
+    if (!(fm->parseMatchCommand(bubble, patternTerm, subjectTerm, condition)))
+        return;
 
-  Pattern* pattern = new Pattern(patternTerm, withExtension, condition);
-  if (!(pattern->getUnboundVariables().empty()))
-    {
-      IssueWarning(*subjectTerm << ": variable " <<
-		   QUOTE(pattern->index2Variable(pattern->getUnboundVariables().min())) <<
-		   " is used before it is bound in condition of match command.");
-      subjectTerm->deepSelfDestruct();
-      delete pattern;
-      return;
+    Pattern *pattern = new Pattern(patternTerm, withExtension, condition);
+    if (!(pattern->getUnboundVariables().empty())) {
+        IssueWarning(*subjectTerm << ": variable " <<
+                                  QUOTE(pattern->index2Variable(pattern->getUnboundVariables().min())) <<
+                                  " is used before it is bound in condition of match command.");
+        subjectTerm->deepSelfDestruct();
+        delete pattern;
+        return;
     }
-  DagNode* subjectDag = makeDag(subjectTerm);
+    DagNode *subjectDag = makeDag(subjectTerm);
 
-  if (getFlag(SHOW_COMMAND))
-    {
-      UserLevelRewritingContext::beginCommand();
-      if (withExtension)
-	cout << 'x';
-      cout << "match ";
-      if (limit != NONE)
-	cout << '[' << limit << "] ";
-      cout << "in " << currentModule << " : " << pattern->getLhs() <<
-	" <=? " << subjectDag;
-      if (condition.length() > 0)
-	{
-	  cout << " such that ";
-	  MixfixModule::printCondition(cout, condition);
-	}
-      cout << " ." << endl;
+    if (getFlag(SHOW_COMMAND)) {
+        UserLevelRewritingContext::beginCommand();
+        if (withExtension)
+            cout << 'x';
+        cout << "match ";
+        if (limit != NONE)
+            cout << '[' << limit << "] ";
+        cout << "in " << currentModule << " : " << pattern->getLhs() <<
+             " <=? " << subjectDag;
+        if (condition.length() > 0) {
+            cout << " such that ";
+            MixfixModule::printCondition(cout, condition);
+        }
+        cout << " ." << endl;
     }
 
-  startUsingModule(fm);
-  UserLevelRewritingContext* context = new UserLevelRewritingContext(subjectDag);
+    startUsingModule(fm);
+    UserLevelRewritingContext *context = new UserLevelRewritingContext(subjectDag);
 
-  QUANTIFY_START();
-  Timer timer(getFlag(SHOW_TIMING));
-  subjectDag->computeTrueSort(*context);
-  if (UserLevelRewritingContext::aborted())
-    {
-      delete context;
-      delete pattern;
-      fm->unprotect();
-      return;
+    QUANTIFY_START();
+    Timer timer(getFlag(SHOW_TIMING));
+    subjectDag->computeTrueSort(*context);
+    if (UserLevelRewritingContext::aborted()) {
+        delete context;
+        delete pattern;
+        fm->unprotect();
+        return;
     }
 
-  MatchSearchState* state = 
-    new MatchSearchState(context,
-			 pattern,
-			 MatchSearchState::GC_PATTERN | MatchSearchState::GC_CONTEXT,
-			 0,
-			 withExtension ? 0 : NONE);
+    MatchSearchState *state =
+            new MatchSearchState(context,
+                                 pattern,
+                                 MatchSearchState::GC_PATTERN | MatchSearchState::GC_CONTEXT,
+                                 0,
+                                 withExtension ? 0 : NONE);
 
-  doMatching(timer, fm, state, 0, limit);
+    doMatching(timer, fm, state, 0, limit);
 }
 
 void
-Interpreter::doMatching(Timer& timer,
-		      VisibleModule* module,
-		      MatchSearchState* state,
-		      int solutionCount,
-		      int limit)
-{
-  RewritingContext* context = state->getContext();
-  VariableInfo* variableInfo = state->getPattern();
-  int i = 0;
-  for (; i != limit; i++)
-    {
-      bool result = state->findNextMatch();
-      if (UserLevelRewritingContext::aborted())
-	break;
-      //
-      //	There might not be any rewriting happening to catch a
-      //	^C so we check here for safety, though if it does
-      //	happen, we can't drop into the debugger and have to
-      //	treat it as an abort. We need to bail before outputing
-      //	a matcher.
-      //
-      //	If there is rewriting happening to resolve a condition
-      //	then we have a race condition and whether we drop into
-      //	the debugger or just abort depends on the instant the ^C
-      //	interrupt arrives. We tolerate this uncertainty because
-      //	having Maude ignore ^C while spewing thousands of
-      //	matchers that won't print correctly would be worse.
-      //
-      if (UserLevelRewritingContext::interrupted())
-	break;
+Interpreter::doMatching(Timer &timer,
+                        VisibleModule *module,
+                        MatchSearchState *state,
+                        int solutionCount,
+                        int limit) {
+    RewritingContext *context = state->getContext();
+    VariableInfo *variableInfo = state->getPattern();
+    int i = 0;
+    for (; i != limit; i++) {
+        bool result = state->findNextMatch();
+        if (UserLevelRewritingContext::aborted())
+            break;
+        //
+        //	There might not be any rewriting happening to catch a
+        //	^C so we check here for safety, though if it does
+        //	happen, we can't drop into the debugger and have to
+        //	treat it as an abort. We need to bail before outputing
+        //	a matcher.
+        //
+        //	If there is rewriting happening to resolve a condition
+        //	then we have a race condition and whether we drop into
+        //	the debugger or just abort depends on the instant the ^C
+        //	interrupt arrives. We tolerate this uncertainty because
+        //	having Maude ignore ^C while spewing thousands of
+        //	matchers that won't print correctly would be worse.
+        //
+        if (UserLevelRewritingContext::interrupted())
+            break;
 
-      if (!result)
-	{
-	  if (solutionCount == 0)
-	    {
-	      printDecisionTime(timer);
-	      cout << "No match.\n";
-	    }
-	  break;
-	}
+        if (!result) {
+            if (solutionCount == 0) {
+                printDecisionTime(timer);
+                cout << "No match.\n";
+            }
+            break;
+        }
 
-      ++solutionCount;
-      if (solutionCount == 1)
-	printDecisionTime(timer);
-      cout << "\nMatcher " << solutionCount << '\n';
-      ExtensionInfo* extensionInfo = state->getExtensionInfo();
-      if (extensionInfo != 0)
-	{
-	  cout << "Matched portion = ";
-	  if (extensionInfo->matchedWhole())
-	    cout << "(whole)\n";
-	  else
-	    cout << extensionInfo->buildMatchedPortion() << '\n';
-	}
-      UserLevelRewritingContext::printSubstitution(*context, *variableInfo);
+        ++solutionCount;
+        if (solutionCount == 1)
+            printDecisionTime(timer);
+        cout << "\nMatcher " << solutionCount << '\n';
+        ExtensionInfo *extensionInfo = state->getExtensionInfo();
+        if (extensionInfo != 0) {
+            cout << "Matched portion = ";
+            if (extensionInfo->matchedWhole())
+                cout << "(whole)\n";
+            else
+                cout << extensionInfo->buildMatchedPortion() << '\n';
+        }
+        UserLevelRewritingContext::printSubstitution(*context, *variableInfo);
     }
-  QUANTIFY_STOP();
+    QUANTIFY_STOP();
 
-  clearContinueInfo();  // just in case debugger left info
-  state->getContext()->clearCount();
-  if (i == limit)
-    {
-      //
-      //	The loop terminated because we hit user's limit so 
-      //	continuation is still possible. We save the state,
-      //	solutionCount and module, and set a continutation function.
-      //
-      savedState = state;
-      savedSolutionCount = solutionCount;
-      savedModule = module;
-      continueFunc = &Interpreter::matchCont;
+    clearContinueInfo();  // just in case debugger left info
+    state->getContext()->clearCount();
+    if (i == limit) {
+        //
+        //	The loop terminated because we hit user's limit so
+        //	continuation is still possible. We save the state,
+        //	solutionCount and module, and set a continutation function.
+        //
+        savedState = state;
+        savedSolutionCount = solutionCount;
+        savedModule = module;
+        continueFunc = &Interpreter::matchCont;
+    } else {
+        //
+        //	Either user aborted or interrupted or we ran out of solutions;
+        //	either way we need to tidy up.
+        //
+        delete state;
+        module->unprotect();
     }
-  else
-    {
-      //
-      //	Either user aborted or interrupted or we ran out of solutions;
-      //	either way we need to tidy up.
-      //
-      delete state;
-      module->unprotect();
-    }
-  UserLevelRewritingContext::clearDebug();
-  MemoryCell::okToCollectGarbage();
+    UserLevelRewritingContext::clearDebug();
+    MemoryCell::okToCollectGarbage();
 }
 
 void
-Interpreter::matchCont(Int64 limit, bool /* debug */)
-{
-  MatchSearchState* state = safeCast(MatchSearchState*, savedState); 
-  VisibleModule* fm = savedModule;
-  savedState = 0;
-  savedModule = 0;
-  continueFunc = 0;
+Interpreter::matchCont(Int64 limit, bool /* debug */) {
+    MatchSearchState *state = safeCast(MatchSearchState*, savedState);
+    VisibleModule *fm = savedModule;
+    savedState = 0;
+    savedModule = 0;
+    continueFunc = 0;
 
-  QUANTIFY_START();
-  Timer timer(getFlag(SHOW_TIMING));
-  doMatching(timer, fm, state, savedSolutionCount, limit);
+    QUANTIFY_START();
+    Timer timer(getFlag(SHOW_TIMING));
+    doMatching(timer, fm, state, savedSolutionCount, limit);
 }

@@ -37,127 +37,115 @@
 #include "branchTask.hh"
 #include "decompositionProcess.hh"
 
-BranchTask::BranchTask(StrategyStackManager& strategyStackManager,
-		       StrategicExecution* sibling,
-		       int startIndex,
-		       StrategyExpression* initialStrategy,
-		       BranchStrategy::Action successAction,
-		       StrategyExpression* successStrategy,
-		       BranchStrategy::Action failureAction,
-		       StrategyExpression* failureStrategy,
-		       StrategyStackManager::StackId pending,
-		       StrategyStackManager::StackId iterationCheckpoint,
-		       StrategicProcess* insertionPoint)
-  : StrategicTask(sibling),
-    strategyStackManager(strategyStackManager),
-    startIndex(startIndex),
-    iterationCheckpoint(iterationCheckpoint),
-    initialStrategy(initialStrategy),
-    successAction(successAction),
-    successStrategy(successStrategy),
-    failureAction(failureAction),
-    failureStrategy(failureStrategy),
-    pending(pending)
-{
-  success = false;
-  (void) new DecompositionProcess(startIndex,
-				  strategyStackManager.push(StrategyStackManager::EMPTY_STACK, initialStrategy),
-				  getDummyExecution(),
-				  insertionPoint);
+BranchTask::BranchTask(StrategyStackManager &strategyStackManager,
+                       StrategicExecution *sibling,
+                       int startIndex,
+                       StrategyExpression *initialStrategy,
+                       BranchStrategy::Action successAction,
+                       StrategyExpression *successStrategy,
+                       BranchStrategy::Action failureAction,
+                       StrategyExpression *failureStrategy,
+                       StrategyStackManager::StackId pending,
+                       StrategyStackManager::StackId iterationCheckpoint,
+                       StrategicProcess *insertionPoint)
+        : StrategicTask(sibling),
+          strategyStackManager(strategyStackManager),
+          startIndex(startIndex),
+          iterationCheckpoint(iterationCheckpoint),
+          initialStrategy(initialStrategy),
+          successAction(successAction),
+          successStrategy(successStrategy),
+          failureAction(failureAction),
+          failureStrategy(failureStrategy),
+          pending(pending) {
+    success = false;
+    (void) new DecompositionProcess(startIndex,
+                                    strategyStackManager.push(StrategyStackManager::EMPTY_STACK, initialStrategy),
+                                    getDummyExecution(),
+                                    insertionPoint);
 }
 
 StrategicExecution::Survival
-BranchTask::executionSucceeded(int resultIndex, StrategicProcess* insertionPoint)
-{
-  success = true;
-  switch (successAction)
-    {
-    case BranchStrategy::FAIL:
-      return DIE;
-    case BranchStrategy::IDLE:
-      {
-	(void) new DecompositionProcess(startIndex, pending, this, insertionPoint);
-	return DIE;
-      }
-    case BranchStrategy::PASS_THRU:
-      {
-	(void) new DecompositionProcess(resultIndex, pending, this, insertionPoint);
-	break;
-      }
-    case BranchStrategy::NEW_STRATEGY:
-      {
-	//
-	//	Start a new process that applies the success strategy followed by the pending
-	//	strategies to the result. It will report to our owner.
-	//
-	DecompositionProcess* p = new DecompositionProcess(resultIndex, pending, this, insertionPoint);
-	p->pushStrategy(strategyStackManager, successStrategy);
-	break;
-      }
-    case BranchStrategy::ITERATE:
-      {
-	//
-	//	Do not iterate if we have already iterated from this term. We check this
-	//	by looking for the stack position of e ! in the seen set of the parent task.
-	//
-	if (getOwner()->alreadySeen(resultIndex, iterationCheckpoint))
-	  return SURVIVE;
-	//
-	//	We set up another branch task on the new result and we stay alive to
-	//	process any new results.
-	//
-	  (void) new BranchTask(strategyStackManager,
-				this,
-				resultIndex,
-				initialStrategy,
-				successAction,
-				successStrategy,
-				failureAction,
-				failureStrategy,
-				pending,
-				iterationCheckpoint,
-				insertionPoint);
-	  break;
-      }
-    default:
-      CantHappen("bad success action");
+BranchTask::executionSucceeded(int resultIndex, StrategicProcess *insertionPoint) {
+    success = true;
+    switch (successAction) {
+        case BranchStrategy::FAIL:
+            return DIE;
+        case BranchStrategy::IDLE: {
+            (void) new DecompositionProcess(startIndex, pending, this, insertionPoint);
+            return DIE;
+        }
+        case BranchStrategy::PASS_THRU: {
+            (void) new DecompositionProcess(resultIndex, pending, this, insertionPoint);
+            break;
+        }
+        case BranchStrategy::NEW_STRATEGY: {
+            //
+            //	Start a new process that applies the success strategy followed by the pending
+            //	strategies to the result. It will report to our owner.
+            //
+            DecompositionProcess *p = new DecompositionProcess(resultIndex, pending, this, insertionPoint);
+            p->pushStrategy(strategyStackManager, successStrategy);
+            break;
+        }
+        case BranchStrategy::ITERATE: {
+            //
+            //	Do not iterate if we have already iterated from this term. We check this
+            //	by looking for the stack position of e ! in the seen set of the parent task.
+            //
+            if (getOwner()->alreadySeen(resultIndex, iterationCheckpoint))
+                return SURVIVE;
+            //
+            //	We set up another branch task on the new result and we stay alive to
+            //	process any new results.
+            //
+            (void) new BranchTask(strategyStackManager,
+                                  this,
+                                  resultIndex,
+                                  initialStrategy,
+                                  successAction,
+                                  successStrategy,
+                                  failureAction,
+                                  failureStrategy,
+                                  pending,
+                                  iterationCheckpoint,
+                                  insertionPoint);
+            break;
+        }
+        default:
+            CantHappen("bad success action");
     }
-  return SURVIVE;
+    return SURVIVE;
 }
 
 StrategicExecution::Survival
-BranchTask::executionsExhausted(StrategicProcess* insertionPoint)
-{
-  if (!success)
-    {
-      //
-      //	We didn't have any successes with initial strategy from the original term.
-      //
-      switch (failureAction)
-	{
-	case BranchStrategy::FAIL:
-	  break;
-	case BranchStrategy::IDLE:
-	  {
-	    (void) new DecompositionProcess(startIndex, pending, this, insertionPoint);
-	    break;
-	  }
-	case BranchStrategy::NEW_STRATEGY:
-	  {
-	    //
-	    //	Start a new process that applies the failure strategy followed by the pending
-	    //	strategies to the original term. It will report to our owner.
-	    //
-	    DecompositionProcess* p = new DecompositionProcess(startIndex, pending, this, insertionPoint);
-	    p->pushStrategy(strategyStackManager, failureStrategy);
-	    break;
-	  }
-	default:
-	  CantHappen("bad failure action");
-	}
+BranchTask::executionsExhausted(StrategicProcess *insertionPoint) {
+    if (!success) {
+        //
+        //	We didn't have any successes with initial strategy from the original term.
+        //
+        switch (failureAction) {
+            case BranchStrategy::FAIL:
+                break;
+            case BranchStrategy::IDLE: {
+                (void) new DecompositionProcess(startIndex, pending, this, insertionPoint);
+                break;
+            }
+            case BranchStrategy::NEW_STRATEGY: {
+                //
+                //	Start a new process that applies the failure strategy followed by the pending
+                //	strategies to the original term. It will report to our owner.
+                //
+                DecompositionProcess *p = new DecompositionProcess(startIndex, pending, this, insertionPoint);
+                p->pushStrategy(strategyStackManager, failureStrategy);
+                break;
+            }
+            default:
+                CantHappen("bad failure action");
+        }
     }
-  //
-  //	We don't have any more slave executions so we can pack up and go home.
-  //
-  return DIE;
+    //
+    //	We don't have any more slave executions so we can pack up and go home.
+    //
+    return DIE;
 }

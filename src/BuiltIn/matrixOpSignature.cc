@@ -28,17 +28,28 @@
 //	The format is:
 //		MACRO(symbols name, symbols C++ class, required type flags, number of args)
 //
-  MACRO(stringSymbol, StringSymbol, SymbolType::STRING, 0)
+MACRO(stringSymbol, StringSymbol, SymbolType::STRING,
+0)
 
-  MACRO(emptyVectorSymbol, Symbol, 0, 0)
-  MACRO(vectorEntrySymbol, FreeSymbol, 0, 2)
-  MACRO(vectorSymbol, ACU_Symbol, SymbolType::ASSOC | SymbolType::COMM, 2)
+MACRO(emptyVectorSymbol, Symbol,
+0, 0)
+MACRO(vectorEntrySymbol, FreeSymbol,
+0, 2)
+MACRO(vectorSymbol, ACU_Symbol, SymbolType::ASSOC
+| SymbolType::COMM, 2)
 
-  MACRO(emptyMatrixSymbol, Symbol, 0, 0)
-  MACRO(matrixEntrySymbol, FreeSymbol, 0, 2)
-  MACRO(matrixSymbol, ACU_Symbol, SymbolType::ASSOC | SymbolType::COMM, 2)
-  MACRO(indexPairSymbol, FreeSymbol, 0, 2)
+MACRO(emptyMatrixSymbol, Symbol,
+0, 0)
+MACRO(matrixEntrySymbol, FreeSymbol,
+0, 2)
+MACRO(matrixSymbol, ACU_Symbol, SymbolType::ASSOC
+| SymbolType::COMM, 2)
+MACRO(indexPairSymbol, FreeSymbol,
+0, 2)
 
-  MACRO(emptyVectorSetSymbol, Symbol, 0, 0)
-  MACRO(vectorSetSymbol, ACU_Symbol, SymbolType::ASSOC | SymbolType::COMM, 2)
-  MACRO(vectorSetPairSymbol, FreeSymbol, 0, 2)
+MACRO(emptyVectorSetSymbol, Symbol,
+0, 0)
+MACRO(vectorSetSymbol, ACU_Symbol, SymbolType::ASSOC
+| SymbolType::COMM, 2)
+MACRO(vectorSetPairSymbol, FreeSymbol,
+0, 2)

@@ -25,131 +25,113 @@
 //
 
 bool
-WordLevel::makeEmptyAssignment(int i)
-{
-  //
-  //	Assigns the empty word to variable i. Returns true
-  //	if assignment made and false if the i was already assigned
-  //	the empty word.
-  //
-  Word& currentAssignment = partialSolution[i];
-  if (!(currentAssignment.empty()))
-    {
-      if (currentAssignment.size() == 1 && currentAssignment[0] == i)
-	;  // maps to itself so can update without issue
-      else
-	{
-	  //
-	  //	Maps to something else so we need to create a new null equation.
-	  //
-	  nullEquations.push_back(currentAssignment);
-	}
-      currentAssignment.clear();
-      return true;  // assignment made
+WordLevel::makeEmptyAssignment(int i) {
+    //
+    //	Assigns the empty word to variable i. Returns true
+    //	if assignment made and false if the i was already assigned
+    //	the empty word.
+    //
+    Word &currentAssignment = partialSolution[i];
+    if (!(currentAssignment.empty())) {
+        if (currentAssignment.size() == 1 && currentAssignment[0] == i);  // maps to itself so can update without issue
+        else {
+            //
+            //	Maps to something else so we need to create a new null equation.
+            //
+            nullEquations.push_back(currentAssignment);
+        }
+        currentAssignment.clear();
+        return true;  // assignment made
     }
-  return false;  // no change
+    return false;  // no change
 }
 
 bool
-WordLevel::handleNullEquations()
-{
-  Assert(levelType != PIGPUG, "should not be called in PIGPUG level");
-  //
-  //	Resolve existing null equations, which may create new null equations
-  //	until we encounter failure or there are no null equations left.
-  //	There can only be finitely many new null equations created since
-  //	each one results from a variable being assigned empty.
-  //
-  while (!(nullEquations.empty()))
-    {
-      for (int i : nullEquations.front())
-	{
-	  if (constraintMap[i].canTakeEmpty())
-	    (void) makeEmptyAssignment(i);
-	  else
-	    {
-	      //
-	      //	We needed x_i to take the empty word but this is
-	      //	forbidden by its constraint so the whole WordLevel
-	      //	will fail so we don't care about leaving it in an
-	      //	inconsistent state.
-	      //
-	      return false;
-	    }
-	}
-      //
-      //	Null equation at the front of the queue has been resolved.
-      //
-      nullEquations.pop_front();
+WordLevel::handleNullEquations() {
+    Assert(levelType != PIGPUG, "should not be called in PIGPUG level");
+    //
+    //	Resolve existing null equations, which may create new null equations
+    //	until we encounter failure or there are no null equations left.
+    //	There can only be finitely many new null equations created since
+    //	each one results from a variable being assigned empty.
+    //
+    while (!(nullEquations.empty())) {
+        for (int i : nullEquations.front()) {
+            if (constraintMap[i].canTakeEmpty())
+                (void) makeEmptyAssignment(i);
+            else {
+                //
+                //	We needed x_i to take the empty word but this is
+                //	forbidden by its constraint so the whole WordLevel
+                //	will fail so we don't care about leaving it in an
+                //	inconsistent state.
+                //
+                return false;
+            }
+        }
+        //
+        //	Null equation at the front of the queue has been resolved.
+        //
+        nullEquations.pop_front();
     }
-  //
-  //	All null equations sucessfully resolved.
-  //
-  return true;
+    //
+    //	All null equations sucessfully resolved.
+    //
+    return true;
 }
 
 bool
-WordLevel::resolveOccursCheckFailure(int index, const Word& newValue)
-{
-  Assert(levelType != PIGPUG, "should not be called in PIGPUG level");
-  //
-  //	We want to assign newValue to variable index, but newValue
-  //	contains index. We see if this can be resolved via collapse.
-  //	May update assignments and create new null equations.
-  //
-  int nrOccurrences = 0;
-  for (int i : newValue)
-    {
-      if (i == index)
-	++nrOccurrences;
-      else
-	{
-	  if (constraintMap[i].canTakeEmpty())
-	    (void) makeEmptyAssignment(i);
-	  else
-	    {
-	      //
-	      //	We needed x_i to take the empty word but this is
-	      //	forbidden by its constraint so the whole WordLevel
-	      //	will fail so we don't care about leaving it in an
-	      //	inconsistent state.
-	      //
-	      return false;
-	    }
-	}
+WordLevel::resolveOccursCheckFailure(int index, const Word &newValue) {
+    Assert(levelType != PIGPUG, "should not be called in PIGPUG level");
+    //
+    //	We want to assign newValue to variable index, but newValue
+    //	contains index. We see if this can be resolved via collapse.
+    //	May update assignments and create new null equations.
+    //
+    int nrOccurrences = 0;
+    for (int i : newValue) {
+        if (i == index)
+            ++nrOccurrences;
+        else {
+            if (constraintMap[i].canTakeEmpty())
+                (void) makeEmptyAssignment(i);
+            else {
+                //
+                //	We needed x_i to take the empty word but this is
+                //	forbidden by its constraint so the whole WordLevel
+                //	will fail so we don't care about leaving it in an
+                //	inconsistent state.
+                //
+                return false;
+            }
+        }
     }
 
-  Assert(nrOccurrences >= 1, "must have occurrence for an occur-check failure");
-  if (nrOccurrences > 1)
-    {
-      //
-      //	Variable index occurs multiple time so it must take empty itself.
-      //
-      if (constraintMap[index].canTakeEmpty())
-	{
-	  //
-	  //	We assume we can freely replace the value of variable index
-	  //	because that's what were called to do.
-	  //
-	  DebugInfo("binding x" << index << " to empty to solve multiple occurs-check failure");
-	  partialSolution[index].clear();
-	}
-      else
-	{
-	  //
-	  //	As above, we can bail and leave things in an inconsistent state.
-	  //
-	  return false;
-	}
+    Assert(nrOccurrences >= 1, "must have occurrence for an occur-check failure");
+    if (nrOccurrences > 1) {
+        //
+        //	Variable index occurs multiple time so it must take empty itself.
+        //
+        if (constraintMap[index].canTakeEmpty()) {
+            //
+            //	We assume we can freely replace the value of variable index
+            //	because that's what were called to do.
+            //
+            DebugInfo("binding x" << index << " to empty to solve multiple occurs-check failure");
+            partialSolution[index].clear();
+        } else {
+            //
+            //	As above, we can bail and leave things in an inconsistent state.
+            //
+            return false;
+        }
+    } else {
+        //
+        //	Variable index becomes free because everything else has collapsed.
+        //
+        Word &currentAssignment = partialSolution[index];
+        currentAssignment.resize(1);
+        currentAssignment[0] = index;
     }
-  else
-    {
-      //
-      //	Variable index becomes free because everything else has collapsed.
-      //
-      Word& currentAssignment = partialSolution[index];
-      currentAssignment.resize(1);
-      currentAssignment[0] = index;
-    }
-  return handleNullEquations();
+    return handleNullEquations();
 }

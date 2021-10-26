@@ -36,32 +36,27 @@
 //	strategy language class definitions
 #include "strategicProcess.hh"
 
-StrategicProcess::StrategicProcess(StrategicExecution* taskSibling, StrategicProcess* other)
-  : StrategicExecution(taskSibling)
-{
-  if (other == 0)
-    {
-      //
-      //	Make degenerate circular list.
-      //
-      next = prev = this;
-    }
-  else
-    {
-      //
-      //	Insert us into circular list just before other; i.e. we become
-      //	the tail of the list w.r.t. other to ensure that all the remaining
-      //	processes get to run before us.
-      //
-      prev = other->prev;
-      prev->next = this;
-      next = other;
-      next->prev = this;
+StrategicProcess::StrategicProcess(StrategicExecution *taskSibling, StrategicProcess *other)
+        : StrategicExecution(taskSibling) {
+    if (other == 0) {
+        //
+        //	Make degenerate circular list.
+        //
+        next = prev = this;
+    } else {
+        //
+        //	Insert us into circular list just before other; i.e. we become
+        //	the tail of the list w.r.t. other to ensure that all the remaining
+        //	processes get to run before us.
+        //
+        prev = other->prev;
+        prev->next = this;
+        next = other;
+        next->prev = this;
     }
 }
 
-StrategicProcess::~StrategicProcess()
-{
-  prev->next = next;
-  next->prev = prev;
+StrategicProcess::~StrategicProcess() {
+    prev->next = next;
+    next->prev = prev;
 }

@@ -64,159 +64,152 @@
 #include "timeActions.cc"
 
 TimeManagerSymbol::TimeManagerSymbol(int id)
-  : ExternalObjectManagerSymbol(id)
-{
+        : ExternalObjectManagerSymbol(id) {
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   SymbolName = 0;
+
 #include "timeSignature.cc"
+
 #undef MACRO
 }
 
 bool
-TimeManagerSymbol::attachData(const Vector<Sort*>& opDeclaration,
-				const char* purpose,
-				const Vector<const char*>& data)
-{
-  NULL_DATA(purpose, TimeManagerSymbol, data);
-  return ExternalObjectManagerSymbol::attachData(opDeclaration, purpose, data);
+TimeManagerSymbol::attachData(const Vector<Sort *> &opDeclaration,
+                              const char *purpose,
+                              const Vector<const char *> &data) {
+    NULL_DATA(purpose, TimeManagerSymbol, data);
+    return ExternalObjectManagerSymbol::attachData(opDeclaration, purpose, data);
 }
 
 bool
-TimeManagerSymbol::attachSymbol(const char* purpose, Symbol* symbol)
-{
-  Assert(symbol != 0, "null symbol for " << purpose);
+TimeManagerSymbol::attachSymbol(const char *purpose, Symbol *symbol) {
+    Assert(symbol != 0, "null symbol for " << purpose);
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   BIND_SYMBOL(purpose, symbol, SymbolName, SymbolClass*)
+
 #include "timeSignature.cc"
+
 #undef MACRO
-  return ExternalObjectManagerSymbol::attachSymbol(purpose, symbol);
+    return ExternalObjectManagerSymbol::attachSymbol(purpose, symbol);
 }
 
 void
-TimeManagerSymbol::copyAttachments(Symbol* original, SymbolMap* map)
-{
-  TimeManagerSymbol* orig = safeCast(TimeManagerSymbol*, original);
+TimeManagerSymbol::copyAttachments(Symbol *original, SymbolMap *map) {
+    TimeManagerSymbol *orig = safeCast(TimeManagerSymbol*, original);
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   COPY_SYMBOL(orig, SymbolName, map, SymbolClass*)
+
 #include "timeSignature.cc"
+
 #undef MACRO
-  ExternalObjectManagerSymbol::copyAttachments(original, map);
+    ExternalObjectManagerSymbol::copyAttachments(original, map);
 }
 
 void
-TimeManagerSymbol::getDataAttachments(const Vector<Sort*>& opDeclaration,
-				      Vector<const char*>& purposes,
-				      Vector<Vector<const char*> >& data)
-{
-  int nrDataAttachments = purposes.length();
-  purposes.resize(nrDataAttachments + 1);
-  purposes[nrDataAttachments] = "TimeManagerSymbol";
-  data.resize(nrDataAttachments + 1);
-  ExternalObjectManagerSymbol::getDataAttachments(opDeclaration, purposes, data);
+TimeManagerSymbol::getDataAttachments(const Vector<Sort *> &opDeclaration,
+                                      Vector<const char *> &purposes,
+                                      Vector<Vector<const char *> > &data) {
+    int nrDataAttachments = purposes.length();
+    purposes.resize(nrDataAttachments + 1);
+    purposes[nrDataAttachments] = "TimeManagerSymbol";
+    data.resize(nrDataAttachments + 1);
+    ExternalObjectManagerSymbol::getDataAttachments(opDeclaration, purposes, data);
 }
 
 void
-TimeManagerSymbol::getSymbolAttachments(Vector<const char*>& purposes,
-					  Vector<Symbol*>& symbols)
-{
+TimeManagerSymbol::getSymbolAttachments(Vector<const char *> &purposes,
+                                        Vector<Symbol *> &symbols) {
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   APPEND_SYMBOL(purposes, symbols, SymbolName)
+
 #include "timeSignature.cc"
+
 #undef MACRO
-  ExternalObjectManagerSymbol::getSymbolAttachments(purposes, symbols);
+    ExternalObjectManagerSymbol::getSymbolAttachments(purposes, symbols);
 }
 
 bool
-TimeManagerSymbol::handleManagerMessage(DagNode* message, ObjectSystemRewritingContext& context)
-{
-  DebugInfo("TimeManagerSymbol::handleManagerMessage(): saw " << message);
-  Symbol* s = message->symbol();
+TimeManagerSymbol::handleManagerMessage(DagNode *message, ObjectSystemRewritingContext &context) {
+    DebugInfo("TimeManagerSymbol::handleManagerMessage(): saw " << message);
+    Symbol *s = message->symbol();
 
-  if (s == getTimeSinceEpochMsg)
-    getTimeSinceEpoch(safeCast(FreeDagNode*, message), context);
-  else if (s == getDateAndTimeMsg)
-    getDateAndTime(safeCast(FreeDagNode*, message), context);
-  else if (s == getLocalDateAndTimeMsg)
-    getLocalDateAndTime(safeCast(FreeDagNode*, message), context);
-  else if (s == createTimerMsg)
-    createTimer(safeCast(FreeDagNode*, message), context);
-  else
-    return false;
-  return true;
+    if (s == getTimeSinceEpochMsg)
+        getTimeSinceEpoch(safeCast(FreeDagNode*, message), context);
+    else if (s == getDateAndTimeMsg)
+        getDateAndTime(safeCast(FreeDagNode*, message), context);
+    else if (s == getLocalDateAndTimeMsg)
+        getLocalDateAndTime(safeCast(FreeDagNode*, message), context);
+    else if (s == createTimerMsg)
+        createTimer(safeCast(FreeDagNode*, message), context);
+    else
+        return false;
+    return true;
 }
 
 bool
-TimeManagerSymbol::handleMessage(DagNode* message, ObjectSystemRewritingContext& context)
-{
-  DebugEnter(message);
+TimeManagerSymbol::handleMessage(DagNode *message, ObjectSystemRewritingContext &context) {
+    DebugEnter(message);
 
-  Symbol* s = message->symbol();
-  if (s == startTimerMsg)
-    startTimer(safeCast(FreeDagNode*, message), context);
-  else if (s == stopTimerMsg)
-    stopTimer(safeCast(FreeDagNode*, message), context);
-  else if (s == deleteTimerMsg)
-    deleteTimer(safeCast(FreeDagNode*, message), context);
-  else
-    return false;
-  return true;
+    Symbol *s = message->symbol();
+    if (s == startTimerMsg)
+        startTimer(safeCast(FreeDagNode*, message), context);
+    else if (s == stopTimerMsg)
+        stopTimer(safeCast(FreeDagNode*, message), context);
+    else if (s == deleteTimerMsg)
+        deleteTimer(safeCast(FreeDagNode*, message), context);
+    else
+        return false;
+    return true;
 }
 
 void
-TimeManagerSymbol::cleanUp(DagNode* objectId)
-{
-  DebugEnter(objectId);
+TimeManagerSymbol::cleanUp(DagNode *objectId) {
+    DebugEnter(objectId);
 
-  int id;
-  Timer* timer;
-  getTimer(objectId, id, timer);
-  //
-  //	Check if we had a nonzero callbackRequestTime; this
-  //	implies we have a callback request pending.
-  //
-  if (timer->callbackRequestTime.tv_sec != 0)
-    {
-      DebugInfo("cancelling pending callback");
-      cancelCallback(timer->callbackHandle);
+    int id;
+    Timer *timer;
+    getTimer(objectId, id, timer);
+    //
+    //	Check if we had a nonzero callbackRequestTime; this
+    //	implies we have a callback request pending.
+    //
+    if (timer->callbackRequestTime.tv_sec != 0) {
+        DebugInfo("cancelling pending callback");
+        cancelCallback(timer->callbackHandle);
     }
-  timerMap.erase(id);
+    timerMap.erase(id);
 }
 
 void
-TimeManagerSymbol::doCallback(long id)
-{
-  DebugEnter(id);
+TimeManagerSymbol::doCallback(long id) {
+    DebugEnter(id);
 
-  TimerMap::iterator i = timerMap.find(id);
-  Assert(i != timerMap.end(), "missing timer " << i->first);
+    TimerMap::iterator i = timerMap.find(id);
+    Assert(i != timerMap.end(), "missing timer " << i->first);
 
-  Timer& t = i->second;
-  ObjectSystemRewritingContext& context = *(t.objectContext);
-  FreeDagNode* message = safeCast(FreeDagNode*, t.lastStartMessage.getNode());
-  if (t.period == 0)
-    {
-      //
-      //	One shot mode so clear callbackRequestTime so we don't
-      //	try to cancel this callback now it has happened.
-      //	Also we clear lastStartMessage so it can be garbage collected.
-      //
-      t.callbackRequestTime.tv_sec = 0;
-      t.callbackRequestTime.tv_nsec = 0;
-      t.lastStartMessage.setNode(0);
+    Timer &t = i->second;
+    ObjectSystemRewritingContext &context = *(t.objectContext);
+    FreeDagNode *message = safeCast(FreeDagNode*, t.lastStartMessage.getNode());
+    if (t.period == 0) {
+        //
+        //	One shot mode so clear callbackRequestTime so we don't
+        //	try to cancel this callback now it has happened.
+        //	Also we clear lastStartMessage so it can be garbage collected.
+        //
+        t.callbackRequestTime.tv_sec = 0;
+        t.callbackRequestTime.tv_nsec = 0;
+        t.lastStartMessage.setNode(0);
+    } else {
+        //
+        //	Periodic mode so set up the next callback.
+        //
+        t.callbackRequestTime.tv_sec += t.period / BILLION;
+        t.callbackRequestTime.tv_nsec += t.period % BILLION;
+        if (t.callbackRequestTime.tv_nsec >= BILLION) {
+            t.callbackRequestTime.tv_nsec -= BILLION;
+            t.callbackRequestTime.tv_sec += 1;
+        }
+        t.callbackHandle = requestCallback(t.callbackRequestTime, id);
     }
-  else
-    {
-      //
-      //	Periodic mode so set up the next callback.
-      //
-      t.callbackRequestTime.tv_sec += t.period / BILLION;
-      t.callbackRequestTime.tv_nsec += t.period % BILLION;
-      if (t.callbackRequestTime.tv_nsec >= BILLION)
-	{
-	  t.callbackRequestTime.tv_nsec -= BILLION;
-	  t.callbackRequestTime.tv_sec += 1;
-	}
-      t.callbackHandle = requestCallback(t.callbackRequestTime, id);
-    }
-  trivialReply(timeOutMsg, message, context);
+    trivialReply(timeOutMsg, message, context);
 }

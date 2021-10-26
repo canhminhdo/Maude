@@ -39,47 +39,38 @@
 #include "viewExpression.hh"
 
 ViewExpression::ViewExpression(Token name)
- : name(name)
-{
+        : name(name) {
 }
 
-ViewExpression::ViewExpression(ViewExpression* view, const Vector<ViewExpression*>& arguments)
- : view(view),
-   arguments(arguments)
-{
+ViewExpression::ViewExpression(ViewExpression *view, const Vector<ViewExpression *> &arguments)
+        : view(view),
+          arguments(arguments) {
 }
 
 void
-ViewExpression::deepSelfDestruct()
-{
-  if (isInstantiation())
-    {
-      view->deepSelfDestruct();
-      FOR_EACH_CONST(i, Vector<ViewExpression*>, arguments)
-	(*i)->deepSelfDestruct();
+ViewExpression::deepSelfDestruct() {
+    if (isInstantiation()) {
+        view->deepSelfDestruct();
+        FOR_EACH_CONST(i, Vector<ViewExpression *>, arguments) (*i)->deepSelfDestruct();
     }
-  delete this;
+    delete this;
 }
 
-ostream&
-operator<<(ostream& s, const ViewExpression* expr)
-{
-  if (expr->isInstantiation())
-    {
-      s << expr->getView() << '{';
-      const Vector<ViewExpression*>& arguments = expr->getArguments();
-      const Vector<ViewExpression*>::const_iterator e = arguments.end();
-      for (Vector<ViewExpression*>::const_iterator i = arguments.begin();;)
-	{
-	  s << *i;
-	  ++i;
-	  if (i == e)
-	    break;
-	  s  << ", ";
-	}
-      s << '}';
-    }
-  else
-    s << expr->getName();
-  return s;
+ostream &
+operator<<(ostream &s, const ViewExpression *expr) {
+    if (expr->isInstantiation()) {
+        s << expr->getView() << '{';
+        const Vector<ViewExpression *> &arguments = expr->getArguments();
+        const Vector<ViewExpression *>::const_iterator e = arguments.end();
+        for (Vector<ViewExpression *>::const_iterator i = arguments.begin();;) {
+            s << *i;
+            ++i;
+            if (i == e)
+                break;
+            s << ", ";
+        }
+        s << '}';
+    } else
+        s << expr->getName();
+    return s;
 }

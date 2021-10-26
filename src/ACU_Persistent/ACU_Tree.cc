@@ -44,45 +44,42 @@
 #include "ACU_Stack.hh"
 #include "ACU_Tree.hh"
 
-ACU_Tree::ACU_Tree(const ArgVec<ACU_Pair>& source)
-{
-  size = source.length();
-  root = makeTree(source, 0, size, false);
-  
+ACU_Tree::ACU_Tree(const ArgVec<ACU_Pair> &source) {
+    size = source.length();
+    root = makeTree(source, 0, size, false);
+
 #ifdef CHECK_TREE
-  checkIntegrity();
+    checkIntegrity();
 #endif
 }
 
 local_inline bool
-ACU_Tree::pow2min1(int i)
-{
-  //
-  //	Return true iff i is 2^n - 1 for some n >= 0.
-  //
-  return ((i + 1) & i) == 0;
+ACU_Tree::pow2min1(int i) {
+    //
+    //	Return true iff i is 2^n - 1 for some n >= 0.
+    //
+    return ((i + 1) & i) == 0;
 }
 
-ACU_RedBlackNode* 
-ACU_Tree::makeTree(const ArgVec<ACU_Pair>& args,
-		   int first,
-		   int size,
-		   bool makeRed)
-{
-  if (size == 0)
-    return 0;
-  int leftSize = size / 2;
-  int rightSize = size - 1 - leftSize;
-  ACU_RedBlackNode* leftTree = makeTree(args, first, leftSize,
-					leftSize > rightSize && pow2min1(leftSize));
-  ACU_RedBlackNode* rightTree = makeTree(args, first + leftSize + 1, rightSize, false);
-  ACU_RedBlackNode* t = new ACU_RedBlackNode(args[first + leftSize].dagNode,
-					     args[first + leftSize].multiplicity,
-					     leftTree,
-					     rightTree);
-  if (makeRed)
-    t->makeRed();
-  return t;
+ACU_RedBlackNode *
+ACU_Tree::makeTree(const ArgVec<ACU_Pair> &args,
+                   int first,
+                   int size,
+                   bool makeRed) {
+    if (size == 0)
+        return 0;
+    int leftSize = size / 2;
+    int rightSize = size - 1 - leftSize;
+    ACU_RedBlackNode *leftTree = makeTree(args, first, leftSize,
+                                          leftSize > rightSize && pow2min1(leftSize));
+    ACU_RedBlackNode *rightTree = makeTree(args, first + leftSize + 1, rightSize, false);
+    ACU_RedBlackNode *t = new ACU_RedBlackNode(args[first + leftSize].dagNode,
+                                               args[first + leftSize].multiplicity,
+                                               leftTree,
+                                               rightTree);
+    if (makeRed)
+        t->makeRed();
+    return t;
 }
 
 /*
@@ -99,90 +96,81 @@ ACU_Tree::copyToArgVec(ArgVec<ACU_Pair>& dest) const
 */
 
 int
-ACU_Tree::computeBaseSort2(BinarySymbol* symbol, ACU_RedBlackNode* root)
-{
-  //
-  //	Postorder traversal of node is red-black tree without a sort.
-  //
-  ACU_Stack s;
-  ACU_RedBlackNode* n;
+ACU_Tree::computeBaseSort2(BinarySymbol *symbol, ACU_RedBlackNode *root) {
+    //
+    //	Postorder traversal of node is red-black tree without a sort.
+    //
+    ACU_Stack s;
+    ACU_RedBlackNode *n;
 
-  for(;;)
-    {
-      n = root->getLeft();
-      if (n == 0 || n->getSortIndex() != Sort::SORT_UNKNOWN)
-	{
-	tryRight:
-	  n = root->getRight();
-	  if (n == 0 || n->getSortIndex() != Sort::SORT_UNKNOWN)
-	    break;
-	}
-      s.push(root);
-      root = n;
+    for (;;) {
+        n = root->getLeft();
+        if (n == 0 || n->getSortIndex() != Sort::SORT_UNKNOWN) {
+            tryRight:
+            n = root->getRight();
+            if (n == 0 || n->getSortIndex() != Sort::SORT_UNKNOWN)
+                break;
+        }
+        s.push(root);
+        root = n;
     }
 
-  int f = root->getDagNode()->getSortIndex();
-  f = symbol->computeMultSortIndex(f, f, root->getMultiplicity() - 1);
-  n = root->getLeft();
-  if (n != 0)
-    f = symbol->computeSortIndex(f, n->getSortIndex());
-  n = root->getRight();
-  if (n != 0)
-    f = symbol->computeSortIndex(f, n->getSortIndex());
-  root->setSortIndex(f);
+    int f = root->getDagNode()->getSortIndex();
+    f = symbol->computeMultSortIndex(f, f, root->getMultiplicity() - 1);
+    n = root->getLeft();
+    if (n != 0)
+        f = symbol->computeSortIndex(f, n->getSortIndex());
+    n = root->getRight();
+    if (n != 0)
+        f = symbol->computeSortIndex(f, n->getSortIndex());
+    root->setSortIndex(f);
 
-  while (!(s.empty()))
-    {
-      ACU_RedBlackNode* oldRoot = root;
-      root = s.pop();
-      n = root->getLeft();
-      if (n == oldRoot)
-	goto tryRight;
-      if (n != 0)
-	f = symbol->computeSortIndex(f, n->getSortIndex());
-      f = symbol->computeMultSortIndex(f,
-				       root->getDagNode()->getSortIndex(),
-				       root->getMultiplicity());
-      root->setSortIndex(f);
+    while (!(s.empty())) {
+        ACU_RedBlackNode *oldRoot = root;
+        root = s.pop();
+        n = root->getLeft();
+        if (n == oldRoot)
+            goto tryRight;
+        if (n != 0)
+            f = symbol->computeSortIndex(f, n->getSortIndex());
+        f = symbol->computeMultSortIndex(f,
+                                         root->getDagNode()->getSortIndex(),
+                                         root->getMultiplicity());
+        root->setSortIndex(f);
     }
 
-  return f;
+    return f;
 }
 
 void
-ACU_Tree::mark()
-{
-  //
-  //	Preorder traversal of unmarked nodes in red-black tree.
-  //
-  ACU_Stack i;
-  ACU_RedBlackNode* n = root;
-  for(;;)
-    {
-      while (n != 0 && !(n->isMarked()))
-	{
-	  n->setMarked();
-	  n->getDagNode()->mark();
-	  i.push(n);
-	  n = n->getLeft();
-	}
-      if (i.empty())
-	break;
-      n = i.pop()->getRight();
+ACU_Tree::mark() {
+    //
+    //	Preorder traversal of unmarked nodes in red-black tree.
+    //
+    ACU_Stack i;
+    ACU_RedBlackNode *n = root;
+    for (;;) {
+        while (n != 0 && !(n->isMarked())) {
+            n->setMarked();
+            n->getDagNode()->mark();
+            i.push(n);
+            n = n->getLeft();
+        }
+        if (i.empty())
+            break;
+        n = i.pop()->getRight();
     }
 }
 
 bool
-ACU_Tree::makeCanonical(ACU_Tree& canonizedVersion, HashConsSet* hcs)
-{
-  ACU_RedBlackNode* c = root->canonicalRebuild(hcs);
-  if (c != root)
-    {
-      canonizedVersion.size = size;
-      canonizedVersion.root = c;
-      return true;
+ACU_Tree::makeCanonical(ACU_Tree &canonizedVersion, HashConsSet *hcs) {
+    ACU_RedBlackNode *c = root->canonicalRebuild(hcs);
+    if (c != root) {
+        canonizedVersion.size = size;
+        canonizedVersion.root = c;
+        return true;
     }
-  return false;
+    return false;
 }
 
 #ifdef CHECK_TREE
@@ -196,10 +184,10 @@ ACU_Tree::checkIntegrity(DagNode* dagNode, int multiplicity) const
   if (root != 0 && !(root->checkRedBlackProperty()))
     {
       if (dagNode != 0)
-	{
-	  cerr << "dagNode = " << dagNode <<
-	    "\t multiplcity = " << multiplicity << endl;
-	}
+    {
+      cerr << "dagNode = " << dagNode <<
+        "\t multiplcity = " << multiplicity << endl;
+    }
       root->dump(cerr, 0);
       abort();
     }

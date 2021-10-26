@@ -48,38 +48,34 @@
 #include "counterSymbol.hh"
 
 CounterSymbol::CounterSymbol(int id)
-  : NumberOpSymbol(id, 0)
-{
-  currentValue = 0;
+        : NumberOpSymbol(id, 0) {
+    currentValue = 0;
 }
 
 bool
-CounterSymbol::attachData(const Vector<Sort*>& opDeclaration,
-			  const char* purpose,
-			  const Vector<const char*>& data)
-{
-  if (strcmp(purpose, "CounterSymbol") == 0)
-    return true;
-  return NumberOpSymbol::attachData(opDeclaration, purpose, data);
+CounterSymbol::attachData(const Vector<Sort *> &opDeclaration,
+                          const char *purpose,
+                          const Vector<const char *> &data) {
+    if (strcmp(purpose, "CounterSymbol") == 0)
+        return true;
+    return NumberOpSymbol::attachData(opDeclaration, purpose, data);
 }
 
 void
-CounterSymbol::getDataAttachments(const Vector<Sort*>& opDeclaration,
-				  Vector<const char*>& purposes,
-				  Vector<Vector<const char*> >& data)
-{
-  int nrDataAttachments = purposes.length();
-  purposes.resize(nrDataAttachments + 1);
-  purposes[nrDataAttachments] = "CounterSymbol";
-  data.resize(nrDataAttachments + 1);
-  NumberOpSymbol::getDataAttachments(opDeclaration, purposes, data);
+CounterSymbol::getDataAttachments(const Vector<Sort *> &opDeclaration,
+                                  Vector<const char *> &purposes,
+                                  Vector<Vector<const char *> > &data) {
+    int nrDataAttachments = purposes.length();
+    purposes.resize(nrDataAttachments + 1);
+    purposes[nrDataAttachments] = "CounterSymbol";
+    data.resize(nrDataAttachments + 1);
+    NumberOpSymbol::getDataAttachments(opDeclaration, purposes, data);
 }
 
 void
-CounterSymbol::resetRules()
-{
-  currentValue = 0;
-  NumberOpSymbol::resetRules();
+CounterSymbol::resetRules() {
+    currentValue = 0;
+    NumberOpSymbol::resetRules();
 }
 
 /*
@@ -100,31 +96,27 @@ CounterSymbol::restoreHiddenState()
 */
 
 bool
-CounterSymbol::eqRewrite(DagNode* subject, RewritingContext& context)
-{
-  //
-  //	NumberOpSymbol doesn't know how to deal with this.
-  //
-  return FreeSymbol::eqRewrite(subject, context);
+CounterSymbol::eqRewrite(DagNode *subject, RewritingContext &context) {
+    //
+    //	NumberOpSymbol doesn't know how to deal with this.
+    //
+    return FreeSymbol::eqRewrite(subject, context);
 }
 
-DagNode* 
-CounterSymbol::ruleRewrite(DagNode* subject, RewritingContext& context)
-{
-  if (SuccSymbol* succSymbol = getSuccSymbol())
-    {
-      if (RewritingContext::getTraceStatus())
-	{
-	  context.tracePreRuleRewrite(subject, 0);
-	  if (context.traceAbort())
-	    return 0;
-	}
-      DagNode* r = succSymbol->makeNatDag(currentValue);
-      ++currentValue;
-      if (RewritingContext::getTraceStatus())
-	context.tracePostRuleRewrite(r);
-      context.incrementRlCount();
-      return r;
+DagNode *
+CounterSymbol::ruleRewrite(DagNode *subject, RewritingContext &context) {
+    if (SuccSymbol *succSymbol = getSuccSymbol()) {
+        if (RewritingContext::getTraceStatus()) {
+            context.tracePreRuleRewrite(subject, 0);
+            if (context.traceAbort())
+                return 0;
+        }
+        DagNode *r = succSymbol->makeNatDag(currentValue);
+        ++currentValue;
+        if (RewritingContext::getTraceStatus())
+            context.tracePostRuleRewrite(r);
+        context.incrementRlCount();
+        return r;
     }
-  return NumberOpSymbol::ruleRewrite(subject, context);
+    return NumberOpSymbol::ruleRewrite(subject, context);
 }

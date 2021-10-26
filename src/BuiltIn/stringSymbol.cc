@@ -44,49 +44,42 @@
 #include "stringDagNode.hh"
 
 StringSymbol::StringSymbol(int id)
-  : NA_Symbol(id)
-{
-  sort = 0;
-  charSort = 0;
+        : NA_Symbol(id) {
+    sort = 0;
+    charSort = 0;
 }
 
 void
-StringSymbol::fillInSortInfo(Term* subject)
-{
-  Sort* s = (static_cast<StringTerm*>(subject)->getValue().length() == 1) ? charSort : sort;
-  subject->setSortInfo(s->component(), s->index());
+StringSymbol::fillInSortInfo(Term *subject) {
+    Sort *s = (static_cast<StringTerm *>(subject)->getValue().length() == 1) ? charSort : sort;
+    subject->setSortInfo(s->component(), s->index());
 }
 
 void
-StringSymbol::computeBaseSort(DagNode* subject)
-{
-  Sort* s = (static_cast<StringDagNode*>(subject)->getValue().length() == 1) ? charSort : sort;
-  subject->setSortIndex(s->index());
+StringSymbol::computeBaseSort(DagNode *subject) {
+    Sort *s = (static_cast<StringDagNode *>(subject)->getValue().length() == 1) ? charSort : sort;
+    subject->setSortIndex(s->index());
 }
 
 bool
-StringSymbol::isConstructor(DagNode* /* subject */)
-{
-  return true;
+StringSymbol::isConstructor(DagNode * /* subject */) {
+    return true;
 }
 
 void
-StringSymbol::compileOpDeclarations()
-{
-  const Vector<OpDeclaration>& opDecls = getOpDeclarations();
-  int nrOpDecls = opDecls.length();
-  for (int i = 0; i < nrOpDecls; i++)
-    {
-      Sort* s = opDecls[i].getDomainAndRange()[0];
-      if (sort == 0 || s->index() < sort->index())
-	sort = s;  // set sort to largest (smallest index) declared sort
-      if (charSort == 0 || s->index() > charSort->index())
-	charSort = s;  // set charSort to smallest (largest index) declared sort
+StringSymbol::compileOpDeclarations() {
+    const Vector<OpDeclaration> &opDecls = getOpDeclarations();
+    int nrOpDecls = opDecls.length();
+    for (int i = 0; i < nrOpDecls; i++) {
+        Sort *s = opDecls[i].getDomainAndRange()[0];
+        if (sort == 0 || s->index() < sort->index())
+            sort = s;  // set sort to largest (smallest index) declared sort
+        if (charSort == 0 || s->index() > charSort->index())
+            charSort = s;  // set charSort to smallest (largest index) declared sort
     }
 }
 
-Term*
-StringSymbol::termify(DagNode* dagNode)
-{
-  return new StringTerm(this, safeCast(StringDagNode*, dagNode)->getValue());
+Term *
+StringSymbol::termify(DagNode *dagNode) {
+    return new StringTerm(this, safeCast(StringDagNode*, dagNode)->getValue());
 }

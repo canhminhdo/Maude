@@ -39,61 +39,52 @@
 #include "mpzGcdBasedSolver.cc"
 
 void
-MpzSystem::insertEqn(const IntVec& eqn)
-{
-  Assert(!eqn.empty(), "empty eqn");
-  if (eqns.empty())
-    nrVariables = eqn.size();
-  else
-    Assert(nrVariables == static_cast<int>(eqn.size()),
-	   "eqn size differs: " << nrVariables << " vs " << eqn.size());
-  eqns.push_back(eqn);  // deep copy
+MpzSystem::insertEqn(const IntVec &eqn) {
+    Assert(!eqn.empty(), "empty eqn");
+    if (eqns.empty())
+        nrVariables = eqn.size();
+    else
+            Assert(nrVariables == static_cast<int>(eqn.size()),
+                   "eqn size differs: " << nrVariables << " vs " << eqn.size());
+    eqns.push_back(eqn);  // deep copy
 }
 
 void
-MpzSystem::setUpperBounds(const IntVec& bounds)
-{
-  upperBounds = bounds;  // deep copy
+MpzSystem::setUpperBounds(const IntVec &bounds) {
+    upperBounds = bounds;  // deep copy
 }
 
 void
-MpzSystem::initializeUpperBounds()
-{
-  if (upperBounds.empty())
-    {
-      upperBounds.resize(nrVariables);
-      for (mpz_class& i : upperBounds)
-	i = NONE;
-    }
-  else
-    Assert(nrVariables == static_cast<int>(upperBounds.size()), "row size differs");
+MpzSystem::initializeUpperBounds() {
+    if (upperBounds.empty()) {
+        upperBounds.resize(nrVariables);
+        for (mpz_class &i : upperBounds)
+            i = NONE;
+    } else
+            Assert(nrVariables == static_cast<int>(upperBounds.size()), "row size differs");
 }
 
 bool
-MpzSystem::greaterEqual(const IntVec& arg1, const IntVec& arg2)
-{
-  IntVec::const_iterator j = arg2.begin();
-  for (const mpz_class& i : arg1)
-    {
-      if (i < *j)
-	return false;
-      ++j;
+MpzSystem::greaterEqual(const IntVec &arg1, const IntVec &arg2) {
+    IntVec::const_iterator j = arg2.begin();
+    for (const mpz_class &i : arg1) {
+        if (i < *j)
+            return false;
+        ++j;
     }
-  return true;
+    return true;
 }
 
 bool
-MpzSystem::minimal(const IntVec& arg)
-{
-  //
-  //	A vector is minimal if it is not greater or equal to an existing solution.
-  //
-  for (const IntVec& v : solutions)
-    {
-      if (greaterEqual(arg, v))
-	return false;
+MpzSystem::minimal(const IntVec &arg) {
+    //
+    //	A vector is minimal if it is not greater or equal to an existing solution.
+    //
+    for (const IntVec &v : solutions) {
+        if (greaterEqual(arg, v))
+            return false;
     }
-  return true;
+    return true;
 }
 
 #ifndef NO_ASSERT
@@ -104,7 +95,7 @@ MpzSystem::dumpEqns()
   for (const IntVec& v : eqns)
     {
       for (const mpz_class& j : v)
-	cout << j << '\t';
+    cout << j << '\t';
       cout << endl;
     }
   cout << endl;

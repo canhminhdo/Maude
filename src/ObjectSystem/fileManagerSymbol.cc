@@ -66,104 +66,104 @@
 bool FileManagerSymbol::allowFiles = false;
 
 FileManagerSymbol::FileManagerSymbol(int id)
-  : ExternalObjectManagerSymbol(id)
-{
+        : ExternalObjectManagerSymbol(id) {
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   SymbolName = 0;
+
 #include "fileSignature.cc"
+
 #undef MACRO
 }
 
 bool
-FileManagerSymbol::attachData(const Vector<Sort*>& opDeclaration,
-				const char* purpose,
-				const Vector<const char*>& data)
-{
-  NULL_DATA(purpose, FileManagerSymbol, data);
-  return ExternalObjectManagerSymbol::attachData(opDeclaration, purpose, data);
+FileManagerSymbol::attachData(const Vector<Sort *> &opDeclaration,
+                              const char *purpose,
+                              const Vector<const char *> &data) {
+    NULL_DATA(purpose, FileManagerSymbol, data);
+    return ExternalObjectManagerSymbol::attachData(opDeclaration, purpose, data);
 }
 
 bool
-FileManagerSymbol::attachSymbol(const char* purpose, Symbol* symbol)
-{
-  Assert(symbol != 0, "null symbol for " << purpose);
+FileManagerSymbol::attachSymbol(const char *purpose, Symbol *symbol) {
+    Assert(symbol != 0, "null symbol for " << purpose);
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   BIND_SYMBOL(purpose, symbol, SymbolName, SymbolClass*)
+
 #include "fileSignature.cc"
+
 #undef MACRO
-  return ExternalObjectManagerSymbol::attachSymbol(purpose, symbol);
+    return ExternalObjectManagerSymbol::attachSymbol(purpose, symbol);
 }
 
 void
-FileManagerSymbol::copyAttachments(Symbol* original, SymbolMap* map)
-{
-  FileManagerSymbol* orig = safeCast(FileManagerSymbol*, original);
+FileManagerSymbol::copyAttachments(Symbol *original, SymbolMap *map) {
+    FileManagerSymbol *orig = safeCast(FileManagerSymbol*, original);
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   COPY_SYMBOL(orig, SymbolName, map, SymbolClass*)
+
 #include "fileSignature.cc"
+
 #undef MACRO
-  ExternalObjectManagerSymbol::copyAttachments(original, map);
+    ExternalObjectManagerSymbol::copyAttachments(original, map);
 }
 
 void
-FileManagerSymbol::getDataAttachments(const Vector<Sort*>& opDeclaration,
-				      Vector<const char*>& purposes,
-				      Vector<Vector<const char*> >& data)
-{
-  int nrDataAttachments = purposes.length();
-  purposes.resize(nrDataAttachments + 1);
-  purposes[nrDataAttachments] = "FileManagerSymbol";
-  data.resize(nrDataAttachments + 1);
-  ExternalObjectManagerSymbol::getDataAttachments(opDeclaration, purposes, data);
+FileManagerSymbol::getDataAttachments(const Vector<Sort *> &opDeclaration,
+                                      Vector<const char *> &purposes,
+                                      Vector<Vector<const char *> > &data) {
+    int nrDataAttachments = purposes.length();
+    purposes.resize(nrDataAttachments + 1);
+    purposes[nrDataAttachments] = "FileManagerSymbol";
+    data.resize(nrDataAttachments + 1);
+    ExternalObjectManagerSymbol::getDataAttachments(opDeclaration, purposes, data);
 }
 
 void
-FileManagerSymbol::getSymbolAttachments(Vector<const char*>& purposes,
-					  Vector<Symbol*>& symbols)
-{
+FileManagerSymbol::getSymbolAttachments(Vector<const char *> &purposes,
+                                        Vector<Symbol *> &symbols) {
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   APPEND_SYMBOL(purposes, symbols, SymbolName)
+
 #include "fileSignature.cc"
+
 #undef MACRO
-  ExternalObjectManagerSymbol::getSymbolAttachments(purposes, symbols);
+    ExternalObjectManagerSymbol::getSymbolAttachments(purposes, symbols);
 }
 
 bool
-FileManagerSymbol::handleManagerMessage(DagNode* message, ObjectSystemRewritingContext& context)
-{
-  DebugInfo("FileManagerSymbol::handleManagerMessage(): saw " << message);
-  Symbol* s = message->symbol();
-  if (s == openFileMsg)
-    openFile(safeCast(FreeDagNode*, message), context);
-  else if (s == removeFileMsg)
-    removeFile(safeCast(FreeDagNode*, message), context);
-  else if (s == makeLinkMsg)
-    makeLink(safeCast(FreeDagNode*, message), context);
-  else
-    return false;
-  return true;
+FileManagerSymbol::handleManagerMessage(DagNode *message, ObjectSystemRewritingContext &context) {
+    DebugInfo("FileManagerSymbol::handleManagerMessage(): saw " << message);
+    Symbol *s = message->symbol();
+    if (s == openFileMsg)
+        openFile(safeCast(FreeDagNode*, message), context);
+    else if (s == removeFileMsg)
+        removeFile(safeCast(FreeDagNode*, message), context);
+    else if (s == makeLinkMsg)
+        makeLink(safeCast(FreeDagNode*, message), context);
+    else
+        return false;
+    return true;
 }
 
 bool
-FileManagerSymbol::handleMessage(DagNode* message, ObjectSystemRewritingContext& context)
-{
-  DebugInfo("FileManagerSymbol::handleMessage(): saw " << message);
-  Symbol* s = message->symbol();
-  if (s == getLineMsg)
-    getLine(safeCast(FreeDagNode*, message), context);
-  else if (s == getCharsMsg)
-    getChars(safeCast(FreeDagNode*, message), context);
-  else if (s == writeMsg)
-    write(safeCast(FreeDagNode*, message), context);
-  else if (s == flushMsg)
-    flush(safeCast(FreeDagNode*, message), context);
-  else if (s == getPositionMsg)
-    getPosition(safeCast(FreeDagNode*, message), context);
-  else if (s == setPositionMsg)
-    setPosition(safeCast(FreeDagNode*, message), context);
-  else if (s == closeFileMsg)
-    closeFile(safeCast(FreeDagNode*, message), context);
-  else
-    return false;
-  return true;
+FileManagerSymbol::handleMessage(DagNode *message, ObjectSystemRewritingContext &context) {
+    DebugInfo("FileManagerSymbol::handleMessage(): saw " << message);
+    Symbol *s = message->symbol();
+    if (s == getLineMsg)
+        getLine(safeCast(FreeDagNode*, message), context);
+    else if (s == getCharsMsg)
+        getChars(safeCast(FreeDagNode*, message), context);
+    else if (s == writeMsg)
+        write(safeCast(FreeDagNode*, message), context);
+    else if (s == flushMsg)
+        flush(safeCast(FreeDagNode*, message), context);
+    else if (s == getPositionMsg)
+        getPosition(safeCast(FreeDagNode*, message), context);
+    else if (s == setPositionMsg)
+        setPosition(safeCast(FreeDagNode*, message), context);
+    else if (s == closeFileMsg)
+        closeFile(safeCast(FreeDagNode*, message), context);
+    else
+        return false;
+    return true;
 }

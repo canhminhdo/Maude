@@ -36,40 +36,35 @@
 //	strategy language class definitions
 #include "strategicTask.hh"
 
-StrategicTask::StrategicTask(StrategicTask* master)
-  : StrategicExecution(master),
-    slaveList(this),
-    varsContext(master ? master->getVarsContext()
-		       : VariableBindingsManager::EMPTY_CONTEXT)
-{
+StrategicTask::StrategicTask(StrategicTask *master)
+        : StrategicExecution(master),
+          slaveList(this),
+          varsContext(master ? master->getVarsContext()
+                             : VariableBindingsManager::EMPTY_CONTEXT) {
 }
 
-StrategicTask::StrategicTask(StrategicExecution* sibling)
-  : StrategicExecution(sibling),
-    slaveList(this),
-    varsContext(sibling->getOwner()->getVarsContext())
-{
+StrategicTask::StrategicTask(StrategicExecution *sibling)
+        : StrategicExecution(sibling),
+          slaveList(this),
+          varsContext(sibling->getOwner()->getVarsContext()) {
 }
 
 
-StrategicTask::StrategicTask(StrategicExecution* sibling, VariableBindingsManager::ContextId ctx)
-  : StrategicExecution(sibling),
-    slaveList(this),
-    varsContext(ctx)
-{
+StrategicTask::StrategicTask(StrategicExecution *sibling, VariableBindingsManager::ContextId ctx)
+        : StrategicExecution(sibling),
+          slaveList(this),
+          varsContext(ctx) {
 }
 
-StrategicTask::~StrategicTask()
-{
-  //
-  //	Once we disappear, our slaves will have no place to report to, so
-  //	we must delete them first.
-  //
-  StrategicExecution* next;
-  for (StrategicExecution* i = slaveList.getNextSlave(); i != &slaveList; i = next)
-    {
-      next = i->getNextSlave();
-      delete i;
+StrategicTask::~StrategicTask() {
+    //
+    //	Once we disappear, our slaves will have no place to report to, so
+    //	we must delete them first.
+    //
+    StrategicExecution *next;
+    for (StrategicExecution *i = slaveList.getNextSlave(); i != &slaveList; i = next) {
+        next = i->getNextSlave();
+        delete i;
     }
 }
 
@@ -83,12 +78,11 @@ StrategicTask::alreadySeen(int dagIndex, StrategyStackManager::StackId stackId)
 */
 
 bool
-StrategicTask::alreadySeen(int dagIndex, StrategyStackManager::StackId stackId)
-{
-  DebugAdvisory("alreadySeen( " << dagIndex <<
-		", " << stackId <<
-		") - seenSet.size() " << seenSet.size());
-  State s(dagIndex, stackId);
-  pair<SeenSet::iterator, bool> p = seenSet.insert(s);  // to avoid UMR in purify
-  return !(p.second);
+StrategicTask::alreadySeen(int dagIndex, StrategyStackManager::StackId stackId) {
+    DebugAdvisory("alreadySeen( " << dagIndex <<
+                                  ", " << stackId <<
+                                  ") - seenSet.size() " << seenSet.size());
+    State s(dagIndex, stackId);
+    pair<SeenSet::iterator, bool> p = seenSet.insert(s);  // to avoid UMR in purify
+    return !(p.second);
 }

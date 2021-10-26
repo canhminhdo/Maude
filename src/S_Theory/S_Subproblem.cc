@@ -50,58 +50,52 @@
 #include "S_ExtensionInfo.hh"
 #include "S_Subproblem.hh"
 
-S_Subproblem::S_Subproblem(S_DagNode* subject,
-			   const mpz_class& leftOver,
-			   int varIndex,
-			   const Sort* varSort,
-			   S_ExtensionInfo* extensionInfo,
-			   int mustMatchAtLeast)
-  : subject(subject),
-    leftOver(leftOver),
-    extensionInfo(extensionInfo),
-    varIndex(varIndex),
-    varSort(varSort),
-    mustMatchAtLeast(mustMatchAtLeast)
-{
-  Assert(leftOver > 0, "only makes sense with leftOver > 0");
-  Assert(extensionInfo != 0, "only makes sense with extensionInfo");
-  Assert(mustMatchAtLeast == 0 || mustMatchAtLeast == 1, "mustMatchAtLeast must be 0 or 1");
+S_Subproblem::S_Subproblem(S_DagNode *subject,
+                           const mpz_class &leftOver,
+                           int varIndex,
+                           const Sort *varSort,
+                           S_ExtensionInfo *extensionInfo,
+                           int mustMatchAtLeast)
+        : subject(subject),
+          leftOver(leftOver),
+          extensionInfo(extensionInfo),
+          varIndex(varIndex),
+          varSort(varSort),
+          mustMatchAtLeast(mustMatchAtLeast) {
+    Assert(leftOver > 0, "only makes sense with leftOver > 0");
+    Assert(extensionInfo != 0, "only makes sense with extensionInfo");
+    Assert(mustMatchAtLeast == 0 || mustMatchAtLeast == 1, "mustMatchAtLeast must be 0 or 1");
 }
 
 bool
-S_Subproblem::solve(bool findFirst, RewritingContext& solution)
-{
-  if (findFirst)
-    {
-      S_DagNode* d = new S_DagNode(subject->symbol(), leftOver, subject->getArgument());
-      solution.bind(varIndex, d);  // to protect new dagnode
-      if (d->checkSort(varSort, solution))
-	{
-	  extensionInfo->setMatchedWhole(true);
-	  extensionInfo->setUnmatched(0);
-	  return true;
-	}
+S_Subproblem::solve(bool findFirst, RewritingContext &solution) {
+    if (findFirst) {
+        S_DagNode *d = new S_DagNode(subject->symbol(), leftOver, subject->getArgument());
+        solution.bind(varIndex, d);  // to protect new dagnode
+        if (d->checkSort(varSort, solution)) {
+            extensionInfo->setMatchedWhole(true);
+            extensionInfo->setUnmatched(0);
+            return true;
+        }
     }
-  for (;;)
-    {
-      mpz_class newUnmatched = extensionInfo->getUnmatched() + 1;
-      mpz_class matched = leftOver - newUnmatched;
-      if (matched < mustMatchAtLeast)
-	break;  // fail
+    for (;;) {
+        mpz_class newUnmatched = extensionInfo->getUnmatched() + 1;
+        mpz_class matched = leftOver - newUnmatched;
+        if (matched < mustMatchAtLeast)
+            break;  // fail
 
-      extensionInfo->setUnmatched(newUnmatched);
-      DagNode* d = subject->getArgument();
-      if (matched > 0)
-	d = new S_DagNode(subject->symbol(), matched, d);
-      solution.bind(varIndex, d);  // to protect potentially new dagnode
+        extensionInfo->setUnmatched(newUnmatched);
+        DagNode *d = subject->getArgument();
+        if (matched > 0)
+            d = new S_DagNode(subject->symbol(), matched, d);
+        solution.bind(varIndex, d);  // to protect potentially new dagnode
 
-      if (d->checkSort(varSort, solution))
-	{
-	  extensionInfo->setMatchedWhole(false);
-	  return true;
-	}
+        if (d->checkSort(varSort, solution)) {
+            extensionInfo->setMatchedWhole(false);
+            return true;
+        }
     }
-  return false;
+    return false;
 }
 
 #ifdef DUMP

@@ -46,7 +46,7 @@
 #include "extensionInfo.hh"
 #include "subproblem.hh"
 #include "binarySymbol.hh"
- 
+
 //      core class definitions
 #include "lineNumber.hh"
 #include "equation.hh"
@@ -82,228 +82,202 @@
 #include "ops.cc"
 #include "command.cc"
 
-SyntacticPreModule::SyntacticPreModule(Token startToken, Token moduleName, Interpreter* owner)
-  : PreModule(moduleName.code(), owner),
-    LineNumber(moduleName.lineNumber()),
-    startTokenCode(startToken.code())
-{
-  MixfixModule::ModuleType moduleType = MixfixModule::FUNCTIONAL_MODULE;
-  if (startTokenCode == th)
-    moduleType = MixfixModule::SYSTEM_THEORY;
-  else if (startTokenCode == fth)
-    moduleType = MixfixModule::FUNCTIONAL_THEORY;
-  else if (startTokenCode == sth)
-    moduleType = MixfixModule::STRATEGY_THEORY;
-  else if (startTokenCode == mod || startTokenCode == omod)
-    moduleType = MixfixModule::SYSTEM_MODULE;
-  else if (startTokenCode == smod)
-    moduleType = MixfixModule::STRATEGY_MODULE;
-  setModuleType(moduleType);
+SyntacticPreModule::SyntacticPreModule(Token startToken, Token moduleName, Interpreter *owner)
+        : PreModule(moduleName.code(), owner),
+          LineNumber(moduleName.lineNumber()),
+          startTokenCode(startToken.code()) {
+    MixfixModule::ModuleType moduleType = MixfixModule::FUNCTIONAL_MODULE;
+    if (startTokenCode == th)
+        moduleType = MixfixModule::SYSTEM_THEORY;
+    else if (startTokenCode == fth)
+        moduleType = MixfixModule::FUNCTIONAL_THEORY;
+    else if (startTokenCode == sth)
+        moduleType = MixfixModule::STRATEGY_THEORY;
+    else if (startTokenCode == mod || startTokenCode == omod)
+        moduleType = MixfixModule::SYSTEM_MODULE;
+    else if (startTokenCode == smod)
+        moduleType = MixfixModule::STRATEGY_MODULE;
+    setModuleType(moduleType);
 
-  lastSawOpDecl = false;
-  isStrategy = false;
-  isCompleteFlag = false;
-  flatModule = 0;
+    lastSawOpDecl = false;
+    isStrategy = false;
+    isCompleteFlag = false;
+    flatModule = 0;
 }
 
-SyntacticPreModule::~SyntacticPreModule()
-{
-  if (flatModule != 0)
-    flatModule->deepSelfDestruct();
+SyntacticPreModule::~SyntacticPreModule() {
+    if (flatModule != 0)
+        flatModule->deepSelfDestruct();
 }
 
 void
-SyntacticPreModule::regretToInform(Entity* doomedEntity)
-{
-  Assert(doomedEntity == flatModule, "module pointer error");
-  flatModule = 0;
+SyntacticPreModule::regretToInform(Entity *doomedEntity) {
+    Assert(doomedEntity == flatModule, "module pointer error");
+    flatModule = 0;
 #ifdef COMPILER
-  getOwner()->invalidate(this);
+    getOwner()->invalidate(this);
 #endif
 }
 
-VisibleModule*
-SyntacticPreModule::getFlatModule()
-{
-  VisibleModule* m = getFlatSignature();
-  //
-  //	getFlatSignature() returns a module with its bad flag
-  //	set if anything went wrong.
-  //
-  if (!(m->isBad()) && m->getStatus() < Module::THEORY_CLOSED)
-    {
-      //
-      //	Need to flatten in statements and compile.
-      //
-      m->importStatements();
-      Assert(!(m->isBad()), "importStatements() unexpectedly set bad flag in " << *m);
-      m->resetImports();
-      //
-      //	Compile  module.
-      //
-      m->closeTheory();
-      //
-      //	We don't allow reserved fresh variable names in variant
-      //	equations or narrowing rules. We can't do this until statements
-      //	have been compiled since it relied on VariableInfo being filled out.
-      //
-      m->checkFreshVariableNames();
+VisibleModule *
+SyntacticPreModule::getFlatModule() {
+    VisibleModule *m = getFlatSignature();
+    //
+    //	getFlatSignature() returns a module with its bad flag
+    //	set if anything went wrong.
+    //
+    if (!(m->isBad()) && m->getStatus() < Module::THEORY_CLOSED) {
+        //
+        //	Need to flatten in statements and compile.
+        //
+        m->importStatements();
+        Assert(!(m->isBad()), "importStatements() unexpectedly set bad flag in " << *m);
+        m->resetImports();
+        //
+        //	Compile  module.
+        //
+        m->closeTheory();
+        //
+        //	We don't allow reserved fresh variable names in variant
+        //	equations or narrowing rules. We can't do this until statements
+        //	have been compiled since it relied on VariableInfo being filled out.
+        //
+        m->checkFreshVariableNames();
     }
-  return m;
+    return m;
 }
 
-VisibleModule*
-SyntacticPreModule::getFlatSignature() 
-{
-  if (flatModule == 0)
-    {
-      IssueAdvisory("reparsing module " << QUOTE(this) <<
-		    " due to changes in imported modules.");
-      process();
+VisibleModule *
+SyntacticPreModule::getFlatSignature() {
+    if (flatModule == 0) {
+        IssueAdvisory("reparsing module " << QUOTE(this) <<
+                                          " due to changes in imported modules.");
+        process();
+    } else if (flatModule->getStatus() == Module::OPEN) {
+        DebugNew("module " << this << " had flatModule status open");
+        return 0;  // we must already be in the middle of processing this module
     }
-  else if (flatModule->getStatus() == Module::OPEN)
-    {
-      DebugNew("module " << this << " had flatModule status open");
-      return 0;  // we must already be in the middle of processing this module
-    }
-  return flatModule;
+    return flatModule;
 }
 
 bool
-SyntacticPreModule::compatible(int endTokenCode)
-{
-  if (startTokenCode == th)
-    return endTokenCode == endth;
-  if (startTokenCode == fth)
-    return endTokenCode == endfth;
-  if (startTokenCode == sth)
-    return endTokenCode == endsth;
-  if (startTokenCode == mod)
-    return endTokenCode == endm;
-  if (startTokenCode == fmod)
-    return endTokenCode == endfm;
-  if (startTokenCode == smod)
-    return endTokenCode == endsm;
-  if (startTokenCode == omod)
-    return endTokenCode == endom;
-  //
-  //	OBJ backward compatibility.
-  //
-  return endTokenCode == endo || endTokenCode == jbo;
+SyntacticPreModule::compatible(int endTokenCode) {
+    if (startTokenCode == th)
+        return endTokenCode == endth;
+    if (startTokenCode == fth)
+        return endTokenCode == endfth;
+    if (startTokenCode == sth)
+        return endTokenCode == endsth;
+    if (startTokenCode == mod)
+        return endTokenCode == endm;
+    if (startTokenCode == fmod)
+        return endTokenCode == endfm;
+    if (startTokenCode == smod)
+        return endTokenCode == endsm;
+    if (startTokenCode == omod)
+        return endTokenCode == endom;
+    //
+    //	OBJ backward compatibility.
+    //
+    return endTokenCode == endo || endTokenCode == jbo;
 }
 
 void
-SyntacticPreModule::finishModule(Token endToken)
-{
-  if (!compatible(endToken.code()))
-    {
-      IssueWarning(LineNumber(endToken.lineNumber()) << ": module started with " <<
-		   QUOTE(Token::name(startTokenCode)) << " ends with "
-		   << QUOTE(endToken) << '.');
+SyntacticPreModule::finishModule(Token endToken) {
+    if (!compatible(endToken.code())) {
+        IssueWarning(LineNumber(endToken.lineNumber()) << ": module started with " <<
+                                                       QUOTE(Token::name(startTokenCode)) << " ends with "
+                                                       << QUOTE(endToken) << '.');
     }
-  autoImports = getOwner()->getAutoImports(); // deep copy
-  isCompleteFlag = true;
-  getOwner()->insertModule(id(), this);
-  process();
-  //
-  //	House keeping.
-  //
-  getOwner()->destructUnusedModules();
+    autoImports = getOwner()->getAutoImports(); // deep copy
+    isCompleteFlag = true;
+    getOwner()->insertModule(id(), this);
+    process();
+    //
+    //	House keeping.
+    //
+    getOwner()->destructUnusedModules();
 }
 
 void
-SyntacticPreModule::addParameter2(Token name, ModuleExpression* theory)
-{
-  PreModule::addParameter(name, theory);
+SyntacticPreModule::addParameter2(Token name, ModuleExpression *theory) {
+    PreModule::addParameter(name, theory);
 }
 
 void
-SyntacticPreModule::addImport(Token modeToken, ModuleExpression* expr)
-{
-  ImportModule::ImportMode mode;
-  LineNumber lineNumber(modeToken.lineNumber());
-  int code = modeToken.code();
-  if (code == pr || code == protecting)
-    mode = ImportModule::PROTECTING;
-  else if (code == ex || code == extending)
-    mode = ImportModule::EXTENDING;
-  else if (code == inc || code == including)
-    mode = ImportModule::INCLUDING;
-  else
-    {
-      Assert(code == us || code == usingToken, "unknown importation mode");
+SyntacticPreModule::addImport(Token modeToken, ModuleExpression *expr) {
+    ImportModule::ImportMode mode;
+    LineNumber lineNumber(modeToken.lineNumber());
+    int code = modeToken.code();
+    if (code == pr || code == protecting)
+        mode = ImportModule::PROTECTING;
+    else if (code == ex || code == extending)
+        mode = ImportModule::EXTENDING;
+    else if (code == inc || code == including)
+        mode = ImportModule::INCLUDING;
+    else {
+        Assert(code == us || code == usingToken, "unknown importation mode");
 
-      IssueWarning(lineNumber <<
-		   ": importation mode " << QUOTE("using") <<
-		   " not supported - treating it like " <<
-		   QUOTE("including") << '.');
-      mode = ImportModule::INCLUDING;
+        IssueWarning(lineNumber <<
+                                ": importation mode " << QUOTE("using") <<
+                                " not supported - treating it like " <<
+                                QUOTE("including") << '.');
+        mode = ImportModule::INCLUDING;
     }
-  PreModule::addImport(lineNumber, mode, expr);
+    PreModule::addImport(lineNumber, mode, expr);
 }
 
-SyntacticPreModule::OpDef::OpDef()
-{
-  prec = DEFAULT;
-  metadata = NONE;
+SyntacticPreModule::OpDef::OpDef() {
+    prec = DEFAULT;
+    metadata = NONE;
 }
 
 void
-SyntacticPreModule::addStatement(const Vector<Token>& statement)
-{
-  //
-  // Checks if this module admits the statement and issues a warning if
-  // it does not.
-  //
-  int keywordCode = statement[0].code();
-  {
-    MixfixModule::ModuleType moduleType = getModuleType();
-    bool isStrategic = MixfixModule::isStrategic(moduleType);
-    const char* modorth = MixfixModule::isTheory(moduleType) ? "theory." : "module.";
-
-    if (keywordCode == rl || keywordCode == crl)
-      {
-	if (moduleType == MixfixModule::FUNCTIONAL_MODULE ||
-	    moduleType == MixfixModule::FUNCTIONAL_THEORY)
-	  IssueWarning(LineNumber(statement[0].lineNumber()) <<
-		       ": rule not allowed in a functional " << modorth);
-      }
-    else if ((keywordCode == sd || keywordCode == csd) && !isStrategic)
-	IssueWarning(LineNumber(statement[0].lineNumber()) <<
-	  ": strategy definition only allowed in a strategy module or theory.");
-  }
-
-  if (statement[1].code() == leftBracket &&
-      statement[3].code() == rightBracket &&
-      statement[4].code() == colon)
+SyntacticPreModule::addStatement(const Vector<Token> &statement) {
+    //
+    // Checks if this module admits the statement and issues a warning if
+    // it does not.
+    //
+    int keywordCode = statement[0].code();
     {
-      (void) potentialLabels.insert(statement[2].code());
-      if (keywordCode == rl || keywordCode == crl)
-	(void) potentialRuleLabels.insert(statement[2].code());
+        MixfixModule::ModuleType moduleType = getModuleType();
+        bool isStrategic = MixfixModule::isStrategic(moduleType);
+        const char *modorth = MixfixModule::isTheory(moduleType) ? "theory." : "module.";
+
+        if (keywordCode == rl || keywordCode == crl) {
+            if (moduleType == MixfixModule::FUNCTIONAL_MODULE ||
+                moduleType == MixfixModule::FUNCTIONAL_THEORY)
+                IssueWarning(LineNumber(statement[0].lineNumber()) <<
+                                                                   ": rule not allowed in a functional " << modorth);
+        } else if ((keywordCode == sd || keywordCode == csd) && !isStrategic)
+            IssueWarning(LineNumber(statement[0].lineNumber()) <<
+                                                               ": strategy definition only allowed in a strategy module or theory.");
     }
 
-  int i = statement.length() - 1;
-  if (statement[i].code() == rightBracket)
-    {
-      int bracketCount = 1;
-      for (i -= 2; i >= 4; i--)
-	{
-	  int t = statement[i].code();
-	  if (t == leftBracket)
-	    {
-	      --bracketCount;
-	      if (bracketCount == 0)
-		break;
-	    }
-	  else if (t == label)
-	    {
-	      potentialLabels.insert(statement[i+1].code());
-	      if (keywordCode == rl || keywordCode == crl)
-		(void) potentialRuleLabels.insert(statement[i+1].code());
-	    }
-	  else if (t == rightBracket)
-	    ++bracketCount;
-	}
+    if (statement[1].code() == leftBracket &&
+        statement[3].code() == rightBracket &&
+        statement[4].code() == colon) {
+        (void) potentialLabels.insert(statement[2].code());
+        if (keywordCode == rl || keywordCode == crl)
+            (void) potentialRuleLabels.insert(statement[2].code());
     }
-  statements.append(statement);
+
+    int i = statement.length() - 1;
+    if (statement[i].code() == rightBracket) {
+        int bracketCount = 1;
+        for (i -= 2; i >= 4; i--) {
+            int t = statement[i].code();
+            if (t == leftBracket) {
+                --bracketCount;
+                if (bracketCount == 0)
+                    break;
+            } else if (t == label) {
+                potentialLabels.insert(statement[i + 1].code());
+                if (keywordCode == rl || keywordCode == crl)
+                    (void) potentialRuleLabels.insert(statement[i + 1].code());
+            } else if (t == rightBracket)
+                ++bracketCount;
+        }
+    }
+    statements.append(statement);
 }

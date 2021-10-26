@@ -36,23 +36,22 @@
 #include "nonFinalExtor.hh"
 
 void
-NonFinalExtor::setActiveSlots(const NatSet& slots)
-{
-  //
-  //	We need to calculate our frameLift to preserve all the slots we protect from GC
-  //	together with our destinationIndex, since the latter will be zeroed out by the
-  //	mark phase, destroying any overlapped data.
-  //
-  int maxSlotToPreserve = slots.max();
-  if (maxSlotToPreserve == NONE)
-    maxSlotToPreserve = 0;
-  SlotIndex destinationIndex = getDestinationIndex();
-  DebugAdvisory("maxSlotToPreserve = " << maxSlotToPreserve << " destinationIndex " << destinationIndex);
-  if (destinationIndex > static_cast<SlotIndex>(maxSlotToPreserve))
-    maxSlotToPreserve = destinationIndex;
-  frameLift = StackMachine::makeFrameLift(maxSlotToPreserve + 1);
-  //
-  //	Sill need standard active slot processing by ancestor class.
-  //
-  NonFinalInstruction::setActiveSlots(slots);
+NonFinalExtor::setActiveSlots(const NatSet &slots) {
+    //
+    //	We need to calculate our frameLift to preserve all the slots we protect from GC
+    //	together with our destinationIndex, since the latter will be zeroed out by the
+    //	mark phase, destroying any overlapped data.
+    //
+    int maxSlotToPreserve = slots.max();
+    if (maxSlotToPreserve == NONE)
+        maxSlotToPreserve = 0;
+    SlotIndex destinationIndex = getDestinationIndex();
+    DebugAdvisory("maxSlotToPreserve = " << maxSlotToPreserve << " destinationIndex " << destinationIndex);
+    if (destinationIndex > static_cast<SlotIndex>(maxSlotToPreserve))
+        maxSlotToPreserve = destinationIndex;
+    frameLift = StackMachine::makeFrameLift(maxSlotToPreserve + 1);
+    //
+    //	Sill need standard active slot processing by ancestor class.
+    //
+    NonFinalInstruction::setActiveSlots(slots);
 }

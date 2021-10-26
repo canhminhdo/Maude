@@ -39,70 +39,65 @@
 #include "decompositionProcess.hh"
 #include "strategicSearch.hh"
 
-BranchStrategy::BranchStrategy(StrategyExpression* initialStrategy,
-			       Action successAction,
-			       StrategyExpression* successStrategy,
-			       Action failureAction,
-			       StrategyExpression* failureStrategy)
-  : initialStrategy(initialStrategy),
-    successStrategy(successStrategy),
-    failureStrategy(failureStrategy),
-    successAction(successAction),
-    failureAction(failureAction)
-{
-  Assert(successAction >= FAIL && successAction <= ITERATE, "bad success action");
-  Assert((successAction == NEW_STRATEGY) == (successStrategy != 0), "success inconsistancy");
-  Assert(failureAction == FAIL || failureAction == IDLE || failureAction == NEW_STRATEGY,
-	 "bad failure action");
-  Assert((failureAction == NEW_STRATEGY) == (failureStrategy != 0), "failure inconsistancy");
+BranchStrategy::BranchStrategy(StrategyExpression *initialStrategy,
+                               Action successAction,
+                               StrategyExpression *successStrategy,
+                               Action failureAction,
+                               StrategyExpression *failureStrategy)
+        : initialStrategy(initialStrategy),
+          successStrategy(successStrategy),
+          failureStrategy(failureStrategy),
+          successAction(successAction),
+          failureAction(failureAction) {
+    Assert(successAction >= FAIL && successAction <= ITERATE, "bad success action");
+    Assert((successAction == NEW_STRATEGY) == (successStrategy != 0), "success inconsistancy");
+    Assert(failureAction == FAIL || failureAction == IDLE || failureAction == NEW_STRATEGY,
+           "bad failure action");
+    Assert((failureAction == NEW_STRATEGY) == (failureStrategy != 0), "failure inconsistancy");
 }
 
-BranchStrategy::~BranchStrategy()
-{
-  delete initialStrategy;
-  delete successStrategy;
-  delete failureStrategy;
+BranchStrategy::~BranchStrategy() {
+    delete initialStrategy;
+    delete successStrategy;
+    delete failureStrategy;
 }
 
 bool
-BranchStrategy::check(VariableInfo& indices, const TermSet& boundVars)
-{
-  return initialStrategy->check(indices, boundVars)
-    && (!successStrategy || successStrategy->check(indices, boundVars))
-    && (!failureStrategy || failureStrategy->check(indices, boundVars));
+BranchStrategy::check(VariableInfo &indices, const TermSet &boundVars) {
+    return initialStrategy->check(indices, boundVars)
+           && (!successStrategy || successStrategy->check(indices, boundVars))
+           && (!failureStrategy || failureStrategy->check(indices, boundVars));
 }
 
 void
-BranchStrategy::process()
-{
-  initialStrategy->process();
-  if (successStrategy) successStrategy->process();
-  if (failureStrategy) failureStrategy->process();
+BranchStrategy::process() {
+    initialStrategy->process();
+    if (successStrategy) successStrategy->process();
+    if (failureStrategy) failureStrategy->process();
 }
 
 StrategicExecution::Survival
-BranchStrategy::decompose(StrategicSearch& searchObject, DecompositionProcess* remainder)
-{
-  //
-  //	In order to detect cycles when executing the normalization operator, e !,
-  //	which is recursively equivalent to e ? e ! : idle, BranchTask needs the
-  //	stack index where e ! is pending. This strategy has just been popped by
-  //	the DecompositionProcess, but the index can be recovered with push.
-  //
-  int iterationCheckpoint = successAction == ITERATE
-			      ? searchObject.push(remainder->getPending(), this)
-			      : 0;
+BranchStrategy::decompose(StrategicSearch &searchObject, DecompositionProcess *remainder) {
+    //
+    //	In order to detect cycles when executing the normalization operator, e !,
+    //	which is recursively equivalent to e ? e ! : idle, BranchTask needs the
+    //	stack index where e ! is pending. This strategy has just been popped by
+    //	the DecompositionProcess, but the index can be recovered with push.
+    //
+    int iterationCheckpoint = successAction == ITERATE
+                              ? searchObject.push(remainder->getPending(), this)
+                              : 0;
 
-  (void) new BranchTask(searchObject,
-			remainder,
-			remainder->getDagIndex(),
-			initialStrategy,
-			successAction,
-			successStrategy,
-			failureAction,
-			failureStrategy,
-			remainder->getPending(),
-			iterationCheckpoint,
-			remainder);
-  return StrategicExecution::DIE;  //  request deletion of DecompositionProcess
+    (void) new BranchTask(searchObject,
+                          remainder,
+                          remainder->getDagIndex(),
+                          initialStrategy,
+                          successAction,
+                          successStrategy,
+                          failureAction,
+                          failureStrategy,
+                          remainder->getPending(),
+                          iterationCheckpoint,
+                          remainder);
+    return StrategicExecution::DIE;  //  request deletion of DecompositionProcess
 }

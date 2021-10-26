@@ -37,74 +37,64 @@
 
 
 IntSystem::IntSystem(int nrVariables)
-  : nrVariables(nrVariables)
-{
+        : nrVariables(nrVariables) {
 }
 
 void
-IntSystem::insertEqn(const IntVec& eqn)
-{
-  eqns.push_back(IntVec());
-  IntVec& newEqn = eqns.back();
-  newEqn.resize(nrVariables);
-  int nrEntries = eqn.size();
-  //
-  //	Copy entries from eqn.
-  //
-  int i = 0;
-  for (; i < nrEntries; ++i)
-    newEqn[i] = eqn[i];
-  //
-  //	Zero pad to full length.
-  //
-  for (; i < nrVariables; ++i)
-    newEqn[i] = 0;
+IntSystem::insertEqn(const IntVec &eqn) {
+    eqns.push_back(IntVec());
+    IntVec &newEqn = eqns.back();
+    newEqn.resize(nrVariables);
+    int nrEntries = eqn.size();
+    //
+    //	Copy entries from eqn.
+    //
+    int i = 0;
+    for (; i < nrEntries; ++i)
+        newEqn[i] = eqn[i];
+    //
+    //	Zero pad to full length.
+    //
+    for (; i < nrVariables; ++i)
+        newEqn[i] = 0;
 }
 
 void
-IntSystem::setUpperBounds(const IntVec& bounds)
-{
-  upperBounds = bounds;  // deep copy
+IntSystem::setUpperBounds(const IntVec &bounds) {
+    upperBounds = bounds;  // deep copy
 }
 
 void
-IntSystem::initializeUpperBounds()
-{
-  if (upperBounds.empty())
-    {
-      upperBounds.resize(nrVariables);
-      for (int& i : upperBounds)
-	i = UNBOUNDED;
-    }
-  else
-    Assert(static_cast<size_t>(nrVariables) == upperBounds.size(), "row size differs");
+IntSystem::initializeUpperBounds() {
+    if (upperBounds.empty()) {
+        upperBounds.resize(nrVariables);
+        for (int &i : upperBounds)
+            i = UNBOUNDED;
+    } else
+            Assert(static_cast<size_t>(nrVariables) == upperBounds.size(), "row size differs");
 }
 
 bool
-IntSystem::greaterEqual(const IntVec& arg1, const IntVec& arg2)
-{
-  IntVec::const_iterator j = arg2.begin();
-  for (int i : arg1)
-    {
-      if (i < *j)
-	return false;
-      ++j;
+IntSystem::greaterEqual(const IntVec &arg1, const IntVec &arg2) {
+    IntVec::const_iterator j = arg2.begin();
+    for (int i : arg1) {
+        if (i < *j)
+            return false;
+        ++j;
     }
-  return true;
+    return true;
 }
 
 bool
-IntSystem::minimal(const IntVec& arg)
-{
-  //
-  //	A vector is minimal if it is not greater or equal to an existing solution.
-  //
-  for (const IntVec& v : solutions)
-    {
-      if (greaterEqual(arg, v))
-	return false;
+IntSystem::minimal(const IntVec &arg) {
+    //
+    //	A vector is minimal if it is not greater or equal to an existing solution.
+    //
+    for (const IntVec &v : solutions) {
+        if (greaterEqual(arg, v))
+            return false;
     }
-  return true;
+    return true;
 }
 
 #ifndef NO_ASSERT
@@ -115,7 +105,7 @@ IntSystem::dumpEqns()
   for (const IntVec& v : eqns)
     {
       for (int j : v)
-	cout << j << '\t';
+    cout << j << '\t';
       cout << endl;
     }
   cout << endl;

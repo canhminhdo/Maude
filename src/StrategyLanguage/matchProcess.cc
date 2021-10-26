@@ -55,78 +55,73 @@
 #include "applicationProcess.hh"
 #include "matchProcess.hh"
 
-MatchProcess::MatchProcess(const SharedValue<RewriteSearchState>& rewriteState,
-			   PositionState::PositionIndex redexIndex,
-			   ExtensionInfo* extensionInfo,
-			   RewritingContext* matchContext,
-			   Subproblem* subproblem,
-			   Rule* rule,
-			   int fragmentNr,
-			   const Vector<StrategyExpression*>& strategies,
-			   int strategyNr,
-			   StrategyStackManager::StackId pending,
-			   StrategicExecution* taskSibling,
-			   StrategicProcess* insertionPoint)
-  : StrategicProcess(taskSibling, insertionPoint),
-    rewriteState(rewriteState),  // share rewrite state
-    redexIndex(redexIndex),  // copy redex index
-    extensionInfoCopy((extensionInfo == 0) ? 0 : extensionInfo->makeClone()),  // clone extension info
-    matchContext(matchContext),  // take over ownership of matchContext
-    subproblem(subproblem),  // take over ownership of subproblem
-    rule(rule),  // copy rule pointer
-    fragmentNr(fragmentNr),  // copy fragment number
-    strategies(strategies),  // share reference to strategies vector
-    strategyNr(strategyNr),  // copy strategy number
-    pending(pending)  // copy pending stack
+MatchProcess::MatchProcess(const SharedValue<RewriteSearchState> &rewriteState,
+                           PositionState::PositionIndex redexIndex,
+                           ExtensionInfo *extensionInfo,
+                           RewritingContext *matchContext,
+                           Subproblem *subproblem,
+                           Rule *rule,
+                           int fragmentNr,
+                           const Vector<StrategyExpression *> &strategies,
+                           int strategyNr,
+                           StrategyStackManager::StackId pending,
+                           StrategicExecution *taskSibling,
+                           StrategicProcess *insertionPoint)
+        : StrategicProcess(taskSibling, insertionPoint),
+          rewriteState(rewriteState),  // share rewrite state
+          redexIndex(redexIndex),  // copy redex index
+          extensionInfoCopy((extensionInfo == 0) ? 0 : extensionInfo->makeClone()),  // clone extension info
+          matchContext(matchContext),  // take over ownership of matchContext
+          subproblem(subproblem),  // take over ownership of subproblem
+          rule(rule),  // copy rule pointer
+          fragmentNr(fragmentNr),  // copy fragment number
+          strategies(strategies),  // share reference to strategies vector
+          strategyNr(strategyNr),  // copy strategy number
+          pending(pending)  // copy pending stack
 {
-  DebugAdvisory("created MatchProcess, matchContext has nrFragileBindings = " << matchContext->nrFragileBindings());
-  findFirst = true;
+    DebugAdvisory("created MatchProcess, matchContext has nrFragileBindings = " << matchContext->nrFragileBindings());
+    findFirst = true;
 }
 
-MatchProcess::~MatchProcess()
-{
-  delete extensionInfoCopy;
-  delete matchContext;
-  delete subproblem;
+MatchProcess::~MatchProcess() {
+    delete extensionInfoCopy;
+    delete matchContext;
+    delete subproblem;
 }
 
 StrategicExecution::Survival
-MatchProcess::run(StrategicSearch& searchObject)
-{
-  //
-  //	Each time we run we look for a new solution to the matching problem
-  //	If we find one we call resolveRemainingConditionFragments() which will
-  //	fork off a new process to continue the seach. If we don't find one,
-  //	there is no more work to do and we die.
-  //
-  bool success;
-  if (subproblem)
-    {
-      success = subproblem->solve(findFirst, *matchContext);
-      //
-      //	solve() could perform rewrites to apply cmbs.
-      //
-      searchObject.getContext()->transferCountFrom(*matchContext);
+MatchProcess::run(StrategicSearch &searchObject) {
+    //
+    //	Each time we run we look for a new solution to the matching problem
+    //	If we find one we call resolveRemainingConditionFragments() which will
+    //	fork off a new process to continue the seach. If we don't find one,
+    //	there is no more work to do and we die.
+    //
+    bool success;
+    if (subproblem) {
+        success = subproblem->solve(findFirst, *matchContext);
+        //
+        //	solve() could perform rewrites to apply cmbs.
+        //
+        searchObject.getContext()->transferCountFrom(*matchContext);
+    } else
+        success = findFirst;
+    if (success) {
+        findFirst = false;
+        if (ApplicationProcess::resolveRemainingConditionFragments(searchObject,
+                                                                   rewriteState,
+                                                                   redexIndex,
+                                                                   extensionInfoCopy,
+                                                                   matchContext,
+                                                                   rule,
+                                                                   fragmentNr + 1,
+                                                                   strategies,
+                                                                   strategyNr,
+                                                                   pending,
+                                                                   this,
+                                                                   this) == SURVIVE)
+            return SURVIVE;
     }
-  else
-    success = findFirst;
-  if (success)
-    {
-      findFirst = false;
-      if (ApplicationProcess::resolveRemainingConditionFragments(searchObject,
-								 rewriteState,
-								 redexIndex,
-								 extensionInfoCopy,
-								 matchContext,
-								 rule,
-								 fragmentNr + 1,
-								 strategies,
-								 strategyNr,
-								 pending,
-								 this,
-								 this) == SURVIVE)
-	return SURVIVE;
-    }
-  finished(this);
-  return DIE;
+    finished(this);
+    return DIE;
 }

@@ -37,19 +37,17 @@
 #include "AU_DequeIter.hh"
 
 void
-AU_DequeIter::reverseRight()
-{
-  revIndex = (nrElementsRemaining - 1) / AU_StackNode::ELEMENTS_PER_NODE;
-  reversed.resize(revIndex);
-  AU_StackNode* p = right;
-  for (Vector<AU_StackNode*>::iterator b = reversed.begin();; ++b)
-    {
-      AU_StackNode* n = p->next;
-      if (n == 0)
-	break;
-      *b = p;
-      p = n;
+AU_DequeIter::reverseRight() {
+    revIndex = (nrElementsRemaining - 1) / AU_StackNode::ELEMENTS_PER_NODE;
+    reversed.resize(revIndex);
+    AU_StackNode *p = right;
+    for (Vector<AU_StackNode *>::iterator b = reversed.begin();; ++b) {
+        AU_StackNode *n = p->next;
+        if (n == 0)
+            break;
+        *b = p;
+        p = n;
     }
-  current = p;
-  index = AU_StackNode::ELEMENTS_PER_NODE - 1;
+    current = p;
+    index = AU_StackNode::ELEMENTS_PER_NODE - 1;
 }

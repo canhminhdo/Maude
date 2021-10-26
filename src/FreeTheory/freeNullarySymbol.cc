@@ -45,18 +45,15 @@
 #include "freeDagNode.hh"
 
 FreeNullarySymbol::FreeNullarySymbol(int id)
-  : FreeSymbol(id, 0)
-{
+        : FreeSymbol(id, 0) {
 }
 
 bool
-FreeNullarySymbol::eqRewrite(DagNode* subject, RewritingContext& context)
-{
-  return DISC_NET.applyReplaceFast(subject, context);
+FreeNullarySymbol::eqRewrite(DagNode *subject, RewritingContext &context) {
+    return DISC_NET.applyReplaceFast(subject, context);
 }
 
 void
-FreeNullarySymbol::reset()
-{
-  setNode(0);
+FreeNullarySymbol::reset() {
+    setNode(0);
 }

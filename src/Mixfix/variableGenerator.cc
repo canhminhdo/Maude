@@ -56,8 +56,10 @@
 
 #ifdef USE_CVC4
 #include "cvc4_Bindings.cc"
-#elif defined(USE_YICES2) 
+#elif defined(USE_YICES2)
+
 #include "yices2_Bindings.cc"
+
 #else
 
 //
@@ -106,20 +108,19 @@ VariableGenerator::clearAssertions()
 //	Common code
 //
 
-VariableDagNode*
-VariableGenerator::makeFreshVariable(Term* baseVariable, const mpz_class& number)
-{
-  Symbol* s = baseVariable->symbol();
-  VariableTerm* vt = safeCast(VariableTerm*, baseVariable);
-  int id = vt->id();
+VariableDagNode *
+VariableGenerator::makeFreshVariable(Term *baseVariable, const mpz_class &number) {
+    Symbol *s = baseVariable->symbol();
+    VariableTerm *vt = safeCast(VariableTerm*, baseVariable);
+    int id = vt->id();
 
-  string newNameString = "#";
-  char* name = mpz_get_str(0, 10, number.get_mpz_t());
-  newNameString += name;
-  free(name);
-  newNameString += "-";
-  newNameString +=  Token::name(id);
-  int newId = Token::encode(newNameString.c_str());
+    string newNameString = "#";
+    char *name = mpz_get_str(0, 10, number.get_mpz_t());
+    newNameString += name;
+    free(name);
+    newNameString += "-";
+    newNameString += Token::name(id);
+    int newId = Token::encode(newNameString.c_str());
 
-  return new VariableDagNode(s, newId, NONE);
+    return new VariableDagNode(s, newId, NONE);
 }

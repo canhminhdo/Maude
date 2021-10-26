@@ -47,109 +47,96 @@
 #include "rewriteConditionState.hh"
 #include "rewriteConditionFragment.hh"
 
-RewriteConditionFragment::RewriteConditionFragment(Term* lhs, Term* rhs)
-  : lhs(lhs),
-    rhs(rhs)
-{
-  lhsIndex = NONE;
-  rhsMatcher = 0;
+RewriteConditionFragment::RewriteConditionFragment(Term *lhs, Term *rhs)
+        : lhs(lhs),
+          rhs(rhs) {
+    lhsIndex = NONE;
+    rhsMatcher = 0;
 }
 
-RewriteConditionFragment::~RewriteConditionFragment()
-{
-  lhs->deepSelfDestruct();
-  rhs->deepSelfDestruct();
-  delete rhsMatcher;
-}
-
-void
-RewriteConditionFragment::check(VariableInfo& variableInfo, NatSet& boundVariables)
-{
-  NatSet unboundVariables;
-
-  lhs = lhs->normalize(false);
-  lhs->indexVariables(variableInfo);
-  variableInfo.addConditionVariables(lhs->occursBelow());
-  unboundVariables.insert(lhs->occursBelow());
-
-  rhs = rhs->normalize(true);
-  rhs->indexVariables(variableInfo);
-  variableInfo.addConditionVariables(rhs->occursBelow());
-      
-  unboundVariables.subtract(boundVariables);
-  variableInfo.addUnboundVariables(unboundVariables);
-  boundVariables.insert(rhs->occursBelow());
+RewriteConditionFragment::~RewriteConditionFragment() {
+    lhs->deepSelfDestruct();
+    rhs->deepSelfDestruct();
+    delete rhsMatcher;
 }
 
 void
-RewriteConditionFragment::preprocess()
-{
-  lhs->symbol()->fillInSortInfo(lhs);
-  rhs->symbol()->fillInSortInfo(rhs);
-  Assert(lhs->getComponent() == rhs->getComponent(), "component clash");
-  rhs->analyseCollapses();
+RewriteConditionFragment::check(VariableInfo &variableInfo, NatSet &boundVariables) {
+    NatSet unboundVariables;
+
+    lhs = lhs->normalize(false);
+    lhs->indexVariables(variableInfo);
+    variableInfo.addConditionVariables(lhs->occursBelow());
+    unboundVariables.insert(lhs->occursBelow());
+
+    rhs = rhs->normalize(true);
+    rhs->indexVariables(variableInfo);
+    variableInfo.addConditionVariables(rhs->occursBelow());
+
+    unboundVariables.subtract(boundVariables);
+    variableInfo.addUnboundVariables(unboundVariables);
+    boundVariables.insert(rhs->occursBelow());
 }
 
 void
-RewriteConditionFragment::compileBuild(VariableInfo& variableInfo, TermBag& availableTerms)
-{
-
-  lhsIndex = lhs->compileRhs(builder, variableInfo, availableTerms, true);
-  variableInfo.useIndex(lhsIndex);
-  rhs->findAvailableTerms(availableTerms, true);
-  rhs->determineContextVariables();
-  rhs->insertAbstractionVariables(variableInfo);
-  variableInfo.endOfFragment();
+RewriteConditionFragment::preprocess() {
+    lhs->symbol()->fillInSortInfo(lhs);
+    rhs->symbol()->fillInSortInfo(rhs);
+    Assert(lhs->getComponent() == rhs->getComponent(), "component clash");
+    rhs->analyseCollapses();
 }
 
 void
-RewriteConditionFragment::compileMatch(VariableInfo& variableInfo, NatSet& boundUniquely)
-{
-  builder.remapIndices(variableInfo);
-  lhsIndex = variableInfo.remapIndex(lhsIndex);
-  bool subproblemLikely;
-  rhsMatcher = rhs->compileLhs(false, variableInfo, boundUniquely, subproblemLikely);
-  boundUniquely.insert(rhs->occursBelow());
+RewriteConditionFragment::compileBuild(VariableInfo &variableInfo, TermBag &availableTerms) {
+
+    lhsIndex = lhs->compileRhs(builder, variableInfo, availableTerms, true);
+    variableInfo.useIndex(lhsIndex);
+    rhs->findAvailableTerms(availableTerms, true);
+    rhs->determineContextVariables();
+    rhs->insertAbstractionVariables(variableInfo);
+    variableInfo.endOfFragment();
+}
+
+void
+RewriteConditionFragment::compileMatch(VariableInfo &variableInfo, NatSet &boundUniquely) {
+    builder.remapIndices(variableInfo);
+    lhsIndex = variableInfo.remapIndex(lhsIndex);
+    bool subproblemLikely;
+    rhsMatcher = rhs->compileLhs(false, variableInfo, boundUniquely, subproblemLikely);
+    boundUniquely.insert(rhs->occursBelow());
 }
 
 bool
 RewriteConditionFragment::solve(bool findFirst,
-				RewritingContext& solution,
-				Stack<ConditionState*>& state)
-{
-  if (findFirst)
-    {
-      builder.safeConstruct(solution);
-      RewriteConditionState* cs =
-	new RewriteConditionState(solution, solution.value(lhsIndex), rhsMatcher);
-      if (cs->solve(true, solution))
-	{
-	  state.push(cs);
-	  return true;
-	}
-      delete cs;
+                                RewritingContext &solution,
+                                Stack<ConditionState *> &state) {
+    if (findFirst) {
+        builder.safeConstruct(solution);
+        RewriteConditionState *cs =
+                new RewriteConditionState(solution, solution.value(lhsIndex), rhsMatcher);
+        if (cs->solve(true, solution)) {
+            state.push(cs);
+            return true;
+        }
+        delete cs;
+    } else {
+        RewriteConditionState *cs = safeCast(RewriteConditionState*, state.top());
+        if (cs->solve(false, solution))
+            return true;
+        delete cs;
+        state.pop();
     }
-  else
-    {
-      RewriteConditionState* cs = safeCast(RewriteConditionState*, state.top());
-      if (cs->solve(false, solution))
-	return true;
-      delete cs;
-      state.pop();
-    }
-  return false;
+    return false;
 }
 
-DagNode*
-RewriteConditionFragment::makeLhsInstance(Substitution& solution)
-{
-  builder.safeConstruct(solution);
-  return solution.value(lhsIndex);
+DagNode *
+RewriteConditionFragment::makeLhsInstance(Substitution &solution) {
+    builder.safeConstruct(solution);
+    return solution.value(lhsIndex);
 }
 
 bool
-RewriteConditionFragment::matchRoot(RewritingContext& context, Subproblem*& subproblem)
-{
-  subproblem = 0;
-  return rhsMatcher->match(context.root(), context, subproblem);
+RewriteConditionFragment::matchRoot(RewritingContext &context, Subproblem *&subproblem) {
+    subproblem = 0;
+    return rhsMatcher->match(context.root(), context, subproblem);
 }

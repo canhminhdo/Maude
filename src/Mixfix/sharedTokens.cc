@@ -34,16 +34,18 @@
 
 #define MACRO(Name, String) \
    int SharedTokens::Name;
+
 #include "specialTokens.cc"
+
 #undef MACRO
 
-SharedTokens::SharedTokens()
-{
-  if (leftParen == 0)
-    {
+SharedTokens::SharedTokens() {
+    if (leftParen == 0) {
 #define MACRO(Name, String) \
       Name = Token::encode(String);
+
 #include "specialTokens.cc"
+
 #undef MACRO
     }
 }

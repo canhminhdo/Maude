@@ -50,146 +50,133 @@
 #include "narrowingUnificationProblem.hh"
 #include "narrowingSearchState.hh"
 
-NarrowingSearchState::NarrowingSearchState(RewritingContext* context,
-					   FreshVariableGenerator* freshVariableGenerator,
-					   bool odd,
-					   int label,
-					   int flags,
-					   int minDepth,
-					   int maxDepth)
-  : PositionState(context->root(), flags, minDepth, maxDepth),
-    context(context),
-    freshVariableGenerator(freshVariableGenerator),
-    odd(odd),
-    label(label),
-    withExtension(maxDepth >= 0)
-{
-  ruleIndex = -1;
+NarrowingSearchState::NarrowingSearchState(RewritingContext *context,
+                                           FreshVariableGenerator *freshVariableGenerator,
+                                           bool odd,
+                                           int label,
+                                           int flags,
+                                           int minDepth,
+                                           int maxDepth)
+        : PositionState(context->root(), flags, minDepth, maxDepth),
+          context(context),
+          freshVariableGenerator(freshVariableGenerator),
+          odd(odd),
+          label(label),
+          withExtension(maxDepth >= 0) {
+    ruleIndex = -1;
 
-  DagNode* target = context->root();
-  Module* module = target->symbol()->getModule();
-  int firstTargetSlot = module->getMinimumSubstitutionSize();
-  //
-  //	Indexing the variables will convert any persistent representations into
-  //	regular representations suitable for unification and instantiation.
-  //
-  context->root()->indexVariables(variableInfo, firstTargetSlot);
-  //cout << context->root() << " has " << variableInfo.getNrVariables() << " variables\n";
-  /*
-  int nrVariables = variableInfo.getNrVariables();
-  for (int i = 0; i < nrVariables; ++i)
-    {
-      VariableDagNode* v = variableInfo.index2Variable(i);
-      cout << i << '\t' << static_cast<DagNode*>(v) << '\t' << v->getIndex() << endl;
-    }
-  */
-  incompleteFlag = false;
-  unificationProblem = 0;
-  noFurtherPositions = false;
+    DagNode *target = context->root();
+    Module *module = target->symbol()->getModule();
+    int firstTargetSlot = module->getMinimumSubstitutionSize();
+    //
+    //	Indexing the variables will convert any persistent representations into
+    //	regular representations suitable for unification and instantiation.
+    //
+    context->root()->indexVariables(variableInfo, firstTargetSlot);
+    //cout << context->root() << " has " << variableInfo.getNrVariables() << " variables\n";
+    /*
+    int nrVariables = variableInfo.getNrVariables();
+    for (int i = 0; i < nrVariables; ++i)
+      {
+        VariableDagNode* v = variableInfo.index2Variable(i);
+        cout << i << '\t' << static_cast<DagNode*>(v) << '\t' << v->getIndex() << endl;
+      }
+    */
+    incompleteFlag = false;
+    unificationProblem = 0;
+    noFurtherPositions = false;
 }
 
-NarrowingSearchState::~NarrowingSearchState()
-{
-  delete unificationProblem;
-  delete context;
+NarrowingSearchState::~NarrowingSearchState() {
+    delete unificationProblem;
+    delete context;
 }
 
 bool
-NarrowingSearchState::findNextNarrowing()
-{
-  if (ruleIndex > -1)
-    {
-      //
-      //	Already underway; check for another unifier between the current position and
-      //	with the current rule.
-      //
-      if (unificationProblem->findNextUnifier())
-	return true;
-      incompleteFlag |= unificationProblem->isIncomplete();
-      delete unificationProblem;
+NarrowingSearchState::findNextNarrowing() {
+    if (ruleIndex > -1) {
+        //
+        //	Already underway; check for another unifier between the current position and
+        //	with the current rule.
+        //
+        if (unificationProblem->findNextUnifier())
+            return true;
+        incompleteFlag |= unificationProblem->isIncomplete();
+        delete unificationProblem;
+    } else {
+        //
+        //	First call - find an initial position.
+        //
+        if (!findNextPosition())
+            return false;
     }
-  else
-    {
-      //
-      //	First call - find an initial position.
-      //
-      if (!findNextPosition())
-	return false;
-    }
-  //
-  //	Move to the next rule.
-  //
-  ++ruleIndex;
-  //
-  //	Check if we are allowed to use nonexecutable rules. A nonexecutable rule may have
-  //	unbound variables in the rhs which we will bind to fresh variables.
-  //
-  bool allowNonexec = getFlags() & ALLOW_NONEXEC;
-  do
-    {
-      //
-      //	We don't consider the possibility that our current position,
-      //	getDagNode(), might collapse into another theory under unification.
-      //
-      // //cout << " at " << getDagNode() << endl;
-      DagNode* d = getDagNode();
-      if (dynamic_cast<VariableDagNode*>(d) == 0)  // only consider non-variable positions
-	{
-	  const Vector<Rule*>& rules = d->symbol()->getRules();
-	  for (int nrRules = rules.length(); ruleIndex < nrRules; ruleIndex++)
-	    {
-	      Rule* rl = rules[ruleIndex];
-	      if (!(rl->hasCondition())  &&  // we don't attempt narrowing with conditional rules
-		  (allowNonexec || !(rl->isNonexec())) &&  // check executability
-		  (label == UNDEFINED || rl->getLabel().id() == label))  // check label
-		{
-		  ////cout << "trying rule " << ruleIndex << " " << rl << " at " << getDagNode() << endl;
-		  unificationProblem = new NarrowingUnificationProblem(rl,
-								       getDagNode(),
-								       variableInfo,
-								       freshVariableGenerator,
-								       odd);
-		  if (unificationProblem->findNextUnifier())
-		    {
-		      noFurtherPositions = getFlags() & SINGLE_POSITION;
-		      return true;
-		    }
-		  incompleteFlag |= unificationProblem->isIncomplete();
-		  delete unificationProblem;
-		}
-	    }
-	}
-      ruleIndex = 0;
-    }
-  while (!noFurtherPositions && findNextPosition());
-  unificationProblem = 0;
-  return false;
+    //
+    //	Move to the next rule.
+    //
+    ++ruleIndex;
+    //
+    //	Check if we are allowed to use nonexecutable rules. A nonexecutable rule may have
+    //	unbound variables in the rhs which we will bind to fresh variables.
+    //
+    bool allowNonexec = getFlags() & ALLOW_NONEXEC;
+    do {
+        //
+        //	We don't consider the possibility that our current position,
+        //	getDagNode(), might collapse into another theory under unification.
+        //
+        // //cout << " at " << getDagNode() << endl;
+        DagNode *d = getDagNode();
+        if (dynamic_cast<VariableDagNode *>(d) == 0)  // only consider non-variable positions
+        {
+            const Vector<Rule *> &rules = d->symbol()->getRules();
+            for (int nrRules = rules.length(); ruleIndex < nrRules; ruleIndex++) {
+                Rule *rl = rules[ruleIndex];
+                if (!(rl->hasCondition()) &&  // we don't attempt narrowing with conditional rules
+                    (allowNonexec || !(rl->isNonexec())) &&  // check executability
+                    (label == UNDEFINED || rl->getLabel().id() == label))  // check label
+                {
+                    ////cout << "trying rule " << ruleIndex << " " << rl << " at " << getDagNode() << endl;
+                    unificationProblem = new NarrowingUnificationProblem(rl,
+                                                                         getDagNode(),
+                                                                         variableInfo,
+                                                                         freshVariableGenerator,
+                                                                         odd);
+                    if (unificationProblem->findNextUnifier()) {
+                        noFurtherPositions = getFlags() & SINGLE_POSITION;
+                        return true;
+                    }
+                    incompleteFlag |= unificationProblem->isIncomplete();
+                    delete unificationProblem;
+                }
+            }
+        }
+        ruleIndex = 0;
+    } while (!noFurtherPositions && findNextPosition());
+    unificationProblem = 0;
+    return false;
 }
 
-Rule*
-NarrowingSearchState::getRule() const
-{
-  return (getDagNode()->symbol()->getRules())[ruleIndex];
+Rule *
+NarrowingSearchState::getRule() const {
+    return (getDagNode()->symbol()->getRules())[ruleIndex];
 }
 
-DagNode*
-NarrowingSearchState::getNarrowedDag(DagNode*& replacement) const
-{
-  Rule* r = getRule();
-  Substitution& s = unificationProblem->getSolution();
-  replacement =  r->getRhsBuilder().construct(s);
-  int nrSlots = r->getModule()->getMinimumSubstitutionSize();
-  //
-  //	Need to clear unused entries in solution that we may have touched to avoid confusing
-  //	unification algorithm.
-  //
-  for (int i = r->getNrProtectedVariables(); i < nrSlots; ++i)
-    s.bind(i,0);
-  return rebuildAndInstantiateDag(replacement, s, nrSlots, nrSlots + variableInfo.getNrVariables() - 1);
+DagNode *
+NarrowingSearchState::getNarrowedDag(DagNode *&replacement) const {
+    Rule *r = getRule();
+    Substitution &s = unificationProblem->getSolution();
+    replacement = r->getRhsBuilder().construct(s);
+    int nrSlots = r->getModule()->getMinimumSubstitutionSize();
+    //
+    //	Need to clear unused entries in solution that we may have touched to avoid confusing
+    //	unification algorithm.
+    //
+    for (int i = r->getNrProtectedVariables(); i < nrSlots; ++i)
+        s.bind(i, 0);
+    return rebuildAndInstantiateDag(replacement, s, nrSlots, nrSlots + variableInfo.getNrVariables() - 1);
 }
 
-const Substitution&
-NarrowingSearchState::getSubstitution() const
-{
-  return unificationProblem->getSolution();
+const Substitution &
+NarrowingSearchState::getSubstitution() const {
+    return unificationProblem->getSolution();
 }

@@ -38,41 +38,37 @@
 #include "decompositionProcess.hh"
 #include "strategicSearch.hh"
 
-CallTask::CallTask(StrategicSearch& searchObject,
-		   int startIndex,
-		   StrategyExpression* strategy,
-		   StrategyStackManager::StackId pending,
-		   VariableBindingsManager::ContextId varBinds,
-		   StrategicExecution* sibling,
-		   StrategicProcess* insertionPoint)
-  : StrategicTask(sibling, varBinds),
-    searchObject(searchObject),
-    pending(pending)
-{
-  (void) new DecompositionProcess(startIndex,
-				  searchObject.push(StrategyStackManager::EMPTY_STACK, strategy),
-				  getDummyExecution(),
-				  insertionPoint);
+CallTask::CallTask(StrategicSearch &searchObject,
+                   int startIndex,
+                   StrategyExpression *strategy,
+                   StrategyStackManager::StackId pending,
+                   VariableBindingsManager::ContextId varBinds,
+                   StrategicExecution *sibling,
+                   StrategicProcess *insertionPoint)
+        : StrategicTask(sibling, varBinds),
+          searchObject(searchObject),
+          pending(pending) {
+    (void) new DecompositionProcess(startIndex,
+                                    searchObject.push(StrategyStackManager::EMPTY_STACK, strategy),
+                                    getDummyExecution(),
+                                    insertionPoint);
 }
 
-CallTask::~CallTask()
-{
-  searchObject.closeContext(getVarsContext());
-}
-
-StrategicExecution::Survival
-CallTask::executionSucceeded(int resultIndex, StrategicProcess* insertionPoint)
-{
-  (void) new DecompositionProcess(resultIndex,
-				  pending,		// Recovers the original strategy stack
-				  this,			// Will be slave of the parent task (closes context)
-  insertionPoint);
-
-  return SURVIVE;
+CallTask::~CallTask() {
+    searchObject.closeContext(getVarsContext());
 }
 
 StrategicExecution::Survival
-CallTask::executionsExhausted(StrategicProcess*)
-{
-  return DIE;
+CallTask::executionSucceeded(int resultIndex, StrategicProcess *insertionPoint) {
+    (void) new DecompositionProcess(resultIndex,
+                                    pending,        // Recovers the original strategy stack
+                                    this,            // Will be slave of the parent task (closes context)
+                                    insertionPoint);
+
+    return SURVIVE;
+}
+
+StrategicExecution::Survival
+CallTask::executionsExhausted(StrategicProcess *) {
+    return DIE;
 }

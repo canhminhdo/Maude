@@ -43,51 +43,44 @@
 #include "AU_DagNode.hh"
 #include "AU_RhsAutomaton.hh"
 
-AU_RhsAutomaton::AU_RhsAutomaton(AU_Symbol* symbol, int nrArgs)
-  : topSymbol(symbol), arguments(0, nrArgs)
-{
+AU_RhsAutomaton::AU_RhsAutomaton(AU_Symbol *symbol, int nrArgs)
+        : topSymbol(symbol), arguments(0, nrArgs) {
 }
 
 void
-AU_RhsAutomaton::remapIndices(VariableInfo& variableInfo)
-{
-  destination = variableInfo.remapIndex(destination);
-  int nrArgs = arguments.length();
-  for (int i = 0; i < nrArgs; i++)
-    arguments[i] = variableInfo.remapIndex(arguments[i]);
+AU_RhsAutomaton::remapIndices(VariableInfo &variableInfo) {
+    destination = variableInfo.remapIndex(destination);
+    int nrArgs = arguments.length();
+    for (int i = 0; i < nrArgs; i++)
+        arguments[i] = variableInfo.remapIndex(arguments[i]);
 }
 
 local_inline void
-AU_RhsAutomaton::buildArguments(ArgVec<DagNode*>& argArray, Substitution& matcher) const
-{
+AU_RhsAutomaton::buildArguments(ArgVec<DagNode *> &argArray, Substitution &matcher) const {
 
-  Vector<int>::const_iterator j = arguments.begin();
-  const Vector<int>::const_iterator e = j + nrArguments;
-  Assert(nrArguments > 0, "no args");
-  ArgVec<DagNode*>::iterator i = argArray.begin();
-  do
-    {
-      *i = matcher.value(*j);
-      ++i;
-      ++j;
-    }
-  while (j != e);
-  Assert(i == argArray.end(), "iterator inconsistent");
+    Vector<int>::const_iterator j = arguments.begin();
+    const Vector<int>::const_iterator e = j + nrArguments;
+    Assert(nrArguments > 0, "no args");
+    ArgVec<DagNode *>::iterator i = argArray.begin();
+    do {
+        *i = matcher.value(*j);
+        ++i;
+        ++j;
+    } while (j != e);
+    Assert(i == argArray.end(), "iterator inconsistent");
 }
 
-DagNode*
-AU_RhsAutomaton::construct(Substitution& matcher)
-{
-  AU_DagNode* n = new AU_DagNode(topSymbol, nrArguments);
-  buildArguments(n->argArray, matcher);
-  matcher.bind(destination, n);
-  return n;
+DagNode *
+AU_RhsAutomaton::construct(Substitution &matcher) {
+    AU_DagNode *n = new AU_DagNode(topSymbol, nrArguments);
+    buildArguments(n->argArray, matcher);
+    matcher.bind(destination, n);
+    return n;
 }
 
 void
-AU_RhsAutomaton::replace(DagNode* old, Substitution& matcher)
-{
-  buildArguments((new(old) AU_DagNode(topSymbol, nrArguments))->argArray, matcher);
+AU_RhsAutomaton::replace(DagNode *old, Substitution &matcher) {
+    buildArguments((new(old) AU_DagNode(topSymbol, nrArguments))->argArray, matcher);
 }
 
 #ifdef DUMP
@@ -102,7 +95,7 @@ AU_RhsAutomaton::dump(ostream& s, const VariableInfo& variableInfo, int indentLe
     {
       s << '[' << arguments[i] << "]";
       if (i + 1 < nrArgs)
-	s << ", ";
+    s << ", ";
     }
   s << ")\n";
   s << Indent(indentLevel - 1) << "End{AU_RhsAutomaton}\n";

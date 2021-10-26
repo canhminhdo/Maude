@@ -36,7 +36,6 @@
 #include "strategyExpression.hh"
 
 bool
-StrategyExpression::equal(const StrategyExpression& strategy) const
-{
-  return this == &strategy;
+StrategyExpression::equal(const StrategyExpression &strategy) const {
+    return this == &strategy;
 }

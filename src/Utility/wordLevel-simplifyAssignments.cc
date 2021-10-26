@@ -25,54 +25,46 @@
 //
 
 bool
-WordLevel::handleInitialOccursCheckFailure()
-{
-  //
-  //	We never create assignments that look like
-  //	  X |-> ... X ...
-  //	other than X |-> X which indicates X is unbound.
-  //
-  //	However it is possible for a user to pass in such an
-  //	assignment so we need to resolve those up front.
-  //
-  int nrAssignments = partialSolution.size();
-  for (int i = 0; i < nrAssignments; ++i)
-    {
-      Word& word = partialSolution[i];
-      if (word.size() > 1)
-	{
-	  for (int j : word)
-	    {
-	      if (i == j)
-		{
-		  if (resolveOccursCheckFailure(i, word))
-		    break;
-		  else
-		    return false;
-		}
-	    }
-	}
+WordLevel::handleInitialOccursCheckFailure() {
+    //
+    //	We never create assignments that look like
+    //	  X |-> ... X ...
+    //	other than X |-> X which indicates X is unbound.
+    //
+    //	However it is possible for a user to pass in such an
+    //	assignment so we need to resolve those up front.
+    //
+    int nrAssignments = partialSolution.size();
+    for (int i = 0; i < nrAssignments; ++i) {
+        Word &word = partialSolution[i];
+        if (word.size() > 1) {
+            for (int j : word) {
+                if (i == j) {
+                    if (resolveOccursCheckFailure(i, word))
+                        break;
+                    else
+                        return false;
+                }
+            }
+        }
     }
-  return true;  
+    return true;
 }
 
 bool
-WordLevel::fullyExpandAssignments()
-{
-  if (levelType == PIGPUG)
-    return expandAssignmentsToFixedPointNormalCase();
-  return expandAssignmentsToFixedPointCollapseCase();
+WordLevel::fullyExpandAssignments() {
+    if (levelType == PIGPUG)
+        return expandAssignmentsToFixedPointNormalCase();
+    return expandAssignmentsToFixedPointCollapseCase();
 }
 
 bool
-WordLevel::append(Word& newWord, const Word& word, int var)
-{
-  bool occursCheckFail = false;
-  for (int i : word)
-    {
-      newWord.append(i);
-      if (i == var)
-	occursCheckFail = true;
+WordLevel::append(Word &newWord, const Word &word, int var) {
+    bool occursCheckFail = false;
+    for (int i : word) {
+        newWord.append(i);
+        if (i == var)
+            occursCheckFail = true;
     }
-  return occursCheckFail;
+    return occursCheckFail;
 }

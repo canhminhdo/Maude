@@ -38,38 +38,35 @@
 #include "strategyStackManager.hh"
 
 StrategyStackManager::StrategyStackManager()
-  : stackTable(1)
-{
-  //
-  //	Create empty stack entry.
-  //
-  Entry& e = stackTable[0];
-  e.strategy = 0;
-  e.restOfStack = NONE;
-  e.firstSuccessor = NONE;
-  e.nextPeer = NONE;
+        : stackTable(1) {
+    //
+    //	Create empty stack entry.
+    //
+    Entry &e = stackTable[0];
+    e.strategy = 0;
+    e.restOfStack = NONE;
+    e.firstSuccessor = NONE;
+    e.nextPeer = NONE;
 }
 
 StrategyStackManager::StackId
-StrategyStackManager::push(StackId stackId, StrategyExpression* strategy)
-{
-  for (StackId i = stackTable[stackId].firstSuccessor; i != NONE; i = stackTable[i].nextPeer)
-    {
-      //
-      //	Ideally we would like to compare strategies for equality rather than pointers
-      //	but for the moment we just use pointers for simplicity. We don't expect too many
-      //	sucessors to a given stack otherwise hashing might be a win.
-      //
-      if (stackTable[i].strategy->equal(*strategy))
-	return i;
+StrategyStackManager::push(StackId stackId, StrategyExpression *strategy) {
+    for (StackId i = stackTable[stackId].firstSuccessor; i != NONE; i = stackTable[i].nextPeer) {
+        //
+        //	Ideally we would like to compare strategies for equality rather than pointers
+        //	but for the moment we just use pointers for simplicity. We don't expect too many
+        //	sucessors to a given stack otherwise hashing might be a win.
+        //
+        if (stackTable[i].strategy->equal(*strategy))
+            return i;
     }
-  StackId newStackId = stackTable.size();
-  stackTable.expandBy(1);
-  Entry& e = stackTable[newStackId];
-  e.strategy = strategy;
-  e.restOfStack = stackId;
-  e.firstSuccessor = NONE;
-  e.nextPeer = stackTable[stackId].firstSuccessor;
-  stackTable[stackId].firstSuccessor = newStackId;
-  return newStackId;
+    StackId newStackId = stackTable.size();
+    stackTable.expandBy(1);
+    Entry &e = stackTable[newStackId];
+    e.strategy = strategy;
+    e.restOfStack = stackId;
+    e.firstSuccessor = NONE;
+    e.nextPeer = stackTable[stackId].firstSuccessor;
+    stackTable[stackId].firstSuccessor = newStackId;
+    return newStackId;
 }

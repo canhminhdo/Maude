@@ -47,55 +47,52 @@
 #include "subtermTask.hh"
 #include "subtermStrategy.hh"
 
-SubtermProcess::SubtermProcess(MatchSearchState* matchState,
-			       SubtermStrategy* strategy,
-			       StrategyStackManager::StackId pending,
-			       StrategicExecution* taskSibling,
-			       StrategicProcess* insertionPoint)
-  : StrategicProcess(taskSibling, insertionPoint),
-    matchState(matchState),
-    strategy(strategy),
-    pending(pending)
-{
+SubtermProcess::SubtermProcess(MatchSearchState *matchState,
+                               SubtermStrategy *strategy,
+                               StrategyStackManager::StackId pending,
+                               StrategicExecution *taskSibling,
+                               StrategicProcess *insertionPoint)
+        : StrategicProcess(taskSibling, insertionPoint),
+          matchState(matchState),
+          strategy(strategy),
+          pending(pending) {
 }
 
 StrategicExecution::Survival
-SubtermProcess::run(StrategicSearch& searchObject)
-{
-  bool matched = matchState->findNextMatch();
+SubtermProcess::run(StrategicSearch &searchObject) {
+    bool matched = matchState->findNextMatch();
 
-  RewritingContext* context = searchObject.getContext();
-  context->transferCountFrom(*matchState->getContext());
+    RewritingContext *context = searchObject.getContext();
+    context->transferCountFrom(*matchState->getContext());
 
-  if (matched)
-    {
-      ExtensionInfo* extensionInfo = matchState->getExtensionInfo();
+    if (matched) {
+        ExtensionInfo *extensionInfo = matchState->getExtensionInfo();
 
-      // If this is a extended match the extension information should be cloned
-      // (because matchSearchState will reuse when searching again). And if the
-      // whole term was matched, we can get rid of it.
-      if (extensionInfo)
-	extensionInfo = !extensionInfo->matchedWhole() ? extensionInfo->makeClone() : 0;
+        // If this is a extended match the extension information should be cloned
+        // (because matchSearchState will reuse when searching again). And if the
+        // whole term was matched, we can get rid of it.
+        if (extensionInfo)
+            extensionInfo = !extensionInfo->matchedWhole() ? extensionInfo->makeClone() : 0;
 
-      VariableBindingsManager::ContextId varBinds = getOwner()->getVarsContext();
-      const Vector<int>& contextSpec = strategy->getContextSpec();
+        VariableBindingsManager::ContextId varBinds = getOwner()->getVarsContext();
+        const Vector<int> &contextSpec = strategy->getContextSpec();
 
-      (void) new SubtermTask(searchObject, strategy,
-			     matchState, extensionInfo,
-			     matchState->getPositionIndex(),
-			     pending,
-			     contextSpec.empty()
-			       ? VariableBindingsManager::EMPTY_CONTEXT
-			       : searchObject.openContext(varBinds,
-							  *matchState->getContext(),
-							  contextSpec),
-			     this,
-			     this);
+        (void) new SubtermTask(searchObject, strategy,
+                               matchState, extensionInfo,
+                               matchState->getPositionIndex(),
+                               pending,
+                               contextSpec.empty()
+                               ? VariableBindingsManager::EMPTY_CONTEXT
+                               : searchObject.openContext(varBinds,
+                                                          *matchState->getContext(),
+                                                          contextSpec),
+                               this,
+                               this);
 
-      return StrategicExecution::SURVIVE;
+        return StrategicExecution::SURVIVE;
     }
 
-  // Neither solution has been found nor will be found
-  finished(this);
-  return StrategicExecution::DIE;
+    // Neither solution has been found nor will be found
+    finished(this);
+    return StrategicExecution::DIE;
 }

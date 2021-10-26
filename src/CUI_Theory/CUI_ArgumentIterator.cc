@@ -23,11 +23,11 @@
 //
 //      Implementation for class CUI_ArgumentIterator.
 //
- 
+
 //	utility stuff
 #include "macros.hh"
 #include "vector.hh"
- 
+
 //      forward declarations
 #include "interface.hh"
 
@@ -35,21 +35,18 @@
 #include "CUI_ArgumentIterator.hh"
 
 bool
-CUI_ArgumentIterator::valid() const
-{
-  return position < 2;
+CUI_ArgumentIterator::valid() const {
+    return position < 2;
 }
 
-Term*
-CUI_ArgumentIterator::argument() const
-{
-  Assert(position < 2, "no args left");
-  return argArray[position];
+Term *
+CUI_ArgumentIterator::argument() const {
+    Assert(position < 2, "no args left");
+    return argArray[position];
 }
 
 void
-CUI_ArgumentIterator::next()
-{
-  Assert(position < 2, "no args left");
-  ++position;
+CUI_ArgumentIterator::next() {
+    Assert(position < 2, "no args left");
+    ++position;
 }

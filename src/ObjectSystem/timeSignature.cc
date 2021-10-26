@@ -28,32 +28,57 @@
 //	The format is:
 //		MACRO(symbols name, symbols C++ class, number of args)
 //
-  MACRO(succSymbol, SuccSymbol, 1)
-  MACRO(minusSymbol, MinusSymbol, 1)
-  MACRO(stringSymbol, StringSymbol, 0)
-  MACRO(timerOidSymbol, FreeSymbol, 1)
+MACRO(succSymbol, SuccSymbol,
+1)
+MACRO(minusSymbol, MinusSymbol,
+1)
+MACRO(stringSymbol, StringSymbol,
+0)
+MACRO(timerOidSymbol, FreeSymbol,
+1)
 
-  MACRO(oneShotSymbol, Symbol, 0)
-  MACRO(periodicSymbol, Symbol, 0)
-  MACRO(dateSymbol, Symbol, 3)
-  MACRO(timeSymbol, Symbol, 3)
-  MACRO(timeZoneInfoSymbol, Symbol, 4)
+MACRO(oneShotSymbol, Symbol,
+0)
+MACRO(periodicSymbol, Symbol,
+0)
+MACRO(dateSymbol, Symbol,
+3)
+MACRO(timeSymbol, Symbol,
+3)
+MACRO(timeZoneInfoSymbol, Symbol,
+4)
 
-  MACRO(getTimeSinceEpochMsg, FreeSymbol, 2)
-  MACRO(gotTimeSinceEpochMsg, Symbol, 3)
-  MACRO(getDateAndTimeMsg, FreeSymbol, 3)
-  MACRO(gotDateAndTimeMsg, Symbol, 6)
-  MACRO(getLocalDateAndTimeMsg, FreeSymbol, 3)
-  MACRO(gotLocalDateAndTimeMsg, Symbol, 7)
+MACRO(getTimeSinceEpochMsg, FreeSymbol,
+2)
+MACRO(gotTimeSinceEpochMsg, Symbol,
+3)
+MACRO(getDateAndTimeMsg, FreeSymbol,
+3)
+MACRO(gotDateAndTimeMsg, Symbol,
+6)
+MACRO(getLocalDateAndTimeMsg, FreeSymbol,
+3)
+MACRO(gotLocalDateAndTimeMsg, Symbol,
+7)
 
-  MACRO(createTimerMsg, FreeSymbol, 2)
-  MACRO(createdTimerMsg, Symbol, 3)
-  MACRO(startTimerMsg, FreeSymbol, 4)
-  MACRO(startedTimerMsg, Symbol, 2)
-  MACRO(timeOutMsg, Symbol, 2)
-  MACRO(stopTimerMsg, FreeSymbol, 2)
-  MACRO(stoppedTimerMsg, Symbol, 2)
-  MACRO(deleteTimerMsg, FreeSymbol, 2)
-  MACRO(deletedTimerMsg, Symbol, 2)
+MACRO(createTimerMsg, FreeSymbol,
+2)
+MACRO(createdTimerMsg, Symbol,
+3)
+MACRO(startTimerMsg, FreeSymbol,
+4)
+MACRO(startedTimerMsg, Symbol,
+2)
+MACRO(timeOutMsg, Symbol,
+2)
+MACRO(stopTimerMsg, FreeSymbol,
+2)
+MACRO(stoppedTimerMsg, Symbol,
+2)
+MACRO(deleteTimerMsg, FreeSymbol,
+2)
+MACRO(deletedTimerMsg, Symbol,
+2)
 
-  MACRO(timeErrorMsg, Symbol, 3)
+MACRO(timeErrorMsg, Symbol,
+3)

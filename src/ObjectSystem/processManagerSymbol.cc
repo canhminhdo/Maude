@@ -72,86 +72,86 @@
 bool ProcessManagerSymbol::allowProcesses = false;
 
 ProcessManagerSymbol::ProcessManagerSymbol(int id)
-  : ExternalObjectManagerSymbol(id)
-{
+        : ExternalObjectManagerSymbol(id) {
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   SymbolName = 0;
+
 #include "processSignature.cc"
+
 #undef MACRO
 }
 
 bool
-ProcessManagerSymbol::attachData(const Vector<Sort*>& opDeclaration,
-				const char* purpose,
-				const Vector<const char*>& data)
-{
-  NULL_DATA(purpose, ProcessManagerSymbol, data);
-  return ExternalObjectManagerSymbol::attachData(opDeclaration, purpose, data);
+ProcessManagerSymbol::attachData(const Vector<Sort *> &opDeclaration,
+                                 const char *purpose,
+                                 const Vector<const char *> &data) {
+    NULL_DATA(purpose, ProcessManagerSymbol, data);
+    return ExternalObjectManagerSymbol::attachData(opDeclaration, purpose, data);
 }
 
 bool
-ProcessManagerSymbol::attachSymbol(const char* purpose, Symbol* symbol)
-{
-  Assert(symbol != 0, "null symbol for " << purpose);
+ProcessManagerSymbol::attachSymbol(const char *purpose, Symbol *symbol) {
+    Assert(symbol != 0, "null symbol for " << purpose);
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   BIND_SYMBOL(purpose, symbol, SymbolName, SymbolClass*)
+
 #include "processSignature.cc"
+
 #undef MACRO
-  return ExternalObjectManagerSymbol::attachSymbol(purpose, symbol);
+    return ExternalObjectManagerSymbol::attachSymbol(purpose, symbol);
 }
 
 void
-ProcessManagerSymbol::copyAttachments(Symbol* original, SymbolMap* map)
-{
-  ProcessManagerSymbol* orig = safeCast(ProcessManagerSymbol*, original);
+ProcessManagerSymbol::copyAttachments(Symbol *original, SymbolMap *map) {
+    ProcessManagerSymbol *orig = safeCast(ProcessManagerSymbol*, original);
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   COPY_SYMBOL(orig, SymbolName, map, SymbolClass*)
+
 #include "processSignature.cc"
+
 #undef MACRO
-  ExternalObjectManagerSymbol::copyAttachments(original, map);
+    ExternalObjectManagerSymbol::copyAttachments(original, map);
 }
 
 void
-ProcessManagerSymbol::getDataAttachments(const Vector<Sort*>& opDeclaration,
-					Vector<const char*>& purposes,
-					Vector<Vector<const char*> >& data)
-{
-  int nrDataAttachments = purposes.length();
-  purposes.resize(nrDataAttachments + 1);
-  purposes[nrDataAttachments] = "ProcessManagerSymbol";
-  data.resize(nrDataAttachments + 1);
-  ExternalObjectManagerSymbol::getDataAttachments(opDeclaration, purposes, data);
+ProcessManagerSymbol::getDataAttachments(const Vector<Sort *> &opDeclaration,
+                                         Vector<const char *> &purposes,
+                                         Vector<Vector<const char *> > &data) {
+    int nrDataAttachments = purposes.length();
+    purposes.resize(nrDataAttachments + 1);
+    purposes[nrDataAttachments] = "ProcessManagerSymbol";
+    data.resize(nrDataAttachments + 1);
+    ExternalObjectManagerSymbol::getDataAttachments(opDeclaration, purposes, data);
 }
 
 void
-ProcessManagerSymbol::getSymbolAttachments(Vector<const char*>& purposes,
-					  Vector<Symbol*>& symbols)
-{
+ProcessManagerSymbol::getSymbolAttachments(Vector<const char *> &purposes,
+                                           Vector<Symbol *> &symbols) {
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   APPEND_SYMBOL(purposes, symbols, SymbolName)
+
 #include "processSignature.cc"
+
 #undef MACRO
-  ExternalObjectManagerSymbol::getSymbolAttachments(purposes, symbols);
+    ExternalObjectManagerSymbol::getSymbolAttachments(purposes, symbols);
 }
 
 bool
-ProcessManagerSymbol::handleManagerMessage(DagNode* message, ObjectSystemRewritingContext& context)
-{
-  DebugAdvisory("ProcessManagerSymbol::handleManagerMessage(): saw " << message);
-  Symbol* s = message->symbol();
-  if (s == createProcessMsg)
-    return createProcess(safeCast(FreeDagNode*, message), context);
-  return false;
+ProcessManagerSymbol::handleManagerMessage(DagNode *message, ObjectSystemRewritingContext &context) {
+    DebugAdvisory("ProcessManagerSymbol::handleManagerMessage(): saw " << message);
+    Symbol *s = message->symbol();
+    if (s == createProcessMsg)
+        return createProcess(safeCast(FreeDagNode*, message), context);
+    return false;
 }
 
 bool
-ProcessManagerSymbol::handleMessage(DagNode* message, ObjectSystemRewritingContext& context)
-{
-  DebugAdvisory("ProcessManagerSymbol::handleMessage(): saw " << message);
-  Symbol* s = message->symbol();
-  if (s == signalProcessMsg)
-    return signalProcess(safeCast(FreeDagNode*, message), context);
-  else if (s == waitForExitMsg)
-    return waitForExit(safeCast(FreeDagNode*, message), context);
-  return false;
+ProcessManagerSymbol::handleMessage(DagNode *message, ObjectSystemRewritingContext &context) {
+    DebugAdvisory("ProcessManagerSymbol::handleMessage(): saw " << message);
+    Symbol *s = message->symbol();
+    if (s == signalProcessMsg)
+        return signalProcess(safeCast(FreeDagNode*, message), context);
+    else if (s == waitForExitMsg)
+        return waitForExit(safeCast(FreeDagNode*, message), context);
+    return false;
 }

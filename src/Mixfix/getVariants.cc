@@ -21,176 +21,159 @@
 */
 
 void
-Interpreter::getVariants(const Vector<Token>& bubble, Int64 limit, bool irredundant, bool debug)
-{
-  VisibleModule* fm = currentModule->getFlatModule();
-  Term* initial;
-  Vector<Term*> constraint;
+Interpreter::getVariants(const Vector<Token> &bubble, Int64 limit, bool irredundant, bool debug) {
+    VisibleModule *fm = currentModule->getFlatModule();
+    Term *initial;
+    Vector<Term *> constraint;
 
-  if (!(fm->parseGetVariantsCommand(bubble, initial, constraint)))
-    return;
+    if (!(fm->parseGetVariantsCommand(bubble, initial, constraint)))
+        return;
 
-  DagNode* d = makeDag(initial);
-  if (getFlag(SHOW_COMMAND))
-    {
-      UserLevelRewritingContext::beginCommand();
-      if (debug)
-	cout << "debug ";
-      cout << "get " <<  (irredundant ? "irredundant variants " : "variants ");
-      if (limit != NONE)
-	cout  << '[' << limit << "] ";
-      cout << "in " << currentModule << " : " << d;
-      if (constraint.empty())
-	cout << " ." << endl;
-      else
-	{
-	  cout << " such that ";
-	  const char* sep = "";
-	  FOR_EACH_CONST(i, Vector<Term*>, constraint)
-	    {
-	      cout << sep << *i;
-	      sep = ", ";
-	    }
-	  cout << " irreducible ." << endl;
-	}
+    DagNode *d = makeDag(initial);
+    if (getFlag(SHOW_COMMAND)) {
+        UserLevelRewritingContext::beginCommand();
+        if (debug)
+            cout << "debug ";
+        cout << "get " << (irredundant ? "irredundant variants " : "variants ");
+        if (limit != NONE)
+            cout << '[' << limit << "] ";
+        cout << "in " << currentModule << " : " << d;
+        if (constraint.empty())
+            cout << " ." << endl;
+        else {
+            cout << " such that ";
+            const char *sep = "";
+            FOR_EACH_CONST(i, Vector<Term *>, constraint) {
+                cout << sep << *i;
+                sep = ", ";
+            }
+            cout << " irreducible ." << endl;
+        }
     }
 
-  startUsingModule(fm);
-  QUANTIFY_START();
-  Timer timer(getFlag(SHOW_TIMING));
+    startUsingModule(fm);
+    QUANTIFY_START();
+    Timer timer(getFlag(SHOW_TIMING));
 
-  FreshVariableGenerator* freshVariableGenerator = new FreshVariableSource(fm);
-  UserLevelRewritingContext* context = new UserLevelRewritingContext(d);
-  if (debug)
-    UserLevelRewritingContext::setDebug();
+    FreshVariableGenerator *freshVariableGenerator = new FreshVariableSource(fm);
+    UserLevelRewritingContext *context = new UserLevelRewritingContext(d);
+    if (debug)
+        UserLevelRewritingContext::setDebug();
 
-  Vector<DagNode*> blockerDags;
-  FOR_EACH_CONST(i, Vector<Term*>, constraint)
-    {
-      Term* t = *i;
-      t = t->normalize(true);  // we don't really need to normalize but we do need to set hash values
-      blockerDags.append(t->term2Dag());
-      t->deepSelfDestruct();
+    Vector<DagNode *> blockerDags;
+    FOR_EACH_CONST(i, Vector<Term *>, constraint) {
+        Term *t = *i;
+        t = t->normalize(true);  // we don't really need to normalize but we do need to set hash values
+        blockerDags.append(t->term2Dag());
+        t->deepSelfDestruct();
     }
-  //
-  //	Responsibility for deleting context and freshVariableGenerator is passed to ~VariantSearch().
-  //
-  VariantSearch* vs = new VariantSearch(context,
-					blockerDags,
-					freshVariableGenerator,
-					VariantSearch::DELETE_FRESH_VARIABLE_GENERATOR |
-					VariantSearch::CHECK_VARIABLE_NAMES |
-					(irredundant ? VariantSearch::IRREDUNDANT_MODE : 0));
-  if (vs->problemOK())
-    {
-      if (irredundant)
-	{
-	  //
-	  //	All computation is done upfront so there is only one time value.
-	  //
-	  printStats(timer, *context, getFlag(SHOW_TIMING));
-	}
-      doGetVariants(timer, fm, vs, 0, limit);
-    }
-  else
-    {
-      delete vs;
-      fm->unprotect();
+    //
+    //	Responsibility for deleting context and freshVariableGenerator is passed to ~VariantSearch().
+    //
+    VariantSearch *vs = new VariantSearch(context,
+                                          blockerDags,
+                                          freshVariableGenerator,
+                                          VariantSearch::DELETE_FRESH_VARIABLE_GENERATOR |
+                                          VariantSearch::CHECK_VARIABLE_NAMES |
+                                          (irredundant ? VariantSearch::IRREDUNDANT_MODE : 0));
+    if (vs->problemOK()) {
+        if (irredundant) {
+            //
+            //	All computation is done upfront so there is only one time value.
+            //
+            printStats(timer, *context, getFlag(SHOW_TIMING));
+        }
+        doGetVariants(timer, fm, vs, 0, limit);
+    } else {
+        delete vs;
+        fm->unprotect();
     }
 }
 
 void
-Interpreter::doGetVariants(Timer& timer,
-			   VisibleModule* module,
-			   VariantSearch* state,
-			   Int64 solutionCount,
-			   Int64 limit)
-{
-  bool irredundant = state->getIrredundantMode();
-  RewritingContext* context = state->getContext();
-  const NarrowingVariableInfo& variableInfo = state->getVariableInfo();
+Interpreter::doGetVariants(Timer &timer,
+                           VisibleModule *module,
+                           VariantSearch *state,
+                           Int64 solutionCount,
+                           Int64 limit) {
+    bool irredundant = state->getIrredundantMode();
+    RewritingContext *context = state->getContext();
+    const NarrowingVariableInfo &variableInfo = state->getVariableInfo();
 
-  Int64 i = 0;
-  for (; i != limit; i++)
-    {
-      bool anotherVariant = state->findNextVariant();
-      //
-      //	If we did all the narrowing up front, there are no narrowing or rewriting
-      //	steps to catch a ^C so we need to check here and treat it as an abort.
-      //
-      if ((irredundant && UserLevelRewritingContext::interrupted()) ||
-	  UserLevelRewritingContext::aborted())
-	break;
-      
-     if (!anotherVariant)
-	{ 
-	  cout << ((solutionCount == 0) ? "\nNo variants.\n" : "\nNo more variants.\n");
-	  if (!irredundant)
-	    printStats(timer, *context, getFlag(SHOW_TIMING));
-	  if (state->isIncomplete())
-	    IssueWarning("Some variants may have been missed due to incomplete unification algorithm(s).");
-	  break;
-	}
-     
-      ++solutionCount;
-      cout << "\nVariant " << solutionCount << endl;
-      if (!irredundant)
-	printStats(timer, *context, getFlag(SHOW_TIMING));
+    Int64 i = 0;
+    for (; i != limit; i++) {
+        bool anotherVariant = state->findNextVariant();
+        //
+        //	If we did all the narrowing up front, there are no narrowing or rewriting
+        //	steps to catch a ^C so we need to check here and treat it as an abort.
+        //
+        if ((irredundant && UserLevelRewritingContext::interrupted()) ||
+            UserLevelRewritingContext::aborted())
+            break;
 
-      int nrFreeVariables;  // dummy
-      int variableFamily;  // dummy
-      const Vector<DagNode*>& variant = state->getCurrentVariant(nrFreeVariables, variableFamily);
+        if (!anotherVariant) {
+            cout << ((solutionCount == 0) ? "\nNo variants.\n" : "\nNo more variants.\n");
+            if (!irredundant)
+                printStats(timer, *context, getFlag(SHOW_TIMING));
+            if (state->isIncomplete())
+                IssueWarning("Some variants may have been missed due to incomplete unification algorithm(s).");
+            break;
+        }
 
-      int nrVariables = variant.size() - 1;
-      DagNode* d = variant[nrVariables];
-      cout << d->getSort() << ": " << d << '\n';
-      for (int i = 0; i < nrVariables; ++i)
-	{
-	  DagNode* v = variableInfo.index2Variable(i);
-	  cout << v << " --> " << variant[i] << endl;
-	}
+        ++solutionCount;
+        cout << "\nVariant " << solutionCount << endl;
+        if (!irredundant)
+            printStats(timer, *context, getFlag(SHOW_TIMING));
+
+        int nrFreeVariables;  // dummy
+        int variableFamily;  // dummy
+        const Vector<DagNode *> &variant = state->getCurrentVariant(nrFreeVariables, variableFamily);
+
+        int nrVariables = variant.size() - 1;
+        DagNode *d = variant[nrVariables];
+        cout << d->getSort() << ": " << d << '\n';
+        for (int i = 0; i < nrVariables; ++i) {
+            DagNode *v = variableInfo.index2Variable(i);
+            cout << v << " --> " << variant[i] << endl;
+        }
     }
-  QUANTIFY_STOP();
+    QUANTIFY_STOP();
 
-  clearContinueInfo();  // just in case debugger left info
-  if (i == limit)  
-    {
-      //
-      //	The loop terminated because we hit user's limit so 
-      //	continuation is still possible. We save the state,
-      //	solutionCount and module, and set a continutation function.
-      //
-      context->clearCount();
-      savedState = state;
-      savedSolutionCount = solutionCount;
-      savedModule = module;
-      continueFunc = &Interpreter::getVariantsCont;
+    clearContinueInfo();  // just in case debugger left info
+    if (i == limit) {
+        //
+        //	The loop terminated because we hit user's limit so
+        //	continuation is still possible. We save the state,
+        //	solutionCount and module, and set a continutation function.
+        //
+        context->clearCount();
+        savedState = state;
+        savedSolutionCount = solutionCount;
+        savedModule = module;
+        continueFunc = &Interpreter::getVariantsCont;
+    } else {
+        //
+        //	Either user aborted or we ran out of solutions; either
+        //	way we need to tidy up.
+        //
+        delete state;
+        module->unprotect();
     }
-  else
-    {
-      //
-      //	Either user aborted or we ran out of solutions; either
-      //	way we need to tidy up.
-      //
-      delete state;
-      module->unprotect();
-    }
-  UserLevelRewritingContext::clearDebug();
+    UserLevelRewritingContext::clearDebug();
 }
 
 void
-Interpreter::getVariantsCont(Int64 limit, bool debug)
-{
-  VariantSearch* state = safeCast(VariantSearch*, savedState);
-  VisibleModule* fm = savedModule;
-  savedState = 0;
-  savedModule = 0;
-  continueFunc = 0;
+Interpreter::getVariantsCont(Int64 limit, bool debug) {
+    VariantSearch *state = safeCast(VariantSearch*, savedState);
+    VisibleModule *fm = savedModule;
+    savedState = 0;
+    savedModule = 0;
+    continueFunc = 0;
 
-  if (debug)
-    UserLevelRewritingContext::setDebug();
+    if (debug)
+        UserLevelRewritingContext::setDebug();
 
-  QUANTIFY_START();
-  Timer timer(getFlag(SHOW_TIMING));
-  doGetVariants(timer, fm, state, savedSolutionCount, limit);
+    QUANTIFY_START();
+    Timer timer(getFlag(SHOW_TIMING));
+    doGetVariants(timer, fm, state, savedSolutionCount, limit);
 }

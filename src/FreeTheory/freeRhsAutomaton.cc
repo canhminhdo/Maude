@@ -49,92 +49,80 @@
 #include "freeRhsAutomaton.hh"
 
 void
-FreeRhsAutomaton::addFree(Symbol* symbol,
-			  int destination,
-			  const Vector<int>& sources)
-{
-  int i = instructions.length();
-  instructions.expandBy(1);
-  instructions[i].symbol = symbol;
-  instructions[i].destination = destination;
-  instructions[i].sources = sources;  // deep copy
+FreeRhsAutomaton::addFree(Symbol *symbol,
+                          int destination,
+                          const Vector<int> &sources) {
+    int i = instructions.length();
+    instructions.expandBy(1);
+    instructions[i].symbol = symbol;
+    instructions[i].destination = destination;
+    instructions[i].sources = sources;  // deep copy
 }
 
 bool
-FreeRhsAutomaton::recordInfo(StackMachineRhsCompiler& compiler)
-{
-  FOR_EACH_CONST(i, Vector<Instruction>, instructions)
-    compiler.recordFunctionEval(i->symbol, i->destination, i->sources);
-  return true;
+FreeRhsAutomaton::recordInfo(StackMachineRhsCompiler &compiler) {
+    FOR_EACH_CONST(i, Vector<Instruction>, instructions)compiler.recordFunctionEval(i->symbol, i->destination,
+                                                                                    i->sources);
+    return true;
 }
 
 
 void
-FreeRhsAutomaton::remapIndices(VariableInfo& variableInfo)
-{
-  int nrInstructions = instructions.length();
-  for (int i = 0; i < nrInstructions; i++)
-    {
-      Instruction& instr = instructions[i];
-      instr.destination = variableInfo.remapIndex(instr.destination);
-      int nrArgs = instr.sources.length();
-      //cout << "  " << nrArgs;
-      for (int j = 0; j < nrArgs; j++)
-	{
-	  instr.sources[j] = variableInfo.remapIndex(instr.sources[j]);
-	  //cout << "  " << instr.sources[j];
-	}
-      //cout << endl;
+FreeRhsAutomaton::remapIndices(VariableInfo &variableInfo) {
+    int nrInstructions = instructions.length();
+    for (int i = 0; i < nrInstructions; i++) {
+        Instruction &instr = instructions[i];
+        instr.destination = variableInfo.remapIndex(instr.destination);
+        int nrArgs = instr.sources.length();
+        //cout << "  " << nrArgs;
+        for (int j = 0; j < nrArgs; j++) {
+            instr.sources[j] = variableInfo.remapIndex(instr.sources[j]);
+            //cout << "  " << instr.sources[j];
+        }
+        //cout << endl;
     }
-  //cout << endl;
+    //cout << endl;
 }
 
 local_inline void
-FreeRhsAutomaton::fillOutArgs(const Instruction& instr,
-			      Substitution& matcher,
-			      FreeDagNode* d)
-{
-  int nrArgs = d->symbol()->arity();
-  if (nrArgs != 0)
-    {
-      DagNode** args = d->argArray();
-      for (Vector<int>::const_iterator j = instr.sources.begin();; ++args, ++j)
-	{
-	  *args = matcher.value(*j);
-	  if (--nrArgs == 0)
-	    break;
-	}
+FreeRhsAutomaton::fillOutArgs(const Instruction &instr,
+                              Substitution &matcher,
+                              FreeDagNode *d) {
+    int nrArgs = d->symbol()->arity();
+    if (nrArgs != 0) {
+        DagNode **args = d->argArray();
+        for (Vector<int>::const_iterator j = instr.sources.begin();; ++args, ++j) {
+            *args = matcher.value(*j);
+            if (--nrArgs == 0)
+                break;
+        }
     }
 }
 
-DagNode*
-FreeRhsAutomaton::construct(Substitution& matcher)
-{
-  FreeDagNode* d;
-  Vector<Instruction>::const_iterator i = instructions.begin();
-  for (int nrInstructions = instructions.size();; ++i)
-    {
-      d = new FreeDagNode(i->symbol);
-      fillOutArgs(*i, matcher, d);
-      matcher.bind(i->destination, d);
-      if (--nrInstructions == 0)
-	break;
+DagNode *
+FreeRhsAutomaton::construct(Substitution &matcher) {
+    FreeDagNode *d;
+    Vector<Instruction>::const_iterator i = instructions.begin();
+    for (int nrInstructions = instructions.size();; ++i) {
+        d = new FreeDagNode(i->symbol);
+        fillOutArgs(*i, matcher, d);
+        matcher.bind(i->destination, d);
+        if (--nrInstructions == 0)
+            break;
     }
-  return d;
+    return d;
 }
 
 void
-FreeRhsAutomaton::replace(DagNode* old, Substitution& matcher)
-{
-  Vector<Instruction>::const_iterator i = instructions.begin();
-  for (int nrInstructions = instructions.size(); --nrInstructions != 0; ++i)
-    {
-      FreeDagNode* d = new FreeDagNode(i->symbol);
-      fillOutArgs(*i, matcher, d);
-      matcher.bind(i->destination, d);
+FreeRhsAutomaton::replace(DagNode *old, Substitution &matcher) {
+    Vector<Instruction>::const_iterator i = instructions.begin();
+    for (int nrInstructions = instructions.size(); --nrInstructions != 0; ++i) {
+        FreeDagNode *d = new FreeDagNode(i->symbol);
+        fillOutArgs(*i, matcher, d);
+        matcher.bind(i->destination, d);
     }
-  FreeDagNode* d = new(old) FreeDagNode(i->symbol);
-  fillOutArgs(*i, matcher, d);
+    FreeDagNode *d = new(old) FreeDagNode(i->symbol);
+    fillOutArgs(*i, matcher, d);
 }
 
 #ifdef DUMP
@@ -149,14 +137,14 @@ FreeRhsAutomaton::dump(ostream& s, const VariableInfo& variableInfo, int indentL
   for (int i = 0; i < nrInstructions; i++)
     {
       s << Indent(indentLevel) << "[" << instructions[i].destination << "] <= "
-	<< instructions[i].symbol << '(';
+    << instructions[i].symbol << '(';
       int nrArgs = instructions[i].symbol->arity();
       for (int j = 0; j < nrArgs; j++)
-	{
-	  s << '[' << instructions[i].sources[j] << ']';
-	  if (j + 1 < nrArgs)
-	    s << ", ";
-	}
+    {
+      s << '[' << instructions[i].sources[j] << ']';
+      if (j + 1 < nrArgs)
+        s << ", ";
+    }
       s << ")\n";
     }
   s << Indent(indentLevel - 2) << "End{FreeRhsAutomaton}\n";

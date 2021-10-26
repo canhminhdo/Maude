@@ -34,18 +34,15 @@
 //	front end class definitions
 #include "syntaxContainer.hh"
 
-ostream&
-operator<<(ostream& s, const SyntaxContainer::Type& type)
-{
-  if (type.kind)
-    {
-      s << '[' << type.tokens[0];
-      int nrTokens = type.tokens.length();
-      for (int i = 1; i < nrTokens; i++)
-	s << ',' << Token::sortName(type.tokens[i].code());
-      s << ']';
-    }
-  else
-    s << Token::sortName(type.tokens[0].code());
-  return s;
+ostream &
+operator<<(ostream &s, const SyntaxContainer::Type &type) {
+    if (type.kind) {
+        s << '[' << type.tokens[0];
+        int nrTokens = type.tokens.length();
+        for (int i = 1; i < nrTokens; i++)
+            s << ',' << Token::sortName(type.tokens[i].code());
+        s << ']';
+    } else
+        s << Token::sortName(type.tokens[0].code());
+    return s;
 }

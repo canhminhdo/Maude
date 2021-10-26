@@ -49,108 +49,95 @@
 #include "assignmentConditionState.hh"
 #include "assignmentConditionFragment.hh"
 
-AssignmentConditionFragment::AssignmentConditionFragment(Term* lhs, Term* rhs)
-  : lhs(lhs),
-    rhs(rhs)
-{
-  lhsMatcher = 0;
-  rhsIndex = NONE;
+AssignmentConditionFragment::AssignmentConditionFragment(Term *lhs, Term *rhs)
+        : lhs(lhs),
+          rhs(rhs) {
+    lhsMatcher = 0;
+    rhsIndex = NONE;
 }
 
-AssignmentConditionFragment::~AssignmentConditionFragment()
-{
-  lhs->deepSelfDestruct();
-  rhs->deepSelfDestruct();
-  delete lhsMatcher;
-}
-
-void
-AssignmentConditionFragment::check(VariableInfo& variableInfo, NatSet& boundVariables)
-{
-  NatSet unboundVariables;
-
-  lhs = lhs->normalize(true);
-  lhs->indexVariables(variableInfo);
-  variableInfo.addConditionVariables(lhs->occursBelow());
-
-  rhs = rhs->normalize(false);
-  rhs->indexVariables(variableInfo);
-  variableInfo.addConditionVariables(rhs->occursBelow());
-  unboundVariables.insert(rhs->occursBelow());
-
-  unboundVariables.subtract(boundVariables);
-  variableInfo.addUnboundVariables(unboundVariables);
-  boundVariables.insert(lhs->occursBelow());
+AssignmentConditionFragment::~AssignmentConditionFragment() {
+    lhs->deepSelfDestruct();
+    rhs->deepSelfDestruct();
+    delete lhsMatcher;
 }
 
 void
-AssignmentConditionFragment::preprocess()
-{
-  lhs->symbol()->fillInSortInfo(lhs);
-  lhs->analyseCollapses();
-  rhs->symbol()->fillInSortInfo(rhs);
-  Assert(lhs->getComponent() == rhs->getComponent(), "component clash");
+AssignmentConditionFragment::check(VariableInfo &variableInfo, NatSet &boundVariables) {
+    NatSet unboundVariables;
+
+    lhs = lhs->normalize(true);
+    lhs->indexVariables(variableInfo);
+    variableInfo.addConditionVariables(lhs->occursBelow());
+
+    rhs = rhs->normalize(false);
+    rhs->indexVariables(variableInfo);
+    variableInfo.addConditionVariables(rhs->occursBelow());
+    unboundVariables.insert(rhs->occursBelow());
+
+    unboundVariables.subtract(boundVariables);
+    variableInfo.addUnboundVariables(unboundVariables);
+    boundVariables.insert(lhs->occursBelow());
 }
 
 void
-AssignmentConditionFragment::compileBuild(VariableInfo& variableInfo, TermBag& availableTerms)
-{
-  rhsIndex = rhs->compileRhs(builder, variableInfo, availableTerms, true);
-  variableInfo.useIndex(rhsIndex);
-  lhs->findAvailableTerms(availableTerms, true);
-  lhs->determineContextVariables();
-  lhs->insertAbstractionVariables(variableInfo);
-  variableInfo.endOfFragment();
+AssignmentConditionFragment::preprocess() {
+    lhs->symbol()->fillInSortInfo(lhs);
+    lhs->analyseCollapses();
+    rhs->symbol()->fillInSortInfo(rhs);
+    Assert(lhs->getComponent() == rhs->getComponent(), "component clash");
 }
 
 void
-AssignmentConditionFragment::compileMatch(VariableInfo& variableInfo, NatSet& boundUniquely)
-{
-  builder.remapIndices(variableInfo);
-  rhsIndex = variableInfo.remapIndex(rhsIndex);
-  bool subproblemLikely;
-  lhsMatcher = lhs->compileLhs(false, variableInfo, boundUniquely, subproblemLikely);
-  boundUniquely.insert(lhs->occursBelow());
+AssignmentConditionFragment::compileBuild(VariableInfo &variableInfo, TermBag &availableTerms) {
+    rhsIndex = rhs->compileRhs(builder, variableInfo, availableTerms, true);
+    variableInfo.useIndex(rhsIndex);
+    lhs->findAvailableTerms(availableTerms, true);
+    lhs->determineContextVariables();
+    lhs->insertAbstractionVariables(variableInfo);
+    variableInfo.endOfFragment();
+}
+
+void
+AssignmentConditionFragment::compileMatch(VariableInfo &variableInfo, NatSet &boundUniquely) {
+    builder.remapIndices(variableInfo);
+    rhsIndex = variableInfo.remapIndex(rhsIndex);
+    bool subproblemLikely;
+    lhsMatcher = lhs->compileLhs(false, variableInfo, boundUniquely, subproblemLikely);
+    boundUniquely.insert(lhs->occursBelow());
 }
 
 bool
 AssignmentConditionFragment::solve(bool findFirst,
-				   RewritingContext& solution,
-				   Stack<ConditionState*>& state)
-{
-  if (findFirst)
-    {
-      builder.safeConstruct(solution);
-      AssignmentConditionState* cs =
-	new AssignmentConditionState(solution, lhsMatcher, solution.value(rhsIndex));
-      if (cs->solve(true, solution))
-	{
-	  state.push(cs);
-	  return true;
-	}
-      delete cs;
+                                   RewritingContext &solution,
+                                   Stack<ConditionState *> &state) {
+    if (findFirst) {
+        builder.safeConstruct(solution);
+        AssignmentConditionState *cs =
+                new AssignmentConditionState(solution, lhsMatcher, solution.value(rhsIndex));
+        if (cs->solve(true, solution)) {
+            state.push(cs);
+            return true;
+        }
+        delete cs;
+    } else {
+        AssignmentConditionState *cs = safeCast(AssignmentConditionState*, state.top());
+        if (cs->solve(false, solution))
+            return true;
+        delete cs;
+        state.pop();
     }
-  else
-    {
-      AssignmentConditionState* cs = safeCast(AssignmentConditionState*, state.top());
-      if (cs->solve(false, solution))
-	return true;
-      delete cs;
-      state.pop();
-    }
-  return false;
+    return false;
 }
 
-DagNode*
-AssignmentConditionFragment::makeRhsInstance(Substitution& solution)
-{
-  builder.safeConstruct(solution);
-  return solution.value(rhsIndex);
+DagNode *
+AssignmentConditionFragment::makeRhsInstance(Substitution &solution) {
+    builder.safeConstruct(solution);
+    return solution.value(rhsIndex);
 }
 
 bool
-AssignmentConditionFragment::matchRoot(RewritingContext& context, Subproblem*& subproblem)
-{
-  subproblem = 0;
-  return lhsMatcher->match(context.root(), context, subproblem);
+AssignmentConditionFragment::matchRoot(RewritingContext &context, Subproblem *&subproblem) {
+    subproblem = 0;
+    return lhsMatcher->match(context.root(), context, subproblem);
 }

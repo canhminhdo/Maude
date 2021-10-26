@@ -48,140 +48,124 @@
 typedef VariableBindingsManager::ContextId ContextId;
 
 // Static empty vector
-const Vector<DagNode*> VariableBindingsManager::emptyVector;
+const Vector<DagNode *> VariableBindingsManager::emptyVector;
 
 VariableBindingsManager::VariableBindingsManager(int substitutionSize)
-  : contextTable(0),
-    substitution(substitutionSize, 0),
-    currentContext(EMPTY_CONTEXT)
-{
-  // A empty binding can be made to make usage easier
+        : contextTable(0),
+          substitution(substitutionSize, 0),
+          currentContext(EMPTY_CONTEXT) {
+    // A empty binding can be made to make usage easier
 }
 
-VariableBindingsManager::~VariableBindingsManager()
-{
-  size_t nrEntries = contextTable.length();
-  for (size_t i = 0; i < nrEntries; i++)
-    delete contextTable[i];
+VariableBindingsManager::~VariableBindingsManager() {
+    size_t nrEntries = contextTable.length();
+    for (size_t i = 0; i < nrEntries; i++)
+        delete contextTable[i];
 }
 
 ContextId
-VariableBindingsManager::openContext(const Substitution& subst,
-				     const Vector<int>& contextSpec)
-{
-  // The position of contextTable where we will write the entry
-  int insertionPoint;
+VariableBindingsManager::openContext(const Substitution &subst,
+                                     const Vector<int> &contextSpec) {
+    // The position of contextTable where we will write the entry
+    int insertionPoint;
 
-  if (!freeCells.empty())
-    {
-      insertionPoint = freeCells.front();
-      freeCells.pop();
-    }
-  else
-    {
-      insertionPoint = contextTable.length();
-      contextTable.expandBy(1);
-      contextTable[insertionPoint] = new Entry;
+    if (!freeCells.empty()) {
+        insertionPoint = freeCells.front();
+        freeCells.pop();
+    } else {
+        insertionPoint = contextTable.length();
+        contextTable.expandBy(1);
+        contextTable[insertionPoint] = new Entry;
     }
 
-  // The number of variables in the context
-  size_t nrVars = contextSpec.length();
-  contextTable[insertionPoint]->init(nrVars);
+    // The number of variables in the context
+    size_t nrVars = contextSpec.length();
+    contextTable[insertionPoint]->init(nrVars);
 
-  Vector<DagNode*>& values = contextTable[insertionPoint]->values;
+    Vector<DagNode *> &values = contextTable[insertionPoint]->values;
 
-  for (size_t i = 0; i < nrVars; i++)
-    values[i] = subst.value(contextSpec[i]);
+    for (size_t i = 0; i < nrVars; i++)
+        values[i] = subst.value(contextSpec[i]);
 
-  return insertionPoint;
+    return insertionPoint;
 }
 
 ContextId VariableBindingsManager::openContext(ContextId parent,
-					       const Substitution& match,
-					       const Vector<int>& contextSpec)
-{
-  // The position of contextTable where we will write the entry
-  int insertionPoint;
+                                               const Substitution &match,
+                                               const Vector<int> &contextSpec) {
+    // The position of contextTable where we will write the entry
+    int insertionPoint;
 
-  if (!freeCells.empty())
-    {
-      insertionPoint = freeCells.front();
-      freeCells.pop();
-    }
-  else
-    {
-      insertionPoint = contextTable.length();
-      contextTable.expandBy(1);
-      contextTable[insertionPoint] = new Entry;
+    if (!freeCells.empty()) {
+        insertionPoint = freeCells.front();
+        freeCells.pop();
+    } else {
+        insertionPoint = contextTable.length();
+        contextTable.expandBy(1);
+        contextTable[insertionPoint] = new Entry;
     }
 
-  // The number of variables in the context
-  size_t nrVars = contextSpec.length();
-  contextTable[insertionPoint]->init(nrVars);
+    // The number of variables in the context
+    size_t nrVars = contextSpec.length();
+    contextTable[insertionPoint]->init(nrVars);
 
-  Vector<DagNode*>& values = contextTable[insertionPoint]->values;
+    Vector<DagNode *> &values = contextTable[insertionPoint]->values;
 
-  for (size_t i = 0; i < nrVars; i++)
-    values[i] = contextSpec[i] >= 0
-		    ? match.value(contextSpec[i])
-		    : contextTable[parent]->values[-contextSpec[i] - 1];
+    for (size_t i = 0; i < nrVars; i++)
+        values[i] = contextSpec[i] >= 0
+                    ? match.value(contextSpec[i])
+                    : contextTable[parent]->values[-contextSpec[i] - 1];
 
-  return insertionPoint;
+    return insertionPoint;
 }
 
-DagNode*
-VariableBindingsManager::instantiate(ContextId ctx, DagNode* original) const
-{
-  // Note: this function is not reentrant
+DagNode *
+VariableBindingsManager::instantiate(ContextId ctx, DagNode *original) const {
+    // Note: this function is not reentrant
 
-  // No variables in the context
-  if (ctx == EMPTY_CONTEXT)
-    return original;
+    // No variables in the context
+    if (ctx == EMPTY_CONTEXT)
+        return original;
 
-  // Prepares the substitution if needed
-  if (currentContext != ctx)
-    {
-      const Vector<DagNode*>& values = contextTable[ctx]->values;
-      size_t nrVars = values.length();
+    // Prepares the substitution if needed
+    if (currentContext != ctx) {
+        const Vector<DagNode *> &values = contextTable[ctx]->values;
+        size_t nrVars = values.length();
 
-      for (size_t i = 0; i < nrVars; i++)
-	substitution.bind(i, values[i]);
+        for (size_t i = 0; i < nrVars; i++)
+            substitution.bind(i, values[i]);
 
-      currentContext = ctx;
+        currentContext = ctx;
     }
 
-  return original->instantiate(substitution, true);  // passing true for safety
+    return original->instantiate(substitution, true);  // passing true for safety
 }
 
 void
 VariableBindingsManager::buildInitialSubstitution(ContextId ctx,
-						  VariableInfo& vinfo,
-						  const Vector<std::pair<int, int> >& indexTranslation,
-						  Vector<Term*>& vars,
-						  Vector<DagRoot*>& values) const
-{
-  size_t nrVars = indexTranslation.length();
-  vars.resize(nrVars);
-  values.resize(nrVars);
+                                                  VariableInfo &vinfo,
+                                                  const Vector<std::pair<int, int> > &indexTranslation,
+                                                  Vector<Term *> &vars,
+                                                  Vector<DagRoot *> &values) const {
+    size_t nrVars = indexTranslation.length();
+    vars.resize(nrVars);
+    values.resize(nrVars);
 
-  for (size_t i = 0; i < nrVars; i++)
-    {
-      vars[i] = vinfo.index2Variable(indexTranslation[i].first)->deepCopy();
-      values[i] = new DagRoot(contextTable[ctx]->values[indexTranslation[i].second]);
+    for (size_t i = 0; i < nrVars; i++) {
+        vars[i] = vinfo.index2Variable(indexTranslation[i].first)->deepCopy();
+        values[i] = new DagRoot(contextTable[ctx]->values[indexTranslation[i].second]);
     }
 }
 
 void
-VariableBindingsManager::Entry::markReachableNodes()
-{
-  int nrValues = values.length();
-  for (int i = 0; i < nrValues; i++)
-    values[i]->mark();
+VariableBindingsManager::Entry::markReachableNodes() {
+    int nrValues = values.length();
+    for (int i = 0; i < nrValues; i++)
+        values[i]->mark();
 }
 
 inline void
-VariableBindingsManager::Entry::init(size_t nrVars)
-{
-  values.expandTo(nrVars);
-  //  link();
+VariableBindingsManager::Entry::init(size_t nrVars) {
+    values.expandTo(nrVars);
+    //  link();
 }

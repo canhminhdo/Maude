@@ -43,103 +43,94 @@
 #include "decompositionProcess.hh"
 
 ApplicationStrategy::ApplicationStrategy(int label,
-					 const Vector<Term*>& variables,
-					 const Vector<Term*>& values,
-					 const Vector<StrategyExpression*>& strategies)
-  : top(false),
-    label(label),
-    variables(variables),
-    valueDags(values.size()),
-    strategies(strategies),
-    subsDagsAreReduced(false)
-{
-  Assert(label != NONE || (variables.empty() && strategies.empty()),
-	 "substitutions and condition strategies aren't allowed without a label");
+                                         const Vector<Term *> &variables,
+                                         const Vector<Term *> &values,
+                                         const Vector<StrategyExpression *> &strategies)
+        : top(false),
+          label(label),
+          variables(variables),
+          valueDags(values.size()),
+          strategies(strategies),
+          subsDagsAreReduced(false) {
+    Assert(label != NONE || (variables.empty() && strategies.empty()),
+           "substitutions and condition strategies aren't allowed without a label");
 
-  size_t nrValues = values.size();
-  Assert(variables.size() == nrValues, "bad substitution");
+    size_t nrValues = values.size();
+    Assert(variables.size() == nrValues, "bad substitution");
 
-  for (size_t i = 0; i < nrValues; ++i)
-    valueDags[i].setTerm(values[i]);
+    for (size_t i = 0; i < nrValues; ++i)
+        valueDags[i].setTerm(values[i]);
 }
 
-ApplicationStrategy::~ApplicationStrategy()
-{
-  int nrVariables = variables.size();
-  for (int i = 0; i < nrVariables; ++i)
-    variables[i]->deepSelfDestruct();
-  int nrStrategies = strategies.size();
-  for (int i = 0; i < nrStrategies; ++i)
-    delete strategies[i];
+ApplicationStrategy::~ApplicationStrategy() {
+    int nrVariables = variables.size();
+    for (int i = 0; i < nrVariables; ++i)
+        variables[i]->deepSelfDestruct();
+    int nrStrategies = strategies.size();
+    for (int i = 0; i < nrStrategies; ++i)
+        delete strategies[i];
 }
 
 bool
-ApplicationStrategy::check(VariableInfo& indices, const TermSet& boundVars)
-{
-  // Index and check variables in the substitution
+ApplicationStrategy::check(VariableInfo &indices, const TermSet &boundVars) {
+    // Index and check variables in the substitution
 
-  int subsSize = valueDags.length();
-  for (int i = 0; i < subsSize; i++)
-    {
-      valueDags[i].getTerm()->indexVariables(indices);
-      valueDags[i].normalize();
+    int subsSize = valueDags.length();
+    for (int i = 0; i < subsSize; i++) {
+        valueDags[i].getTerm()->indexVariables(indices);
+        valueDags[i].normalize();
 
-      const NatSet& occurSet = valueDags[i].getTerm()->occursBelow();
+        const NatSet &occurSet = valueDags[i].getTerm()->occursBelow();
 
-      // NOTE Free variables can be used in substitutions?
-      // It may have some sense.
+        // NOTE Free variables can be used in substitutions?
+        // It may have some sense.
 
-      for (int index : occurSet)
-        {
-	  Term* var = indices.index2Variable(index);
+        for (int index : occurSet) {
+            Term *var = indices.index2Variable(index);
 
-	  if (boundVars.term2Index(var) == NONE)
-            {
-	      IssueWarning(*var << ": unbound variable " << QUOTE(var) <<
-			   " in application strategy substitution for " <<
-			   QUOTE(variables[i]) << ".");
-	      return false;
+            if (boundVars.term2Index(var) == NONE) {
+                IssueWarning(*var << ": unbound variable " << QUOTE(var) <<
+                                  " in application strategy substitution for " <<
+                                  QUOTE(variables[i]) << ".");
+                return false;
             }
         }
     }
 
-  // Index and check variables in the rewriting condition strategies
+    // Index and check variables in the rewriting condition strategies
 
-  size_t nrStrategies = strategies.length();
-  for (size_t i = 0; i < nrStrategies; i++)
-    if (!strategies[i]->check(indices, boundVars))
-      return false;
+    size_t nrStrategies = strategies.length();
+    for (size_t i = 0; i < nrStrategies; i++)
+        if (!strategies[i]->check(indices, boundVars))
+            return false;
 
-  return true;
+    return true;
 }
 
 void
-ApplicationStrategy::process()
-{
-  // Fills in sort info for variables, and prepare values
-  int subsSize = variables.length();
+ApplicationStrategy::process() {
+    // Fills in sort info for variables, and prepare values
+    int subsSize = variables.length();
 
-  for (int i = 0; i < subsSize; i++)
-    {
-      valueDags[i].prepare();
-      variables[i]->symbol()->fillInSortInfo(variables[i]);
-      valueDags[i].getDag()->computeBaseSortForGroundSubterms(false);
+    for (int i = 0; i < subsSize; i++) {
+        valueDags[i].prepare();
+        variables[i]->symbol()->fillInSortInfo(variables[i]);
+        valueDags[i].getDag()->computeBaseSortForGroundSubterms(false);
     }
 
-  // And follows recusively
-  int nrStrategies = strategies.length();
-  for (int i = 0; i < nrStrategies; i++)
-    strategies[i]->process();
+    // And follows recusively
+    int nrStrategies = strategies.length();
+    for (int i = 0; i < nrStrategies; i++)
+        strategies[i]->process();
 }
 
 StrategicExecution::Survival
-ApplicationStrategy::decompose(StrategicSearch& searchObject, DecompositionProcess* remainder)
-{
-  (void) new ApplicationProcess(searchObject,
-				remainder->getDagIndex(),
-				this,
-				remainder->getPending(),
-				remainder, // working for same task
-				remainder);  // place in process queue ahead of old process
-  return StrategicExecution::DIE;  // request deletion of DecompositionProcess
+ApplicationStrategy::decompose(StrategicSearch &searchObject, DecompositionProcess *remainder) {
+    (void) new ApplicationProcess(searchObject,
+                                  remainder->getDagIndex(),
+                                  this,
+                                  remainder->getPending(),
+                                  remainder, // working for same task
+                                  remainder);  // place in process queue ahead of old process
+    return StrategicExecution::DIE;  // request deletion of DecompositionProcess
 }

@@ -54,172 +54,149 @@
 #include "ACU_TreeDagNode.hh"
 #include "ACU_CollectorLhsAutomaton.hh"
 
-ACU_CollectorLhsAutomaton::ACU_CollectorLhsAutomaton(ACU_Symbol* symbol,
-						     bool matchAtTop,
-						     bool collapsePossible,
-						     int nrVariables,
-						     VariableTerm* collector)
-  : ACU_LhsAutomaton(symbol, matchAtTop, collapsePossible, nrVariables),
-    collectorVarIndex(collector->getIndex())
-{
-  Assert(symbol->sortConstraintFree(), "not sort constraint free");
+ACU_CollectorLhsAutomaton::ACU_CollectorLhsAutomaton(ACU_Symbol *symbol,
+                                                     bool matchAtTop,
+                                                     bool collapsePossible,
+                                                     int nrVariables,
+                                                     VariableTerm *collector)
+        : ACU_LhsAutomaton(symbol, matchAtTop, collapsePossible, nrVariables),
+          collectorVarIndex(collector->getIndex()) {
+    Assert(symbol->sortConstraintFree(), "not sort constraint free");
 
-  collectorSort = collector->getSort();
-  Assert(symbol->sortBound(collectorSort) == UNBOUNDED,
-	 "collector must have unbounded sort");
+    collectorSort = collector->getSort();
+    Assert(symbol->sortBound(collectorSort) == UNBOUNDED,
+           "collector must have unbounded sort");
 
-  int index = collectorSort->index();
-  if (index == 0)
-    collectorSort = 0;  // kind can take anything
-  else if (index == 1)
-    {
-      ConnectedComponent* c = collectorSort->component();
-      if (c->nrMaximalSorts() == 1 && c->errorFree())
-	collectorSort = 0;  // top sort in an error-free component can take anything
+    int index = collectorSort->index();
+    if (index == 0)
+        collectorSort = 0;  // kind can take anything
+    else if (index == 1) {
+        ConnectedComponent *c = collectorSort->component();
+        if (c->nrMaximalSorts() == 1 && c->errorFree())
+            collectorSort = 0;  // top sort in an error-free component can take anything
     }
 }
 
 bool
 ACU_CollectorLhsAutomaton::collect(int stripped,
-				   ACU_DagNode* subject,
-				   Substitution& solution) const
-{
-  int nrArgs = subject->argArray.length();
-  if (nrArgs <= 2)
-    {
-      //
-      //	Check for case where there's only one arg left after stripping.
-      //
-      int m = subject->argArray[0].multiplicity;
-      int t = 0;
-      if (nrArgs == 2)
-	{
-	  m += subject->argArray[1].multiplicity;
-	  t = 1 - stripped;
-	}
-      if (m == 2)
-	{
-	  DagNode* sd = subject->argArray[t].dagNode;
-	  if (collectorSort == 0 || sd->leq(collectorSort))
-	    {
-	      solution.bind(collectorVarIndex, sd);
-	      return true;
-	    }
-	  else
-	    return false;
-	}
+                                   ACU_DagNode *subject,
+                                   Substitution &solution) const {
+    int nrArgs = subject->argArray.length();
+    if (nrArgs <= 2) {
+        //
+        //	Check for case where there's only one arg left after stripping.
+        //
+        int m = subject->argArray[0].multiplicity;
+        int t = 0;
+        if (nrArgs == 2) {
+            m += subject->argArray[1].multiplicity;
+            t = 1 - stripped;
+        }
+        if (m == 2) {
+            DagNode *sd = subject->argArray[t].dagNode;
+            if (collectorSort == 0 || sd->leq(collectorSort)) {
+                solution.bind(collectorVarIndex, sd);
+                return true;
+            } else
+                return false;
+        }
     }
-  //
-  //	Make binding for collector variable.
-  //
-  ArgVec<ACU_DagNode::Pair>::const_iterator source = subject->argArray.begin();
-  const ArgVec<ACU_DagNode::Pair>::const_iterator e = subject->argArray.end();
-  const ArgVec<ACU_DagNode::Pair>::const_iterator victim = source + stripped;
-  int strippedMultiplicity = victim->multiplicity - 1;
-  if (strippedMultiplicity == 0)
-    --nrArgs;
-  ACU_Symbol* topSymbol = subject->symbol();
-  ACU_DagNode* d = new ACU_DagNode(topSymbol, nrArgs, ACU_DagNode::ASSIGNMENT);
-  ArgVec<ACU_DagNode::Pair>::iterator dest = d->argArray.begin();
-  for (; source != victim; ++dest, ++source)
-    *dest = *source;
-  if (strippedMultiplicity > 0)
-    {
-      dest->dagNode = source->dagNode;
-      dest->multiplicity = strippedMultiplicity;
-      ++dest;
+    //
+    //	Make binding for collector variable.
+    //
+    ArgVec<ACU_DagNode::Pair>::const_iterator source = subject->argArray.begin();
+    const ArgVec<ACU_DagNode::Pair>::const_iterator e = subject->argArray.end();
+    const ArgVec<ACU_DagNode::Pair>::const_iterator victim = source + stripped;
+    int strippedMultiplicity = victim->multiplicity - 1;
+    if (strippedMultiplicity == 0)
+        --nrArgs;
+    ACU_Symbol *topSymbol = subject->symbol();
+    ACU_DagNode *d = new ACU_DagNode(topSymbol, nrArgs, ACU_DagNode::ASSIGNMENT);
+    ArgVec<ACU_DagNode::Pair>::iterator dest = d->argArray.begin();
+    for (; source != victim; ++dest, ++source)
+        *dest = *source;
+    if (strippedMultiplicity > 0) {
+        dest->dagNode = source->dagNode;
+        dest->multiplicity = strippedMultiplicity;
+        ++dest;
     }
-  for (++source; source != e; ++dest, ++source)
-    *dest = *source;
-  Assert(dest == d->argArray.end(), "iterators inconsistant");
-  //
-  //	Do any sort calculations needed.
-  //
-  const Sort* cs = collectorSort;
-  if (cs == 0)
-    {
-      if (subject->isReduced())
-	{
-	  int index = topSymbol->getUniqueSortIndex();
-	  Assert(index != 0, "bad uniqueSortIndex");
-	  if (index < 0)
-	    index = d->argVecComputeBaseSort();
-	  d->setSortIndex(index);
-	  d->setReduced();
-	}
+    for (++source; source != e; ++dest, ++source)
+        *dest = *source;
+    Assert(dest == d->argArray.end(), "iterators inconsistant");
+    //
+    //	Do any sort calculations needed.
+    //
+    const Sort *cs = collectorSort;
+    if (cs == 0) {
+        if (subject->isReduced()) {
+            int index = topSymbol->getUniqueSortIndex();
+            Assert(index != 0, "bad uniqueSortIndex");
+            if (index < 0)
+                index = d->argVecComputeBaseSort();
+            d->setSortIndex(index);
+            d->setReduced();
+        }
+    } else {
+        int index = d->argVecComputeBaseSort();
+        if (!leq(index, cs))
+            return false;
+        if (subject->isReduced()) {
+            d->setSortIndex(index);
+            d->setReduced();
+        }
     }
-  else
-    {
-      int index = d->argVecComputeBaseSort();
-      if (!leq(index, cs))
-	return false;
-      if (subject->isReduced())
-	{
-	  d->setSortIndex(index);
-	  d->setReduced();
-	}
-    }
-  solution.bind(collectorVarIndex, d);
-  return true;
+    solution.bind(collectorVarIndex, d);
+    return true;
 }
 
 bool
-ACU_CollectorLhsAutomaton::collect(ACU_Stack& stripped,  // destroyed
-				   ACU_TreeDagNode* subject,
-				   Substitution& solution) const
-{
-  ACU_Tree t(subject->getTree());
-  t.deleteMult(stripped, 1);
-  DagNode* d;
-  const Sort* cs = collectorSort;
-  if (t.getSize() == 1 && t.getMaxMult() == 1)
-    {
-      //
-      //	Only one argument left for collector.
-      //
-      d = t.getSoleDagNode();
-      if (cs != 0 && !leq(d->getSortIndex(), cs))
-	return false;
+ACU_CollectorLhsAutomaton::collect(ACU_Stack &stripped,  // destroyed
+                                   ACU_TreeDagNode *subject,
+                                   Substitution &solution) const {
+    ACU_Tree t(subject->getTree());
+    t.deleteMult(stripped, 1);
+    DagNode *d;
+    const Sort *cs = collectorSort;
+    if (t.getSize() == 1 && t.getMaxMult() == 1) {
+        //
+        //	Only one argument left for collector.
+        //
+        d = t.getSoleDagNode();
+        if (cs != 0 && !leq(d->getSortIndex(), cs))
+            return false;
+    } else {
+        ACU_Symbol *topSymbol = subject->symbol();
+        if (cs == 0) {
+            //
+            //	The collector sort is maximal (error-free kind) or
+            //	the error sort. Either way sort checks are disabled.
+            //
+            d = new ACU_TreeDagNode(topSymbol, t);
+            if (subject->isReduced()) {
+                int index = topSymbol->getUniqueSortIndex();
+                Assert(index != 0, "bad uniqueSortIndex");
+                if (index < 0)
+                    index = t.computeBaseSort(topSymbol);
+                d->setSortIndex(index);
+                d->setReduced();
+            }
+        } else {
+            //
+            //	Need to check sort of the dag we are going to
+            //	bind to the collector variable.
+            //
+            int index = t.computeBaseSort(topSymbol);
+            if (!leq(index, cs))
+                return false;
+            d = new ACU_TreeDagNode(topSymbol, t);
+            if (subject->isReduced()) {
+                d->setSortIndex(index);
+                d->setReduced();
+            }
+        }
     }
-  else
-    {
-      ACU_Symbol* topSymbol = subject->symbol();
-      if (cs == 0)
-	{
-	  //
-	  //	The collector sort is maximal (error-free kind) or
-	  //	the error sort. Either way sort checks are disabled.
-	  //
-	  d = new ACU_TreeDagNode(topSymbol, t);
-	  if (subject->isReduced())
-	    {
-	      int index = topSymbol->getUniqueSortIndex();
-	      Assert(index != 0, "bad uniqueSortIndex");
-	      if (index < 0)
-		index = t.computeBaseSort(topSymbol);
-	      d->setSortIndex(index);
-	      d->setReduced();
-	    }
-	}
-      else
-	{
-	  //
-	  //	Need to check sort of the dag we are going to
-	  //	bind to the collector variable.
-	  //
-	  int index = t.computeBaseSort(topSymbol);
-	  if (!leq(index, cs))
-	    return false;
-	  d = new ACU_TreeDagNode(topSymbol, t);
-	  if (subject->isReduced())
-	    {
-	      d->setSortIndex(index);
-	      d->setReduced();
-	    }
-	}
-    }
-  solution.bind(collectorVarIndex, d);
-  return true;
+    solution.bind(collectorVarIndex, d);
+    return true;
 }
 
 #ifdef DUMP

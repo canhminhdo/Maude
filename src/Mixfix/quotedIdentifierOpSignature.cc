@@ -28,7 +28,11 @@
 //	The format is:
 //		MACRO(symbols name, symbols C++ class, number of args)
 //
-  MACRO(quotedIdentifierSymbol, QuotedIdentifierSymbol, 0)
-  MACRO(nilQidListSymbol, Symbol, 0)
-  MACRO(qidListSymbol, AU_Symbol, 2)
-  MACRO(stringSymbol, StringSymbol, 0)
+MACRO(quotedIdentifierSymbol, QuotedIdentifierSymbol,
+0)
+MACRO(nilQidListSymbol, Symbol,
+0)
+MACRO(qidListSymbol, AU_Symbol,
+2)
+MACRO(stringSymbol, StringSymbol,
+0)

@@ -21,71 +21,66 @@
 */
 
 void
-FileManagerSymbol::errorReply(const char* errorMessage,
-			      FreeDagNode* originalMessage,
-			      ObjectSystemRewritingContext& context)
-{
-  Vector<DagNode*> reply(3);
-  reply[1] = originalMessage->getArgument(0);
-  reply[2] = new StringDagNode(stringSymbol, errorMessage);
-  DagNode* target = originalMessage->getArgument(1);
-  reply[0] = target;
-  context.bufferMessage(target, fileErrorMsg->makeDagNode(reply));
+FileManagerSymbol::errorReply(const char *errorMessage,
+                              FreeDagNode *originalMessage,
+                              ObjectSystemRewritingContext &context) {
+    Vector<DagNode *> reply(3);
+    reply[1] = originalMessage->getArgument(0);
+    reply[2] = new StringDagNode(stringSymbol, errorMessage);
+    DagNode *target = originalMessage->getArgument(1);
+    reply[0] = target;
+    context.bufferMessage(target, fileErrorMsg->makeDagNode(reply));
 }
 
 void
 FileManagerSymbol::openedFileReply(int fd,
-				   FreeDagNode* originalMessage,
-				   ObjectSystemRewritingContext& context)
-{
-  
-  Vector<DagNode*> reply(1, 3);
-  reply[0] = succSymbol->makeNatDag(fd);
-  DagNode* fileName = fileOidSymbol->makeDagNode(reply);
-  context.addExternalObject(fileName, this);
-  reply.resize(3);
-  reply[2] = fileName;
-  reply[1] = originalMessage->getArgument(0);
-  DagNode* target = originalMessage->getArgument(1);
-  reply[0] = target;
-  context.bufferMessage(target, openedFileMsg->makeDagNode(reply));
+                                   FreeDagNode *originalMessage,
+                                   ObjectSystemRewritingContext &context) {
+
+    Vector<DagNode *> reply(1, 3);
+    reply[0] = succSymbol->makeNatDag(fd);
+    DagNode *fileName = fileOidSymbol->makeDagNode(reply);
+    context.addExternalObject(fileName, this);
+    reply.resize(3);
+    reply[2] = fileName;
+    reply[1] = originalMessage->getArgument(0);
+    DagNode *target = originalMessage->getArgument(1);
+    reply[0] = target;
+    context.bufferMessage(target, openedFileMsg->makeDagNode(reply));
 }
 
 void
-FileManagerSymbol::gotLineReply(const Rope& line,
-				FreeDagNode* originalMessage,
-				ObjectSystemRewritingContext& context)
-{
-  Vector<DagNode*> reply(3);
-  reply[1] = originalMessage->getArgument(0);
-  reply[2] = new StringDagNode(stringSymbol, line);
-  DagNode* target = originalMessage->getArgument(1);
-  reply[0] = target;
-  context.bufferMessage(target, gotLineMsg->makeDagNode(reply));
+FileManagerSymbol::gotLineReply(const Rope &line,
+                                FreeDagNode *originalMessage,
+                                ObjectSystemRewritingContext &context) {
+    Vector<DagNode *> reply(3);
+    reply[1] = originalMessage->getArgument(0);
+    reply[2] = new StringDagNode(stringSymbol, line);
+    DagNode *target = originalMessage->getArgument(1);
+    reply[0] = target;
+    context.bufferMessage(target, gotLineMsg->makeDagNode(reply));
 }
 
 void
-FileManagerSymbol::gotCharsReply(const Rope& text,
-				 FreeDagNode* originalMessage,
-				 ObjectSystemRewritingContext& context)
-{
-  Vector<DagNode*> reply(3);
-  reply[1] = originalMessage->getArgument(0);
-  reply[2] = new StringDagNode(stringSymbol, text);
-  DagNode* target = originalMessage->getArgument(1);
-  reply[0] = target;
-  context.bufferMessage(target, gotCharsMsg->makeDagNode(reply));
+FileManagerSymbol::gotCharsReply(const Rope &text,
+                                 FreeDagNode *originalMessage,
+                                 ObjectSystemRewritingContext &context) {
+    Vector<DagNode *> reply(3);
+    reply[1] = originalMessage->getArgument(0);
+    reply[2] = new StringDagNode(stringSymbol, text);
+    DagNode *target = originalMessage->getArgument(1);
+    reply[0] = target;
+    context.bufferMessage(target, gotCharsMsg->makeDagNode(reply));
 }
 
 void
 FileManagerSymbol::positionGotReply(Int64 position,
-				    FreeDagNode* originalMessage,
-				    ObjectSystemRewritingContext& context)
-{
-  Vector<DagNode*> reply(3);
-  reply[1] = originalMessage->getArgument(0);
-  reply[2] = succSymbol->makeNatDag(position);
-  DagNode* target = originalMessage->getArgument(1);
-  reply[0] = target;
-  context.bufferMessage(target, positionGotMsg->makeDagNode(reply));
+                                    FreeDagNode *originalMessage,
+                                    ObjectSystemRewritingContext &context) {
+    Vector<DagNode *> reply(3);
+    reply[1] = originalMessage->getArgument(0);
+    reply[2] = succSymbol->makeNatDag(position);
+    DagNode *target = originalMessage->getArgument(1);
+    reply[0] = target;
+    context.bufferMessage(target, positionGotMsg->makeDagNode(reply));
 }

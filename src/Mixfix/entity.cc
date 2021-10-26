@@ -69,53 +69,42 @@ operator<<(ostream& s, const Entity::User* u)
 #endif
 
 void
-Entity::addUser(User* user)
-{
-  if (users.insert(user).second)
-    {
-      //DebugAdvisory("added " <<  user << " to user set for " << this);
-    }
-  else
-    {
-      //DebugAdvisory(user << " is already in user set for " << this);
+Entity::addUser(User *user) {
+    if (users.insert(user).second) {
+        //DebugAdvisory("added " <<  user << " to user set for " << this);
+    } else {
+        //DebugAdvisory(user << " is already in user set for " << this);
     }
 }
 
 void
-Entity::removeUser(User* user)
-{
-  if (users.erase(user) == 1)
-    {
-      //DebugAdvisory("removed " << user << " from user set for " << this);
-    }
-  else
-    {
-      //DebugAdvisory("missing " << user << " in user set for " << this);
+Entity::removeUser(User *user) {
+    if (users.erase(user) == 1) {
+        //DebugAdvisory("removed " << user << " from user set for " << this);
+    } else {
+        //DebugAdvisory("missing " << user << " in user set for " << this);
     }
 }
 
 void
-Entity::informUsers()
-{
-  //DebugAdvisory(this << " informs users");
-  //
-  //	We need to be careful since informing a user will often cause the user
-  //	and/or other users to be removed, invalidating iterators.
-  //
-  const UserSet::const_iterator e = users.end();
-  User* last = 0;
-  for (;;)
-    {
-      UserSet::iterator i = users.begin();  // first surviving user
-      if (i == e)
-	break;  // no more users
-      User* user = *i;
-      if (user == last)
-	users.erase(i);  // remove user from set - we normally expect a user to remove itself
-      else
-	{
-	  user->regretToInform(this);  // invalidates i since user may remove itself from set
-	  last = user;
-	}
+Entity::informUsers() {
+    //DebugAdvisory(this << " informs users");
+    //
+    //	We need to be careful since informing a user will often cause the user
+    //	and/or other users to be removed, invalidating iterators.
+    //
+    const UserSet::const_iterator e = users.end();
+    User *last = 0;
+    for (;;) {
+        UserSet::iterator i = users.begin();  // first surviving user
+        if (i == e)
+            break;  // no more users
+        User *user = *i;
+        if (user == last)
+            users.erase(i);  // remove user from set - we normally expect a user to remove itself
+        else {
+            user->regretToInform(this);  // invalidates i since user may remove itself from set
+            last = user;
+        }
     }
 }

@@ -27,7 +27,7 @@
 //      utility stuff
 #include "macros.hh"
 #include "vector.hh"
- 
+
 //      forward declarations
 #include "interface.hh"
 #include "core.hh"
@@ -36,7 +36,7 @@
 //      interface class definitions
 #include "symbol.hh"
 #include "dagNode.hh"
- 
+
 //      core class definitions
 #include "substitution.hh"
 #include "preEquation.hh"
@@ -50,68 +50,59 @@
 #include "printAttribute.hh"
 
 void
-PrintAttribute::fillOut(const PreEquation& statement,
-			const Vector<int>& names, 
-			const Vector<Sort*>& sorts)
-{
-  Assert(names.size() == sorts.size(), "vector size mismatch");
-  int nrItems = names.size();
-  for (int i = 0; i < nrItems; ++i)
-    {
-      int name = names[i];
-      Sort* sort = sorts[i];
-      if (sort == 0)
-	items.append(name);  // string case
-      else
-	{
-	  int index = findVariableIndex(statement, name,  sort);
-	  if (index == NONE)
-	    IssueWarning(statement << ": print attribute variable unbound.");
-	  else
-	    items.append(-1 - index);
-	}
+PrintAttribute::fillOut(const PreEquation &statement,
+                        const Vector<int> &names,
+                        const Vector<Sort *> &sorts) {
+    Assert(names.size() == sorts.size(), "vector size mismatch");
+    int nrItems = names.size();
+    for (int i = 0; i < nrItems; ++i) {
+        int name = names[i];
+        Sort *sort = sorts[i];
+        if (sort == 0)
+            items.append(name);  // string case
+        else {
+            int index = findVariableIndex(statement, name, sort);
+            if (index == NONE)
+                IssueWarning(statement << ": print attribute variable unbound.");
+            else
+                items.append(-1 - index);
+        }
     }
 }
 
 int
-PrintAttribute::findVariableIndex(const VariableInfo& variableInfo, int name, Sort* sort)
-{
-  int nrVariables = variableInfo.getNrRealVariables();
-  for (int i = 0; i < nrVariables; ++i)
-    {
-      VariableTerm* v = safeCast(VariableTerm*, variableInfo.index2Variable(i));
-      if (v->id() == name && v->getSort() == sort)
-	return i;
+PrintAttribute::findVariableIndex(const VariableInfo &variableInfo, int name, Sort *sort) {
+    int nrVariables = variableInfo.getNrRealVariables();
+    for (int i = 0; i < nrVariables; ++i) {
+        VariableTerm *v = safeCast(VariableTerm*, variableInfo.index2Variable(i));
+        if (v->id() == name && v->getSort() == sort)
+            return i;
     }
-  return NONE;
+    return NONE;
 }
 
 void
-PrintAttribute::print(ostream& s, const VariableInfo& variableInfo) const
-{
-  s << "print";
-  int nrItems = items.size();
-  for (int i = 0; i < nrItems; ++i)
-    {
-      s << ' ';
-      int item = items[i];
-      if (item >= 0)
-	s << Token::name(item);
-      else
-	s << variableInfo.index2Variable(-1 - item);
+PrintAttribute::print(ostream &s, const VariableInfo &variableInfo) const {
+    s << "print";
+    int nrItems = items.size();
+    for (int i = 0; i < nrItems; ++i) {
+        s << ' ';
+        int item = items[i];
+        if (item >= 0)
+            s << Token::name(item);
+        else
+            s << variableInfo.index2Variable(-1 - item);
     }
 }
 
 void
-PrintAttribute::print(ostream& s, const Substitution& substitution) const
-{
-  int nrItems = items.size();
-  for (int i = 0; i < nrItems; ++i)
-    {
-      int item = items[i];
-      if (item >= 0)
-	s << Token::codeToRope(item);
-      else
-	s << substitution.value(-1 - item);
+PrintAttribute::print(ostream &s, const Substitution &substitution) const {
+    int nrItems = items.size();
+    for (int i = 0; i < nrItems; ++i) {
+        int item = items[i];
+        if (item >= 0)
+            s << Token::codeToRope(item);
+        else
+            s << substitution.value(-1 - item);
     }
 }

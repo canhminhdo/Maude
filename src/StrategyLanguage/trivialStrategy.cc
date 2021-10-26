@@ -38,26 +38,22 @@
 #include "decompositionProcess.hh"
 
 TrivialStrategy::TrivialStrategy(bool result)
-  : result(result)
-{
+        : result(result) {
 }
 
 bool
-TrivialStrategy::check(VariableInfo&, const TermSet&)
-{
-  return true;
+TrivialStrategy::check(VariableInfo &, const TermSet &) {
+    return true;
 }
 
 void
-TrivialStrategy::process()
-{
+TrivialStrategy::process() {
 }
 
 StrategicExecution::Survival
-TrivialStrategy::decompose(StrategicSearch& /* searchObject */, DecompositionProcess* /* remainder */)
-{
-  //
-  //	If we are idle, remainder survives; if we are fail, remainder dies.
-  //
-  return result ? StrategicExecution::SURVIVE : StrategicExecution::DIE;
+TrivialStrategy::decompose(StrategicSearch & /* searchObject */, DecompositionProcess * /* remainder */) {
+    //
+    //	If we are idle, remainder survives; if we are fail, remainder dies.
+    //
+    return result ? StrategicExecution::SURVIVE : StrategicExecution::DIE;
 }

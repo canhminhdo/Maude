@@ -21,47 +21,44 @@
 */
 
 void
-DirectoryManagerSymbol::errorReply(const char* errorMessage,
-				   FreeDagNode* originalMessage,
-				   ObjectSystemRewritingContext& context)
-{
-  Vector<DagNode*> reply(3);
-  reply[1] = originalMessage->getArgument(0);
-  reply[2] = new StringDagNode(stringSymbol, errorMessage);
-  DagNode* target = originalMessage->getArgument(1);
-  reply[0] = target;
-  context.bufferMessage(target, directoryErrorMsg->makeDagNode(reply));
+DirectoryManagerSymbol::errorReply(const char *errorMessage,
+                                   FreeDagNode *originalMessage,
+                                   ObjectSystemRewritingContext &context) {
+    Vector<DagNode *> reply(3);
+    reply[1] = originalMessage->getArgument(0);
+    reply[2] = new StringDagNode(stringSymbol, errorMessage);
+    DagNode *target = originalMessage->getArgument(1);
+    reply[0] = target;
+    context.bufferMessage(target, directoryErrorMsg->makeDagNode(reply));
 }
 
 void
 DirectoryManagerSymbol::openedDirectoryReply(int fd,
-					     FreeDagNode* originalMessage,
-					     ObjectSystemRewritingContext& context)
-{
-  
-  Vector<DagNode*> reply(1, 3);
-  reply[0] = succSymbol->makeNatDag(fd);
-  DagNode* directoryName = directoryOidSymbol->makeDagNode(reply);
-  context.addExternalObject(directoryName, this);
-  reply.resize(3);
-  reply[2] = directoryName;
-  reply[1] = originalMessage->getArgument(0);
-  DagNode* target = originalMessage->getArgument(1);
-  reply[0] = target;
-  context.bufferMessage(target, openedDirectoryMsg->makeDagNode(reply));
+                                             FreeDagNode *originalMessage,
+                                             ObjectSystemRewritingContext &context) {
+
+    Vector<DagNode *> reply(1, 3);
+    reply[0] = succSymbol->makeNatDag(fd);
+    DagNode *directoryName = directoryOidSymbol->makeDagNode(reply);
+    context.addExternalObject(directoryName, this);
+    reply.resize(3);
+    reply[2] = directoryName;
+    reply[1] = originalMessage->getArgument(0);
+    DagNode *target = originalMessage->getArgument(1);
+    reply[0] = target;
+    context.bufferMessage(target, openedDirectoryMsg->makeDagNode(reply));
 }
 
 void
-DirectoryManagerSymbol::gotDirectoryEntryReply(const Rope& name,
-					       DagNode* typeDag,
-					       FreeDagNode* originalMessage,
-					       ObjectSystemRewritingContext& context)
-{
-  Vector<DagNode*> reply(4);
-  reply[1] = originalMessage->getArgument(0);
-  reply[2] = new StringDagNode(stringSymbol, name);
-  reply[3] = typeDag;
-  DagNode* target = originalMessage->getArgument(1);
-  reply[0] = target;
-  context.bufferMessage(target, gotDirectoryEntryMsg->makeDagNode(reply));
+DirectoryManagerSymbol::gotDirectoryEntryReply(const Rope &name,
+                                               DagNode *typeDag,
+                                               FreeDagNode *originalMessage,
+                                               ObjectSystemRewritingContext &context) {
+    Vector<DagNode *> reply(4);
+    reply[1] = originalMessage->getArgument(0);
+    reply[2] = new StringDagNode(stringSymbol, name);
+    reply[3] = typeDag;
+    DagNode *target = originalMessage->getArgument(1);
+    reply[0] = target;
+    context.bufferMessage(target, gotDirectoryEntryMsg->makeDagNode(reply));
 }

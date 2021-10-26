@@ -40,129 +40,106 @@
 #include "moduleExpression.hh"
 
 ModuleExpression::ModuleExpression(Token moduleName)
- : type(MODULE),
-   moduleName(moduleName)
-{
+        : type(MODULE),
+          moduleName(moduleName) {
 }
 
-ModuleExpression::ModuleExpression(ModuleExpression* left, ModuleExpression* right)
- : type(SUMMATION)
-{
-  if (right->type == SUMMATION)
-    {
-      modules.swap(right->modules);
-      delete right;
-    }
-  else
-    modules.push_front(right);
+ModuleExpression::ModuleExpression(ModuleExpression *left, ModuleExpression *right)
+        : type(SUMMATION) {
+    if (right->type == SUMMATION) {
+        modules.swap(right->modules);
+        delete right;
+    } else
+        modules.push_front(right);
 
-  if (left->type == SUMMATION)
-    {
-      modules.splice(modules.begin(), left->modules);
-      delete left;
-    }
-  else
-    modules.push_front(left);
+    if (left->type == SUMMATION) {
+        modules.splice(modules.begin(), left->modules);
+        delete left;
+    } else
+        modules.push_front(left);
 }
 
-ModuleExpression::ModuleExpression(ModuleExpression* module, Renaming* renaming)
- : type(RENAMING),
-   module(module),
-   renaming(renaming)
-{
+ModuleExpression::ModuleExpression(ModuleExpression *module, Renaming *renaming)
+        : type(RENAMING),
+          module(module),
+          renaming(renaming) {
 }
 
-ModuleExpression::ModuleExpression(ModuleExpression* module, const Vector<ViewExpression*>& arguments)
- : type(INSTANTIATION),
-   module(module),
-   arguments(arguments)
-{
+ModuleExpression::ModuleExpression(ModuleExpression *module, const Vector<ViewExpression *> &arguments)
+        : type(INSTANTIATION),
+          module(module),
+          arguments(arguments) {
 }
 
 void
-ModuleExpression::deepSelfDestruct()
-{
-  switch (type)
-    {
-    case RENAMING:
-      {
-	module->deepSelfDestruct();
-	delete renaming;
-	break;
-      }
-    case INSTANTIATION:
-      {
-	module->deepSelfDestruct();
-	FOR_EACH_CONST(i, Vector<ViewExpression*>, arguments)
-	  (*i)->deepSelfDestruct();
-	break;
-      }
-    case SUMMATION:
-      {
-	FOR_EACH_CONST(i, list<ModuleExpression*>, modules)
-	  (*i)->deepSelfDestruct();
-	break;
-      }
-    case MODULE:
-      break;  // nothing to delete - avoid compiler warning
+ModuleExpression::deepSelfDestruct() {
+    switch (type) {
+        case RENAMING: {
+            module->deepSelfDestruct();
+            delete renaming;
+            break;
+        }
+        case INSTANTIATION: {
+            module->deepSelfDestruct();
+            FOR_EACH_CONST(i, Vector<ViewExpression *>, arguments) (*i)->deepSelfDestruct();
+            break;
+        }
+        case SUMMATION: {
+            FOR_EACH_CONST(i, list<ModuleExpression *>, modules) (*i)->deepSelfDestruct();
+            break;
+        }
+        case MODULE:
+            break;  // nothing to delete - avoid compiler warning
     }
-  delete this;
+    delete this;
 }
 
-ostream&
-operator<<(ostream& s, const ModuleExpression* expr)
-{
-  switch (expr->getType())
-    {
-    case ModuleExpression::MODULE:
-      {
-	s << expr->getModuleName();
-	break;
-      }
-    case ModuleExpression::SUMMATION:
-      {
-	const list<ModuleExpression*>& modules = expr->getModules();
-	const char* sep = "";
-	FOR_EACH_CONST(i, list<ModuleExpression*>, modules)
-	  {
-	    s << sep << *i;
-	    sep = " + ";
-	  }
-	break;
-      }
-    case ModuleExpression::RENAMING:
-      {
-	const ModuleExpression* module = expr->getModule();
-	if (module->getType() == ModuleExpression::SUMMATION)
-	  s << '(' << module << ')';
-	else
-	  s << module;
-	s << " * " << expr->getRenaming();
-	break;
-      }
-    case ModuleExpression::INSTANTIATION:
-      {
-	const ModuleExpression* module = expr->getModule();
-	if (module->getType() == ModuleExpression::SUMMATION ||
-	    module->getType() == ModuleExpression::RENAMING)
-	  s << '(' << module << "){";
-	else
-	  s << module << '{';
-	const Vector<ViewExpression*>& arguments = expr->getArguments();
-	const Vector<ViewExpression*>::const_iterator e = arguments.end();
-	for (Vector<ViewExpression*>::const_iterator i = arguments.begin();;)
-	  {
-	    s << *i;
-	    ++i;
-	    if (i == e)
-	      break;
-	    s  << ", ";
-	  }
-	s << '}';
-	break;
-      }
-    default:
-      CantHappen("not implemented");
+ostream &
+operator<<(ostream &s, const ModuleExpression *expr) {
+    switch (expr->getType()) {
+        case ModuleExpression::MODULE: {
+            s << expr->getModuleName();
+            break;
+        }
+        case ModuleExpression::SUMMATION: {
+            const list<ModuleExpression *> &modules = expr->getModules();
+            const char *sep = "";
+            FOR_EACH_CONST(i, list<ModuleExpression *>, modules) {
+                s << sep << *i;
+                sep = " + ";
+            }
+            break;
+        }
+        case ModuleExpression::RENAMING: {
+            const ModuleExpression *module = expr->getModule();
+            if (module->getType() == ModuleExpression::SUMMATION)
+                s << '(' << module << ')';
+            else
+                s << module;
+            s << " * " << expr->getRenaming();
+            break;
+        }
+        case ModuleExpression::INSTANTIATION: {
+            const ModuleExpression *module = expr->getModule();
+            if (module->getType() == ModuleExpression::SUMMATION ||
+                module->getType() == ModuleExpression::RENAMING)
+                s << '(' << module << "){";
+            else
+                s << module << '{';
+            const Vector<ViewExpression *> &arguments = expr->getArguments();
+            const Vector<ViewExpression *>::const_iterator e = arguments.end();
+            for (Vector<ViewExpression *>::const_iterator i = arguments.begin();;) {
+                s << *i;
+                ++i;
+                if (i == e)
+                    break;
+                s << ", ";
+            }
+            s << '}';
+            break;
+        }
+        default:
+            CantHappen("not implemented");
     }
-  return s;
+    return s;
 }

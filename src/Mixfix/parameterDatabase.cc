@@ -36,27 +36,24 @@
 //	front end class definitions
 #include "parameterDatabase.hh"
 
-ParameterDatabase::~ParameterDatabase()
-{
-  //
-  //	Cleaning up makes for a slow exit, but it helps catch
-  //	dangling pointers and leaked memory when debugging.
-  //	It's also important now that we have meta-interpreters.
-  //
-  const ParameterMap::const_iterator e = parameterMap.end();
-  for (ParameterMap::const_iterator i = parameterMap.begin(); i != e; ++i)
-    delete i->second;
+ParameterDatabase::~ParameterDatabase() {
+    //
+    //	Cleaning up makes for a slow exit, but it helps catch
+    //	dangling pointers and leaked memory when debugging.
+    //	It's also important now that we have meta-interpreters.
+    //
+    const ParameterMap::const_iterator e = parameterMap.end();
+    for (ParameterMap::const_iterator i = parameterMap.begin(); i != e; ++i)
+        delete i->second;
 }
 
-Parameter* 
-ParameterDatabase::getParameter(int parameterName)
-{
-  ParameterMap::const_iterator i = parameterMap.find(parameterName);
-  if (i == parameterMap.end())
-    {
-      Parameter* p = new Parameter(parameterName);
-      parameterMap.insert(ParameterMap::value_type(parameterName, p));
-      return p;
+Parameter *
+ParameterDatabase::getParameter(int parameterName) {
+    ParameterMap::const_iterator i = parameterMap.find(parameterName);
+    if (i == parameterMap.end()) {
+        Parameter *p = new Parameter(parameterName);
+        parameterMap.insert(ParameterMap::value_type(parameterName, p));
+        return p;
     }
-  return i->second;
+    return i->second;
 }

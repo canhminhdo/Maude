@@ -43,43 +43,38 @@
 #include "CUI_DagNode.hh"
 #include "CUI_RhsAutomaton.hh"
 
-CUI_RhsAutomaton::CUI_RhsAutomaton(CUI_Symbol* symbol)
-  : topSymbol(symbol)
-{
+CUI_RhsAutomaton::CUI_RhsAutomaton(CUI_Symbol *symbol)
+        : topSymbol(symbol) {
 }
 
 void
-CUI_RhsAutomaton::remapIndices(VariableInfo& variableInfo)
-{
-  source0 = variableInfo.remapIndex(source0);
-  source1 = variableInfo.remapIndex(source1);
-  destination = variableInfo.remapIndex(destination);
+CUI_RhsAutomaton::remapIndices(VariableInfo &variableInfo) {
+    source0 = variableInfo.remapIndex(source0);
+    source1 = variableInfo.remapIndex(source1);
+    destination = variableInfo.remapIndex(destination);
 }
 
 void
-CUI_RhsAutomaton::close(int sourceIndex0, int sourceIndex1, int destinationIndex)
-{
-  source0 = sourceIndex0;
-  source1 = sourceIndex1;
-  destination = destinationIndex;
+CUI_RhsAutomaton::close(int sourceIndex0, int sourceIndex1, int destinationIndex) {
+    source0 = sourceIndex0;
+    source1 = sourceIndex1;
+    destination = destinationIndex;
 }
 
-DagNode*
-CUI_RhsAutomaton::construct(Substitution& matcher)
-{
-  CUI_DagNode* n = new CUI_DagNode(topSymbol);
-  n->argArray[0] = matcher.value(source0);
-  n->argArray[1] = matcher.value(source1);
-  matcher.bind(destination, n);
-  return n;
+DagNode *
+CUI_RhsAutomaton::construct(Substitution &matcher) {
+    CUI_DagNode *n = new CUI_DagNode(topSymbol);
+    n->argArray[0] = matcher.value(source0);
+    n->argArray[1] = matcher.value(source1);
+    matcher.bind(destination, n);
+    return n;
 }
 
 void
-CUI_RhsAutomaton::replace(DagNode* old, Substitution& matcher)
-{
-  CUI_DagNode* n = new(old) CUI_DagNode(topSymbol);
-  n->argArray[0] = matcher.value(source0);
-  n->argArray[1] = matcher.value(source1);
+CUI_RhsAutomaton::replace(DagNode *old, Substitution &matcher) {
+    CUI_DagNode *n = new(old) CUI_DagNode(topSymbol);
+    n->argArray[0] = matcher.value(source0);
+    n->argArray[1] = matcher.value(source1);
 }
 
 #ifdef DUMP

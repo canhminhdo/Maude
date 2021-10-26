@@ -40,54 +40,52 @@
 #include "AU_Deque.hh"
 
 int
-AU_Deque::computeBaseSort(Symbol* symbol) const
-{
+AU_Deque::computeBaseSort(Symbol *symbol) const {
 #ifdef CHECK_DEQUE
-  checkIntegrity();
+    checkIntegrity();
 #endif
 
-  //cerr << "AU_Deque::computeBaseSort()\n";
-  //cerr << "left = " << left << " right = " << right << endl;
-  if (left != 0)
-    {
-      
-      int index = left->getSortIndex();
-      //cerr << "left index = " << index << endl;
-      if (index == Sort::SORT_UNKNOWN)
-	index = left->fwdComputeBaseSort(symbol);
-      //cerr << "left index now = " << index << endl;
+    //cerr << "AU_Deque::computeBaseSort()\n";
+    //cerr << "left = " << left << " right = " << right << endl;
+    if (left != 0) {
+
+        int index = left->getSortIndex();
+        //cerr << "left index = " << index << endl;
+        if (index == Sort::SORT_UNKNOWN)
+            index = left->fwdComputeBaseSort(symbol);
+        //cerr << "left index now = " << index << endl;
 
 #ifdef CHECK_DEQUE
-  checkIntegrity();
+        checkIntegrity();
 #endif
 
-      if (right == 0)
-	return index;
-      int index2 = right->getSortIndex();
-      //cerr << "right index = " << index2 << endl;
+        if (right == 0)
+            return index;
+        int index2 = right->getSortIndex();
+        //cerr << "right index = " << index2 << endl;
 
-      if (index2 == Sort::SORT_UNKNOWN)
-	index2 = right->revComputeBaseSort(symbol);
-      //cerr << "right index now = " << index2 << endl;
+        if (index2 == Sort::SORT_UNKNOWN)
+            index2 = right->revComputeBaseSort(symbol);
+        //cerr << "right index now = " << index2 << endl;
 
 #ifdef CHECK_DEQUE
-  checkIntegrity();
+        checkIntegrity();
 #endif
 
-      return symbol->traverse(symbol->traverse(0, index), index2);
+        return symbol->traverse(symbol->traverse(0, index), index2);
     }
-  Assert(right != 0, "no args");
-  int index = right->getSortIndex();
-  //cerr << "Right index = " << index << endl;
-  if (index == Sort::SORT_UNKNOWN)
-    index = right->revComputeBaseSort(symbol);
-  //cerr << "Right index now = " << index << endl;
+    Assert(right != 0, "no args");
+    int index = right->getSortIndex();
+    //cerr << "Right index = " << index << endl;
+    if (index == Sort::SORT_UNKNOWN)
+        index = right->revComputeBaseSort(symbol);
+    //cerr << "Right index now = " << index << endl;
 
 #ifdef CHECK_DEQUE
-  checkIntegrity();
+    checkIntegrity();
 #endif
 
-  return index;
+    return index;
 }
 
 #ifdef CHECK_DEQUE
@@ -98,7 +96,7 @@ AU_Deque::checkIntegrity() const
   int l = AU_StackNode::checkIntegrity(left);
   int r = AU_StackNode::checkIntegrity(right);
   Assert(nrElements == l + r,
-	 "bad deque size: " << nrElements << " != " << l << " + " << r);
+     "bad deque size: " << nrElements << " != " << l << " + " << r);
 }
 
 #endif

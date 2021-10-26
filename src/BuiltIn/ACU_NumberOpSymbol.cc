@@ -55,221 +55,192 @@
 #include "ACU_NumberOpSymbol.hh"
 
 ACU_NumberOpSymbol::ACU_NumberOpSymbol(int id)
-  : ACU_Symbol(id)
-{
-  op = NONE;
-  succSymbol = 0;
-  minusSymbol = 0;
+        : ACU_Symbol(id) {
+    op = NONE;
+    succSymbol = 0;
+    minusSymbol = 0;
 }
 
 bool
-ACU_NumberOpSymbol::attachData(const Vector<Sort*>& opDeclaration,
-			       const char* purpose,
-			       const Vector<const char*>& data)
-{
-  BIND_OP(purpose, ACU_NumberOpSymbol, op, data);
-  return ACU_Symbol::attachData(opDeclaration, purpose, data);
+ACU_NumberOpSymbol::attachData(const Vector<Sort *> &opDeclaration,
+                               const char *purpose,
+                               const Vector<const char *> &data) {
+    BIND_OP(purpose, ACU_NumberOpSymbol, op, data);
+    return ACU_Symbol::attachData(opDeclaration, purpose, data);
 }
 
 bool
-ACU_NumberOpSymbol::attachSymbol(const char* purpose, Symbol* symbol)
-{
-  BIND_SYMBOL(purpose, symbol, succSymbol, SuccSymbol*);
-  BIND_SYMBOL(purpose, symbol, minusSymbol, MinusSymbol*);
-  return ACU_Symbol::attachSymbol(purpose, symbol);
+ACU_NumberOpSymbol::attachSymbol(const char *purpose, Symbol *symbol) {
+    BIND_SYMBOL(purpose, symbol, succSymbol, SuccSymbol*);
+    BIND_SYMBOL(purpose, symbol, minusSymbol, MinusSymbol*);
+    return ACU_Symbol::attachSymbol(purpose, symbol);
 }
 
 void
-ACU_NumberOpSymbol::copyAttachments(Symbol* original, SymbolMap* map)
-{
-  ACU_NumberOpSymbol* orig = safeCast(ACU_NumberOpSymbol*, original);
-  op = orig->op;
-  COPY_SYMBOL(orig, succSymbol, map, SuccSymbol*);
-  COPY_SYMBOL(orig, minusSymbol, map, MinusSymbol*);
-  ACU_Symbol::copyAttachments(original, map);
+ACU_NumberOpSymbol::copyAttachments(Symbol *original, SymbolMap *map) {
+    ACU_NumberOpSymbol *orig = safeCast(ACU_NumberOpSymbol*, original);
+    op = orig->op;
+    COPY_SYMBOL(orig, succSymbol, map, SuccSymbol*);
+    COPY_SYMBOL(orig, minusSymbol, map, MinusSymbol*);
+    ACU_Symbol::copyAttachments(original, map);
 }
 
 void
-ACU_NumberOpSymbol::getDataAttachments(const Vector<Sort*>& opDeclaration,
-				       Vector<const char*>& purposes,
-				       Vector<Vector<const char*> >& data)
-{
-  int nrDataAttachments = purposes.length();
-  purposes.resize(nrDataAttachments + 1);
-  purposes[nrDataAttachments] = "ACU_NumberOpSymbol";
-  data.resize(nrDataAttachments + 1);
-  data[nrDataAttachments].resize(1);
-  const char*& d = data[nrDataAttachments][0];
-  switch (op)
-    {
-    CODE_CASE(d, '+', 0, "+")
-    CODE_CASE(d, '*', 0, "*")
-    CODE_CASE(d, '|', 0, "|")
-    CODE_CASE(d, '&', 0, "&")
-    CODE_CASE(d, 'x', 'o', "xor")
-    CODE_CASE(d, 'g', 'c', "gcd")
-    CODE_CASE(d, 'l', 'c', "lcm")
-    CODE_CASE(d, 'm', 'i', "min")
-    CODE_CASE(d, 'm', 'a', "max")
-    default:
-      CantHappen("bad number op");
+ACU_NumberOpSymbol::getDataAttachments(const Vector<Sort *> &opDeclaration,
+                                       Vector<const char *> &purposes,
+                                       Vector<Vector<const char *> > &data) {
+    int nrDataAttachments = purposes.length();
+    purposes.resize(nrDataAttachments + 1);
+    purposes[nrDataAttachments] = "ACU_NumberOpSymbol";
+    data.resize(nrDataAttachments + 1);
+    data[nrDataAttachments].resize(1);
+    const char *&d = data[nrDataAttachments][0];
+    switch (op) {
+        CODE_CASE(d, '+', 0, "+")
+        CODE_CASE(d, '*', 0, "*")
+        CODE_CASE(d, '|', 0, "|")
+        CODE_CASE(d, '&', 0, "&")
+        CODE_CASE(d, 'x', 'o', "xor")
+        CODE_CASE(d, 'g', 'c', "gcd")
+        CODE_CASE(d, 'l', 'c', "lcm")
+        CODE_CASE(d, 'm', 'i', "min")
+        CODE_CASE(d, 'm', 'a', "max")
+        default:
+            CantHappen("bad number op");
     }
-  ACU_Symbol::getDataAttachments(opDeclaration, purposes, data);
+    ACU_Symbol::getDataAttachments(opDeclaration, purposes, data);
 }
 
 void
-ACU_NumberOpSymbol::getSymbolAttachments(Vector<const char*>& purposes,
-					 Vector<Symbol*>& symbols)
-{
-  APPEND_SYMBOL(purposes, symbols, succSymbol);
-  APPEND_SYMBOL(purposes, symbols, minusSymbol);
-  ACU_Symbol::getSymbolAttachments(purposes, symbols);
+ACU_NumberOpSymbol::getSymbolAttachments(Vector<const char *> &purposes,
+                                         Vector<Symbol *> &symbols) {
+    APPEND_SYMBOL(purposes, symbols, succSymbol);
+    APPEND_SYMBOL(purposes, symbols, minusSymbol);
+    ACU_Symbol::getSymbolAttachments(purposes, symbols);
 }
 
 bool
-ACU_NumberOpSymbol::eqRewrite(DagNode* subject, RewritingContext& context)
-{
-  Assert(this == subject->symbol(), "bad symbol");
-  if (reduceArgumentsAndNormalize(subject, context))
-    return false;  // collapsed under us
-  return eqRewrite2(subject, context);  // keep our stack frame small
+ACU_NumberOpSymbol::eqRewrite(DagNode *subject, RewritingContext &context) {
+    Assert(this == subject->symbol(), "bad symbol");
+    if (reduceArgumentsAndNormalize(subject, context))
+        return false;  // collapsed under us
+    return eqRewrite2(subject, context);  // keep our stack frame small
 }
 
 bool
-ACU_NumberOpSymbol::eqRewrite2(DagNode* subject, RewritingContext& context)
-{
-  //
-  //	If we are aborting we don't want to eagerly compute with
-  //	our numerical arguments and then throw the result away since
-  //	the unreduced dag node might normalize into our parent
-  //	which would do the same eager computation etc forming a
-  //	potentially very expensive cascade. We must do this check
-  //	after we have reduced our arguments otherwise we wouldn't
-  //	notice an abort that occurred "on the way up".
-  //
-  if (RewritingContext::getTraceStatus() && context.traceAbort())
-    return false;
+ACU_NumberOpSymbol::eqRewrite2(DagNode *subject, RewritingContext &context) {
+    //
+    //	If we are aborting we don't want to eagerly compute with
+    //	our numerical arguments and then throw the result away since
+    //	the unreduced dag node might normalize into our parent
+    //	which would do the same eager computation etc forming a
+    //	potentially very expensive cascade. We must do this check
+    //	after we have reduced our arguments otherwise we wouldn't
+    //	notice an abort that occurred "on the way up".
+    //
+    if (RewritingContext::getTraceStatus() && context.traceAbort())
+        return false;
 
-  if (succSymbol != 0)
-    {
-      mpz_class accumulator;
-      NatSet unused;
-      int usedMultiplicity = 0;
-      ACU_DagNode* d = getACU_DagNode(subject);
-      int nrArgs = d->nrArgs();
-      for (int i = 0; i < nrArgs; i++)
-	{
-          DagNode* a = d->getArgument(i);
-          Symbol* s = a->symbol();
-          if ((s == minusSymbol) ? minusSymbol->isNeg(a) : succSymbol->isNat(a))
-            {
-              mpz_class storage;
-              const mpz_class& n = (s == minusSymbol) ?
-                minusSymbol->getNeg(a, storage) : succSymbol->getNat(a);
-              int m = d->getMultiplicity(i);
-              if (usedMultiplicity == 0)
-                {
-                  usedMultiplicity = m;
-                  accumulator = n;
-                  if (--m == 0)
-                    continue;
+    if (succSymbol != 0) {
+        mpz_class accumulator;
+        NatSet unused;
+        int usedMultiplicity = 0;
+        ACU_DagNode *d = getACU_DagNode(subject);
+        int nrArgs = d->nrArgs();
+        for (int i = 0; i < nrArgs; i++) {
+            DagNode *a = d->getArgument(i);
+            Symbol *s = a->symbol();
+            if ((s == minusSymbol) ? minusSymbol->isNeg(a) : succSymbol->isNat(a)) {
+                mpz_class storage;
+                const mpz_class &n = (s == minusSymbol) ?
+                                     minusSymbol->getNeg(a, storage) : succSymbol->getNat(a);
+                int m = d->getMultiplicity(i);
+                if (usedMultiplicity == 0) {
+                    usedMultiplicity = m;
+                    accumulator = n;
+                    if (--m == 0)
+                        continue;
+                } else
+                    usedMultiplicity += m;
+                switch (op) {
+                    case '+': {
+                        if (m == 1)
+                            accumulator += n;
+                        else
+                            accumulator += n * m;
+                        break;
+                    }
+                    case '*': {
+                        if (m == 1)
+                            accumulator *= n;
+                        else {
+                            mpz_class t;
+                            mpz_pow_ui(t.get_mpz_t(), n.get_mpz_t(), m);
+                            accumulator *= t;
+                        }
+                        break;
+                    }
+                    case '|': {
+                        accumulator |= n;
+                        break;
+                    }
+                    case '&': {
+                        accumulator &= n;
+                        break;
+                    }
+                    case CODE('x', 'o'): {
+                        if (m & 1)
+                            accumulator ^= n;
+                        break;
+                    }
+                    case CODE('g', 'c'): {
+                        mpz_gcd(accumulator.get_mpz_t(), accumulator.get_mpz_t(), n.get_mpz_t());
+                        break;
+                    }
+                    case CODE('l', 'c'): {
+                        mpz_lcm(accumulator.get_mpz_t(), accumulator.get_mpz_t(), n.get_mpz_t());
+                        break;
+                    }
+                    case CODE('m', 'i'): {
+                        if (n < accumulator)
+                            accumulator = n;
+                        break;
+                    }
+                    case CODE('m', 'a'): {
+                        if (n > accumulator)
+                            accumulator = n;
+                        break;
+                    }
                 }
-              else
-                usedMultiplicity += m;
-	      switch (op)
-		{
-		case '+':
-		  {
-		    if (m == 1)
-		      accumulator += n;
-		    else
-		      accumulator += n * m;
-		    break;
-		  }
-		case '*':
-		  {
-		    if (m == 1)
-		      accumulator *= n;
-		    else
-		      {
-			mpz_class t;
-			mpz_pow_ui (t.get_mpz_t(), n.get_mpz_t(), m);
-			accumulator *= t;
-		      }
-		    break;
-		  }
-		case '|':
-		  {
-		    accumulator |= n;
-		    break;
-		  }
-		case '&':
-		  {
-		    accumulator &= n;
-		    break;
-		  }
-		case CODE('x', 'o'):
-		  {
-		    if (m & 1)
-		      accumulator ^= n;
-		    break;
-		  }
-		case CODE('g', 'c'):
-		  {
-		    mpz_gcd(accumulator.get_mpz_t(), accumulator.get_mpz_t(), n.get_mpz_t());
-		    break;
-		  }
-		case CODE('l', 'c'):
-		  {
-		    mpz_lcm(accumulator.get_mpz_t(), accumulator.get_mpz_t(), n.get_mpz_t());
-		    break;
-		  }
-		case CODE('m', 'i'):
-		  {
-		    if (n < accumulator)
-		      accumulator = n;
-		    break;
-		  }
-		case CODE('m', 'a'):
-		  {
-		    if (n > accumulator)
-		      accumulator = n;
-		    break;
-		  }
-		}
-	    }
-	  else
-	    unused.insert(i); 
-	}
-      if (usedMultiplicity >= 2)
-	{
-	  Assert(minusSymbol != 0 || accumulator >= 0, "can't make -ve int");
-	  if (unused.empty())
-	    {
-	      return (accumulator >= 0) ?
-		succSymbol->rewriteToNat(subject, context, accumulator) :
-		context.builtInReplace(subject, minusSymbol->makeNegDag(accumulator));
-	    }
-	  //
-	  //	Not everything was a number - need to make a new dag node by
-	  //	copying unused arguments and including accumulated result.
-	  //
-          int nrNewArgs = unused.size() + 1;
-          Vector<DagNode*> dagNodes(nrNewArgs);
-          Vector<int> multiplicities(nrNewArgs);
-          int j = 0;
-	  for (int index : unused)
-            {
-              dagNodes[j] = d->getArgument(index);
-              multiplicities[j] = d->getMultiplicity(index);
-              ++j;
+            } else
+                unused.insert(i);
+        }
+        if (usedMultiplicity >= 2) {
+            Assert(minusSymbol != 0 || accumulator >= 0, "can't make -ve int");
+            if (unused.empty()) {
+                return (accumulator >= 0) ?
+                       succSymbol->rewriteToNat(subject, context, accumulator) :
+                       context.builtInReplace(subject, minusSymbol->makeNegDag(accumulator));
             }
-          dagNodes[j] = (accumulator >= 0) ? succSymbol->makeNatDag(accumulator) :
-	    minusSymbol->makeNegDag(accumulator);
-          multiplicities[j] = 1;
-          return context.builtInReplace(subject,
-					makeDagNode(dagNodes, multiplicities));
-	}
+            //
+            //	Not everything was a number - need to make a new dag node by
+            //	copying unused arguments and including accumulated result.
+            //
+            int nrNewArgs = unused.size() + 1;
+            Vector<DagNode *> dagNodes(nrNewArgs);
+            Vector<int> multiplicities(nrNewArgs);
+            int j = 0;
+            for (int index : unused) {
+                dagNodes[j] = d->getArgument(index);
+                multiplicities[j] = d->getMultiplicity(index);
+                ++j;
+            }
+            dagNodes[j] = (accumulator >= 0) ? succSymbol->makeNatDag(accumulator) :
+                          minusSymbol->makeNegDag(accumulator);
+            multiplicities[j] = 1;
+            return context.builtInReplace(subject,
+                                          makeDagNode(dagNodes, multiplicities));
+        }
     }
-  return ACU_Symbol::eqRewrite(subject, context);
+    return ACU_Symbol::eqRewrite(subject, context);
 }

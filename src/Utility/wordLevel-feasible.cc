@@ -25,91 +25,83 @@
 //
 
 bool
-WordLevel::feasibleWithoutCollapse(const Word& lhs, const Word& rhs) const
-{
-  int nrVariables = partialSolution.size();
-  Vector<int> counts(nrVariables);
-  for (int& count : counts)
-    count = 0;
-  //
-  //	lhs is positive.
-  //
-  for (int i : lhs)
-    ++(counts[i]);
-  //
-  //	rhs is negative.
-  //
-  for (int i : rhs)
-    --(counts[i]);
-  //
-  //	Now we compute min-needed and max-can-take values
-  //	for each side of the equation.
-  //
-  int lhsMinNeeded = 0;
-  int lhsMaxCanTake = 0;
-  int rhsMinNeeded = 0;
-  int rhsMaxCanTake = 0;
-  for (int i = 0; i < nrVariables; ++i)
-    {
-      int balance = counts[i];
-      if (balance != 0)
-	{
-	  //
-	  //	Variable didn't cancel completely so it will play a role in
-	  //	the feasibility calculation.
-	  //
-	  VariableConstraint vc = constraintMap[i];
-	  if (balance > 0)
-	    {
-	      lhsMinNeeded += balance;
-	      if (lhsMaxCanTake != UNBOUNDED)  // once we get to UNBOUNDED we stay there
-		{
-		  int upperBound = vc.getUpperBound();
-		  if (upperBound == 0)
-		    lhsMaxCanTake = UNBOUNDED;  // unbounded case
-		  else
-		    lhsMaxCanTake += upperBound * balance;
-		}
-	    }
-	  else
-	    {
-	      rhsMinNeeded -= balance;
-	      if (rhsMaxCanTake != UNBOUNDED)  // once we get to UNBOUNDED we stay there
-		{
-		  int upperBound = vc.getUpperBound();
-		  if (upperBound == 0)
-		    rhsMaxCanTake = UNBOUNDED;  // unbounded case
-		  else
-		    rhsMaxCanTake -= upperBound * balance;
-		}
-	    }
-	}
+WordLevel::feasibleWithoutCollapse(const Word &lhs, const Word &rhs) const {
+    int nrVariables = partialSolution.size();
+    Vector<int> counts(nrVariables);
+    for (int &count : counts)
+        count = 0;
+    //
+    //	lhs is positive.
+    //
+    for (int i : lhs)
+        ++(counts[i]);
+    //
+    //	rhs is negative.
+    //
+    for (int i : rhs)
+        --(counts[i]);
+    //
+    //	Now we compute min-needed and max-can-take values
+    //	for each side of the equation.
+    //
+    int lhsMinNeeded = 0;
+    int lhsMaxCanTake = 0;
+    int rhsMinNeeded = 0;
+    int rhsMaxCanTake = 0;
+    for (int i = 0; i < nrVariables; ++i) {
+        int balance = counts[i];
+        if (balance != 0) {
+            //
+            //	Variable didn't cancel completely so it will play a role in
+            //	the feasibility calculation.
+            //
+            VariableConstraint vc = constraintMap[i];
+            if (balance > 0) {
+                lhsMinNeeded += balance;
+                if (lhsMaxCanTake != UNBOUNDED)  // once we get to UNBOUNDED we stay there
+                {
+                    int upperBound = vc.getUpperBound();
+                    if (upperBound == 0)
+                        lhsMaxCanTake = UNBOUNDED;  // unbounded case
+                    else
+                        lhsMaxCanTake += upperBound * balance;
+                }
+            } else {
+                rhsMinNeeded -= balance;
+                if (rhsMaxCanTake != UNBOUNDED)  // once we get to UNBOUNDED we stay there
+                {
+                    int upperBound = vc.getUpperBound();
+                    if (upperBound == 0)
+                        rhsMaxCanTake = UNBOUNDED;  // unbounded case
+                    else
+                        rhsMaxCanTake -= upperBound * balance;
+                }
+            }
+        }
     }
-  //
-  //	We're feasible if there is no conflict among these values.
-  //
-  return lhsMinNeeded <= rhsMaxCanTake && rhsMinNeeded <= lhsMaxCanTake;
+    //
+    //	We're feasible if there is no conflict among these values.
+    //
+    return lhsMinNeeded <= rhsMaxCanTake && rhsMinNeeded <= lhsMaxCanTake;
 }
 
 bool
-WordLevel::levelFeasibleWithoutCollapse() const
-{
-  //
-  //	First we check for bounds issues with partial solution.
-  //
-  //	We already propagate constraints on assignments and either
-  //	fail bad assignments (PIGPUG levels) or marked them as
-  //	unsafe (INITIAL and SELECTION levels).
-  //
-  if (!(unsafeAssignments.empty()))
-    return false;
-  //
-  //	Then we check that each unsolved equation is feasible on its own.
-  //
-  for (const Equation& e : unsolvedEquations)
-    {
-      if (!feasibleWithoutCollapse(e.lhs, e.rhs))
-	return false;
+WordLevel::levelFeasibleWithoutCollapse() const {
+    //
+    //	First we check for bounds issues with partial solution.
+    //
+    //	We already propagate constraints on assignments and either
+    //	fail bad assignments (PIGPUG levels) or marked them as
+    //	unsafe (INITIAL and SELECTION levels).
+    //
+    if (!(unsafeAssignments.empty()))
+        return false;
+    //
+    //	Then we check that each unsolved equation is feasible on its own.
+    //
+    for (const Equation &e : unsolvedEquations) {
+        if (!feasibleWithoutCollapse(e.lhs, e.rhs))
+            return false;
     }
-  return true;
+    return true;
 }

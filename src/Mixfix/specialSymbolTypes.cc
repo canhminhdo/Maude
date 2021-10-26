@@ -28,36 +28,69 @@
 //	The format is:
 //		MACRO(HookName, SymbolBasicType)
 //
-  MACRO(SystemTrue, SymbolType::SYSTEM_TRUE)
-  MACRO(SystemFalse, SymbolType::SYSTEM_FALSE)
-  MACRO(BranchSymbol, SymbolType::BRANCH_SYMBOL)
-  MACRO(EqualitySymbol, SymbolType::EQUALITY_SYMBOL)
-  MACRO(FloatSymbol, SymbolType::FLOAT)
-  MACRO(FloatOpSymbol, SymbolType::FLOAT_OP)
-  MACRO(StringSymbol, SymbolType::STRING)
-  MACRO(StringOpSymbol, SymbolType::STRING_OP)
-  MACRO(QuotedIdentifierSymbol, SymbolType::QUOTED_IDENTIFIER)
-  MACRO(QuotedIdentifierOpSymbol, SymbolType::QUOTED_IDENTIFIER_OP)
-  MACRO(MetaLevelOpSymbol, SymbolType::META_LEVEL_OP_SYMBOL)
-  MACRO(LoopSymbol, SymbolType::LOOP_SYMBOL)
-  MACRO(Bubble, SymbolType::BUBBLE)
-  MACRO(ModelCheckerSymbol, SymbolType::MODEL_CHECKER_SYMBOL)
-  MACRO(SatSolverSymbol, SymbolType::SAT_SOLVER_SYMBOL)
-  MACRO(SuccSymbol, SymbolType::SUCC_SYMBOL)
-  MACRO(MinusSymbol, SymbolType::MINUS_SYMBOL)
-  MACRO(NumberOpSymbol, SymbolType::NUMBER_OP_SYMBOL)
-  MACRO(ACU_NumberOpSymbol, SymbolType::ACU_NUMBER_OP_SYMBOL)
-  MACRO(CUI_NumberOpSymbol, SymbolType::CUI_NUMBER_OP_SYMBOL)
-  MACRO(DivisionSymbol, SymbolType::DIVISION_SYMBOL)
-  MACRO(RandomOpSymbol, SymbolType::RANDOM_OP_SYMBOL)
-  MACRO(MatrixOpSymbol, SymbolType::MATRIX_OP_SYMBOL)
-  MACRO(CounterSymbol, SymbolType::COUNTER_SYMBOL)
-  MACRO(SocketManagerSymbol, SymbolType::SOCKET_MANAGER_SYMBOL)
-  MACRO(InterpreterManagerSymbol, SymbolType::INTERPRETER_MANAGER_SYMBOL)
-  MACRO(SMT_Symbol, SymbolType::SMT_SYMBOL)
-  MACRO(SMT_NumberSymbol, SymbolType::SMT_NUMBER_SYMBOL)
-  MACRO(FileManagerSymbol, SymbolType::FILE_MANAGER_SYMBOL)
-  MACRO(StreamManagerSymbol, SymbolType::STREAM_MANAGER_SYMBOL)
-  MACRO(DirectoryManagerSymbol, SymbolType::DIRECTORY_MANAGER_SYMBOL)
-  MACRO(ProcessManagerSymbol, SymbolType::PROCESS_MANAGER_SYMBOL)
-  MACRO(TimeManagerSymbol, SymbolType::TIME_MANAGER_SYMBOL)
+MACRO(SystemTrue, SymbolType::SYSTEM_TRUE
+)
+MACRO(SystemFalse, SymbolType::SYSTEM_FALSE
+)
+MACRO(BranchSymbol, SymbolType::BRANCH_SYMBOL
+)
+MACRO(EqualitySymbol, SymbolType::EQUALITY_SYMBOL
+)
+MACRO(FloatSymbol, SymbolType::FLOAT
+)
+MACRO(FloatOpSymbol, SymbolType::FLOAT_OP
+)
+MACRO(StringSymbol, SymbolType::STRING
+)
+MACRO(StringOpSymbol, SymbolType::STRING_OP
+)
+MACRO(QuotedIdentifierSymbol, SymbolType::QUOTED_IDENTIFIER
+)
+MACRO(QuotedIdentifierOpSymbol, SymbolType::QUOTED_IDENTIFIER_OP
+)
+MACRO(MetaLevelOpSymbol, SymbolType::META_LEVEL_OP_SYMBOL
+)
+MACRO(LoopSymbol, SymbolType::LOOP_SYMBOL
+)
+MACRO(Bubble, SymbolType::BUBBLE
+)
+MACRO(ModelCheckerSymbol, SymbolType::MODEL_CHECKER_SYMBOL
+)
+MACRO(SatSolverSymbol, SymbolType::SAT_SOLVER_SYMBOL
+)
+MACRO(SuccSymbol, SymbolType::SUCC_SYMBOL
+)
+MACRO(MinusSymbol, SymbolType::MINUS_SYMBOL
+)
+MACRO(NumberOpSymbol, SymbolType::NUMBER_OP_SYMBOL
+)
+MACRO(ACU_NumberOpSymbol, SymbolType::ACU_NUMBER_OP_SYMBOL
+)
+MACRO(CUI_NumberOpSymbol, SymbolType::CUI_NUMBER_OP_SYMBOL
+)
+MACRO(DivisionSymbol, SymbolType::DIVISION_SYMBOL
+)
+MACRO(RandomOpSymbol, SymbolType::RANDOM_OP_SYMBOL
+)
+MACRO(MatrixOpSymbol, SymbolType::MATRIX_OP_SYMBOL
+)
+MACRO(CounterSymbol, SymbolType::COUNTER_SYMBOL
+)
+MACRO(SocketManagerSymbol, SymbolType::SOCKET_MANAGER_SYMBOL
+)
+MACRO(InterpreterManagerSymbol, SymbolType::INTERPRETER_MANAGER_SYMBOL
+)
+MACRO(SMT_Symbol, SymbolType::SMT_SYMBOL
+)
+MACRO(SMT_NumberSymbol, SymbolType::SMT_NUMBER_SYMBOL
+)
+MACRO(FileManagerSymbol, SymbolType::FILE_MANAGER_SYMBOL
+)
+MACRO(StreamManagerSymbol, SymbolType::STREAM_MANAGER_SYMBOL
+)
+MACRO(DirectoryManagerSymbol, SymbolType::DIRECTORY_MANAGER_SYMBOL
+)
+MACRO(ProcessManagerSymbol, SymbolType::PROCESS_MANAGER_SYMBOL
+)
+MACRO(TimeManagerSymbol, SymbolType::TIME_MANAGER_SYMBOL
+)

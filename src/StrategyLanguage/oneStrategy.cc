@@ -38,37 +38,32 @@
 #include "oneTask.hh"
 #include "decompositionProcess.hh"
 
-OneStrategy::OneStrategy(StrategyExpression* strat)
-  : strategy(strat)
-{
+OneStrategy::OneStrategy(StrategyExpression *strat)
+        : strategy(strat) {
 }
 
-OneStrategy::~OneStrategy()
-{
-  delete strategy;
+OneStrategy::~OneStrategy() {
+    delete strategy;
 }
 
 bool
-OneStrategy::check(VariableInfo& indices, const TermSet& boundVars)
-{
-  return strategy->check(indices, boundVars);
+OneStrategy::check(VariableInfo &indices, const TermSet &boundVars) {
+    return strategy->check(indices, boundVars);
 }
 
 void
-OneStrategy::process()
-{
-  strategy->process();
+OneStrategy::process() {
+    strategy->process();
 }
 
 StrategicExecution::Survival
-OneStrategy::decompose(StrategicSearch& searchObject, DecompositionProcess* remainder)
-{
-  (void) new OneTask(searchObject,
-		     remainder->getDagIndex(),
-		     strategy,
-		     remainder->getPending(),
-		     remainder,
-		     remainder);
+OneStrategy::decompose(StrategicSearch &searchObject, DecompositionProcess *remainder) {
+    (void) new OneTask(searchObject,
+                       remainder->getDagIndex(),
+                       strategy,
+                       remainder->getPending(),
+                       remainder,
+                       remainder);
 
-  return StrategicExecution::DIE;
+    return StrategicExecution::DIE;
 }

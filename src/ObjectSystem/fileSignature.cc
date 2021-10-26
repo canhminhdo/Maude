@@ -28,40 +28,70 @@
 //	The format is:
 //		MACRO(symbols name, symbols C++ class, number of args)
 //
-  MACRO(succSymbol, SuccSymbol, 1)
-  MACRO(minusSymbol, MinusSymbol, 1)
-  MACRO(stringSymbol, StringSymbol, 0)
-  MACRO(fileOidSymbol, FreeSymbol, 1)
+MACRO(succSymbol, SuccSymbol,
+1)
+MACRO(minusSymbol, MinusSymbol,
+1)
+MACRO(stringSymbol, StringSymbol,
+0)
+MACRO(fileOidSymbol, FreeSymbol,
+1)
 
-  MACRO(startSymbol, Symbol, 0)
-  MACRO(currentSymbol, Symbol, 0)
-  MACRO(endSymbol, Symbol, 0)
-  MACRO(hardSymbol, Symbol, 0)
-  MACRO(symbolicSymbol, Symbol, 0)
+MACRO(startSymbol, Symbol,
+0)
+MACRO(currentSymbol, Symbol,
+0)
+MACRO(endSymbol, Symbol,
+0)
+MACRO(hardSymbol, Symbol,
+0)
+MACRO(symbolicSymbol, Symbol,
+0)
 
-  MACRO(openFileMsg, FreeSymbol, 4)
-  MACRO(openedFileMsg, Symbol, 3)
-  MACRO(removeFileMsg, FreeSymbol, 3)
-  MACRO(removedFileMsg, Symbol, 2)
+MACRO(openFileMsg, FreeSymbol,
+4)
+MACRO(openedFileMsg, Symbol,
+3)
+MACRO(removeFileMsg, FreeSymbol,
+3)
+MACRO(removedFileMsg, Symbol,
+2)
 
-  MACRO(getLineMsg, FreeSymbol, 2)
-  MACRO(gotLineMsg, Symbol, 3)
-  MACRO(getCharsMsg, FreeSymbol, 3)
-  MACRO(gotCharsMsg, Symbol, 3)
+MACRO(getLineMsg, FreeSymbol,
+2)
+MACRO(gotLineMsg, Symbol,
+3)
+MACRO(getCharsMsg, FreeSymbol,
+3)
+MACRO(gotCharsMsg, Symbol,
+3)
 
-  MACRO(writeMsg, FreeSymbol, 3)
-  MACRO(wroteMsg, Symbol, 2)
-  MACRO(flushMsg, FreeSymbol, 2)
-  MACRO(flushedMsg, Symbol, 2)
+MACRO(writeMsg, FreeSymbol,
+3)
+MACRO(wroteMsg, Symbol,
+2)
+MACRO(flushMsg, FreeSymbol,
+2)
+MACRO(flushedMsg, Symbol,
+2)
 
-  MACRO(setPositionMsg, FreeSymbol, 4)
-  MACRO(positionSetMsg, Symbol, 2)
-  MACRO(getPositionMsg, FreeSymbol, 2)
-  MACRO(positionGotMsg, Symbol, 3)
+MACRO(setPositionMsg, FreeSymbol,
+4)
+MACRO(positionSetMsg, Symbol,
+2)
+MACRO(getPositionMsg, FreeSymbol,
+2)
+MACRO(positionGotMsg, Symbol,
+3)
 
-  MACRO(closeFileMsg, FreeSymbol, 2)
-  MACRO(closedFileMsg, Symbol, 2)
+MACRO(closeFileMsg, FreeSymbol,
+2)
+MACRO(closedFileMsg, Symbol,
+2)
 
-  MACRO(makeLinkMsg, FreeSymbol, 2)
-  MACRO(madeLinkMsg, Symbol, 2)
-  MACRO(fileErrorMsg, Symbol, 3)
+MACRO(makeLinkMsg, FreeSymbol,
+2)
+MACRO(madeLinkMsg, Symbol,
+2)
+MACRO(fileErrorMsg, Symbol,
+3)

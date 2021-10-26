@@ -45,15 +45,13 @@
 #include "freeDagNode.hh"
 
 FreeTernarySymbol::FreeTernarySymbol(int id)
-  : FreeSymbol(id, 3)
-{
+        : FreeSymbol(id, 3) {
 }
 
 bool
-FreeTernarySymbol::eqRewrite(DagNode* subject, RewritingContext& context)
-{
-  static_cast<FreeDagNode*>(subject)->internal[0]->reduce(context);
-  static_cast<FreeDagNode*>(subject)->internal[1]->reduce(context);
-  static_cast<FreeDagNode*>(subject)->internal[2]->reduce(context);
-  return DISC_NET.applyReplaceFast(subject, context);
+FreeTernarySymbol::eqRewrite(DagNode *subject, RewritingContext &context) {
+    static_cast<FreeDagNode *>(subject)->internal[0]->reduce(context);
+    static_cast<FreeDagNode *>(subject)->internal[1]->reduce(context);
+    static_cast<FreeDagNode *>(subject)->internal[2]->reduce(context);
+    return DISC_NET.applyReplaceFast(subject, context);
 }

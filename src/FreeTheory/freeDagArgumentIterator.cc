@@ -38,22 +38,19 @@
 #include "freeDagArgumentIterator.hh"
 
 bool
-FreeDagArgumentIterator::valid() const
-{
-  return nrRemaining > 0;
+FreeDagArgumentIterator::valid() const {
+    return nrRemaining > 0;
 }
 
-DagNode*
-FreeDagArgumentIterator::argument() const
-{
-  Assert(nrRemaining > 0, "no args left");
-  return *position;
+DagNode *
+FreeDagArgumentIterator::argument() const {
+    Assert(nrRemaining > 0, "no args left");
+    return *position;
 }
 
 void
-FreeDagArgumentIterator::next()
-{
-  Assert(nrRemaining > 0, "no args left");
-  ++position;
-  --nrRemaining;
+FreeDagArgumentIterator::next() {
+    Assert(nrRemaining > 0, "no args left");
+    ++position;
+    --nrRemaining;
 }

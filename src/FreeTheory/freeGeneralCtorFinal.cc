@@ -43,44 +43,41 @@
 #include "freeSymbol.hh"
 #include "freeDagNode.hh"
 #include "freeGeneralCtorFinal.hh"
-	
-FreeGeneralCtorFinal::FreeGeneralCtorFinal(FreeSymbol* symbol, const Vector<int>& argumentSlots)
-  : symbol(symbol),
-    args(argumentSlots.size())
-{
-  int nrArgs = argumentSlots.size();
-  for (int i = 0; i < nrArgs; ++i)
-    args[i] = argumentSlots[i];
+
+FreeGeneralCtorFinal::FreeGeneralCtorFinal(FreeSymbol *symbol, const Vector<int> &argumentSlots)
+        : symbol(symbol),
+          args(argumentSlots.size()) {
+    int nrArgs = argumentSlots.size();
+    for (int i = 0; i < nrArgs; ++i)
+        args[i] = argumentSlots[i];
 }
 
 void
-FreeGeneralCtorFinal::execute(StackMachine* machine) const
-{
-  //
-  //    Get the stack frame containing the pointer to us.
-  //
-  Frame* frame = machine->getTopFrame();
-  //
-  //    Use the special new(NONE) allocator that sets the reduced flag at creation.
-  //
-  FreeDagNode* d = new(NONE) FreeDagNode(symbol);
-  //
-  //	Fill out arguments and sort.
-  //
-  int nrArgs = d->symbol()->arity();
-  DagNode** argArray = d->argArray();
-  
-  int state = 0;
-  for (int i = 0; i < nrArgs; ++i)
-    {
-      DagNode* a = frame->getSlot(args[i]);
-      int t = a->getSortIndex();
-      state = symbol->traverse(state, t);
-      argArray[i] = a;
+FreeGeneralCtorFinal::execute(StackMachine *machine) const {
+    //
+    //    Get the stack frame containing the pointer to us.
+    //
+    Frame *frame = machine->getTopFrame();
+    //
+    //    Use the special new(NONE) allocator that sets the reduced flag at creation.
+    //
+    FreeDagNode *d = new(NONE) FreeDagNode(symbol);
+    //
+    //	Fill out arguments and sort.
+    //
+    int nrArgs = d->symbol()->arity();
+    DagNode **argArray = d->argArray();
+
+    int state = 0;
+    for (int i = 0; i < nrArgs; ++i) {
+        DagNode *a = frame->getSlot(args[i]);
+        int t = a->getSortIndex();
+        state = symbol->traverse(state, t);
+        argArray[i] = a;
     }
-  d->setSortIndex(state);
-  //
-  //    Finish up using parent class code.
-  //
-  returnResultAndContinue(machine, frame, d);
+    d->setSortIndex(state);
+    //
+    //    Finish up using parent class code.
+    //
+    returnResultAndContinue(machine, frame, d);
 }

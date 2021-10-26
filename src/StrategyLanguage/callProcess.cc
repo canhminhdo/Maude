@@ -51,105 +51,100 @@
 #include "callTask.hh"
 
 
-CallProcess::CallProcess(RewriteStrategy* namedStrategy,
-			 RewritingContext* callContext,
-			 int subjectDagIndex,
-			 StrategyStackManager::StackId pending,
-			 bool tailCall,
-			 StrategicExecution* taskSibling,
-			 StrategicProcess* insertionPoint)
-  : StrategicProcess(taskSibling, insertionPoint),
-    strategy(namedStrategy),
-    callContext(callContext),
-    search(callContext, SearchState::GC_SUBSTITUTION | SearchState::GC_CONTEXT, 0, 0),
-    subjectDagIndex(subjectDagIndex),
-    pending(pending),
-    defIndex(0),
-    first(true),
-    tailCall(tailCall)
-{
-  Assert(callContext->root() != 0, "empty call term");
-  Assert(callContext->root()->getSort() != 0, "call term sort missing");
-  Assert(namedStrategy->getDefinitions().length() > 0, "strategy must have a definition here");
+CallProcess::CallProcess(RewriteStrategy *namedStrategy,
+                         RewritingContext *callContext,
+                         int subjectDagIndex,
+                         StrategyStackManager::StackId pending,
+                         bool tailCall,
+                         StrategicExecution *taskSibling,
+                         StrategicProcess *insertionPoint)
+        : StrategicProcess(taskSibling, insertionPoint),
+          strategy(namedStrategy),
+          callContext(callContext),
+          search(callContext, SearchState::GC_SUBSTITUTION | SearchState::GC_CONTEXT, 0, 0),
+          subjectDagIndex(subjectDagIndex),
+          pending(pending),
+          defIndex(0),
+          first(true),
+          tailCall(tailCall) {
+    Assert(callContext->root() != 0, "empty call term");
+    Assert(callContext->root()->getSort() != 0, "call term sort missing");
+    Assert(namedStrategy->getDefinitions().length() > 0, "strategy must have a definition here");
 
-  // We are matching on top, so only one position is considered
-  search.findNextPosition();
+    // We are matching on top, so only one position is considered
+    search.findNextPosition();
 }
 
 StrategicExecution::Survival
-CallProcess::run(StrategicSearch& searchObject)
-{
-  // Index of the last definition for the strategy
-  const int lastDef = strategy->getDefinitions().length() - 1;
+CallProcess::run(StrategicSearch &searchObject) {
+    // Index of the last definition for the strategy
+    const int lastDef = strategy->getDefinitions().length() - 1;
 
-  //
-  // Using defIndex, we recover the strategy definition where we left
-  // the exploration before. It may be the first trial for it or we may
-  // have found a match before.
-  //
-  StrategyDefinition* sdef = strategy->getDefinitions()[defIndex];
+    //
+    // Using defIndex, we recover the strategy definition where we left
+    // the exploration before. It may be the first trial for it or we may
+    // have found a match before.
+    //
+    StrategyDefinition *sdef = strategy->getDefinitions()[defIndex];
 
-  bool matched = first ? search.findFirstSolution(sdef, sdef->getLhsAutomaton())
-		       : search.findNextSolution();
+    bool matched = first ? search.findFirstSolution(sdef, sdef->getLhsAutomaton())
+                         : search.findNextSolution();
 
-  // We try to match other definitions if the previous do not match
-  while (!matched && defIndex < lastDef)
-    {
-      search.transferCountTo(*searchObject.getContext());
+    // We try to match other definitions if the previous do not match
+    while (!matched && defIndex < lastDef) {
+        search.transferCountTo(*searchObject.getContext());
 
-      sdef = strategy->getDefinitions()[++defIndex];
-      matched = search.findFirstSolution(sdef, sdef->getLhsAutomaton());
+        sdef = strategy->getDefinitions()[++defIndex];
+        matched = search.findFirstSolution(sdef, sdef->getLhsAutomaton());
     }
 
-  search.transferCountTo(*searchObject.getContext());
+    search.transferCountTo(*searchObject.getContext());
 
-  if (matched)
-    {
-      if (RewritingContext::getTraceStatus())
-	{
-	  //
-	  //	The problem described in ApplicationProcess::doRewrite also happens
-	  //	here, so we need to build a rewriting context just for tracing.
-	  //
-	  RewritingContext* baseContext = searchObject.getContext();
-	  RewritingContext* tracingContext = baseContext->makeSubcontext(baseContext->root());
-	  tracingContext->clone(*search.getContext());
-	  tracingContext->traceStrategyCall(sdef,
-					    search.getContext()->root(),
-					    searchObject.getCanonical(subjectDagIndex),
-					    search.getContext());
-	  delete tracingContext;
-	}
+    if (matched) {
+        if (RewritingContext::getTraceStatus()) {
+            //
+            //	The problem described in ApplicationProcess::doRewrite also happens
+            //	here, so we need to build a rewriting context just for tracing.
+            //
+            RewritingContext *baseContext = searchObject.getContext();
+            RewritingContext *tracingContext = baseContext->makeSubcontext(baseContext->root());
+            tracingContext->clone(*search.getContext());
+            tracingContext->traceStrategyCall(sdef,
+                                              search.getContext()->root(),
+                                              searchObject.getCanonical(subjectDagIndex),
+                                              search.getContext());
+            delete tracingContext;
+        }
 
-      first = false;
+        first = false;
 
-      // We need to open a new variable context for its execution
-      // and recover the original context when its execution finishes,
-      // so we create a CallTask.
-      const Vector<int>& contextSpec = sdef->getContextSpec();
+        // We need to open a new variable context for its execution
+        // and recover the original context when its execution finishes,
+        // so we create a CallTask.
+        const Vector<int> &contextSpec = sdef->getContextSpec();
 
-      VariableBindingsManager::ContextId cid = contextSpec.empty()
-		? VariableBindingsManager::EMPTY_CONTEXT
-		: searchObject.openContext(*callContext,
-			contextSpec
-		);
+        VariableBindingsManager::ContextId cid = contextSpec.empty()
+                                                 ? VariableBindingsManager::EMPTY_CONTEXT
+                                                 : searchObject.openContext(*callContext,
+                                                                            contextSpec
+                );
 
-      (void) new CallTask(searchObject,
-			  subjectDagIndex,
-			  sdef->getRhs(),
-			  pending,
-			  cid,
-			  this,
-			  this);
+        (void) new CallTask(searchObject,
+                            subjectDagIndex,
+                            sdef->getRhs(),
+                            pending,
+                            cid,
+                            this,
+                            this);
 
-      // Other solutions may be available
-      return StrategicExecution::SURVIVE;
+        // Other solutions may be available
+        return StrategicExecution::SURVIVE;
     }
 
-  // Any definition has matched the given term (it might not be an error)
-  // if (first)
-  //  IssueAdvisory("strategy execution stucked. No strategy definition matches the call.");
+    // Any definition has matched the given term (it might not be an error)
+    // if (first)
+    //  IssueAdvisory("strategy execution stucked. No strategy definition matches the call.");
 
-  finished(this);
-  return StrategicExecution::DIE;
+    finished(this);
+    return StrategicExecution::DIE;
 }

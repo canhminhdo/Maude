@@ -40,52 +40,48 @@
 #include "depthFirstStrategicSearch.hh"
 #include "decompositionProcess.hh"
 
-DepthFirstStrategicSearch::DepthFirstStrategicSearch(RewritingContext* initial,
-						     StrategyExpression* strategy)
-  : StrategicSearch(initial, strategy)
-{
-  DecompositionProcess* firstToRun =
-    new DecompositionProcess(insert(initial->root()),
-			     push(EMPTY_STACK, strategy),
-			     getDummyExecution(),
-			     0);
-  //
-  // stackTop is a ghost node to access the top of the process stack.
-  // It must never be run. The stack is empty is stackTop->getNextProcess()
-  // is stackTop.
-  //
-  stackTop = new DecompositionProcess(0, 0, this, firstToRun);
+DepthFirstStrategicSearch::DepthFirstStrategicSearch(RewritingContext *initial,
+                                                     StrategyExpression *strategy)
+        : StrategicSearch(initial, strategy) {
+    DecompositionProcess *firstToRun =
+            new DecompositionProcess(insert(initial->root()),
+                                     push(EMPTY_STACK, strategy),
+                                     getDummyExecution(),
+                                     0);
+    //
+    // stackTop is a ghost node to access the top of the process stack.
+    // It must never be run. The stack is empty is stackTop->getNextProcess()
+    // is stackTop.
+    //
+    stackTop = new DecompositionProcess(0, 0, this, firstToRun);
 }
 
-DepthFirstStrategicSearch::~DepthFirstStrategicSearch()
-{
-  delete stackTop;
+DepthFirstStrategicSearch::~DepthFirstStrategicSearch() {
+    delete stackTop;
 }
 
-DagNode*
-DepthFirstStrategicSearch::findNextSolution()
-{
-  //
-  // The implementation of this function is the same as findNextSolution
-  // in StrategicSearch except for the election of the next process to be run.
-  //
+DagNode *
+DepthFirstStrategicSearch::findNextSolution() {
+    //
+    // The implementation of this function is the same as findNextSolution
+    // in StrategicSearch except for the election of the next process to be run.
+    //
 
-  solutionIndex = NONE;
-  while (stackTop->getNextProcess() != stackTop)
-    {
-      StrategicProcess* current = stackTop->getNextProcess();
-      Survival s = current->run(*this);
-      //
-      //	The newly created processes are always placed at the left of the
-      //	current process.
-      //
-      if (s == DIE)
-	delete current;
-      if (RewritingContext::getTraceStatus() && initial->traceAbort())
-	break;
-      if (solutionIndex != NONE)
-	return getCanonical(solutionIndex);
+    solutionIndex = NONE;
+    while (stackTop->getNextProcess() != stackTop) {
+        StrategicProcess *current = stackTop->getNextProcess();
+        Survival s = current->run(*this);
+        //
+        //	The newly created processes are always placed at the left of the
+        //	current process.
+        //
+        if (s == DIE)
+            delete current;
+        if (RewritingContext::getTraceStatus() && initial->traceAbort())
+            break;
+        if (solutionIndex != NONE)
+            return getCanonical(solutionIndex);
     }
-  exhausted = true;
-  return 0;
+    exhausted = true;
+    return 0;
 }

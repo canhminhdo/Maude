@@ -45,19 +45,18 @@
 #include "unifierFilter.hh"
 #include "irredundantUnificationProblem.hh"
 
-IrredundantUnificationProblem::IrredundantUnificationProblem(Vector<Term*>& lhs,
-							     Vector<Term*>& rhs,
-							     FreshVariableGenerator* freshVariableGenerator,
-							     int incomingVariableFamily)
-  : UnificationProblem(lhs, rhs, freshVariableGenerator, incomingVariableFamily)
-{
-  unifierFilter = 0;
+IrredundantUnificationProblem::IrredundantUnificationProblem(Vector<Term *> &lhs,
+                                                             Vector<Term *> &rhs,
+                                                             FreshVariableGenerator *freshVariableGenerator,
+                                                             int incomingVariableFamily)
+        : UnificationProblem(lhs, rhs, freshVariableGenerator, incomingVariableFamily) {
+    unifierFilter = 0;
 }
 
-IrredundantUnificationProblem::~IrredundantUnificationProblem()
-{
-  delete unifierFilter;
+IrredundantUnificationProblem::~IrredundantUnificationProblem() {
+    delete unifierFilter;
 }
+
 /*
 void
 IrredundantUnificationProblem::markReachableNodes()
@@ -76,52 +75,44 @@ IrredundantUnificationProblem::markReachableNodes()
 }
 */
 bool
-IrredundantUnificationProblem::findNextUnifier()
-{
-  if (unifierFilter == 0)
-    {
-      if (UnificationProblem::findNextUnifier())
-	{
-	  int nrOriginalVariables = getVariableInfo().getNrRealVariables();
-	  unifierFilter = new UnifierFilter(0, nrOriginalVariables);
-	  //
-	  //	We need a RewritingContext& to call computeTrueSort() even
-	  //	though we're not able to deal with sort constraints.
-	  //
-	  RewritingContext dummyContext;
-	  do
-	    {
-	      const Substitution& unifier = UnificationProblem::getSolution();
-	      int nrFreeVariables = UnificationProblem::getNrFreeVariables();
-	      //
-	      //	UnifierFilter expects all bindings to have their
-	      //	all their sorts computed so we can match them.
-	      //
-	      for (int i = 0; i < nrOriginalVariables; ++i)
-		unifier.value(i)->computeTrueSort(dummyContext);
-	      unifierFilter->insertUnifier(unifier, nrFreeVariables);
-	    }
-	  while (UnificationProblem::findNextUnifier());
-	}
-      else
-	return false;
+IrredundantUnificationProblem::findNextUnifier() {
+    if (unifierFilter == 0) {
+        if (UnificationProblem::findNextUnifier()) {
+            int nrOriginalVariables = getVariableInfo().getNrRealVariables();
+            unifierFilter = new UnifierFilter(0, nrOriginalVariables);
+            //
+            //	We need a RewritingContext& to call computeTrueSort() even
+            //	though we're not able to deal with sort constraints.
+            //
+            RewritingContext dummyContext;
+            do {
+                const Substitution &unifier = UnificationProblem::getSolution();
+                int nrFreeVariables = UnificationProblem::getNrFreeVariables();
+                //
+                //	UnifierFilter expects all bindings to have their
+                //	all their sorts computed so we can match them.
+                //
+                for (int i = 0; i < nrOriginalVariables; ++i)
+                    unifier.value(i)->computeTrueSort(dummyContext);
+                unifierFilter->insertUnifier(unifier, nrFreeVariables);
+            } while (UnificationProblem::findNextUnifier());
+        } else
+            return false;
     }
-  //
-  //	UnifierFilter stores two ints along with each unifier but we're only using
-  //	the first one to hold the number of free variables.
-  //
-  int dummy;
-  return unifierFilter->getNextSurvivingUnifier(currentUnifier, nrFreeVariables, dummy);
+    //
+    //	UnifierFilter stores two ints along with each unifier but we're only using
+    //	the first one to hold the number of free variables.
+    //
+    int dummy;
+    return unifierFilter->getNextSurvivingUnifier(currentUnifier, nrFreeVariables, dummy);
 }
 
-const Substitution&
-IrredundantUnificationProblem::getSolution() const
-{
-  return *currentUnifier;
+const Substitution &
+IrredundantUnificationProblem::getSolution() const {
+    return *currentUnifier;
 }
 
 int
-IrredundantUnificationProblem::getNrFreeVariables() const
-{
-  return nrFreeVariables;
+IrredundantUnificationProblem::getNrFreeVariables() const {
+    return nrFreeVariables;
 }

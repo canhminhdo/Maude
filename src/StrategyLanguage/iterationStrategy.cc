@@ -38,39 +38,34 @@
 #include "decompositionProcess.hh"
 #include "strategicSearch.hh"
 
-IterationStrategy::IterationStrategy(StrategyExpression* child, bool zeroAllowed)
-  : child(child),
-    star(zeroAllowed ? 0 : new IterationStrategy(child, true))
-{
+IterationStrategy::IterationStrategy(StrategyExpression *child, bool zeroAllowed)
+        : child(child),
+          star(zeroAllowed ? 0 : new IterationStrategy(child, true)) {
 }
 
-IterationStrategy::~IterationStrategy()
-{
-  delete (star != 0 ? star : child);
+IterationStrategy::~IterationStrategy() {
+    delete (star != 0 ? star : child);
 }
 
 bool
-IterationStrategy::check(VariableInfo& indices, const TermSet& boundVars)
-{
-  return child->check(indices, boundVars);
+IterationStrategy::check(VariableInfo &indices, const TermSet &boundVars) {
+    return child->check(indices, boundVars);
 }
 
 void
-IterationStrategy::process()
-{
-  child->process();
+IterationStrategy::process() {
+    child->process();
 }
 
 StrategicExecution::Survival
-IterationStrategy::decompose(StrategicSearch& searchObject, DecompositionProcess* remainder)
-{
-  if (star)  // + case; push * subexpression
-    remainder->pushStrategy(searchObject, star);
-  else  // * case
+IterationStrategy::decompose(StrategicSearch &searchObject, DecompositionProcess *remainder) {
+    if (star)  // + case; push * subexpression
+        remainder->pushStrategy(searchObject, star);
+    else  // * case
     {
-      (void) new DecompositionProcess(remainder);  // idle alternative
-      remainder->pushStrategy(searchObject, this);
+        (void) new DecompositionProcess(remainder);  // idle alternative
+        remainder->pushStrategy(searchObject, this);
     }
-  remainder->pushStrategy(searchObject, child);
-  return StrategicExecution::SURVIVE;  // remainder should not request deletion
+    remainder->pushStrategy(searchObject, child);
+    return StrategicExecution::SURVIVE;  // remainder should not request deletion
 }

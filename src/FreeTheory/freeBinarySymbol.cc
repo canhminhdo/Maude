@@ -45,14 +45,12 @@
 #include "freeDagNode.hh"
 
 FreeBinarySymbol::FreeBinarySymbol(int id)
-  : FreeSymbol(id, 2)
-{
+        : FreeSymbol(id, 2) {
 }
 
 bool
-FreeBinarySymbol::eqRewrite(DagNode* subject, RewritingContext& context)
-{
-  static_cast<FreeDagNode*>(subject)->internal[0]->reduce(context);
-  static_cast<FreeDagNode*>(subject)->internal[1]->reduce(context);
-  return DISC_NET.applyReplaceFast(subject, context);
+FreeBinarySymbol::eqRewrite(DagNode *subject, RewritingContext &context) {
+    static_cast<FreeDagNode *>(subject)->internal[0]->reduce(context);
+    static_cast<FreeDagNode *>(subject)->internal[1]->reduce(context);
+    return DISC_NET.applyReplaceFast(subject, context);
 }

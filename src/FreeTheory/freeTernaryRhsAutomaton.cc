@@ -46,47 +46,43 @@
 #include "freeTernaryRhsAutomaton.hh"
 
 local_inline void
-FreeTernaryRhsAutomaton::fillOutArgs(Substitution& matcher,
-				     FreeDagNode* d)
-{
-  DagNode* d0 = matcher.value(sources[0]);
-  DagNode* d1 = matcher.value(sources[1]);
-  DagNode* d2 = matcher.value(sources[2]);
-  d->internal[0] = d0;
-  d->internal[1] = d1;
-  d->internal[2] = d2;
+FreeTernaryRhsAutomaton::fillOutArgs(Substitution &matcher,
+                                     FreeDagNode *d) {
+    DagNode *d0 = matcher.value(sources[0]);
+    DagNode *d1 = matcher.value(sources[1]);
+    DagNode *d2 = matcher.value(sources[2]);
+    d->internal[0] = d0;
+    d->internal[1] = d1;
+    d->internal[2] = d2;
 }
 
-DagNode*
-FreeTernaryRhsAutomaton::construct(Substitution& matcher)
-{
-  FreeDagNode* d = new FREE_DAG_NODE(symbol);
-  fillOutArgs(matcher, d);
-  matcher.bind(destination, d);
-  return d;
-}
-
-void
-FreeTernaryRhsAutomaton::replace(DagNode* old, Substitution& matcher)
-{
-  FreeDagNode* d = new(old) FREE_DAG_NODE(symbol);
-  fillOutArgs(matcher, d);
+DagNode *
+FreeTernaryRhsAutomaton::construct(Substitution &matcher) {
+    FreeDagNode *d = new FREE_DAG_NODE(symbol);
+    fillOutArgs(matcher, d);
+    matcher.bind(destination, d);
+    return d;
 }
 
 void
-FreeTernaryRhsAutomaton::remapIndices(VariableInfo& variableInfo)
-{
-  //
-  //	Standard processing.
-  //
-  FreeRhsAutomaton::remapIndices(variableInfo);
-  //
-  //	Make fast copy.
-  //
-  const Instruction& instr = instructions[0];
-  symbol = instr.symbol;
-  sources[0] = instr.sources[0];
-  sources[1] = instr.sources[1];
-  sources[2] = instr.sources[2];
-  destination = instr.destination;
+FreeTernaryRhsAutomaton::replace(DagNode *old, Substitution &matcher) {
+    FreeDagNode *d = new(old) FREE_DAG_NODE(symbol);
+    fillOutArgs(matcher, d);
+}
+
+void
+FreeTernaryRhsAutomaton::remapIndices(VariableInfo &variableInfo) {
+    //
+    //	Standard processing.
+    //
+    FreeRhsAutomaton::remapIndices(variableInfo);
+    //
+    //	Make fast copy.
+    //
+    const Instruction &instr = instructions[0];
+    symbol = instr.symbol;
+    sources[0] = instr.sources[0];
+    sources[1] = instr.sources[1];
+    sources[2] = instr.sources[2];
+    destination = instr.destination;
 }

@@ -45,13 +45,11 @@
 #include "freeDagNode.hh"
 
 FreeUnarySymbol::FreeUnarySymbol(int id)
-  : FreeSymbol(id, 1)
-{
+        : FreeSymbol(id, 1) {
 }
 
 bool
-FreeUnarySymbol::eqRewrite(DagNode* subject, RewritingContext& context)
-{
-  static_cast<FreeDagNode*>(subject)->internal[0]->reduce(context);
-  return DISC_NET.applyReplaceFast(subject, context);
+FreeUnarySymbol::eqRewrite(DagNode *subject, RewritingContext &context) {
+    static_cast<FreeDagNode *>(subject)->internal[0]->reduce(context);
+    return DISC_NET.applyReplaceFast(subject, context);
 }

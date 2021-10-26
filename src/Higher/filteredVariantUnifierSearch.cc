@@ -45,71 +45,62 @@
 //	higher class definitions
 #include "filteredVariantUnifierSearch.hh"
 
-FilteredVariantUnifierSearch::FilteredVariantUnifierSearch(RewritingContext* context,
-							   const Vector<DagNode*>& blockerDags,
-							   FreshVariableGenerator* freshVariableGenerator,
-							   int flags,
-							   int incomingVariableFamily)
-  : VariantSearch(context,
-		  blockerDags,
-		  freshVariableGenerator,
-		  flags | UNIFICATION_MODE,
-		  incomingVariableFamily),
-    flags(flags),
-    unifiers(context, freshVariableGenerator)
-{
-  if (flags & IRREDUNDANT_MODE)
-    {
-      //
-      //	Extract and filter all unifiers before returning one.
-      //
-      //	This means that later unifiers can subsume earlier unifiers
-      //	and remove them from the returned set of unifiers.
-      //
-      //	In practice, because variants are expanded breathfirst, it
-      //	seems rare that a later (and hence more narrowed) unifier
-      //	can subsume an earlier one, but sometimes one just wants
-      //	to be sure that no subsumed unifiers are returned.
-      //
-      while (VariantSearch::findNextUnifier())
-	{
-	  int nrFreeVariables;
-	  int variableFamily;
-	  const Vector<DagNode*>& unifier =
-	    VariantSearch::getCurrentUnifier(nrFreeVariables, variableFamily);
-	  unifiers.insertUnifier(unifier, nrFreeVariables, variableFamily);
-	}
+FilteredVariantUnifierSearch::FilteredVariantUnifierSearch(RewritingContext *context,
+                                                           const Vector<DagNode *> &blockerDags,
+                                                           FreshVariableGenerator *freshVariableGenerator,
+                                                           int flags,
+                                                           int incomingVariableFamily)
+        : VariantSearch(context,
+                        blockerDags,
+                        freshVariableGenerator,
+                        flags | UNIFICATION_MODE,
+                        incomingVariableFamily),
+          flags(flags),
+          unifiers(context, freshVariableGenerator) {
+    if (flags & IRREDUNDANT_MODE) {
+        //
+        //	Extract and filter all unifiers before returning one.
+        //
+        //	This means that later unifiers can subsume earlier unifiers
+        //	and remove them from the returned set of unifiers.
+        //
+        //	In practice, because variants are expanded breathfirst, it
+        //	seems rare that a later (and hence more narrowed) unifier
+        //	can subsume an earlier one, but sometimes one just wants
+        //	to be sure that no subsumed unifiers are returned.
+        //
+        while (VariantSearch::findNextUnifier()) {
+            int nrFreeVariables;
+            int variableFamily;
+            const Vector<DagNode *> &unifier =
+                    VariantSearch::getCurrentUnifier(nrFreeVariables, variableFamily);
+            unifiers.insertUnifier(unifier, nrFreeVariables, variableFamily);
+        }
     }
 }
 
 bool
-FilteredVariantUnifierSearch::findNextUnifier()
-{
-  if (flags & IRREDUNDANT_MODE)
-    return unifiers.findNextSurvivingUnifier();
-  //
-  //	Incremental extraction.
-  //	Each time we insert a unifier, we check to see if we have a survivor.
-  //
-  do
-    {
-      if (VariantSearch::findNextUnifier())
-	{
-	  int nrFreeVariables;
-	  int variableFamily;
-	  const Vector<DagNode*>& unifier =
-	    VariantSearch::getCurrentUnifier(nrFreeVariables, variableFamily);
-	  unifiers.insertUnifier(unifier, nrFreeVariables, variableFamily);
-	}
-      else
-	return false;
-    }
-  while (!(unifiers.findNextSurvivingUnifier()));
-  return true;
+FilteredVariantUnifierSearch::findNextUnifier() {
+    if (flags & IRREDUNDANT_MODE)
+        return unifiers.findNextSurvivingUnifier();
+    //
+    //	Incremental extraction.
+    //	Each time we insert a unifier, we check to see if we have a survivor.
+    //
+    do {
+        if (VariantSearch::findNextUnifier()) {
+            int nrFreeVariables;
+            int variableFamily;
+            const Vector<DagNode *> &unifier =
+                    VariantSearch::getCurrentUnifier(nrFreeVariables, variableFamily);
+            unifiers.insertUnifier(unifier, nrFreeVariables, variableFamily);
+        } else
+            return false;
+    } while (!(unifiers.findNextSurvivingUnifier()));
+    return true;
 }
 
-const Vector<DagNode*>&
-FilteredVariantUnifierSearch::getCurrentUnifier(int& nrFreeVariables, int& variableFamily)
-{
-  return unifiers.getCurrentSurvivingUnifier(nrFreeVariables, variableFamily);
+const Vector<DagNode *> &
+FilteredVariantUnifierSearch::getCurrentUnifier(int &nrFreeVariables, int &variableFamily) {
+    return unifiers.getCurrentSurvivingUnifier(nrFreeVariables, variableFamily);
 }

@@ -43,36 +43,32 @@
 #include "S_DagNode.hh"
 #include "S_RhsAutomaton.hh"
 
-S_RhsAutomaton::S_RhsAutomaton(S_Symbol* symbol,
-			       mpz_class& number,
-			       int source,
-			       int destination)
-  : topSymbol(symbol),
-    number(number),
-    source(source),
-    destination(destination)
-{
+S_RhsAutomaton::S_RhsAutomaton(S_Symbol *symbol,
+                               mpz_class &number,
+                               int source,
+                               int destination)
+        : topSymbol(symbol),
+          number(number),
+          source(source),
+          destination(destination) {
 }
 
 void
-S_RhsAutomaton::remapIndices(VariableInfo& variableInfo)
-{
-  source = variableInfo.remapIndex(source);
-  destination = variableInfo.remapIndex(destination);
+S_RhsAutomaton::remapIndices(VariableInfo &variableInfo) {
+    source = variableInfo.remapIndex(source);
+    destination = variableInfo.remapIndex(destination);
 }
 
-DagNode*
-S_RhsAutomaton::construct(Substitution& matcher)
-{
-  S_DagNode* n = new S_DagNode(topSymbol, number, matcher.value(source));
-  matcher.bind(destination, n);
-  return n;
+DagNode *
+S_RhsAutomaton::construct(Substitution &matcher) {
+    S_DagNode *n = new S_DagNode(topSymbol, number, matcher.value(source));
+    matcher.bind(destination, n);
+    return n;
 }
 
 void
-S_RhsAutomaton::replace(DagNode* old, Substitution& matcher)
-{
-  (void) new(old) S_DagNode(topSymbol, number, matcher.value(source));
+S_RhsAutomaton::replace(DagNode *old, Substitution &matcher) {
+    (void) new(old) S_DagNode(topSymbol, number, matcher.value(source));
 }
 
 #ifdef DUMP

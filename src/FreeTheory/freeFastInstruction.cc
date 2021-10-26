@@ -38,48 +38,47 @@
 //	free theory class definitions
 #include "freeSymbol.hh"
 #include "freeFastInstruction.hh"
-	
-FreeFastInstruction::FreeFastInstruction(FreeSymbol* symbol, int destinationIndex, Instruction* nextInstruction)
-  : FreeInstruction(symbol, destinationIndex, nextInstruction),
-    argIndex0(0),
-    argIndex1(0),
-    argIndex2(0)
-{
-  setOpCode(4 * (symbol->equationFree() == false) + 8 * (nextInstruction == 0));
+
+FreeFastInstruction::FreeFastInstruction(FreeSymbol *symbol, int destinationIndex, Instruction *nextInstruction)
+        : FreeInstruction(symbol, destinationIndex, nextInstruction),
+          argIndex0(0),
+          argIndex1(0),
+          argIndex2(0) {
+    setOpCode(4 * (symbol->equationFree() == false) + 8 * (nextInstruction == 0));
 }
 
-FreeFastInstruction::FreeFastInstruction(FreeSymbol* symbol, int argIndex0, int destinationIndex, Instruction* nextInstruction)
-  : FreeInstruction(symbol, destinationIndex, nextInstruction),
-    argIndex0(argIndex0),
-    argIndex1(0),
-    argIndex2(0)
-{
-  int opCode = 1 + 4 * (symbol->equationFree() == false) + 8 * (nextInstruction == 0);
-  //  if (symbol->equationFree() && symbol->getUniqueSortIndex() > 0)
-  //    opCode += 16;
-  setOpCode(opCode);
+FreeFastInstruction::FreeFastInstruction(FreeSymbol *symbol, int argIndex0, int destinationIndex,
+                                         Instruction *nextInstruction)
+        : FreeInstruction(symbol, destinationIndex, nextInstruction),
+          argIndex0(argIndex0),
+          argIndex1(0),
+          argIndex2(0) {
+    int opCode = 1 + 4 * (symbol->equationFree() == false) + 8 * (nextInstruction == 0);
+    //  if (symbol->equationFree() && symbol->getUniqueSortIndex() > 0)
+    //    opCode += 16;
+    setOpCode(opCode);
 }
 
-FreeFastInstruction::FreeFastInstruction(FreeSymbol* symbol, int argIndex0, int argIndex1, int destinationIndex, Instruction* nextInstruction)
-  : FreeInstruction(symbol, destinationIndex, nextInstruction),
-    argIndex0(argIndex0),
-    argIndex1(argIndex1),
-    argIndex2(0)
-{
-  int opCode = 2 + 4 * (symbol->equationFree() == false) + 8 * (nextInstruction == 0);
-  //  if (symbol->equationFree() && symbol->getUniqueSortIndex() > 0)
-  //    opCode += 16;
-  setOpCode(opCode);
+FreeFastInstruction::FreeFastInstruction(FreeSymbol *symbol, int argIndex0, int argIndex1, int destinationIndex,
+                                         Instruction *nextInstruction)
+        : FreeInstruction(symbol, destinationIndex, nextInstruction),
+          argIndex0(argIndex0),
+          argIndex1(argIndex1),
+          argIndex2(0) {
+    int opCode = 2 + 4 * (symbol->equationFree() == false) + 8 * (nextInstruction == 0);
+    //  if (symbol->equationFree() && symbol->getUniqueSortIndex() > 0)
+    //    opCode += 16;
+    setOpCode(opCode);
 }
 
-FreeFastInstruction::FreeFastInstruction(FreeSymbol* symbol, int argIndex0, int argIndex1, int argIndex2, int destinationIndex, Instruction* nextInstruction)
-  : FreeInstruction(symbol, destinationIndex, nextInstruction),
-    argIndex0(argIndex0),
-    argIndex1(argIndex1),
-    argIndex2(argIndex2)
-{
-  int opCode = 3 + 4 * (symbol->equationFree() == false) + 8 * (nextInstruction == 0);
-  //  if (symbol->equationFree() && symbol->getUniqueSortIndex() > 0)
-  //    opCode += 16;
-  setOpCode(opCode);
+FreeFastInstruction::FreeFastInstruction(FreeSymbol *symbol, int argIndex0, int argIndex1, int argIndex2,
+                                         int destinationIndex, Instruction *nextInstruction)
+        : FreeInstruction(symbol, destinationIndex, nextInstruction),
+          argIndex0(argIndex0),
+          argIndex1(argIndex1),
+          argIndex2(argIndex2) {
+    int opCode = 3 + 4 * (symbol->equationFree() == false) + 8 * (nextInstruction == 0);
+    //  if (symbol->equationFree() && symbol->getUniqueSortIndex() > 0)
+    //    opCode += 16;
+    setOpCode(opCode);
 }

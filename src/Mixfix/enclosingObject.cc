@@ -64,121 +64,107 @@
 
 int
 EnclosingObject::instantiateSortName(int sortId,
-				     const ParameterMap& parameterMap,
-				     const ParameterSet& extraParameterSet)
-{
-  //
-  //	We are passed the id of a sort whose name may contain parameters, a map
-  //	which gives the instantiation of each parameter and a set of parameters
-  //	that are instantiated by theory-views and thus don't disappear, but rather
-  //	are tacked on the end of the sort name as extra instantiation.
-  //
-  if (Token::auxProperty(sortId) == Token::AUX_STRUCTURED_SORT)
-    {
-      bool mapped = false;
-      //
-      //	We have a sort that looks like:
-      //	  header{p1,p2,...,pn}
-      //	where each pi could be a parameter, simple view or a structured
-      //	view which may contain parameters that also need instantiation.
-      //
-      int header;
-      Vector<int> parameters;
-      Token::splitParameterList(sortId, header, parameters);
-      //
-      //	We accumulate parameters that have been instantiated by theory-views.
-      //
-      Vector<int> extraParameters;
-      //
-      //	We now check each parameter to see if we can map it to something else.
-      //
-      int nrParameters = parameters.size();
-      for (int i = 0; i < nrParameters; ++i)
-	{
-	  int original = parameters[i];
-	  ParameterMap::const_iterator m = parameterMap.find(original);
-	  if (m != parameterMap.end())
-	    {
-	      mapped = true;
-	      //
-	      //	original is an instantiated parameter; replace it by its
-	      //	instantiation and check to see if survives as an extra
-	      //	parameter.
-	      //
-	      parameters[i] = m->second;
-	    }
-	  else
-	    {
-	      //
-	      //	original wasn't instantiated. However it could be
-	      //	a structured view that contains parameters so we
-	      //	make a recursive call to check for this.
-	      //
-	      int instantiatedParameter = instantiateSortName(original, parameterMap, extraParameterSet);
-	      if (instantiatedParameter != original)
-		{
-		  mapped = true;
-		  parameters[i] = instantiatedParameter;
-		  continue;  // original can't be an extra parameter
-		}
-	    }
-	  //
-	  //	If the original parameter was instantiated by a theory-view
-	  //	it survives as an extra parameter.
-	  //
-	  if (extraParameterSet.find(original) != extraParameterSet.end())
-	    extraParameters.append(original);
-	}
-      if (mapped)
-	sortId = Token::joinParameterList(header, parameters);
-      if (!extraParameters.empty())
-	sortId = Token::joinParameterList(sortId, extraParameters);
+                                     const ParameterMap &parameterMap,
+                                     const ParameterSet &extraParameterSet) {
+    //
+    //	We are passed the id of a sort whose name may contain parameters, a map
+    //	which gives the instantiation of each parameter and a set of parameters
+    //	that are instantiated by theory-views and thus don't disappear, but rather
+    //	are tacked on the end of the sort name as extra instantiation.
+    //
+    if (Token::auxProperty(sortId) == Token::AUX_STRUCTURED_SORT) {
+        bool mapped = false;
+        //
+        //	We have a sort that looks like:
+        //	  header{p1,p2,...,pn}
+        //	where each pi could be a parameter, simple view or a structured
+        //	view which may contain parameters that also need instantiation.
+        //
+        int header;
+        Vector<int> parameters;
+        Token::splitParameterList(sortId, header, parameters);
+        //
+        //	We accumulate parameters that have been instantiated by theory-views.
+        //
+        Vector<int> extraParameters;
+        //
+        //	We now check each parameter to see if we can map it to something else.
+        //
+        int nrParameters = parameters.size();
+        for (int i = 0; i < nrParameters; ++i) {
+            int original = parameters[i];
+            ParameterMap::const_iterator m = parameterMap.find(original);
+            if (m != parameterMap.end()) {
+                mapped = true;
+                //
+                //	original is an instantiated parameter; replace it by its
+                //	instantiation and check to see if survives as an extra
+                //	parameter.
+                //
+                parameters[i] = m->second;
+            } else {
+                //
+                //	original wasn't instantiated. However it could be
+                //	a structured view that contains parameters so we
+                //	make a recursive call to check for this.
+                //
+                int instantiatedParameter = instantiateSortName(original, parameterMap, extraParameterSet);
+                if (instantiatedParameter != original) {
+                    mapped = true;
+                    parameters[i] = instantiatedParameter;
+                    continue;  // original can't be an extra parameter
+                }
+            }
+            //
+            //	If the original parameter was instantiated by a theory-view
+            //	it survives as an extra parameter.
+            //
+            if (extraParameterSet.find(original) != extraParameterSet.end())
+                extraParameters.append(original);
+        }
+        if (mapped)
+            sortId = Token::joinParameterList(header, parameters);
+        if (!extraParameters.empty())
+            sortId = Token::joinParameterList(sortId, extraParameters);
     }
-  return sortId;
+    return sortId;
 }
 
 void
-EnclosingObject::addConflict(int parameterName1, int parameterName2)
-{
-  if (parameterName2 < parameterName1)
-    swap(parameterName1, parameterName2);
-  conflicts.insert(Conflict(parameterName1, parameterName2));
-  DebugNew("For " << getObjectType() << " " << Token::name(getObjectName()->id()) <<
-	    " adding conflict between " << Token::name(parameterName1) <<
- 	    " and " << Token::name(parameterName2));
+EnclosingObject::addConflict(int parameterName1, int parameterName2) {
+    if (parameterName2 < parameterName1)
+        swap(parameterName1, parameterName2);
+    conflicts.insert(Conflict(parameterName1, parameterName2));
+    DebugNew("For " << getObjectType() << " " << Token::name(getObjectName()->id()) <<
+                    " adding conflict between " << Token::name(parameterName1) <<
+                    " and " << Token::name(parameterName2));
 }
 
 void
-EnclosingObject::addInAllConflicts(const EnclosingObject* innerObject)
-{
-  conflicts.insert(innerObject->conflicts.begin(), innerObject->conflicts.end());
-  DebugNew("For " << getObjectType() << " " << Token::name(getObjectName()->id()) <<
-	    " adding in conflicts from " << innerObject->getObjectType() << " " <<
-	    Token::name(innerObject->getObjectName()->id()));
+EnclosingObject::addInAllConflicts(const EnclosingObject *innerObject) {
+    conflicts.insert(innerObject->conflicts.begin(), innerObject->conflicts.end());
+    DebugNew("For " << getObjectType() << " " << Token::name(getObjectName()->id()) <<
+                    " adding in conflicts from " << innerObject->getObjectType() << " " <<
+                    Token::name(innerObject->getObjectName()->id()));
 }
 
 void
-EnclosingObject::addConflictsWithBoundParameters(const EnclosingObject* innerObject, int bareParameterName)
-{
-  FOR_EACH_CONST(i, ParameterSet, innerObject->boundParameters)
-    addConflict(*i, bareParameterName);
+EnclosingObject::addConflictsWithBoundParameters(const EnclosingObject *innerObject, int bareParameterName) {
+    FOR_EACH_CONST(i, ParameterSet, innerObject->boundParameters)addConflict(*i, bareParameterName);
 }
 
 bool
-EnclosingObject::hasConflict(int parameterName1, int parameterName2) const
-{
-  if (parameterName2 < parameterName1)
-    swap(parameterName1, parameterName2);
-  return conflicts.find(Conflict(parameterName1, parameterName2)) != conflicts.end();
+EnclosingObject::hasConflict(int parameterName1, int parameterName2) const {
+    if (parameterName2 < parameterName1)
+        swap(parameterName1, parameterName2);
+    return conflicts.find(Conflict(parameterName1, parameterName2)) != conflicts.end();
 }
 
 int
-EnclosingObject::findFirstClash(const ParameterSet& chosen, int candidate) const
-{
-  FOR_EACH_CONST(i, ParameterSet, chosen)
-    {
-      if (hasConflict(*i, candidate))
-	return *i;
+EnclosingObject::findFirstClash(const ParameterSet &chosen, int candidate) const {
+    FOR_EACH_CONST(i, ParameterSet, chosen) {
+        if (hasConflict(*i, candidate))
+            return *i;
     }
-  return NONE;
+    return NONE;
 }

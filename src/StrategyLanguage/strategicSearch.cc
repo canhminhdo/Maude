@@ -42,36 +42,32 @@
 #include "strategicSearch.hh"
 #include "decompositionProcess.hh"
 
-StrategicSearch::StrategicSearch(RewritingContext* initial, StrategyExpression* strategy)
-  : VariableBindingsManager(initial->root()->symbol()->getModule()->getMinimumSubstitutionSize()),
-    StrategicTask(static_cast<StrategicTask*>(0)),
-    strategy(strategy),
-    initial(initial),
-    exhausted(false),
-    solutionIndex(NONE)
-{
-  Assert(initial != 0, "null context");
-  Assert(initial->root() != 0, "null root");
-  Assert(strategy != 0, "null strategy");
+StrategicSearch::StrategicSearch(RewritingContext *initial, StrategyExpression *strategy)
+        : VariableBindingsManager(initial->root()->symbol()->getModule()->getMinimumSubstitutionSize()),
+          StrategicTask(static_cast<StrategicTask *>(0)),
+          strategy(strategy),
+          initial(initial),
+          exhausted(false),
+          solutionIndex(NONE) {
+    Assert(initial != 0, "null context");
+    Assert(initial->root() != 0, "null root");
+    Assert(strategy != 0, "null strategy");
 }
 
-StrategicSearch::~StrategicSearch()
-{
-  delete initial;
-  delete strategy;
-}
-
-StrategicExecution::Survival
-StrategicSearch::executionSucceeded(int resultIndex, StrategicProcess* /* insertionPoint */)
-{
-  Assert(solutionIndex == NONE, "multiple solutions from a single step");
-  solutionIndex = resultIndex;
-  return SURVIVE;  // still want more solutions
+StrategicSearch::~StrategicSearch() {
+    delete initial;
+    delete strategy;
 }
 
 StrategicExecution::Survival
-StrategicSearch::executionsExhausted(StrategicProcess* /* insertionPoint */)
-{
-  exhausted = true;
-  return SURVIVE;  // root task cannot die in the usual way
+StrategicSearch::executionSucceeded(int resultIndex, StrategicProcess * /* insertionPoint */) {
+    Assert(solutionIndex == NONE, "multiple solutions from a single step");
+    solutionIndex = resultIndex;
+    return SURVIVE;  // still want more solutions
+}
+
+StrategicExecution::Survival
+StrategicSearch::executionsExhausted(StrategicProcess * /* insertionPoint */) {
+    exhausted = true;
+    return SURVIVE;  // root task cannot die in the usual way
 }

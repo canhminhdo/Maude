@@ -37,33 +37,30 @@
 #include "oneTask.hh"
 #include "decompositionProcess.hh"
 
-OneTask::OneTask(StrategicSearch& searchObject,
-		 int startIndex,
-		 StrategyExpression* strategy,
-		 StrategyStackManager::StackId pending,
-		 StrategicExecution* sibling,
-		 StrategicProcess* insertionPoint)
-  : StrategicTask(sibling),
-    pending(pending)
-{
-  (void) new DecompositionProcess(startIndex,
-				  searchObject.push(StrategyStackManager::EMPTY_STACK, strategy),
-				  getDummyExecution(),
-				  insertionPoint);
+OneTask::OneTask(StrategicSearch &searchObject,
+                 int startIndex,
+                 StrategyExpression *strategy,
+                 StrategyStackManager::StackId pending,
+                 StrategicExecution *sibling,
+                 StrategicProcess *insertionPoint)
+        : StrategicTask(sibling),
+          pending(pending) {
+    (void) new DecompositionProcess(startIndex,
+                                    searchObject.push(StrategyStackManager::EMPTY_STACK, strategy),
+                                    getDummyExecution(),
+                                    insertionPoint);
 }
 
 StrategicExecution::Survival
-OneTask::executionSucceeded(int resultIndex, StrategicProcess* insertionPoint)
-{
-  (void) new DecompositionProcess(resultIndex,
-				  pending,		// Recovers the original strategy stack
-				  this,			// Will be slave of the parent task
-				  insertionPoint);
-  return DIE;
+OneTask::executionSucceeded(int resultIndex, StrategicProcess *insertionPoint) {
+    (void) new DecompositionProcess(resultIndex,
+                                    pending,        // Recovers the original strategy stack
+                                    this,            // Will be slave of the parent task
+                                    insertionPoint);
+    return DIE;
 }
 
 StrategicExecution::Survival
-OneTask::executionsExhausted(StrategicProcess*)
-{
-  return DIE;
+OneTask::executionsExhausted(StrategicProcess *) {
+    return DIE;
 }

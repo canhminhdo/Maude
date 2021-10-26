@@ -58,113 +58,100 @@
 #include "ACU_TreeDagNode.hh"
 #include "ACU_BndVarLhsAutomaton.hh"
 
-ACU_BndVarLhsAutomaton::ACU_BndVarLhsAutomaton(ACU_Symbol* symbol,
-					       bool matchAtTop,
-					       bool collapsePossible,
-					       int nrVariables,
-					       VariableTerm* stripper,
-					       VariableTerm* collector)
-  : ACU_CollectorLhsAutomaton(symbol,
-			      matchAtTop,
-			      collapsePossible,
-			      nrVariables,
-			      collector),
-  stripperVarIndex(stripper->getIndex()),
-  stripperSort(stripper->getSort())
-{
-  Assert(!(symbol->takeIdentity(stripperSort)),
-	 "stripper variable shouldn't be able take identity");
-  Assert(symbol->sortBound(stripperSort) == 1,
-	 "stripper variable must be of element sort");
+ACU_BndVarLhsAutomaton::ACU_BndVarLhsAutomaton(ACU_Symbol *symbol,
+                                               bool matchAtTop,
+                                               bool collapsePossible,
+                                               int nrVariables,
+                                               VariableTerm *stripper,
+                                               VariableTerm *collector)
+        : ACU_CollectorLhsAutomaton(symbol,
+                                    matchAtTop,
+                                    collapsePossible,
+                                    nrVariables,
+                                    collector),
+          stripperVarIndex(stripper->getIndex()),
+          stripperSort(stripper->getSort()) {
+    Assert(!(symbol->takeIdentity(stripperSort)),
+           "stripper variable shouldn't be able take identity");
+    Assert(symbol->sortBound(stripperSort) == 1,
+           "stripper variable must be of element sort");
 }
 
 bool
-ACU_BndVarLhsAutomaton::match(DagNode* subject,
-			   Substitution& solution,
-			   Subproblem*& returnedSubproblem,
-			   ExtensionInfo* extensionInfo)
-{
-  if (collectorFree(solution))
-    {
-      //
-      //	We only handle the situation where the collector variable is unbound.
-      //	The bound case is punted to the full matcher.
-      //
-      if (subject->symbol() == getSymbol())
-	{
-	  //
-	  //	Non-collapse case.
-	  //
-	  DagNode* stripperDag = solution.value(stripperVarIndex);
-	  Assert(stripperDag != 0, "stripper variable is unbound");
-	  Assert(stripperDag->symbol() != getSymbol(), "stripper variable bound to multiple aliens");
+ACU_BndVarLhsAutomaton::match(DagNode *subject,
+                              Substitution &solution,
+                              Subproblem *&returnedSubproblem,
+                              ExtensionInfo *extensionInfo) {
+    if (collectorFree(solution)) {
+        //
+        //	We only handle the situation where the collector variable is unbound.
+        //	The bound case is punted to the full matcher.
+        //
+        if (subject->symbol() == getSymbol()) {
+            //
+            //	Non-collapse case.
+            //
+            DagNode *stripperDag = solution.value(stripperVarIndex);
+            Assert(stripperDag != 0, "stripper variable is unbound");
+            Assert(stripperDag->symbol() != getSymbol(), "stripper variable bound to multiple aliens");
 
-	  if (safeCast(ACU_BaseDagNode*, subject)->isTree())
-	    {
-	      //
-	      //	Red-black case.
-	      //
-	      ACU_TreeDagNode* s = safeCast(ACU_TreeDagNode*, subject);
-	      ACU_SlowIter i;
-	      if (!(s->getTree().find(stripperDag, i)))
-		return false;
-	      if (collect(i, s, solution))
-		{
-		  returnedSubproblem = 0;
-		  if (extensionInfo)
-		    {
-		      extensionInfo->setValidAfterMatch(true);
-		      extensionInfo->setMatchedWhole(true);
-		    }
-		  return true;
-		}
-	      // fall into full matcher
-	    }
-	  else
-	    {
-	      //
-	      //	ArgVec case.
-	      //
-	      ACU_DagNode* s = safeCast(ACU_DagNode*, subject);
-	      int pos = s->binarySearch(stripperDag);
-	      if (pos < 0)
-		return false;
-	      if (collect(pos, s, solution))
-		{
-		  returnedSubproblem = 0;
-		  if (extensionInfo)
-		    {
-		      extensionInfo->setValidAfterMatch(true);
-		      extensionInfo->setMatchedWhole(true);
-		    }
-		  return true;
-		}
-	      // fall into full matcher
-	    }
-	}
-      else
-	{
-	  //
-	  //	Collapse case.
-	  //
-	  if (!getCollapsePossible())
-	    return false;
-	  Assert(extensionInfo == 0 &&
-		 subject->getSortIndex() != Sort::SORT_UNKNOWN,
-		 "collapse to top not handled by ACU_BndVarLhsAutomaton");
+            if (safeCast(ACU_BaseDagNode*, subject)->isTree()) {
+                //
+                //	Red-black case.
+                //
+                ACU_TreeDagNode *s = safeCast(ACU_TreeDagNode*, subject);
+                ACU_SlowIter i;
+                if (!(s->getTree().find(stripperDag, i)))
+                    return false;
+                if (collect(i, s, solution)) {
+                    returnedSubproblem = 0;
+                    if (extensionInfo) {
+                        extensionInfo->setValidAfterMatch(true);
+                        extensionInfo->setMatchedWhole(true);
+                    }
+                    return true;
+                }
+                // fall into full matcher
+            } else {
+                //
+                //	ArgVec case.
+                //
+                ACU_DagNode *s = safeCast(ACU_DagNode*, subject);
+                int pos = s->binarySearch(stripperDag);
+                if (pos < 0)
+                    return false;
+                if (collect(pos, s, solution)) {
+                    returnedSubproblem = 0;
+                    if (extensionInfo) {
+                        extensionInfo->setValidAfterMatch(true);
+                        extensionInfo->setMatchedWhole(true);
+                    }
+                    return true;
+                }
+                // fall into full matcher
+            }
+        } else {
+            //
+            //	Collapse case.
+            //
+            if (!getCollapsePossible())
+                return false;
+            Assert(extensionInfo == 0 &&
+                   subject->getSortIndex() != Sort::SORT_UNKNOWN,
+                   "collapse to top not handled by ACU_BndVarLhsAutomaton");
 
-	  DagNode* stripperDag = solution.value(stripperVarIndex);
-	  Assert(stripperDag != 0, "stripper variable is unbound");
-	  Assert(stripperDag->symbol() != getSymbol(), "stripper variable bound to multiple aliens");
+            DagNode *stripperDag = solution.value(stripperVarIndex);
+            Assert(stripperDag != 0, "stripper variable is unbound");
+            Assert(stripperDag->symbol() != getSymbol(), "stripper variable bound to multiple aliens");
 
-	  if (!(stripperDag->equal(subject)))
-	    return false;
-	  returnedSubproblem = 0;
-	  collapse(solution);
-	  return true;
-	}
+            if (!(stripperDag->equal(subject)))
+                return false;
+            returnedSubproblem = 0;
+            collapse(solution);
+            return true;
+        }
     }
-  return ACU_LhsAutomaton::match(subject, solution, returnedSubproblem, extensionInfo);
+    return ACU_LhsAutomaton::match(subject, solution, returnedSubproblem, extensionInfo);
 }
 
 #ifdef DUMP

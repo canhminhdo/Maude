@@ -28,28 +28,50 @@
 //	The format is:
 //		MACRO(symbols name, symbols C++ class, number of args)
 //
-  MACRO(succSymbol, SuccSymbol, 1)
-  MACRO(stringSymbol, StringSymbol, 0)
-  MACRO(directoryOidSymbol, FreeSymbol, 1)
+MACRO(succSymbol, SuccSymbol,
+1)
+MACRO(stringSymbol, StringSymbol,
+0)
+MACRO(directoryOidSymbol, FreeSymbol,
+1)
 
-  MACRO(fileEntrySymbol, Symbol, 0)
-  MACRO(directoryEntrySymbol, Symbol, 0)
-  MACRO(socketEntrySymbol, Symbol, 0)
-  MACRO(pipeEntrySymbol, Symbol, 0)
-  MACRO(charDeviceEntrySymbol, Symbol, 0)
-  MACRO(blockDeviceEntrySymbol, Symbol, 0)
-  MACRO(symbolicLinkEntrySymbol, Symbol, 1)
-  MACRO(endOfDirectorySymbol, Symbol, 0)
+MACRO(fileEntrySymbol, Symbol,
+0)
+MACRO(directoryEntrySymbol, Symbol,
+0)
+MACRO(socketEntrySymbol, Symbol,
+0)
+MACRO(pipeEntrySymbol, Symbol,
+0)
+MACRO(charDeviceEntrySymbol, Symbol,
+0)
+MACRO(blockDeviceEntrySymbol, Symbol,
+0)
+MACRO(symbolicLinkEntrySymbol, Symbol,
+1)
+MACRO(endOfDirectorySymbol, Symbol,
+0)
 
-  MACRO(openDirectoryMsg, FreeSymbol, 3)
-  MACRO(openedDirectoryMsg, Symbol, 3)
-  MACRO(closeDirectoryMsg, FreeSymbol, 2)
-  MACRO(closedDirectoryMsg, Symbol, 2)
-  MACRO(getDirectoryEntryMsg, FreeSymbol, 2)
-  MACRO(gotDirectoryEntryMsg, Symbol, 4)
+MACRO(openDirectoryMsg, FreeSymbol,
+3)
+MACRO(openedDirectoryMsg, Symbol,
+3)
+MACRO(closeDirectoryMsg, FreeSymbol,
+2)
+MACRO(closedDirectoryMsg, Symbol,
+2)
+MACRO(getDirectoryEntryMsg, FreeSymbol,
+2)
+MACRO(gotDirectoryEntryMsg, Symbol,
+4)
 
-  MACRO(makeDirectoryMsg, Symbol, 3)
-  MACRO(madeDirectoryMsg, Symbol, 2)
-  MACRO(removeDirectoryMsg, Symbol, 3)
-  MACRO(removedDirectoryMsg, Symbol, 2)
-  MACRO(directoryErrorMsg, Symbol, 3)
+MACRO(makeDirectoryMsg, Symbol,
+3)
+MACRO(madeDirectoryMsg, Symbol,
+2)
+MACRO(removeDirectoryMsg, Symbol,
+3)
+MACRO(removedDirectoryMsg, Symbol,
+2)
+MACRO(directoryErrorMsg, Symbol,
+3)

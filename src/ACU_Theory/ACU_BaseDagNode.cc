@@ -23,11 +23,11 @@
 //
 //      Implementation for class ACU_BaseDagNode.
 //
- 
+
 //	utility stuff
 #include "macros.hh"
 #include "vector.hh"
- 
+
 //      forward declarations
 #include "interface.hh"
 #include "core.hh"
@@ -43,15 +43,13 @@
 #include "ACU_TreeDagNode.hh"
 
 int
-ACU_BaseDagNode::getSize() const
-{
-  return isTree() ?
-    safeCastNonNull<const ACU_TreeDagNode*>(this)->getTree().getSize() :
-    safeCastNonNull<const ACU_DagNode*>(this)->argArray.length();
+ACU_BaseDagNode::getSize() const {
+    return isTree() ?
+           safeCastNonNull<const ACU_TreeDagNode *>(this)->getTree().getSize() :
+           safeCastNonNull<const ACU_DagNode *>(this)->argArray.length();
 }
 
-ExtensionInfo*
-ACU_BaseDagNode::makeExtensionInfo()
-{
-  return new ACU_ExtensionInfo(this);
+ExtensionInfo *
+ACU_BaseDagNode::makeExtensionInfo() {
+    return new ACU_ExtensionInfo(this);
 }

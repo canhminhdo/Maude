@@ -42,59 +42,54 @@
 #include "strategicSearch.hh"
 
 DecompositionProcess::DecompositionProcess(int dagIndex,
-					   StrategyStackManager::StackId pending,
-					   StrategicExecution* taskSibling,
-					   StrategicProcess* other)
-  : StrategicProcess(taskSibling, other),
-    dagIndex(dagIndex),
-    pending(pending)
-{
-  Assert(pending >= 0, "bad pending stack id " << pending);
+                                           StrategyStackManager::StackId pending,
+                                           StrategicExecution *taskSibling,
+                                           StrategicProcess *other)
+        : StrategicProcess(taskSibling, other),
+          dagIndex(dagIndex),
+          pending(pending) {
+    Assert(pending >= 0, "bad pending stack id " << pending);
 }
 
-DecompositionProcess::DecompositionProcess(DecompositionProcess* original)
-  : StrategicProcess(original, original),
-    dagIndex(original->dagIndex),
-    pending(original->pending)
-{
-  //
-  //	A copy of a process will be owned by same task as original and will
-  //	get put in the process queue just ahead of original. It will share
-  //	the dagIndex and persistant pending stack.
-  //
-  //	Clones are handy when we want to explore several alternative futures in parallel.
-  //
+DecompositionProcess::DecompositionProcess(DecompositionProcess *original)
+        : StrategicProcess(original, original),
+          dagIndex(original->dagIndex),
+          pending(original->pending) {
+    //
+    //	A copy of a process will be owned by same task as original and will
+    //	get put in the process queue just ahead of original. It will share
+    //	the dagIndex and persistant pending stack.
+    //
+    //	Clones are handy when we want to explore several alternative futures in parallel.
+    //
 }
 
 StrategicExecution::Survival
-DecompositionProcess::run(StrategicSearch& searchObject)
-{
-  DebugAdvisory("DecompositionProcess::run(), dagIndex = " << dagIndex <<
-		" for " << searchObject.getCanonical(dagIndex));
+DecompositionProcess::run(StrategicSearch &searchObject) {
+    DebugAdvisory("DecompositionProcess::run(), dagIndex = " << dagIndex <<
+                                                             " for " << searchObject.getCanonical(dagIndex));
 
-  if (getOwner()->alreadySeen(dagIndex, pending))
-    {
-      DebugAdvisory("we've already been here: " << searchObject.getCanonical(dagIndex) <<
-		    ", " << pending);
-      finished(this);
-      return DIE;
+    if (getOwner()->alreadySeen(dagIndex, pending)) {
+        DebugAdvisory("we've already been here: " << searchObject.getCanonical(dagIndex) <<
+                                                  ", " << pending);
+        finished(this);
+        return DIE;
     }
 
-  if (pending == StrategyStackManager::EMPTY_STACK)
-    {
-      //
-      //	Report our success.
-      //
-      succeeded(dagIndex, this);
-      //
-      //	Request deletion.
-      //
-      return DIE;
+    if (pending == StrategyStackManager::EMPTY_STACK) {
+        //
+        //	Report our success.
+        //
+        succeeded(dagIndex, this);
+        //
+        //	Request deletion.
+        //
+        return DIE;
     }
-  StrategyExpression* s = searchObject.top(pending);
-  pending = searchObject.pop(pending);
-  Survival r = s->decompose(searchObject, this);
-  if (r == DIE)
-    finished(this);
-  return r;
+    StrategyExpression *s = searchObject.top(pending);
+    pending = searchObject.pop(pending);
+    Survival r = s->decompose(searchObject, this);
+    if (r == DIE)
+        finished(this);
+    return r;
 }

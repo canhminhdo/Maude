@@ -71,374 +71,317 @@
 #include "rewriteConditionFragment.hh"
 #include "sortTestConditionFragment.hh"
 
-StrategyExpression*
-ImportModule::deepCopyStrategyExpression(ImportTranslation* importTranslation,
-					 StrategyExpression* original)
-{
-  if (TrivialStrategy* trs = dynamic_cast<TrivialStrategy*>(original))
-    return new TrivialStrategy(trs->getResult());
+StrategyExpression *
+ImportModule::deepCopyStrategyExpression(ImportTranslation *importTranslation,
+                                         StrategyExpression *original) {
+    if (TrivialStrategy *trs = dynamic_cast<TrivialStrategy *>(original))
+        return new TrivialStrategy(trs->getResult());
 
-  else if (CallStrategy* cs = dynamic_cast<CallStrategy*>(original))
-    {
-      RewriteStrategy* strategy = importTranslation->translate(cs->getStrategy());
-      // If strategy is null (to expr mappings), the call must be translated
-      // to a strategy expression
-      if (strategy == 0)
-	{
-	  return importTranslation->translateExpr(cs);
-	}
-      // Otherwise, the translation is another call strategy expression
-      return new CallStrategy(strategy,
-			      strategy->copyAuxiliaryTerm(cs->getTerm(), importTranslation));
-    }
+    else if (CallStrategy *cs = dynamic_cast<CallStrategy *>(original)) {
+        RewriteStrategy *strategy = importTranslation->translate(cs->getStrategy());
+        // If strategy is null (to expr mappings), the call must be translated
+        // to a strategy expression
+        if (strategy == 0) {
+            return importTranslation->translateExpr(cs);
+        }
+        // Otherwise, the translation is another call strategy expression
+        return new CallStrategy(strategy,
+                                strategy->copyAuxiliaryTerm(cs->getTerm(), importTranslation));
+    } else if (IterationStrategy *is = dynamic_cast<IterationStrategy *>(original))
+        return new IterationStrategy(deepCopyStrategyExpression(importTranslation, is->getStrategy()),
+                                     is->getZeroAllowed());
 
-  else if (IterationStrategy* is = dynamic_cast<IterationStrategy*>(original))
-    return new IterationStrategy(deepCopyStrategyExpression(importTranslation, is->getStrategy()),
-				 is->getZeroAllowed());
+    else if (UnionStrategy *us = dynamic_cast<UnionStrategy *>(original)) {
+        const Vector<StrategyExpression *> &strategies = us->getStrategies();
+        Vector<StrategyExpression *> strategiesCopy(strategies.size());
 
-  else if (UnionStrategy* us = dynamic_cast<UnionStrategy*>(original))
-    {
-      const Vector<StrategyExpression*>& strategies = us->getStrategies();
-      Vector<StrategyExpression*> strategiesCopy(strategies.size());
+        for (size_t i = 0; i < strategies.size(); i++)
+            strategiesCopy[i] = deepCopyStrategyExpression(importTranslation, strategies[i]);
 
-      for (size_t i = 0; i < strategies.size(); i++)
-	strategiesCopy[i] = deepCopyStrategyExpression(importTranslation, strategies[i]);
+        return new UnionStrategy(strategiesCopy);
+    } else if (ConcatenationStrategy *cs = dynamic_cast<ConcatenationStrategy *>(original)) {
+        const Vector<StrategyExpression *> &strategies = cs->getStrategies();
+        Vector<StrategyExpression *> strategiesCopy(strategies.size());
 
-      return new UnionStrategy(strategiesCopy);
-    }
+        for (size_t i = 0; i < strategies.size(); i++)
+            strategiesCopy[i] = deepCopyStrategyExpression(importTranslation, strategies[i]);
 
-  else if (ConcatenationStrategy* cs = dynamic_cast<ConcatenationStrategy*>(original))
-    {
-      const Vector<StrategyExpression*>& strategies = cs->getStrategies();
-      Vector<StrategyExpression*> strategiesCopy(strategies.size());
+        return new ConcatenationStrategy(strategiesCopy);
+    } else if (BranchStrategy *bs = dynamic_cast<BranchStrategy *>(original)) {
+        return new BranchStrategy(deepCopyStrategyExpression(importTranslation, bs->getInitialStrategy()),
+                                  bs->getSuccessAction(),
+                                  bs->getSuccessStrategy() ? deepCopyStrategyExpression(importTranslation,
+                                                                                        bs->getSuccessStrategy()) : 0,
+                                  bs->getFailureAction(),
+                                  bs->getFailureStrategy() ? deepCopyStrategyExpression(importTranslation,
+                                                                                        bs->getFailureStrategy()) : 0);
+    } else if (ApplicationStrategy *as = dynamic_cast<ApplicationStrategy *>(original)) {
+        const Vector<StrategyExpression *> &strategies = as->getStrategies();
+        const Vector<Term *> &variables = as->getVariables();
+        const Vector<CachedDag> &values = as->getValues();
 
-      for (size_t i = 0; i < strategies.size(); i++)
-	strategiesCopy[i] = deepCopyStrategyExpression(importTranslation, strategies[i]);
+        Vector<StrategyExpression *> strategiesCopy(strategies.size());
+        Vector<Term *> variablesCopy(variables.size());
+        Vector<Term *> valuesCopy(values.size());
 
-      return new ConcatenationStrategy(strategiesCopy);
-    }
+        for (size_t i = 0; i < strategies.size(); i++)
+            strategiesCopy[i] = deepCopyStrategyExpression(importTranslation, strategies[i]);
 
-  else if (BranchStrategy* bs = dynamic_cast<BranchStrategy*>(original))
-    {
-      return new BranchStrategy(deepCopyStrategyExpression(importTranslation, bs->getInitialStrategy()),
-				bs->getSuccessAction(),
-				bs->getSuccessStrategy() ? deepCopyStrategyExpression(importTranslation, bs->getSuccessStrategy()) : 0,
-				bs->getFailureAction(),
-				bs->getFailureStrategy() ? deepCopyStrategyExpression(importTranslation, bs->getFailureStrategy()) : 0);
-    }
+        for (size_t i = 0; i < variables.size(); i++) {
+            variablesCopy[i] = variables[i]->deepCopy(importTranslation);
+            valuesCopy[i] = values[i].getTerm()->deepCopy(importTranslation);
+        }
 
-  else if (ApplicationStrategy* as = dynamic_cast<ApplicationStrategy*>(original))
-    {
-      const Vector<StrategyExpression*>& strategies = as->getStrategies();
-      const Vector<Term*>& variables = as->getVariables();
-      const Vector<CachedDag>& values = as->getValues();
+        int label = importTranslation->translateLabel(as->getLabel());
 
-      Vector<StrategyExpression*> strategiesCopy(strategies.size());
-      Vector<Term*> variablesCopy(variables.size());
-      Vector<Term*> valuesCopy(values.size());
+        ApplicationStrategy *copy = new ApplicationStrategy(label, variablesCopy, valuesCopy, strategiesCopy);
+        if (as->getTop())
+            copy->setTop();
 
-      for (size_t i = 0; i < strategies.size(); i++)
-	strategiesCopy[i] = deepCopyStrategyExpression(importTranslation, strategies[i]);
+        return copy;
+    } else if (TestStrategy *te = dynamic_cast<TestStrategy *>(original)) {
+        Vector<ConditionFragment *> conditionCopy(te->getCondition().size());
 
-      for (size_t i = 0; i < variables.size(); i++)
-	{
-	  variablesCopy[i] = variables[i]->deepCopy(importTranslation);
-	  valuesCopy[i] = values[i].getTerm()->deepCopy(importTranslation);
-	}
+        deepCopyCondition(importTranslation, te->getCondition(), conditionCopy);
 
-      int label = importTranslation->translateLabel(as->getLabel());
+        return new TestStrategy(te->getPatternTerm()->deepCopy(importTranslation),
+                                te->getDepth(),
+                                conditionCopy);
+    } else if (SubtermStrategy *mrs = dynamic_cast<SubtermStrategy *>(original)) {
+        const Vector<StrategyExpression *> &strategies = mrs->getStrategies();
+        const Vector<Term *> &patterns = mrs->getSubterms();
 
-      ApplicationStrategy* copy = new ApplicationStrategy(label, variablesCopy, valuesCopy, strategiesCopy);
-      if (as->getTop())
-	copy->setTop();
+        Vector<StrategyExpression *> strategiesCopy(strategies.size());
+        Vector<Term *> patternsCopy(patterns.size());
+        Vector<ConditionFragment *> conditionCopy(mrs->getCondition().size());
 
-      return copy;
-    }
+        for (size_t i = 0; i < strategies.size(); i++) {
+            strategiesCopy[i] = deepCopyStrategyExpression(importTranslation, strategies[i]);
+            patternsCopy[i] = patterns[i]->deepCopy(importTranslation);
+        }
 
-  else if (TestStrategy* te = dynamic_cast<TestStrategy*>(original))
-    {
-      Vector<ConditionFragment*> conditionCopy(te->getCondition().size());
+        deepCopyCondition(importTranslation, mrs->getCondition(), conditionCopy);
 
-      deepCopyCondition(importTranslation, te->getCondition(), conditionCopy);
+        return new SubtermStrategy(mrs->getPatternTerm()->deepCopy(importTranslation),
+                                   mrs->getDepth(),
+                                   conditionCopy,
+                                   patternsCopy,
+                                   strategiesCopy);
+    } else if (OneStrategy *os = dynamic_cast<OneStrategy *>(original))
+        return new OneStrategy(deepCopyStrategyExpression(importTranslation, os->getStrategy()));
 
-      return new TestStrategy(te->getPatternTerm()->deepCopy(importTranslation),
-			      te->getDepth(),
-			      conditionCopy);
-    }
-
-  else if (SubtermStrategy* mrs = dynamic_cast<SubtermStrategy*>(original))
-    {
-      const Vector<StrategyExpression*>& strategies = mrs->getStrategies();
-      const Vector<Term*>& patterns = mrs->getSubterms();
-
-      Vector<StrategyExpression*> strategiesCopy(strategies.size());
-      Vector<Term*> patternsCopy(patterns.size());
-      Vector<ConditionFragment*> conditionCopy(mrs->getCondition().size());
-
-      for (size_t i = 0; i < strategies.size(); i++)
-	{
-	  strategiesCopy[i] = deepCopyStrategyExpression(importTranslation, strategies[i]);
-	  patternsCopy[i] = patterns[i]->deepCopy(importTranslation);
-	}
-
-      deepCopyCondition(importTranslation, mrs->getCondition(), conditionCopy);
-
-      return new SubtermStrategy(mrs->getPatternTerm()->deepCopy(importTranslation),
-				 mrs->getDepth(),
-				 conditionCopy,
-				 patternsCopy,
-				 strategiesCopy);
-    }
-  else if (OneStrategy* os = dynamic_cast<OneStrategy*>(original))
-    return new OneStrategy(deepCopyStrategyExpression(importTranslation, os->getStrategy()));
-
-  CantHappen("unknown strategy expression");
-  return 0;
+    CantHappen("unknown strategy expression");
+    return 0;
 }
 
-StrategyExpression*
-ImportModule::instantiateExpression(StrategyExpression* expr,
-				    const Vector<int>& varMap,
-				    const Vector<Term*>& values,
-				    ImportTranslation* translation)
-{
-  int nrContextSize = varMap.length();
-  Vector<Term*> subs(nrContextSize);
+StrategyExpression *
+ImportModule::instantiateExpression(StrategyExpression *expr,
+                                    const Vector<int> &varMap,
+                                    const Vector<Term *> &values,
+                                    ImportTranslation *translation) {
+    int nrContextSize = varMap.length();
+    Vector<Term *> subs(nrContextSize);
 
-  for (int i = 0; i < nrContextSize; i++)
-    subs[i] = values[varMap[i]];
+    for (int i = 0; i < nrContextSize; i++)
+        subs[i] = values[varMap[i]];
 
-  return instantiateExpression(expr, subs, translation);
+    return instantiateExpression(expr, subs, translation);
 }
 
-Term*
-ImportModule::instantiateCall(Term* term,
-			      RewriteStrategy* strat,
-			      const Vector<Term*>& subs,
-			      ImportTranslation* translation)
-{
-  //
-  // Instantiate the arguments and rebuild the call term
-  //
-  Symbol* symbol = term->symbol();
-  Vector<Term*> args(symbol->arity());
+Term *
+ImportModule::instantiateCall(Term *term,
+                              RewriteStrategy *strat,
+                              const Vector<Term *> &subs,
+                              ImportTranslation *translation) {
+    //
+    // Instantiate the arguments and rebuild the call term
+    //
+    Symbol *symbol = term->symbol();
+    Vector<Term *> args(symbol->arity());
 
-  RawArgumentIterator* it = term->arguments();
-  for (size_t i = 0; i < args.size(); i++)
-    {
-      Assert(it->valid(), "non-valid iterator");
+    RawArgumentIterator *it = term->arguments();
+    for (size_t i = 0; i < args.size(); i++) {
+        Assert(it->valid(), "non-valid iterator");
 
-      args[i] = it->argument()->instantiate(subs, translation);
-      it->next();
+        args[i] = it->argument()->instantiate(subs, translation);
+        it->next();
     }
-  delete it;
+    delete it;
 
-  return strat->makeAuxiliaryTerm(args);
+    return strat->makeAuxiliaryTerm(args);
 }
 
-StrategyExpression*
-ImportModule::instantiateExpression(StrategyExpression* original,
-				    const Vector<Term*>& subs,
-				    ImportTranslation* translation)
-{
-  //
-  // We return an instantiated copy
-  //
-  if (TrivialStrategy* trs = dynamic_cast<TrivialStrategy*>(original))
-    return new TrivialStrategy(trs->getResult());
+StrategyExpression *
+ImportModule::instantiateExpression(StrategyExpression *original,
+                                    const Vector<Term *> &subs,
+                                    ImportTranslation *translation) {
+    //
+    // We return an instantiated copy
+    //
+    if (TrivialStrategy *trs = dynamic_cast<TrivialStrategy *>(original))
+        return new TrivialStrategy(trs->getResult());
 
-  else if (CallStrategy* cs = dynamic_cast<CallStrategy*>(original))
-    {
-      RewriteStrategy* strategy = translation->translate(cs->getStrategy());
-      Term* callTerm = cs->getTerm();
+    else if (CallStrategy *cs = dynamic_cast<CallStrategy *>(original)) {
+        RewriteStrategy *strategy = translation->translate(cs->getStrategy());
+        Term *callTerm = cs->getTerm();
 
-      Term* instantiated = instantiateCall(callTerm, strategy, subs, translation);
-      Assert(instantiated, "instantiated is null");
+        Term *instantiated = instantiateCall(callTerm, strategy, subs, translation);
+        Assert(instantiated, "instantiated is null");
 
-      return new CallStrategy(strategy, instantiated);
-    }
+        return new CallStrategy(strategy, instantiated);
+    } else if (IterationStrategy *is = dynamic_cast<IterationStrategy *>(original))
+        return new IterationStrategy(instantiateExpression(is->getStrategy(), subs, translation),
+                                     is->getZeroAllowed());
 
-  else if (IterationStrategy* is = dynamic_cast<IterationStrategy*>(original))
-    return new IterationStrategy(instantiateExpression(is->getStrategy(), subs, translation),
-				 is->getZeroAllowed());
+    else if (UnionStrategy *us = dynamic_cast<UnionStrategy *>(original)) {
+        const Vector<StrategyExpression *> &strategies = us->getStrategies();
+        Vector<StrategyExpression *> instantiatedStrats(strategies.size());
 
-  else if (UnionStrategy* us = dynamic_cast<UnionStrategy*>(original))
-    {
-      const Vector<StrategyExpression*>& strategies = us->getStrategies();
-      Vector<StrategyExpression*> instantiatedStrats(strategies.size());
+        for (size_t i = 0; i < strategies.size(); i++)
+            instantiatedStrats[i] = instantiateExpression(strategies[i], subs, translation);
 
-      for (size_t i = 0; i < strategies.size(); i++)
-	instantiatedStrats[i] = instantiateExpression(strategies[i], subs, translation);
+        return new UnionStrategy(instantiatedStrats);
+    } else if (ConcatenationStrategy *cs = dynamic_cast<ConcatenationStrategy *>(original)) {
+        const Vector<StrategyExpression *> &strategies = cs->getStrategies();
+        Vector<StrategyExpression *> instantiatedStrats(strategies.size());
 
-      return new UnionStrategy(instantiatedStrats);
-    }
+        for (size_t i = 0; i < strategies.size(); i++)
+            instantiatedStrats[i] = instantiateExpression(strategies[i], subs, translation);
 
-  else if (ConcatenationStrategy* cs = dynamic_cast<ConcatenationStrategy*>(original))
-    {
-      const Vector<StrategyExpression*>& strategies = cs->getStrategies();
-      Vector<StrategyExpression*> instantiatedStrats(strategies.size());
+        return new ConcatenationStrategy(instantiatedStrats);
+    } else if (BranchStrategy *bs = dynamic_cast<BranchStrategy *>(original)) {
+        return new BranchStrategy(instantiateExpression(bs->getInitialStrategy(), subs, translation),
+                                  bs->getSuccessAction(),
+                                  bs->getSuccessStrategy() ? instantiateExpression(bs->getSuccessStrategy(), subs,
+                                                                                   translation) : 0,
+                                  bs->getFailureAction(),
+                                  bs->getFailureStrategy() ? instantiateExpression(bs->getFailureStrategy(), subs,
+                                                                                   translation) : 0);
+    } else if (ApplicationStrategy *as = dynamic_cast<ApplicationStrategy *>(original)) {
+        const Vector<StrategyExpression *> &strategies = as->getStrategies();
+        const Vector<Term *> &variables = as->getVariables();
+        const Vector<CachedDag> &values = as->getValues();
 
-      for (size_t i = 0; i < strategies.size(); i++)
-	instantiatedStrats[i] = instantiateExpression(strategies[i], subs, translation);
+        Vector<StrategyExpression *> strategiesCopy(strategies.size());
+        Vector<Term *> variablesCopy(variables.size());
+        Vector<Term *> instantiatedValues(values.size());
 
-      return new ConcatenationStrategy(instantiatedStrats);
-    }
+        for (size_t i = 0; i < strategies.size(); i++)
+            strategiesCopy[i] = instantiateExpression(strategies[i], subs, translation);
 
-  else if (BranchStrategy* bs = dynamic_cast<BranchStrategy*>(original))
-    {
-      return new BranchStrategy(instantiateExpression(bs->getInitialStrategy(), subs, translation),
-				bs->getSuccessAction(),
-				bs->getSuccessStrategy() ? instantiateExpression(bs->getSuccessStrategy(), subs, translation) : 0,
-				bs->getFailureAction(),
-				bs->getFailureStrategy() ? instantiateExpression(bs->getFailureStrategy(), subs, translation) : 0);
-    }
+        for (size_t i = 0; i < variables.size(); i++) {
+            variablesCopy[i] = variables[i]->deepCopy(translation);
+            VariableInfo vinfo;
+            instantiatedValues[i] = values[i].getTerm()->instantiate(subs, translation);
+        }
 
-  else if (ApplicationStrategy* as = dynamic_cast<ApplicationStrategy*>(original))
-    {
-      const Vector<StrategyExpression*>& strategies = as->getStrategies();
-      const Vector<Term*>& variables = as->getVariables();
-      const Vector<CachedDag>& values = as->getValues();
+        int label = translation->translateLabel(as->getLabel());
 
-      Vector<StrategyExpression*> strategiesCopy(strategies.size());
-      Vector<Term*> variablesCopy(variables.size());
-      Vector<Term*> instantiatedValues(values.size());
+        ApplicationStrategy *copy = new ApplicationStrategy(label,
+                                                            variablesCopy,
+                                                            instantiatedValues,
+                                                            strategiesCopy);
+        if (as->getTop())
+            copy->setTop();
 
-      for (size_t i = 0; i < strategies.size(); i++)
-	strategiesCopy[i] = instantiateExpression(strategies[i], subs, translation);
+        return copy;
+    } else if (TestStrategy *te = dynamic_cast<TestStrategy *>(original)) {
+        Vector<ConditionFragment *> conditionCopy(te->getCondition().size());
 
-      for (size_t i = 0; i < variables.size(); i++)
-	{
-	  variablesCopy[i] = variables[i]->deepCopy(translation);
-	  VariableInfo vinfo;
-	  instantiatedValues[i] = values[i].getTerm()->instantiate(subs, translation);
-	}
+        // Builds and applies the substitution for the condition
+        {
+            const Vector<pair<int, int> > &indexTranslation = te->getIndexTranslation();
+            int contextSize = te->getPattern().getNrRealVariables();
+            Vector<Term *> conditionSubs(contextSize);
+            for (int i = 0; i < contextSize; i++)
+                conditionSubs[i] = te->getPattern().index2Variable(i);
+            size_t translationSize = indexTranslation.length();
+            for (size_t i = 0; i < translationSize; i++)
+                conditionSubs[indexTranslation[i].first] = subs[indexTranslation[i].second];
 
-      int label = translation->translateLabel(as->getLabel());
+            instantiateCondition(te->getCondition(), conditionCopy, conditionSubs, translation);
+        }
 
-      ApplicationStrategy* copy = new ApplicationStrategy(label,
-							  variablesCopy,
-							  instantiatedValues,
-							  strategiesCopy);
-      if (as->getTop())
-	copy->setTop();
+        return new TestStrategy(te->getPatternTerm()->deepCopy(translation), te->getDepth(), conditionCopy);
+    } else if (SubtermStrategy *mrs = dynamic_cast<SubtermStrategy *>(original)) {
+        const Vector<StrategyExpression *> &strategies = mrs->getStrategies();
+        const Vector<Term *> &patterns = mrs->getSubterms();
 
-      return copy;
-    }
+        Vector<StrategyExpression *> strategiesCopy(strategies.size());
+        Vector<Term *> patternsCopy(patterns.size());
+        Vector<ConditionFragment *> conditionCopy(mrs->getCondition().size());
 
-  else if (TestStrategy* te = dynamic_cast<TestStrategy*>(original))
-    {
-      Vector<ConditionFragment*> conditionCopy(te->getCondition().size());
+        // Builds and applies the substitution for inside the matchrew
+        {
+            const Vector<int> &contextSpec = mrs->getContextSpec();
+            int innerContextSize = contextSpec.size();
+            Vector<Term *> innerSubs(innerContextSize);
+            for (int i = 0; i < innerContextSize; i++)
+                innerSubs[i] = contextSpec[i] < 0 ? subs[-(1 + contextSpec[i])]
+                                                  : mrs->getPattern().index2Variable(contextSpec[i]);
 
-      // Builds and applies the substitution for the condition
-      {
-	const Vector<pair<int, int> >& indexTranslation = te->getIndexTranslation();
-	int contextSize = te->getPattern().getNrRealVariables();
-	Vector<Term*> conditionSubs(contextSize);
-	for (int i = 0; i < contextSize; i++)
-	  conditionSubs[i] = te->getPattern().index2Variable(i);
-	size_t translationSize = indexTranslation.length();
-	for (size_t i = 0; i < translationSize; i++)
-	  conditionSubs[indexTranslation[i].first] = subs[indexTranslation[i].second];
+            for (size_t i = 0; i < strategies.size(); i++) {
+                strategiesCopy[i] = instantiateExpression(strategies[i], innerSubs, translation);
+                patternsCopy[i] = patterns[i]->deepCopy(translation);
+            }
+        }
 
-	instantiateCondition(te->getCondition(), conditionCopy, conditionSubs, translation);
-      }
+        // Builds and applies the substitution for the condition
+        {
+            const Vector<pair<int, int> > &indexTranslation = mrs->getIndexTranslation();
+            int contextSize = mrs->getPattern().getNrRealVariables();
+            Vector<Term *> conditionSubs(contextSize);
+            for (int i = 0; i < contextSize; i++)
+                conditionSubs[i] = mrs->getPattern().index2Variable(i);
+            size_t translationSize = indexTranslation.length();
+            for (size_t i = 0; i < translationSize; i++)
+                conditionSubs[indexTranslation[i].first] = subs[indexTranslation[i].second];
 
-      return new TestStrategy(te->getPatternTerm()->deepCopy(translation), te->getDepth(), conditionCopy);
-    }
+            instantiateCondition(mrs->getCondition(), conditionCopy, conditionSubs, translation);
+        }
 
-  else if (SubtermStrategy* mrs = dynamic_cast<SubtermStrategy*>(original))
-    {
-      const Vector<StrategyExpression*>& strategies = mrs->getStrategies();
-      const Vector<Term*>& patterns = mrs->getSubterms();
+        return new SubtermStrategy(mrs->getPatternTerm()->deepCopy(translation),
+                                   mrs->getDepth(),
+                                   conditionCopy,
+                                   patternsCopy,
+                                   strategiesCopy);
+    } else if (OneStrategy *os = dynamic_cast<OneStrategy *>(original))
+        return new OneStrategy(instantiateExpression(os->getStrategy(), subs, translation));
 
-      Vector<StrategyExpression*> strategiesCopy(strategies.size());
-      Vector<Term*> patternsCopy(patterns.size());
-      Vector<ConditionFragment*> conditionCopy(mrs->getCondition().size());
-
-      // Builds and applies the substitution for inside the matchrew
-      {
-	const Vector<int>& contextSpec = mrs->getContextSpec();
-	int innerContextSize = contextSpec.size();
-	Vector<Term*> innerSubs(innerContextSize);
-	for (int i = 0; i < innerContextSize; i++)
-	  innerSubs[i] = contextSpec[i] < 0 ? subs[-(1 + contextSpec[i])]
-			  : mrs->getPattern().index2Variable(contextSpec[i]);
-
-	for (size_t i = 0; i < strategies.size(); i++)
-	  {
-	    strategiesCopy[i] = instantiateExpression(strategies[i], innerSubs, translation);
-	    patternsCopy[i] = patterns[i]->deepCopy(translation);
-	  }
-      }
-
-      // Builds and applies the substitution for the condition
-      {
-	const Vector<pair<int, int> >& indexTranslation = mrs->getIndexTranslation();
-	int contextSize = mrs->getPattern().getNrRealVariables();
-	Vector<Term*> conditionSubs(contextSize);
-	for (int i = 0; i < contextSize; i++)
-	  conditionSubs[i] = mrs->getPattern().index2Variable(i);
-	size_t translationSize = indexTranslation.length();
-	for (size_t i = 0; i < translationSize; i++)
-	  conditionSubs[indexTranslation[i].first] = subs[indexTranslation[i].second];
-
-	instantiateCondition(mrs->getCondition(), conditionCopy, conditionSubs, translation);
-      }
-
-      return new SubtermStrategy(mrs->getPatternTerm()->deepCopy(translation),
-				 mrs->getDepth(),
-				 conditionCopy,
-				 patternsCopy,
-				 strategiesCopy);
-    }
-  else if (OneStrategy* os = dynamic_cast<OneStrategy*>(original))
-    return new OneStrategy(instantiateExpression(os->getStrategy(), subs, translation));
-
-  CantHappen("unknow strategy expression");
-  return 0;
+    CantHappen("unknow strategy expression");
+    return 0;
 }
 
 void
-ImportModule::instantiateCondition(const Vector<ConditionFragment*>& original,
-				   Vector<ConditionFragment*>& copy,
-				   const Vector<Term*>& mapping,
-				   ImportTranslation* translation)
-{
-  int nrFragments = original.length();
-  copy.expandTo(nrFragments);
+ImportModule::instantiateCondition(const Vector<ConditionFragment *> &original,
+                                   Vector<ConditionFragment *> &copy,
+                                   const Vector<Term *> &mapping,
+                                   ImportTranslation *translation) {
+    int nrFragments = original.length();
+    copy.expandTo(nrFragments);
 
-  for (int i = 0; i < nrFragments; i++)
-    {
-      ConditionFragment* c = original[i];
-      ConditionFragment* n;
-      if (EqualityConditionFragment* e = dynamic_cast<EqualityConditionFragment*>(c))
-	{
-	  Term* lhs = e->getLhs()->instantiate(mapping, translation);
-	  Term* rhs = e->getRhs()->instantiate(mapping, translation);
-	  n = new EqualityConditionFragment(lhs, rhs);
-	}
-      else if (SortTestConditionFragment* s = dynamic_cast<SortTestConditionFragment*>(c))
-	{
-	  Term* lhs = s->getLhs()->instantiate(mapping, translation);
-	  n = new SortTestConditionFragment(lhs, s->getSort());
-	}
-      else if (AssignmentConditionFragment* a = dynamic_cast<AssignmentConditionFragment*>(c))
-	{
-	  Term* lhs = a->getLhs()->instantiate(mapping, translation);
-	  Term* rhs = a->getRhs()->instantiate(mapping, translation);
-	  n = new AssignmentConditionFragment(lhs, rhs);
-	}
-      else if (RewriteConditionFragment* r = dynamic_cast<RewriteConditionFragment*>(c))
-	{
-	  Term* lhs = r->getLhs()->instantiate(mapping, translation);
-	  Term* rhs = r->getRhs()->instantiate(mapping, translation);
-	  n = new RewriteConditionFragment(lhs, rhs);
-	}
-      else
-	{
-	  CantHappen("bad condition fragment");
-	  n = 0;  // avoid compiler warning
-	}
-      copy[i] = n;
+    for (int i = 0; i < nrFragments; i++) {
+        ConditionFragment *c = original[i];
+        ConditionFragment *n;
+        if (EqualityConditionFragment *e = dynamic_cast<EqualityConditionFragment *>(c)) {
+            Term *lhs = e->getLhs()->instantiate(mapping, translation);
+            Term *rhs = e->getRhs()->instantiate(mapping, translation);
+            n = new EqualityConditionFragment(lhs, rhs);
+        } else if (SortTestConditionFragment *s = dynamic_cast<SortTestConditionFragment *>(c)) {
+            Term *lhs = s->getLhs()->instantiate(mapping, translation);
+            n = new SortTestConditionFragment(lhs, s->getSort());
+        } else if (AssignmentConditionFragment *a = dynamic_cast<AssignmentConditionFragment *>(c)) {
+            Term *lhs = a->getLhs()->instantiate(mapping, translation);
+            Term *rhs = a->getRhs()->instantiate(mapping, translation);
+            n = new AssignmentConditionFragment(lhs, rhs);
+        } else if (RewriteConditionFragment *r = dynamic_cast<RewriteConditionFragment *>(c)) {
+            Term *lhs = r->getLhs()->instantiate(mapping, translation);
+            Term *rhs = r->getRhs()->instantiate(mapping, translation);
+            n = new RewriteConditionFragment(lhs, rhs);
+        } else {
+            CantHappen("bad condition fragment");
+            n = 0;  // avoid compiler warning
+        }
+        copy[i] = n;
     }
 }

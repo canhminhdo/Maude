@@ -53,98 +53,84 @@
 #include "CUI_DagNode.hh"
 #include "CUI_UnificationSubproblem.hh"
 
-CUI_UnificationSubproblem::CUI_UnificationSubproblem()
-{
-  DebugAdvisory("Created CUI_UnificationSubproblem() base " << ((void*) this));
+CUI_UnificationSubproblem::CUI_UnificationSubproblem() {
+    DebugAdvisory("Created CUI_UnificationSubproblem() base " << ((void *) this));
 }
 
-CUI_UnificationSubproblem::~CUI_UnificationSubproblem()
-{
+CUI_UnificationSubproblem::~CUI_UnificationSubproblem() {
 }
 
 void
-CUI_UnificationSubproblem::markReachableNodes()
-{
-  for (const Problem& p : problems)
-    {
-      int nrFragile = p.savedSubstitution.nrFragileBindings();
-      for (int j = 0; j < nrFragile; j++)
-	{
-	  if (DagNode* d = p.savedSubstitution.value(j))
-	    d->mark();
-	}
+CUI_UnificationSubproblem::markReachableNodes() {
+    for (const Problem &p : problems) {
+        int nrFragile = p.savedSubstitution.nrFragileBindings();
+        for (int j = 0; j < nrFragile; j++) {
+            if (DagNode *d = p.savedSubstitution.value(j))
+                d->mark();
+        }
     }
 }
 
 void
-CUI_UnificationSubproblem::addUnification(DagNode* lhs,
-					  DagNode* rhs,
-					  bool marked,
-					  UnificationContext& /* solution */)
-{
-  DebugEnter(lhs << " vs " << rhs);
-  Assert(marked == false, "this class shouldn't get collapse problems");
-  problems.append(Problem(safeCast(CUI_DagNode*, lhs), safeCast(CUI_DagNode*, rhs)));
+CUI_UnificationSubproblem::addUnification(DagNode *lhs,
+                                          DagNode *rhs,
+                                          bool marked,
+                                          UnificationContext & /* solution */) {
+    DebugEnter(lhs << " vs " << rhs);
+    Assert(marked == false, "this class shouldn't get collapse problems");
+    problems.append(Problem(safeCast(CUI_DagNode*, lhs), safeCast(CUI_DagNode*, rhs)));
 }
 
 bool
 CUI_UnificationSubproblem::solve(bool findFirst,
-				 UnificationContext& solution,
-				 PendingUnificationStack& pending)
-{
-  int nrProblems = problems.size();
-  int i;
+                                 UnificationContext &solution,
+                                 PendingUnificationStack &pending) {
+    int nrProblems = problems.size();
+    int i;
 
-  if (findFirst)
-    {
-      i = 0;
-    forward:
-      for (; i < nrProblems; ++i)
-	{
-	  Problem& p = problems[i];
-	  //
-	  //	Save state before solving this problem.
-	  //
-	  p.savedSubstitution.clone(solution);
-	  p.savedPendingState = pending.checkPoint();
-	  p.reverseTried = false;
-	  DebugInfo("trying " << (DagNode*) p.lhs << " vs " << (DagNode*) p.rhs << " forwards");
-	  if (!(p.lhs->getArgument(0)->computeSolvedForm(p.rhs->getArgument(0), solution, pending) &&
-		p.lhs->getArgument(1)->computeSolvedForm(p.rhs->getArgument(1), solution, pending)))
-	    goto backtrack;
-	}
-      return true;
+    if (findFirst) {
+        i = 0;
+        forward:
+        for (; i < nrProblems; ++i) {
+            Problem &p = problems[i];
+            //
+            //	Save state before solving this problem.
+            //
+            p.savedSubstitution.clone(solution);
+            p.savedPendingState = pending.checkPoint();
+            p.reverseTried = false;
+            DebugInfo("trying " << (DagNode *) p.lhs << " vs " << (DagNode *) p.rhs << " forwards");
+            if (!(p.lhs->getArgument(0)->computeSolvedForm(p.rhs->getArgument(0), solution, pending) &&
+                  p.lhs->getArgument(1)->computeSolvedForm(p.rhs->getArgument(1), solution, pending)))
+                goto backtrack;
+        }
+        return true;
+    } else {
+        i = nrProblems - 1;
+        backtrack:
+        for (; i >= 0; --i) {
+            Problem &p = problems[i];
+            if (!p.reverseTried) {
+                //
+                //	Restore the state to what it was before we solved this problem the first time.
+                //
+                solution.restoreFromClone(p.savedSubstitution);
+                pending.restore(p.savedPendingState);
+                DebugInfo("trying " << (DagNode *) p.lhs << " vs " << (DagNode *) p.rhs << " backwards");
+                if (p.lhs->getArgument(0)->computeSolvedForm(p.rhs->getArgument(1), solution, pending) &&
+                    p.lhs->getArgument(1)->computeSolvedForm(p.rhs->getArgument(0), solution, pending)) {
+                    p.reverseTried = true;
+                    ++i;
+                    goto forward;
+                }
+            }
+        }
     }
-  else
-    {
-      i = nrProblems - 1;
-    backtrack:
-      for (; i >= 0; --i)
-	{
-	  Problem& p = problems[i];
-	  if (!p.reverseTried)
-	    {
-	      //
-	      //	Restore the state to what it was before we solved this problem the first time.
-	      //
-	      solution.restoreFromClone(p.savedSubstitution);
-	      pending.restore(p.savedPendingState);
-	      DebugInfo("trying " << (DagNode*) p.lhs << " vs " << (DagNode*) p.rhs << " backwards");
-	      if (p.lhs->getArgument(0)->computeSolvedForm(p.rhs->getArgument(1), solution, pending) &&
-		  p.lhs->getArgument(1)->computeSolvedForm(p.rhs->getArgument(0), solution, pending))
-		{
-		  p.reverseTried = true;
-		  ++i;
-		  goto forward;
-		}
-	    }
-	}
-    }
-  //
-  //	Restore initial state.
-  //
-  Problem& p = problems[0];
-  solution.restoreFromClone(p.savedSubstitution);
-  pending.restore(p.savedPendingState);
-  return false;
+    //
+    //	Restore initial state.
+    //
+    Problem &p = problems[0];
+    solution.restoreFromClone(p.savedSubstitution);
+    pending.restore(p.savedPendingState);
+    return false;
 }

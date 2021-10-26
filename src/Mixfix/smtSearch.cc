@@ -25,79 +25,72 @@
 //
 
 void
-Interpreter::doSmtSearch(Timer& timer,
-			 VisibleModule* module,
-			 SMT_RewriteSequenceSearch* state,
-			 Int64 solutionCount,
-			 Int64 limit)
-{
-  
-  Int64 i = 0;
-  for (; i != limit; i++)
-    {
-      bool result = state->findNextMatch();
-      if (UserLevelRewritingContext::aborted())
-	break;
- 
-      if (!result)
-	{
-	  cout << ((solutionCount == 0) ? "\nNo solution.\n" : "\nNo more solutions.\n");
-	  printStats(timer, *(state->getContext()), getFlag(SHOW_TIMING));
-	  break;
-	}
+Interpreter::doSmtSearch(Timer &timer,
+                         VisibleModule *module,
+                         SMT_RewriteSequenceSearch *state,
+                         Int64 solutionCount,
+                         Int64 limit) {
 
-      ++solutionCount;
-      cout << "\nSolution " << solutionCount << endl;
-      printStats(timer, *(state->getContext()), getFlag(SHOW_TIMING));
-      int stateNr = state->getCurrentStateNumber();
-      DagNode* d = state->getState(stateNr);
-      cout << "state: " << d << endl;
-      UserLevelRewritingContext::printSubstitution(*(state->getSubstitution()),
-						   *state,
-						   state->getSMT_VarIndices());
-      cout << "where " << state->getFinalConstraint() << endl;
-    }
-  QUANTIFY_STOP();
+    Int64 i = 0;
+    for (; i != limit; i++) {
+        bool result = state->findNextMatch();
+        if (UserLevelRewritingContext::aborted())
+            break;
 
-  clearContinueInfo();  // just in case debugger left info
-  if (i == limit)
-    {
-      //
-      //	The loop terminated because we hit user's limit so 
-      //	continuation is still possible. We save the state,
-      //	solutionCount and module, and set a continutation function.
-      //
-      state->getContext()->clearCount();
-      savedState = state;
-      savedSolutionCount = solutionCount;
-      savedModule = module;
-      continueFunc = &Interpreter::smtSearchCont;
+        if (!result) {
+            cout << ((solutionCount == 0) ? "\nNo solution.\n" : "\nNo more solutions.\n");
+            printStats(timer, *(state->getContext()), getFlag(SHOW_TIMING));
+            break;
+        }
+
+        ++solutionCount;
+        cout << "\nSolution " << solutionCount << endl;
+        printStats(timer, *(state->getContext()), getFlag(SHOW_TIMING));
+        int stateNr = state->getCurrentStateNumber();
+        DagNode *d = state->getState(stateNr);
+        cout << "state: " << d << endl;
+        UserLevelRewritingContext::printSubstitution(*(state->getSubstitution()),
+                                                     *state,
+                                                     state->getSMT_VarIndices());
+        cout << "where " << state->getFinalConstraint() << endl;
     }
-  else
-    {
-      //
-      //	Either user aborted or we ran out of solutions; either
-      //	way we need to tidy up.
-      //
-      delete state;
-      module->unprotect();
+    QUANTIFY_STOP();
+
+    clearContinueInfo();  // just in case debugger left info
+    if (i == limit) {
+        //
+        //	The loop terminated because we hit user's limit so
+        //	continuation is still possible. We save the state,
+        //	solutionCount and module, and set a continutation function.
+        //
+        state->getContext()->clearCount();
+        savedState = state;
+        savedSolutionCount = solutionCount;
+        savedModule = module;
+        continueFunc = &Interpreter::smtSearchCont;
+    } else {
+        //
+        //	Either user aborted or we ran out of solutions; either
+        //	way we need to tidy up.
+        //
+        delete state;
+        module->unprotect();
     }
-  UserLevelRewritingContext::clearDebug();
+    UserLevelRewritingContext::clearDebug();
 }
 
 void
-Interpreter::smtSearchCont(Int64 limit, bool debug)
-{
-  SMT_RewriteSequenceSearch* state = safeCast(SMT_RewriteSequenceSearch*, savedState);
-  VisibleModule* fm = savedModule;
-  savedState = 0;
-  savedModule = 0;
-  continueFunc = 0;
+Interpreter::smtSearchCont(Int64 limit, bool debug) {
+    SMT_RewriteSequenceSearch *state = safeCast(SMT_RewriteSequenceSearch*, savedState);
+    VisibleModule *fm = savedModule;
+    savedState = 0;
+    savedModule = 0;
+    continueFunc = 0;
 
-  if (debug)
-    UserLevelRewritingContext::setDebug();
+    if (debug)
+        UserLevelRewritingContext::setDebug();
 
-  QUANTIFY_START();
-  Timer timer(getFlag(SHOW_TIMING));
-  doSmtSearch(timer, fm, state, savedSolutionCount, limit);
+    QUANTIFY_START();
+    Timer timer(getFlag(SHOW_TIMING));
+    doSmtSearch(timer, fm, state, savedSolutionCount, limit);
 }

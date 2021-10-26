@@ -25,160 +25,147 @@
 //
 
 void
-Interpreter::doNarrowing(Timer& timer,
-			 VisibleModule* module,
-			 NarrowingSequenceSearch* state,
-			 Int64 solutionCount,
-			 Int64 limit)
-{
-  RewritingContext* context = state->getContext();
-  const VariableInfo* variableInfo = state->getGoal();
-  Int64 i = 0;
-  for (; i != limit; i++)
-    {
-      bool result = state->findNextMatch();
-      if (UserLevelRewritingContext::aborted())
-	break;
-      if (!result)
-	{
-	  cout << ((solutionCount == 0) ? "\nNo solution.\n" : "\nNo more solutions.\n");
-	  printStats(timer, *context, getFlag(SHOW_TIMING));
-	  if (state->isIncomplete())
-	    IssueWarning("Some solutions may have been missed due to incomplete unification algorithm(s).");
-	  break;
-	}
+Interpreter::doNarrowing(Timer &timer,
+                         VisibleModule *module,
+                         NarrowingSequenceSearch *state,
+                         Int64 solutionCount,
+                         Int64 limit) {
+    RewritingContext *context = state->getContext();
+    const VariableInfo *variableInfo = state->getGoal();
+    Int64 i = 0;
+    for (; i != limit; i++) {
+        bool result = state->findNextMatch();
+        if (UserLevelRewritingContext::aborted())
+            break;
+        if (!result) {
+            cout << ((solutionCount == 0) ? "\nNo solution.\n" : "\nNo more solutions.\n");
+            printStats(timer, *context, getFlag(SHOW_TIMING));
+            if (state->isIncomplete())
+                IssueWarning("Some solutions may have been missed due to incomplete unification algorithm(s).");
+            break;
+        }
 
-      ++solutionCount;
-      cout << "\nSolution " << solutionCount << "\n";
-      printStats(timer, *context, getFlag(SHOW_TIMING));
+        ++solutionCount;
+        cout << "\nSolution " << solutionCount << "\n";
+        printStats(timer, *context, getFlag(SHOW_TIMING));
 
-      DagNode* d = state->getStateDag();
-      cout << "state: " << d << endl;
-      UserLevelRewritingContext::printSubstitution(*(state->getSubstitution()), *variableInfo);
+        DagNode *d = state->getStateDag();
+        cout << "state: " << d << endl;
+        UserLevelRewritingContext::printSubstitution(*(state->getSubstitution()), *variableInfo);
     }
-  QUANTIFY_STOP();
+    QUANTIFY_STOP();
 
-  clearContinueInfo();  // just in case debugger left info
-  if (i == limit)
-    {
-      //
-      //	The loop terminated because we hit user's limit so 
-      //	continuation is still possible. We save the state,
-      //	solutionCount and module, and set a continutation function.
-      //
-      state->getContext()->clearCount();
-      savedState = state;
-      savedSolutionCount = solutionCount;
-      savedModule = module;
-      continueFunc = &Interpreter::narrowingCont;
+    clearContinueInfo();  // just in case debugger left info
+    if (i == limit) {
+        //
+        //	The loop terminated because we hit user's limit so
+        //	continuation is still possible. We save the state,
+        //	solutionCount and module, and set a continutation function.
+        //
+        state->getContext()->clearCount();
+        savedState = state;
+        savedSolutionCount = solutionCount;
+        savedModule = module;
+        continueFunc = &Interpreter::narrowingCont;
+    } else {
+        //
+        //	Either user aborted or we ran out of solutions; either
+        //	way we need to tidy up.
+        //
+        delete state;
+        module->unprotect();
     }
-  else
-    {
-      //
-      //	Either user aborted or we ran out of solutions; either
-      //	way we need to tidy up.
-      //
-      delete state;
-      module->unprotect();
-    }
-  UserLevelRewritingContext::clearDebug();
+    UserLevelRewritingContext::clearDebug();
 }
 
 void
-Interpreter::narrowingCont(Int64 limit, bool debug)
-{
-  NarrowingSequenceSearch* state = safeCast(NarrowingSequenceSearch*, savedState);
-  VisibleModule* fm = savedModule;
-  savedState = 0;
-  savedModule = 0;
-  continueFunc = 0;
+Interpreter::narrowingCont(Int64 limit, bool debug) {
+    NarrowingSequenceSearch *state = safeCast(NarrowingSequenceSearch*, savedState);
+    VisibleModule *fm = savedModule;
+    savedState = 0;
+    savedModule = 0;
+    continueFunc = 0;
 
-  if (debug)
-    UserLevelRewritingContext::setDebug();
-  QUANTIFY_START();
-  Timer timer(getFlag(SHOW_TIMING));
-  doNarrowing(timer, fm, state, savedSolutionCount, limit);
+    if (debug)
+        UserLevelRewritingContext::setDebug();
+    QUANTIFY_START();
+    Timer timer(getFlag(SHOW_TIMING));
+    doNarrowing(timer, fm, state, savedSolutionCount, limit);
 }
 
 void
-Interpreter::vuNarrowingCont(Int64 limit, bool debug)
-{
-  NarrowingSequenceSearch3* state = safeCast(NarrowingSequenceSearch3*, savedState);
-  VisibleModule* fm = savedModule;
-  savedState = 0;
-  savedModule = 0;
-  continueFunc = 0;
+Interpreter::vuNarrowingCont(Int64 limit, bool debug) {
+    NarrowingSequenceSearch3 *state = safeCast(NarrowingSequenceSearch3*, savedState);
+    VisibleModule *fm = savedModule;
+    savedState = 0;
+    savedModule = 0;
+    continueFunc = 0;
 
-  if (debug)
-    UserLevelRewritingContext::setDebug();
-  QUANTIFY_START();
-  Timer timer(getFlag(SHOW_TIMING));
-  doVuNarrowing(timer, fm, state, savedSolutionCount, limit);
+    if (debug)
+        UserLevelRewritingContext::setDebug();
+    QUANTIFY_START();
+    Timer timer(getFlag(SHOW_TIMING));
+    doVuNarrowing(timer, fm, state, savedSolutionCount, limit);
 }
 
 
 void
-Interpreter::doVuNarrowing(Timer& timer,
-			   VisibleModule* module,
-			   NarrowingSequenceSearch3* state,
-			   Int64 solutionCount,
-			   Int64 limit)
-{
-  RewritingContext* context = state->getContext();
-  Int64 i = 0;
-  for (; i != limit; i++)
-    {
-      bool result = state->findNextUnifier();
-      if (UserLevelRewritingContext::aborted())
-	break;
-      if (!result)
-	{
-	  cout << ((solutionCount == 0) ? "\nNo solution.\n" : "\nNo more solutions.\n");
-	  printStats(timer, *context, getFlag(SHOW_TIMING));
-	  if (state->isIncomplete())
-	    IssueWarning("Some solutions may have been missed due to incomplete unification algorithm(s).");
-	  break;
-	}
+Interpreter::doVuNarrowing(Timer &timer,
+                           VisibleModule *module,
+                           NarrowingSequenceSearch3 *state,
+                           Int64 solutionCount,
+                           Int64 limit) {
+    RewritingContext *context = state->getContext();
+    Int64 i = 0;
+    for (; i != limit; i++) {
+        bool result = state->findNextUnifier();
+        if (UserLevelRewritingContext::aborted())
+            break;
+        if (!result) {
+            cout << ((solutionCount == 0) ? "\nNo solution.\n" : "\nNo more solutions.\n");
+            printStats(timer, *context, getFlag(SHOW_TIMING));
+            if (state->isIncomplete())
+                IssueWarning("Some solutions may have been missed due to incomplete unification algorithm(s).");
+            break;
+        }
 
-      ++solutionCount;
-      cout << "\nSolution " << solutionCount << "\n";
-      printStats(timer, *context, getFlag(SHOW_TIMING));
+        ++solutionCount;
+        cout << "\nSolution " << solutionCount << "\n";
+        printStats(timer, *context, getFlag(SHOW_TIMING));
 
-      DagNode* stateDag;
-      int variableFamily;
-      Substitution* accumulatedSubstitution;
-      state->getStateInfo(stateDag, variableFamily, accumulatedSubstitution);
+        DagNode *stateDag;
+        int variableFamily;
+        Substitution *accumulatedSubstitution;
+        state->getStateInfo(stateDag, variableFamily, accumulatedSubstitution);
 
-      cout << "state: " << stateDag << endl;
-      cout << "accumulated substitution:" << endl;
-      UserLevelRewritingContext::printSubstitution(*accumulatedSubstitution, state->getInitialVariableInfo());
-      cout << "variant unifier:" << endl;
-      UserLevelRewritingContext::printSubstitution(*(state->getUnifier()), state->getUnifierVariableInfo());
-     }
-  QUANTIFY_STOP();
-
-  clearContinueInfo();  // just in case debugger left info
-  if (i == limit)  // possible to continue
-    {
-      //
-      //	The loop terminated because we hit user's limit so 
-      //	continuation is still possible. We save the state,
-      //	solutionCount and module, and set a continutation function.
-      //
-      context->clearCount();
-      savedState = state;
-      savedSolutionCount = solutionCount;
-      savedModule = module;
-      continueFunc = &Interpreter::vuNarrowingCont;
+        cout << "state: " << stateDag << endl;
+        cout << "accumulated substitution:" << endl;
+        UserLevelRewritingContext::printSubstitution(*accumulatedSubstitution, state->getInitialVariableInfo());
+        cout << "variant unifier:" << endl;
+        UserLevelRewritingContext::printSubstitution(*(state->getUnifier()), state->getUnifierVariableInfo());
     }
-  else
+    QUANTIFY_STOP();
+
+    clearContinueInfo();  // just in case debugger left info
+    if (i == limit)  // possible to continue
     {
-      //
-      //	Either user aborted or we ran out of solutions; either
-      //	way we need to tidy up.
-      //
-      delete state;
-      module->unprotect();
+        //
+        //	The loop terminated because we hit user's limit so
+        //	continuation is still possible. We save the state,
+        //	solutionCount and module, and set a continutation function.
+        //
+        context->clearCount();
+        savedState = state;
+        savedSolutionCount = solutionCount;
+        savedModule = module;
+        continueFunc = &Interpreter::vuNarrowingCont;
+    } else {
+        //
+        //	Either user aborted or we ran out of solutions; either
+        //	way we need to tidy up.
+        //
+        delete state;
+        module->unprotect();
     }
-  UserLevelRewritingContext::clearDebug();
+    UserLevelRewritingContext::clearDebug();
 }

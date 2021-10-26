@@ -27,50 +27,43 @@
 #include "vector.hh"
 #include "wordSystem.hh"
 
-WordSystem::WordSystem(int nrVariables, int nrEquations, bool identityOptimizations)
-{
-  current = new WordLevel(WordLevel::INITIAL, nrVariables, nrEquations, identityOptimizations);
-  incompletenessFlag = 0;
+WordSystem::WordSystem(int nrVariables, int nrEquations, bool identityOptimizations) {
+    current = new WordLevel(WordLevel::INITIAL, nrVariables, nrEquations, identityOptimizations);
+    incompletenessFlag = 0;
 }
 
-WordSystem::~WordSystem()
-{
-  delete current;
+WordSystem::~WordSystem() {
+    delete current;
 }
 
 int
-WordSystem::findNextSolution()
-{
-  for (;;)
-    {
-      //cout << "Solving level " << levelStack.size() << endl;
-      WordLevel::ResultPair result = current->findNextPartialSolution();
-      if (result.first & INCOMPLETE)
-	incompletenessFlag = INCOMPLETE;
-      if (result.first & SUCCESS)
-	{
-	  if (result.second == 0)
-	    return SUCCESS | incompletenessFlag;  // current holds a complete solution
-	  
-	  //
-	  //	Need to put current problem aside and solve residual problem.
-	  //
-	  levelStack.append(current);
-	  current = result.second;
-	}
-      else
-	{
-	  if (levelStack.empty())
-	    break;
-	  //
-	  //	Need to discard unsolvable current problem and look for another solution
-	  //	to the previous residual problem.
-	  //
-	  delete current;
-	  int top = levelStack.size() - 1;
-	  current = levelStack[top];
-	  levelStack.resize(top);
-	}
+WordSystem::findNextSolution() {
+    for (;;) {
+        //cout << "Solving level " << levelStack.size() << endl;
+        WordLevel::ResultPair result = current->findNextPartialSolution();
+        if (result.first & INCOMPLETE)
+            incompletenessFlag = INCOMPLETE;
+        if (result.first & SUCCESS) {
+            if (result.second == 0)
+                return SUCCESS | incompletenessFlag;  // current holds a complete solution
+
+            //
+            //	Need to put current problem aside and solve residual problem.
+            //
+            levelStack.append(current);
+            current = result.second;
+        } else {
+            if (levelStack.empty())
+                break;
+            //
+            //	Need to discard unsolvable current problem and look for another solution
+            //	to the previous residual problem.
+            //
+            delete current;
+            int top = levelStack.size() - 1;
+            current = levelStack[top];
+            levelStack.resize(top);
+        }
     }
-  return FAILURE | incompletenessFlag;
+    return FAILURE | incompletenessFlag;
 }

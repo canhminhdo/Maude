@@ -44,30 +44,26 @@
 #include "NA_DagNode.hh"
 #include "NA_RhsAutomaton.hh"
 
-NA_RhsAutomaton::NA_RhsAutomaton(NA_Term* term, int destination)
-  : term(term),
-    destination(destination)
-{
+NA_RhsAutomaton::NA_RhsAutomaton(NA_Term *term, int destination)
+        : term(term),
+          destination(destination) {
 }
 
 void
-NA_RhsAutomaton::remapIndices(VariableInfo& variableInfo)
-{
-  destination = variableInfo.remapIndex(destination);
+NA_RhsAutomaton::remapIndices(VariableInfo &variableInfo) {
+    destination = variableInfo.remapIndex(destination);
 }
 
-DagNode*
-NA_RhsAutomaton::construct(Substitution& matcher)
-{
-  NA_DagNode* d = term->makeDagNode();
-  matcher.bind(destination, d);
-  return d;
+DagNode *
+NA_RhsAutomaton::construct(Substitution &matcher) {
+    NA_DagNode *d = term->makeDagNode();
+    matcher.bind(destination, d);
+    return d;
 }
 
 void
-NA_RhsAutomaton::replace(DagNode* old, Substitution& /* matcher */)
-{
-  term->overwriteWithDagNode(old);
+NA_RhsAutomaton::replace(DagNode *old, Substitution & /* matcher */) {
+    term->overwriteWithDagNode(old);
 }
 
 #ifdef DUMP

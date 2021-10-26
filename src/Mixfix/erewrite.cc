@@ -25,48 +25,44 @@
 //
 
 void
-Interpreter::eRewrite(const Vector<Token>& subject, Int64 limit, Int64 gas, bool debug)
-{
-  if (DagNode* d = makeDag(subject))
-    {
-      if (getFlag(SHOW_COMMAND))
-	{
-	  UserLevelRewritingContext::beginCommand();
-	  cout << "erewrite ";
-	  printModifiers(limit, gas);
-	  cout << d << " ." << endl;
-	  if (xmlBuffer != 0)
-	    xmlBuffer->generateErewrite(d, limit, gas);
-	}
-      CacheableRewritingContext* context = new CacheableRewritingContext(d);
-      context->setObjectMode(ObjectSystemRewritingContext::EXTERNAL);
-      VisibleModule* fm = currentModule->getFlatModule();
+Interpreter::eRewrite(const Vector<Token> &subject, Int64 limit, Int64 gas, bool debug) {
+    if (DagNode *d = makeDag(subject)) {
+        if (getFlag(SHOW_COMMAND)) {
+            UserLevelRewritingContext::beginCommand();
+            cout << "erewrite ";
+            printModifiers(limit, gas);
+            cout << d << " ." << endl;
+            if (xmlBuffer != 0)
+                xmlBuffer->generateErewrite(d, limit, gas);
+        }
+        CacheableRewritingContext *context = new CacheableRewritingContext(d);
+        context->setObjectMode(ObjectSystemRewritingContext::EXTERNAL);
+        VisibleModule *fm = currentModule->getFlatModule();
 
-      startUsingModule(fm);
-      if (getFlag(AUTO_CLEAR_RULES))
-	fm->resetRules();
-      beginRewriting(debug);
-      Timer timer(getFlag(SHOW_TIMING));
-      context->fairStart(limit, (gas == NONE) ? 1 : gas);
-      context->externalRewrite();
-      endRewriting(timer, context, fm, &Interpreter::eRewriteCont);
+        startUsingModule(fm);
+        if (getFlag(AUTO_CLEAR_RULES))
+            fm->resetRules();
+        beginRewriting(debug);
+        Timer timer(getFlag(SHOW_TIMING));
+        context->fairStart(limit, (gas == NONE) ? 1 : gas);
+        context->externalRewrite();
+        endRewriting(timer, context, fm, &Interpreter::eRewriteCont);
     }
 }
 
 void
-Interpreter::eRewriteCont(Int64 limit, bool debug)
-{
-  CacheableRewritingContext* context = safeCast(CacheableRewritingContext*, savedState);
-  VisibleModule* fm = savedModule;
-  savedState = 0;
-  savedModule = 0;
-  continueFunc = 0;
-  if (xmlBuffer != 0 && getFlag(SHOW_COMMAND))
-    xmlBuffer->generateContinue("erewrite", fm, limit);
-  context->clearCount();
-  beginRewriting(debug);
-  Timer timer(getFlag(SHOW_TIMING));
-  context->fairRestart(limit);
-  context->externalRewrite();
-  endRewriting(timer, context, fm, &Interpreter::eRewriteCont);
+Interpreter::eRewriteCont(Int64 limit, bool debug) {
+    CacheableRewritingContext *context = safeCast(CacheableRewritingContext*, savedState);
+    VisibleModule *fm = savedModule;
+    savedState = 0;
+    savedModule = 0;
+    continueFunc = 0;
+    if (xmlBuffer != 0 && getFlag(SHOW_COMMAND))
+        xmlBuffer->generateContinue("erewrite", fm, limit);
+    context->clearCount();
+    beginRewriting(debug);
+    Timer timer(getFlag(SHOW_TIMING));
+    context->fairRestart(limit);
+    context->externalRewrite();
+    endRewriting(timer, context, fm, &Interpreter::eRewriteCont);
 }

@@ -29,82 +29,73 @@
 #include "graph.hh"
 
 Graph::Graph(int nrNodes)
-  : adjSets(nrNodes)
-{
+        : adjSets(nrNodes) {
 }
 
 int
-Graph::color(Vector<int>& coloring)
-{
-  int nrNodes = adjSets.size();
-  coloring.resize(nrNodes);
-  for (int i = 0; i < nrNodes; i++)
-    coloring[i] = UNDEFINED;
-  int maxColor = UNDEFINED;
-  for (int i = 0; i < nrNodes; i++)
-    colorNode(i, maxColor, coloring);
-  return maxColor + 1;
+Graph::color(Vector<int> &coloring) {
+    int nrNodes = adjSets.size();
+    coloring.resize(nrNodes);
+    for (int i = 0; i < nrNodes; i++)
+        coloring[i] = UNDEFINED;
+    int maxColor = UNDEFINED;
+    for (int i = 0; i < nrNodes; i++)
+        colorNode(i, maxColor, coloring);
+    return maxColor + 1;
 }
 
 void
-Graph::colorNode(int i, int& maxColor, Vector<int>& coloring)
-{
-  if (coloring[i] != UNDEFINED)
-    return;
-  NatSet used;
-  AdjSet adjSet = adjSets[i];
-  {
+Graph::colorNode(int i, int &maxColor, Vector<int> &coloring) {
+    if (coloring[i] != UNDEFINED)
+        return;
+    NatSet used;
+    AdjSet adjSet = adjSets[i];
+    {
+        //
+        //	Find colors already used by neighbours.
+        //
+        for (int j : adjSet) {
+            int c = coloring[j];
+            if (c != UNDEFINED)
+                used.insert(c);
+        }
+    }
     //
-    //	Find colors already used by neighbours.
+    //	Find first unused color.
+    //
+    int color = 0;
+    while (used.contains(color))
+        ++color;
+    coloring[i] = color;
+    if (color > maxColor)
+        maxColor = color;
+    //
+    //	Color neighbours.
     //
     for (int j : adjSet)
-      {
-	int c = coloring[j];
-	if (c != UNDEFINED)
-	  used.insert(c);
-      }
-  }
-  //
-  //	Find first unused color.
-  //
-  int color = 0;
-  while (used.contains(color))
-    ++color;
-  coloring[i] = color;
-  if (color > maxColor)
-    maxColor = color;
-  //
-  //	Color neighbours.
-  //
-  for (int j : adjSet)
-    colorNode(j, maxColor, coloring);
+        colorNode(j, maxColor, coloring);
 }
 
 void
-Graph::findComponents(Vector<Vector<int> >& components)
-{
-  NatSet visited;
-  int nrNodes = adjSets.size();
-  for (int i = 0; i < nrNodes; i++)
-    {
-      if (!visited.contains(i))
-	{
-	  int nrComponents = components.length();
-	  components.expandBy(1);
-	  visit(i, components[nrComponents], visited);
-	}
+Graph::findComponents(Vector<Vector<int> > &components) {
+    NatSet visited;
+    int nrNodes = adjSets.size();
+    for (int i = 0; i < nrNodes; i++) {
+        if (!visited.contains(i)) {
+            int nrComponents = components.length();
+            components.expandBy(1);
+            visit(i, components[nrComponents], visited);
+        }
     }
 }
 
 void
-Graph::visit(int i, Vector<int>& component, NatSet& visited)
-{
-  visited.insert(i);
-  component.append(i);
-  AdjSet adjSet = adjSets[i];
-  for (int j : adjSet)
-    {
-      if (!visited.contains(j))
-	visit(j, component, visited);
+Graph::visit(int i, Vector<int> &component, NatSet &visited) {
+    visited.insert(i);
+    component.append(i);
+    AdjSet adjSet = adjSets[i];
+    for (int j : adjSet) {
+        if (!visited.contains(j))
+            visit(j, component, visited);
     }
 }

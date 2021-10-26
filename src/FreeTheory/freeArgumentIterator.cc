@@ -39,21 +39,18 @@
 #include "freeArgumentIterator.hh"
 
 bool
-FreeArgumentIterator::valid() const
-{
-  return position < argArray->length();
+FreeArgumentIterator::valid() const {
+    return position < argArray->length();
 }
-  
-Term*
-FreeArgumentIterator::argument() const
-{
-  Assert(position < argArray->length(), "no args left");
-  return (*argArray)[position];
+
+Term *
+FreeArgumentIterator::argument() const {
+    Assert(position < argArray->length(), "no args left");
+    return (*argArray)[position];
 }
 
 void
-FreeArgumentIterator::next()
-{
-  Assert(position < argArray->length(), "no args left");
-  ++position;
+FreeArgumentIterator::next() {
+    Assert(position < argArray->length(), "no args left");
+    ++position;
 }

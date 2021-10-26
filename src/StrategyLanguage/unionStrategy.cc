@@ -38,47 +38,41 @@
 #include "decompositionProcess.hh"
 #include "strategicSearch.hh"
 
-UnionStrategy::UnionStrategy(const Vector<StrategyExpression*>& strategies)
-  : strategies(strategies)
-{
-  Assert(!strategies.empty(), "no strategies");
+UnionStrategy::UnionStrategy(const Vector<StrategyExpression *> &strategies)
+        : strategies(strategies) {
+    Assert(!strategies.empty(), "no strategies");
 }
 
-UnionStrategy::~UnionStrategy()
-{
-  int nrStrategies = strategies.size();
-  for (int i = 0; i < nrStrategies; ++i)
-    delete strategies[i];
+UnionStrategy::~UnionStrategy() {
+    int nrStrategies = strategies.size();
+    for (int i = 0; i < nrStrategies; ++i)
+        delete strategies[i];
 }
 
 bool
-UnionStrategy::check(VariableInfo& indices, const TermSet& boundVars)
-{
-  size_t nrStrategies = strategies.size();
-  for (size_t i = 0; i < nrStrategies; i++)
-    if (!strategies[i]->check(indices, boundVars))
-      return false;
+UnionStrategy::check(VariableInfo &indices, const TermSet &boundVars) {
+    size_t nrStrategies = strategies.size();
+    for (size_t i = 0; i < nrStrategies; i++)
+        if (!strategies[i]->check(indices, boundVars))
+            return false;
 
-  return true;
+    return true;
 }
 
 void
-UnionStrategy::process()
-{
-  size_t nrStrategies = strategies.size();
-  for (size_t i = 0; i < nrStrategies; i++)
-    strategies[i]->process();
+UnionStrategy::process() {
+    size_t nrStrategies = strategies.size();
+    for (size_t i = 0; i < nrStrategies; i++)
+        strategies[i]->process();
 }
 
 StrategicExecution::Survival
-UnionStrategy::decompose(StrategicSearch& searchObject, DecompositionProcess* remainder)
-{
-  int last = strategies.size() - 1;
-  for (int i = 0; i < last; ++i)
-    {
-      DecompositionProcess* p = new DecompositionProcess(remainder);  // clone remainder
-      p->pushStrategy(searchObject, strategies[i]);
+UnionStrategy::decompose(StrategicSearch &searchObject, DecompositionProcess *remainder) {
+    int last = strategies.size() - 1;
+    for (int i = 0; i < last; ++i) {
+        DecompositionProcess *p = new DecompositionProcess(remainder);  // clone remainder
+        p->pushStrategy(searchObject, strategies[i]);
     }
-  remainder->pushStrategy(searchObject, strategies[last]);
-  return StrategicExecution::SURVIVE;  // remainder should not request deletion
+    remainder->pushStrategy(searchObject, strategies[last]);
+    return StrategicExecution::SURVIVE;  // remainder should not request deletion
 }

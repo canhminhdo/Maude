@@ -39,29 +39,24 @@
 #include "frame.hh"
 
 void
-RegularInstruction::setActiveSlots(const NatSet& slots)
-{
-  activeSlots = 0;
-  for (int index : slots)
-    activeSlots |= (1 << index);
+RegularInstruction::setActiveSlots(const NatSet &slots) {
+    activeSlots = 0;
+    for (int index : slots)
+        activeSlots |= (1 << index);
 }
 
 void
-RegularInstruction::markActiveSlots(const Frame* frame) const
-{
-  BitVec b = activeSlots;
-  DagNode* const* p = frame->getArgumentListPtr();
-  do
-    {
-      if ((b & 1) != 0)
-	{
-	  DagNode* d = *p;
-	  if (d != 0)
-	    d->mark();
-	}
-      ++p;
-    }
-  while ((b >>= 1) != 0);
+RegularInstruction::markActiveSlots(const Frame *frame) const {
+    BitVec b = activeSlots;
+    DagNode *const *p = frame->getArgumentListPtr();
+    do {
+        if ((b & 1) != 0) {
+            DagNode *d = *p;
+            if (d != 0)
+                d->mark();
+        }
+        ++p;
+    } while ((b >>= 1) != 0);
 }
 
 #ifdef DUMP
@@ -76,16 +71,16 @@ RegularInstruction::dumpActiveSlots(ostream& s, const Frame* frame) const
   do
     {
       if ((b & 1) != 0)
-	{
-	  DagNode* d = *p;
-	  s << static_cast<void*>(d) << " : ";
-	  if (d != 0)
-	    s << '(' << d << ')';
-	  else
-	    s << "(null)";
-	}
+    {
+      DagNode* d = *p;
+      s << static_cast<void*>(d) << " : ";
+      if (d != 0)
+        s << '(' << d << ')';
       else
-	s << "???";
+        s << "(null)";
+    }
+      else
+    s << "???";
       s << '\t';
       ++p;
     }

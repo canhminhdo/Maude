@@ -71,127 +71,112 @@
 const Vector<int> LoopSymbol::eagerStrategy;
 
 LoopSymbol::LoopSymbol(int id)
-  : FreeSymbol(id, 3, eagerStrategy)
-{
-  qidSymbol = 0;
-  nilQidListSymbol = 0;
-  qidListSymbol = 0;
+        : FreeSymbol(id, 3, eagerStrategy) {
+    qidSymbol = 0;
+    nilQidListSymbol = 0;
+    qidListSymbol = 0;
 }
 
 bool
-LoopSymbol::attachData(const Vector<Sort*>& opDeclaration,
-		       const char* purpose,
-		       const Vector<const char*>& data)
-{
-  if (strcmp(purpose, "LoopSymbol") == 0)
-    return data.length() == 0;
-  return  FreeSymbol::attachData(opDeclaration, purpose, data);
+LoopSymbol::attachData(const Vector<Sort *> &opDeclaration,
+                       const char *purpose,
+                       const Vector<const char *> &data) {
+    if (strcmp(purpose, "LoopSymbol") == 0)
+        return data.length() == 0;
+    return FreeSymbol::attachData(opDeclaration, purpose, data);
 }
 
 bool
-LoopSymbol::attachSymbol(const char* purpose, Symbol* symbol)
-{
-  BIND_SYMBOL(purpose, symbol, qidSymbol, QuotedIdentifierSymbol*);
-  BIND_SYMBOL(purpose, symbol, nilQidListSymbol, Symbol*);
-  BIND_SYMBOL(purpose, symbol, qidListSymbol, AU_Symbol*);
-  return FreeSymbol::attachSymbol(purpose, symbol);
+LoopSymbol::attachSymbol(const char *purpose, Symbol *symbol) {
+    BIND_SYMBOL(purpose, symbol, qidSymbol, QuotedIdentifierSymbol*);
+    BIND_SYMBOL(purpose, symbol, nilQidListSymbol, Symbol*);
+    BIND_SYMBOL(purpose, symbol, qidListSymbol, AU_Symbol*);
+    return FreeSymbol::attachSymbol(purpose, symbol);
 }
 
 void
-LoopSymbol::copyAttachments(Symbol* original, SymbolMap* map)
-{
-  LoopSymbol* orig = safeCast(LoopSymbol*, original);
-  COPY_SYMBOL(orig, qidSymbol, map, QuotedIdentifierSymbol*);
-  COPY_SYMBOL(orig, nilQidListSymbol, map, Symbol*);
-  COPY_SYMBOL(orig, qidListSymbol, map, AU_Symbol*);
-  FreeSymbol::copyAttachments(original, map);
+LoopSymbol::copyAttachments(Symbol *original, SymbolMap *map) {
+    LoopSymbol *orig = safeCast(LoopSymbol*, original);
+    COPY_SYMBOL(orig, qidSymbol, map, QuotedIdentifierSymbol*);
+    COPY_SYMBOL(orig, nilQidListSymbol, map, Symbol*);
+    COPY_SYMBOL(orig, qidListSymbol, map, AU_Symbol*);
+    FreeSymbol::copyAttachments(original, map);
 }
 
 void
-LoopSymbol::getDataAttachments(const Vector<Sort*>& opDeclaration,
-			       Vector<const char*>& purposes,
-			       Vector<Vector<const char*> >& data)
-{
-  APPEND_DATA(purposes, data, LoopSymbol);
-  FreeSymbol::getDataAttachments(opDeclaration, purposes, data);
+LoopSymbol::getDataAttachments(const Vector<Sort *> &opDeclaration,
+                               Vector<const char *> &purposes,
+                               Vector<Vector<const char *> > &data) {
+    APPEND_DATA(purposes, data, LoopSymbol);
+    FreeSymbol::getDataAttachments(opDeclaration, purposes, data);
 }
 
 void
-LoopSymbol::getSymbolAttachments(Vector<const char*>& purposes,
-				 Vector<Symbol*>& symbols)
-{
-  APPEND_SYMBOL(purposes, symbols, qidSymbol);
-  APPEND_SYMBOL(purposes, symbols, nilQidListSymbol);
-  APPEND_SYMBOL(purposes, symbols, qidListSymbol);
-  FreeSymbol::getSymbolAttachments(purposes, symbols);
+LoopSymbol::getSymbolAttachments(Vector<const char *> &purposes,
+                                 Vector<Symbol *> &symbols) {
+    APPEND_SYMBOL(purposes, symbols, qidSymbol);
+    APPEND_SYMBOL(purposes, symbols, nilQidListSymbol);
+    APPEND_SYMBOL(purposes, symbols, qidListSymbol);
+    FreeSymbol::getSymbolAttachments(purposes, symbols);
 }
 
 void
-LoopSymbol::injectInput(DagNode* loopNode, const Vector<Token>& bubble)
-{
-  FreeDagNode* f = static_cast<FreeDagNode*>(loopNode);
-  Vector<DagNode*> args(3);
-  args[0] = createQidList(bubble);
-  args[1] = f->getArgument(1);
-  args[2] = new FreeDagNode(nilQidListSymbol);
-  DagNode* n =  makeDagNode(args);
-  //
-  //    We assume that loopNode is a root with no other users so
-  //    we can overwrite it in place.
-  //
-  n->overwriteWithClone(loopNode);
+LoopSymbol::injectInput(DagNode *loopNode, const Vector<Token> &bubble) {
+    FreeDagNode *f = static_cast<FreeDagNode *>(loopNode);
+    Vector<DagNode *> args(3);
+    args[0] = createQidList(bubble);
+    args[1] = f->getArgument(1);
+    args[2] = new FreeDagNode(nilQidListSymbol);
+    DagNode *n = makeDagNode(args);
+    //
+    //    We assume that loopNode is a root with no other users so
+    //    we can overwrite it in place.
+    //
+    n->overwriteWithClone(loopNode);
 }
 
-DagNode*
-LoopSymbol::createQidList(const Vector<Token>& ids)
-{
-  int nrIds = ids.length();
-  if (nrIds == 0)
-    return new FreeDagNode(nilQidListSymbol);
-  if (nrIds == 1)
-    return new QuotedIdentifierDagNode(qidSymbol, ids[0].code());
-  Vector<DagNode*> args(nrIds);
-  for (int i = 0; i < nrIds; i++)
-    args[i] = new QuotedIdentifierDagNode(qidSymbol, Token::backQuoteSpecials(ids[i].code()));
-  return qidListSymbol->makeDagNode(args);
+DagNode *
+LoopSymbol::createQidList(const Vector<Token> &ids) {
+    int nrIds = ids.length();
+    if (nrIds == 0)
+        return new FreeDagNode(nilQidListSymbol);
+    if (nrIds == 1)
+        return new QuotedIdentifierDagNode(qidSymbol, ids[0].code());
+    Vector<DagNode *> args(nrIds);
+    for (int i = 0; i < nrIds; i++)
+        args[i] = new QuotedIdentifierDagNode(qidSymbol, Token::backQuoteSpecials(ids[i].code()));
+    return qidListSymbol->makeDagNode(args);
 }
 
 bool
-LoopSymbol::extractOutput(DagNode* loopNode, Vector<int>& bubble)
-{
-  FreeDagNode* f = static_cast<FreeDagNode*>(loopNode);
-  return extractQidList(f->getArgument(2), bubble);
+LoopSymbol::extractOutput(DagNode *loopNode, Vector<int> &bubble) {
+    FreeDagNode *f = static_cast<FreeDagNode *>(loopNode);
+    return extractQidList(f->getArgument(2), bubble);
 }
 
 bool
-LoopSymbol::extractQid(DagNode* metaQid, int& id)
-{
-  if (metaQid->symbol() == qidSymbol)
-    {
-      id = Token::unBackQuoteSpecials(static_cast<QuotedIdentifierDagNode*>(metaQid)->getIdIndex());
-      return true;
+LoopSymbol::extractQid(DagNode *metaQid, int &id) {
+    if (metaQid->symbol() == qidSymbol) {
+        id = Token::unBackQuoteSpecials(static_cast<QuotedIdentifierDagNode *>(metaQid)->getIdIndex());
+        return true;
     }
-  return false;
-}
-
-bool
-LoopSymbol::extractQidList(DagNode* metaQidList, Vector<int>& ids)
-{
-  ids.contractTo(0);
-  Symbol* mq = metaQidList->symbol();
-  int id;
-  if (mq == qidListSymbol)
-    {
-      for (DagArgumentIterator i(metaQidList); i.valid(); i.next())
-	{
-	  if (!extractQid(i.argument(), id))
-	    return false;
-	  ids.append(id);
-	}
-    }
-  else if (extractQid(metaQidList, id))
-    ids.append(id);
-  else if (mq != nilQidListSymbol)
     return false;
-  return true;
+}
+
+bool
+LoopSymbol::extractQidList(DagNode *metaQidList, Vector<int> &ids) {
+    ids.contractTo(0);
+    Symbol *mq = metaQidList->symbol();
+    int id;
+    if (mq == qidListSymbol) {
+        for (DagArgumentIterator i(metaQidList); i.valid(); i.next()) {
+            if (!extractQid(i.argument(), id))
+                return false;
+            ids.append(id);
+        }
+    } else if (extractQid(metaQidList, id))
+        ids.append(id);
+    else if (mq != nilQidListSymbol)
+        return false;
+    return true;
 }

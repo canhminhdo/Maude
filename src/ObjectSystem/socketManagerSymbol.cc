@@ -65,137 +65,134 @@
 #include "socketAsync.cc"
 #include "socketOutcomes.cc"
 
-SocketManagerSymbol::ActiveSocket::ActiveSocket()
-{
-  textArray = 0;  // make it safe for deletion
-  //
-  //	Usual case; special cases might want to set these.
-  //
-  disallowClose = false;
-  readOnly = false;
-  seenEOF = false;
+SocketManagerSymbol::ActiveSocket::ActiveSocket() {
+    textArray = 0;  // make it safe for deletion
+    //
+    //	Usual case; special cases might want to set these.
+    //
+    disallowClose = false;
+    readOnly = false;
+    seenEOF = false;
 }
 
-SocketManagerSymbol::ActiveSocket::~ActiveSocket()
-{
-  delete [] textArray;  // just in case we end up being delete while we're still waiting to send stuff
+SocketManagerSymbol::ActiveSocket::~ActiveSocket() {
+    delete[] textArray;  // just in case we end up being delete while we're still waiting to send stuff
 }
 
 SocketManagerSymbol::SocketManagerSymbol(int id)
-  : ExternalObjectManagerSymbol(id)
-{
+        : ExternalObjectManagerSymbol(id) {
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   SymbolName = 0;
+
 #include "socketSignature.cc"
+
 #undef MACRO
 }
 
 bool
-SocketManagerSymbol::attachData(const Vector<Sort*>& opDeclaration,
-				const char* purpose,
-				const Vector<const char*>& data)
-{
-  NULL_DATA(purpose, SocketManagerSymbol, data);
-  return ExternalObjectManagerSymbol::attachData(opDeclaration, purpose, data);
+SocketManagerSymbol::attachData(const Vector<Sort *> &opDeclaration,
+                                const char *purpose,
+                                const Vector<const char *> &data) {
+    NULL_DATA(purpose, SocketManagerSymbol, data);
+    return ExternalObjectManagerSymbol::attachData(opDeclaration, purpose, data);
 }
 
 bool
-SocketManagerSymbol::attachSymbol(const char* purpose, Symbol* symbol)
-{
-  Assert(symbol != 0, "null symbol for " << purpose);
+SocketManagerSymbol::attachSymbol(const char *purpose, Symbol *symbol) {
+    Assert(symbol != 0, "null symbol for " << purpose);
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   BIND_SYMBOL(purpose, symbol, SymbolName, SymbolClass*)
+
 #include "socketSignature.cc"
+
 #undef MACRO
-  return ExternalObjectManagerSymbol::attachSymbol(purpose, symbol);
+    return ExternalObjectManagerSymbol::attachSymbol(purpose, symbol);
 }
 
 void
-SocketManagerSymbol::copyAttachments(Symbol* original, SymbolMap* map)
-{
-  SocketManagerSymbol* orig = safeCast(SocketManagerSymbol*, original);
+SocketManagerSymbol::copyAttachments(Symbol *original, SymbolMap *map) {
+    SocketManagerSymbol *orig = safeCast(SocketManagerSymbol*, original);
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   COPY_SYMBOL(orig, SymbolName, map, SymbolClass*)
+
 #include "socketSignature.cc"
+
 #undef MACRO
-  ExternalObjectManagerSymbol::copyAttachments(original, map);
+    ExternalObjectManagerSymbol::copyAttachments(original, map);
 }
 
 void
-SocketManagerSymbol::getDataAttachments(const Vector<Sort*>& opDeclaration,
-					Vector<const char*>& purposes,
-					Vector<Vector<const char*> >& data)
-{
-  int nrDataAttachments = purposes.length();
-  purposes.resize(nrDataAttachments + 1);
-  purposes[nrDataAttachments] = "SocketManagerSymbol";
-  data.resize(nrDataAttachments + 1);
-  ExternalObjectManagerSymbol::getDataAttachments(opDeclaration, purposes, data);
+SocketManagerSymbol::getDataAttachments(const Vector<Sort *> &opDeclaration,
+                                        Vector<const char *> &purposes,
+                                        Vector<Vector<const char *> > &data) {
+    int nrDataAttachments = purposes.length();
+    purposes.resize(nrDataAttachments + 1);
+    purposes[nrDataAttachments] = "SocketManagerSymbol";
+    data.resize(nrDataAttachments + 1);
+    ExternalObjectManagerSymbol::getDataAttachments(opDeclaration, purposes, data);
 }
 
 void
-SocketManagerSymbol::getSymbolAttachments(Vector<const char*>& purposes,
-					  Vector<Symbol*>& symbols)
-{
+SocketManagerSymbol::getSymbolAttachments(Vector<const char *> &purposes,
+                                          Vector<Symbol *> &symbols) {
 #define MACRO(SymbolName, SymbolClass, NrArgs) \
   APPEND_SYMBOL(purposes, symbols, SymbolName)
+
 #include "socketSignature.cc"
+
 #undef MACRO
-  ExternalObjectManagerSymbol::getSymbolAttachments(purposes, symbols);
+    ExternalObjectManagerSymbol::getSymbolAttachments(purposes, symbols);
 }
 
 bool
-SocketManagerSymbol::handleManagerMessage(DagNode* message, ObjectSystemRewritingContext& context)
-{
-  DebugAdvisory("SocketManagerSymbol::handleManagerMessage(): saw " << message);
-  Symbol* s = message->symbol();
-  if (s == createClientTcpSocketMsg)
-    return createClientTcpSocket(safeCast(FreeDagNode*, message), context);
-  if (s == createServerTcpSocketMsg)
-    return createServerTcpSocket(safeCast(FreeDagNode*, message), context);
-  return false;
+SocketManagerSymbol::handleManagerMessage(DagNode *message, ObjectSystemRewritingContext &context) {
+    DebugAdvisory("SocketManagerSymbol::handleManagerMessage(): saw " << message);
+    Symbol *s = message->symbol();
+    if (s == createClientTcpSocketMsg)
+        return createClientTcpSocket(safeCast(FreeDagNode*, message), context);
+    if (s == createServerTcpSocketMsg)
+        return createServerTcpSocket(safeCast(FreeDagNode*, message), context);
+    return false;
 }
 
 bool
-SocketManagerSymbol::handleMessage(DagNode* message, ObjectSystemRewritingContext& context)
-{
-  DebugAdvisory("SocketManagerSymbol::handleMessage(): saw " << message);
-  Symbol* s = message->symbol();
-  if (s == acceptClientMsg)
-    return acceptClient(safeCast(FreeDagNode*, message), context);
-  if (s == sendMsg)
-    return send(safeCast(FreeDagNode*, message), context);
-  if (s == receiveMsg)
-    return receive(safeCast(FreeDagNode*, message), context);
-  if (s == closeSocketMsg)
-    return closeSocket(safeCast(FreeDagNode*, message), context);
-  return false;
+SocketManagerSymbol::handleMessage(DagNode *message, ObjectSystemRewritingContext &context) {
+    DebugAdvisory("SocketManagerSymbol::handleMessage(): saw " << message);
+    Symbol *s = message->symbol();
+    if (s == acceptClientMsg)
+        return acceptClient(safeCast(FreeDagNode*, message), context);
+    if (s == sendMsg)
+        return send(safeCast(FreeDagNode*, message), context);
+    if (s == receiveMsg)
+        return receive(safeCast(FreeDagNode*, message), context);
+    if (s == closeSocketMsg)
+        return closeSocket(safeCast(FreeDagNode*, message), context);
+    return false;
 }
 
-DagNode*
+DagNode *
 SocketManagerSymbol::manageSocket(int fd,
-				  bool disallowClose,
-				  bool readOnly,
-				  ObjectSystemRewritingContext& context)
-{
-  //
-  //	Make new ActiveSocket record.
-  //
-  activeSockets[fd].state = NOMINAL;
-  activeSockets[fd].disallowClose = disallowClose;
-  activeSockets[fd].readOnly = readOnly;
-  //
-  //	Make a dag to name this socket.
-  //
-  Vector<DagNode*> reply(1);
-  reply[0] = succSymbol->makeNatDag(fd);
-  DagNode* socketName = socketOidSymbol->makeDagNode(reply);
-  //
-  //	Register the socket as an external object with us as its manager.
-  //
-  context.addExternalObject(socketName, this);
-  //
-  //	Return the name to the caller.
-  //
-  return socketName;
+                                  bool disallowClose,
+                                  bool readOnly,
+                                  ObjectSystemRewritingContext &context) {
+    //
+    //	Make new ActiveSocket record.
+    //
+    activeSockets[fd].state = NOMINAL;
+    activeSockets[fd].disallowClose = disallowClose;
+    activeSockets[fd].readOnly = readOnly;
+    //
+    //	Make a dag to name this socket.
+    //
+    Vector<DagNode *> reply(1);
+    reply[0] = succSymbol->makeNatDag(fd);
+    DagNode *socketName = socketOidSymbol->makeDagNode(reply);
+    //
+    //	Register the socket as an external object with us as its manager.
+    //
+    context.addExternalObject(socketName, this);
+    //
+    //	Return the name to the caller.
+    //
+    return socketName;
 }

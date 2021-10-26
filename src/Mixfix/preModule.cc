@@ -46,7 +46,7 @@
 #include "extensionInfo.hh"
 #include "subproblem.hh"
 #include "binarySymbol.hh"
- 
+
 //      core class definitions
 #include "lineNumber.hh"
 #include "equation.hh"
@@ -75,113 +75,94 @@
 #include "quantify.h"
 #endif
 
-PreModule::PreModule(int moduleName, Interpreter* owner)
-  : NamedEntity(moduleName),
-    owner(owner)
-{
+PreModule::PreModule(int moduleName, Interpreter *owner)
+        : NamedEntity(moduleName),
+          owner(owner) {
 }
 
-PreModule::~PreModule()
-{
-  {
-    FOR_EACH_CONST(i, Vector<Import>, imports)
-      i->expr->deepSelfDestruct();
-  }
-  {
-    FOR_EACH_CONST(i, Vector<Parameter>, parameters)
-      i->theory->deepSelfDestruct();
-  }
-}
-
-void
-PreModule::addParameter(Token name, ModuleExpression* theory)
-{
-  if (MixfixModule::isTheory(getModuleType()))
+PreModule::~PreModule() {
     {
-      IssueWarning(LineNumber(name.lineNumber()) <<
-		   ": parmaeterized theories are not supported; recovering by ignoring parameter " <<
-		   QUOTE(name) << '.');
-      cout << "preModule = " << this << "  theory = " << theory << endl;
-      delete theory;
-      return;
+        FOR_EACH_CONST(i, Vector<Import>, imports)i->expr->deepSelfDestruct();
     }
-  int nrParameters = parameters.length();
-  parameters.resize(nrParameters + 1);
-  parameters[nrParameters].name = name;
-  parameters[nrParameters].theory = theory;
-}
-
-void
-PreModule::addImport(LineNumber lineNumber, ImportModule::ImportMode mode, ModuleExpression* expr)
-{
-  int nrImports = imports.length();
-  imports.resize(nrImports + 1);
-  imports[nrImports].lineNumber = lineNumber;
-  imports[nrImports].mode = mode;
-  imports[nrImports].expr = expr;
-}
-
-void
-PreModule::processParameters(ImportModule* flatModule)
-{
-  FOR_EACH_CONST(i, Vector<Parameter>, parameters)
     {
-      if (ImportModule* fm = owner->makeModule(i->theory))
-	{
-	  if (MixfixModule::canHaveAsParameter(getModuleType(), fm->getModuleType()))
-	    {
-	      ImportModule* parameterCopy = owner->makeParameterCopy(i->name.code(), fm);
-	      if (parameterCopy != 0)
-		flatModule->addParameter(i->name, parameterCopy);
-	      else
-		{
-		  flatModule->markAsBad();
-		  return;
-		}
-	    }
-	  else
-	    {
-	      IssueWarning(LineNumber(i->name.lineNumber()) <<
-			   ": parameterization of " << 
-			   QUOTE(MixfixModule::moduleTypeString(getModuleType())) <<
-			   " " << this << " by " <<
-			   QUOTE(MixfixModule::moduleTypeString(fm->getModuleType())) <<
-			   " " << fm << " is not allowed.");
-	      flatModule->markAsBad();
-	    }
-	}
+        FOR_EACH_CONST(i, Vector<Parameter>, parameters)i->theory->deepSelfDestruct();
     }
 }
 
 void
-PreModule::processExplicitImports(ImportModule* flatModule)
-{
-  FOR_EACH_CONST(i, Vector<Import>, imports)
-    {
-      if (ImportModule* fm = owner->makeModule(i->expr, flatModule))
-	{
-	  if (fm->hasFreeParameters())
-	    {
-	      IssueWarning(i->lineNumber << ": cannot import module " << fm <<
-			   " because it has free parameters.");
-	      //
-	      //	Mark the module as bad to avoid cascading warnings and potential
-	      //	internal errors. But press ahead with remaining imports since
-	      //	they should be independent and we might find other errors.
-	      //
-	      flatModule->markAsBad();
-	    }
-	  else
-	    flatModule->addImport(fm, i->mode, i->lineNumber);
-	}
-      else
-	{
-	  //
-	  //	Mark the module as bad to avoid cascading warnings and potential
-	  //	internal errors. But press ahead with remaining imports since
-	  //	they should be independent and we might find other errors.
-	  //
-	  flatModule->markAsBad();
-	}
+PreModule::addParameter(Token name, ModuleExpression *theory) {
+    if (MixfixModule::isTheory(getModuleType())) {
+        IssueWarning(LineNumber(name.lineNumber()) <<
+                                                   ": parmaeterized theories are not supported; recovering by ignoring parameter "
+                                                   <<
+                                                   QUOTE(name) << '.');
+        cout << "preModule = " << this << "  theory = " << theory << endl;
+        delete theory;
+        return;
+    }
+    int nrParameters = parameters.length();
+    parameters.resize(nrParameters + 1);
+    parameters[nrParameters].name = name;
+    parameters[nrParameters].theory = theory;
+}
+
+void
+PreModule::addImport(LineNumber lineNumber, ImportModule::ImportMode mode, ModuleExpression *expr) {
+    int nrImports = imports.length();
+    imports.resize(nrImports + 1);
+    imports[nrImports].lineNumber = lineNumber;
+    imports[nrImports].mode = mode;
+    imports[nrImports].expr = expr;
+}
+
+void
+PreModule::processParameters(ImportModule *flatModule) {
+    FOR_EACH_CONST(i, Vector<Parameter>, parameters) {
+        if (ImportModule *fm = owner->makeModule(i->theory)) {
+            if (MixfixModule::canHaveAsParameter(getModuleType(), fm->getModuleType())) {
+                ImportModule *parameterCopy = owner->makeParameterCopy(i->name.code(), fm);
+                if (parameterCopy != 0)
+                    flatModule->addParameter(i->name, parameterCopy);
+                else {
+                    flatModule->markAsBad();
+                    return;
+                }
+            } else {
+                IssueWarning(LineNumber(i->name.lineNumber()) <<
+                                                              ": parameterization of " <<
+                                                              QUOTE(MixfixModule::moduleTypeString(getModuleType())) <<
+                                                              " " << this << " by " <<
+                                                              QUOTE(MixfixModule::moduleTypeString(fm->getModuleType()))
+                                                              <<
+                                                              " " << fm << " is not allowed.");
+                flatModule->markAsBad();
+            }
+        }
+    }
+}
+
+void
+PreModule::processExplicitImports(ImportModule *flatModule) {
+    FOR_EACH_CONST(i, Vector<Import>, imports) {
+        if (ImportModule *fm = owner->makeModule(i->expr, flatModule)) {
+            if (fm->hasFreeParameters()) {
+                IssueWarning(i->lineNumber << ": cannot import module " << fm <<
+                                           " because it has free parameters.");
+                //
+                //	Mark the module as bad to avoid cascading warnings and potential
+                //	internal errors. But press ahead with remaining imports since
+                //	they should be independent and we might find other errors.
+                //
+                flatModule->markAsBad();
+            } else
+                flatModule->addImport(fm, i->mode, i->lineNumber);
+        } else {
+            //
+            //	Mark the module as bad to avoid cascading warnings and potential
+            //	internal errors. But press ahead with remaining imports since
+            //	they should be independent and we might find other errors.
+            //
+            flatModule->markAsBad();
+        }
     }
 }

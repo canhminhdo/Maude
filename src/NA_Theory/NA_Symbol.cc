@@ -23,7 +23,7 @@
 //
 //      Implementation for class NA_Symbol.
 //
- 
+
 //      utility stuff
 #include "macros.hh"
 #include "vector.hh"
@@ -40,67 +40,58 @@
 #include "NA_Symbol.hh"
 
 NA_Symbol::NA_Symbol(int id)
-  : Symbol(id, 0)
-{
+        : Symbol(id, 0) {
 }
 
-Term*
-NA_Symbol::makeTerm(const Vector<Term*>& /* args */)
-{
-  CantHappen("makeTerm() not useable on non-algebraic symbol " << this);
-  return 0;
+Term *
+NA_Symbol::makeTerm(const Vector<Term *> & /* args */) {
+    CantHappen("makeTerm() not useable on non-algebraic symbol " << this);
+    return 0;
 }
 
-DagNode* 
-NA_Symbol::makeDagNode(const Vector<DagNode*>& /* args */)
-{
-  CantHappen("makeDagNode() not useable on non-algebraic symbol " << this);
-  return 0;
+DagNode *
+NA_Symbol::makeDagNode(const Vector<DagNode *> & /* args */) {
+    CantHappen("makeDagNode() not useable on non-algebraic symbol " << this);
+    return 0;
 }
 
 bool
-NA_Symbol::eqRewrite(DagNode* subject, RewritingContext& context)
-{
-  return applyReplace(subject, context, 0);
+NA_Symbol::eqRewrite(DagNode *subject, RewritingContext &context) {
+    return applyReplace(subject, context, 0);
 }
 
 void
-NA_Symbol::computeBaseSort(DagNode* subject)
-{
-  subject->setSortIndex(traverse(0, 0));
+NA_Symbol::computeBaseSort(DagNode *subject) {
+    subject->setSortIndex(traverse(0, 0));
 }
 
 void
-NA_Symbol::normalizeAndComputeTrueSort(DagNode* subject, RewritingContext& context)
-{
-  fastComputeTrueSort(subject, context);
+NA_Symbol::normalizeAndComputeTrueSort(DagNode *subject, RewritingContext &context) {
+    fastComputeTrueSort(subject, context);
 }
 
 bool
-NA_Symbol::isStable() const
-{
-  return true;
+NA_Symbol::isStable() const {
+    return true;
 }
 
 //
 //	Hash cons code.
 //
 
-DagNode*
-NA_Symbol::makeCanonical(DagNode* original, HashConsSet* /* hcs */)
-{
-  //
-  //	No arguments that could be non-canonical so we can make the original
-  //	instance into the canonical instance.
-  //
-  return original;
+DagNode *
+NA_Symbol::makeCanonical(DagNode *original, HashConsSet * /* hcs */) {
+    //
+    //	No arguments that could be non-canonical so we can make the original
+    //	instance into the canonical instance.
+    //
+    return original;
 }
 
-DagNode*
-NA_Symbol::makeCanonicalCopy(DagNode* original, HashConsSet* /* hcs */)
-{
-  //
-  //	Copy forced.
-  //
-  return original->makeClone();
+DagNode *
+NA_Symbol::makeCanonicalCopy(DagNode *original, HashConsSet * /* hcs */) {
+    //
+    //	Copy forced.
+    //
+    return original->makeClone();
 }

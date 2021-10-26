@@ -28,104 +28,90 @@
 #include "allSat.hh"
 
 AllSat::AllSat(Bdd formula, int firstVariable, int lastVariable)
-  : formula(formula),
-    firstVariable(firstVariable),
-    lastVariable(lastVariable),
-    nodeStack(0, lastVariable - firstVariable + 1),
-    dontCareSet(0, lastVariable - firstVariable + 1)
-{
-  firstAssignment = true;
+        : formula(formula),
+          firstVariable(firstVariable),
+          lastVariable(lastVariable),
+          nodeStack(0, lastVariable - firstVariable + 1),
+          dontCareSet(0, lastVariable - firstVariable + 1) {
+    firstAssignment = true;
 }
 
 bool
-AllSat::nextAssignment()
-{
-  if (firstAssignment)
-    {
-      //
-      //	First solution.
-      //
-      if (formula == bddfalse)
-	return false;
-      assignment.resize(lastVariable + 1);
-      for (int i = firstVariable; i <= lastVariable; ++i)
-	assignment[i] = UNDEFINED;
-      forward(formula);
-      firstAssignment = false;
-      return true;
+AllSat::nextAssignment() {
+    if (firstAssignment) {
+        //
+        //	First solution.
+        //
+        if (formula == bddfalse)
+            return false;
+        assignment.resize(lastVariable + 1);
+        for (int i = firstVariable; i <= lastVariable; ++i)
+            assignment[i] = UNDEFINED;
+        forward(formula);
+        firstAssignment = false;
+        return true;
     }
-  //
-  //	Try to find another way of assigning to don't care variables.
-  //
-  int nrDontCares = dontCareSet.size();
-  for (int i = nrDontCares - 1; i >= 0; --i)
-    {
-      int var = dontCareSet[i];
-      if (assignment[var] == 0)
-	{
-	  assignment[var] = 1;
-	  for (++i; i < nrDontCares; ++i)
-	    assignment[dontCareSet[i]] = 0;
-	  return true;
-	}
+    //
+    //	Try to find another way of assigning to don't care variables.
+    //
+    int nrDontCares = dontCareSet.size();
+    for (int i = nrDontCares - 1; i >= 0; --i) {
+        int var = dontCareSet[i];
+        if (assignment[var] == 0) {
+            assignment[var] = 1;
+            for (++i; i < nrDontCares; ++i)
+                assignment[dontCareSet[i]] = 0;
+            return true;
+        }
     }
-  for (int i = 0; i < nrDontCares; ++i)
-    assignment[dontCareSet[i]] = UNDEFINED;
-  dontCareSet.clear();
-  //
-  //	Try to find another route to true through BDD.
-  //
-  int nodeDepth = nodeStack.size();
-  for (int i = nodeDepth - 1; i >= 0; --i)
-    {
-      Bdd b = nodeStack[i];
-      int var = bdd_var(b);
-      if (assignment[var] == 0)
-	{
-	  Bdd n = bdd_high(b);
-	  if (n != bddfalse)
-	    {
-	      assignment[var] = 1;
-	      nodeStack.resize(i + 1);
-	      forward(n);
-	      return true;
-	    }
-	}
-      assignment[var] = UNDEFINED;
+    for (int i = 0; i < nrDontCares; ++i)
+        assignment[dontCareSet[i]] = UNDEFINED;
+    dontCareSet.clear();
+    //
+    //	Try to find another route to true through BDD.
+    //
+    int nodeDepth = nodeStack.size();
+    for (int i = nodeDepth - 1; i >= 0; --i) {
+        Bdd b = nodeStack[i];
+        int var = bdd_var(b);
+        if (assignment[var] == 0) {
+            Bdd n = bdd_high(b);
+            if (n != bddfalse) {
+                assignment[var] = 1;
+                nodeStack.resize(i + 1);
+                forward(n);
+                return true;
+            }
+        }
+        assignment[var] = UNDEFINED;
     }
-  return false;
+    return false;
 }
 
 void
-AllSat::forward(Bdd b)
-{
-  Assert(b != bddfalse, "false BDD");
-  //
-  //	There must be at least one path to true from b; find the least one.
-  //
-  while (b != bddtrue)
-    {
-      nodeStack.append(b);
-      int var = bdd_var(b);
-      Bdd n = bdd_low(b);
-      if (n == bddfalse)
-	{
-	  n = bdd_high(b);
-	  assignment[var] = 1;
-	}
-      else
-	assignment[var] = 0;
-      b = n;
+AllSat::forward(Bdd b) {
+    Assert(b != bddfalse, "false BDD");
+    //
+    //	There must be at least one path to true from b; find the least one.
+    //
+    while (b != bddtrue) {
+        nodeStack.append(b);
+        int var = bdd_var(b);
+        Bdd n = bdd_low(b);
+        if (n == bddfalse) {
+            n = bdd_high(b);
+            assignment[var] = 1;
+        } else
+            assignment[var] = 0;
+        b = n;
     }
-  //
-  //	Any variables of interest not assigned to on this path are don't cares.
-  //
-  for (int i = firstVariable; i <= lastVariable; ++i)
-    {
-      if (assignment[i] == UNDEFINED)
-	{
-	  assignment[i] = 0;
-	  dontCareSet.append(i);
-	}
+    //
+    //	Any variables of interest not assigned to on this path are don't cares.
+    //
+    for (int i = firstVariable; i <= lastVariable; ++i) {
+        if (assignment[i] == UNDEFINED) {
+            assignment[i] = 0;
+            dontCareSet.append(i);
+        }
     }
 }

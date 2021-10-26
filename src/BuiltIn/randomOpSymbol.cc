@@ -50,62 +50,55 @@
 MTRand::uint32 RandomOpSymbol::globalSeed = 0;
 
 RandomOpSymbol::RandomOpSymbol(int id)
-  : NumberOpSymbol(id, 1),
-    currentIndex(0),
-    currentState(globalSeed)
-{
-  randomNumber = currentState.randInt();
+        : NumberOpSymbol(id, 1),
+          currentIndex(0),
+          currentState(globalSeed) {
+    randomNumber = currentState.randInt();
 }
 
 bool
-RandomOpSymbol::attachData(const Vector<Sort*>& opDeclaration,
-			   const char* purpose,
-			   const Vector<const char*>& data)
-{
-  if (strcmp(purpose, "RandomOpSymbol") == 0)
-    return true;
-  return NumberOpSymbol::attachData(opDeclaration, purpose, data);
+RandomOpSymbol::attachData(const Vector<Sort *> &opDeclaration,
+                           const char *purpose,
+                           const Vector<const char *> &data) {
+    if (strcmp(purpose, "RandomOpSymbol") == 0)
+        return true;
+    return NumberOpSymbol::attachData(opDeclaration, purpose, data);
 }
 
 void
-RandomOpSymbol::getDataAttachments(const Vector<Sort*>& opDeclaration,
-				   Vector<const char*>& purposes,
-				   Vector<Vector<const char*> >& data)
-{
-  int nrDataAttachments = purposes.length();
-  purposes.resize(nrDataAttachments + 1);
-  purposes[nrDataAttachments] = "RandomOpSymbol";
-  data.resize(nrDataAttachments + 1);
-  NumberOpSymbol::getDataAttachments(opDeclaration, purposes, data);
+RandomOpSymbol::getDataAttachments(const Vector<Sort *> &opDeclaration,
+                                   Vector<const char *> &purposes,
+                                   Vector<Vector<const char *> > &data) {
+    int nrDataAttachments = purposes.length();
+    purposes.resize(nrDataAttachments + 1);
+    purposes[nrDataAttachments] = "RandomOpSymbol";
+    data.resize(nrDataAttachments + 1);
+    NumberOpSymbol::getDataAttachments(opDeclaration, purposes, data);
 }
 
 bool
-RandomOpSymbol::eqRewrite(DagNode* subject, RewritingContext& context)
-{
-  FreeDagNode* d = safeCast(FreeDagNode*, subject);
-  DagNode* a = d->getArgument(0);
-  a->reduce(context);
+RandomOpSymbol::eqRewrite(DagNode *subject, RewritingContext &context) {
+    FreeDagNode *d = safeCast(FreeDagNode*, subject);
+    DagNode *a = d->getArgument(0);
+    a->reduce(context);
 
-  SuccSymbol* succSymbol = getSuccSymbol();
-  if (succSymbol != 0 && succSymbol->isNat(a))
-    {
-      const mpz_class& wantedIndex = succSymbol->getNat(a);
-      DebugAdvisory("currentIndex = " << currentIndex << "  wantedIndex = " << wantedIndex);
-      if (wantedIndex < currentIndex)
-	{
-	  currentIndex = 0;
-	  currentState.seed(globalSeed);
-	  randomNumber = currentState.randInt();
-	}
-      while (currentIndex < wantedIndex)
-	{
-	  ++currentIndex;
-	  randomNumber = currentState.randInt();
-	}
-      return succSymbol->rewriteToNat(subject, context, randomNumber);
+    SuccSymbol *succSymbol = getSuccSymbol();
+    if (succSymbol != 0 && succSymbol->isNat(a)) {
+        const mpz_class &wantedIndex = succSymbol->getNat(a);
+        DebugAdvisory("currentIndex = " << currentIndex << "  wantedIndex = " << wantedIndex);
+        if (wantedIndex < currentIndex) {
+            currentIndex = 0;
+            currentState.seed(globalSeed);
+            randomNumber = currentState.randInt();
+        }
+        while (currentIndex < wantedIndex) {
+            ++currentIndex;
+            randomNumber = currentState.randInt();
+        }
+        return succSymbol->rewriteToNat(subject, context, randomNumber);
     }
-  //
-  //	NumberOpSymbol doesn't know how to deal with this.
-  //
-  return FreeSymbol::eqRewrite(subject, context);
+    //
+    //	NumberOpSymbol doesn't know how to deal with this.
+    //
+    return FreeSymbol::eqRewrite(subject, context);
 }

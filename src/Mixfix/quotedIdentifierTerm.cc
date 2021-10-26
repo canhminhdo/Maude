@@ -50,60 +50,53 @@
 #include "token.hh"
 
 
-QuotedIdentifierTerm::QuotedIdentifierTerm(QuotedIdentifierSymbol* symbol, int idIndex)
-  : NA_Term(symbol),
-    idIndex(idIndex)
-{
+QuotedIdentifierTerm::QuotedIdentifierTerm(QuotedIdentifierSymbol *symbol, int idIndex)
+        : NA_Term(symbol),
+          idIndex(idIndex) {
 }
 
-Term*
-QuotedIdentifierTerm::deepCopy2(SymbolMap* map) const
-{
-  return new QuotedIdentifierTerm(static_cast<QuotedIdentifierSymbol*>(map == 0 ? symbol() :
-								       map->translate(symbol())),
-				  idIndex);
+Term *
+QuotedIdentifierTerm::deepCopy2(SymbolMap *map) const {
+    return new QuotedIdentifierTerm(static_cast<QuotedIdentifierSymbol *>(map == 0 ? symbol() :
+                                                                          map->translate(symbol())),
+                                    idIndex);
 }
 
-Term*
-QuotedIdentifierTerm::instantiate2(const Vector<Term*>& varBindings, SymbolMap* translator)
-{
-  return new QuotedIdentifierTerm(safeCast(QuotedIdentifierSymbol*, translator->findTargetVersionOfSymbol(symbol())), idIndex);
+Term *
+QuotedIdentifierTerm::instantiate2(const Vector<Term *> &varBindings, SymbolMap *translator) {
+    return new QuotedIdentifierTerm(safeCast(QuotedIdentifierSymbol*, translator->findTargetVersionOfSymbol(symbol())),
+                                    idIndex);
 }
 
-Term*
-QuotedIdentifierTerm::normalize(bool /* full */, bool& changed)
-{
-  changed = false;
-  setHashValue(hash(symbol()->getHashValue(), idIndex));
-  return this;
+Term *
+QuotedIdentifierTerm::normalize(bool /* full */, bool &changed) {
+    changed = false;
+    setHashValue(hash(symbol()->getHashValue(), idIndex));
+    return this;
 }
 
 int
-QuotedIdentifierTerm::compareArguments(const Term* other) const
-{
-  int otherIndex = static_cast<const QuotedIdentifierTerm*>(other)->idIndex;
-  if (idIndex == otherIndex)
-    return 0;
-  return strcmp(Token::name(idIndex), Token::name(otherIndex));
+QuotedIdentifierTerm::compareArguments(const Term *other) const {
+    int otherIndex = static_cast<const QuotedIdentifierTerm *>(other)->idIndex;
+    if (idIndex == otherIndex)
+        return 0;
+    return strcmp(Token::name(idIndex), Token::name(otherIndex));
 }
 
 int
-QuotedIdentifierTerm::compareArguments(const DagNode* other) const
-{
-  int otherIndex = static_cast<const QuotedIdentifierDagNode*>(other)->getIdIndex();
-  if (idIndex == otherIndex)
-    return 0;
-  return strcmp(Token::name(idIndex), Token::name(otherIndex));
+QuotedIdentifierTerm::compareArguments(const DagNode *other) const {
+    int otherIndex = static_cast<const QuotedIdentifierDagNode *>(other)->getIdIndex();
+    if (idIndex == otherIndex)
+        return 0;
+    return strcmp(Token::name(idIndex), Token::name(otherIndex));
 }
 
 void
-QuotedIdentifierTerm::overwriteWithDagNode(DagNode* old) const
-{
-  (void) new(old) QuotedIdentifierDagNode(static_cast<QuotedIdentifierSymbol*>(symbol()), idIndex);
+QuotedIdentifierTerm::overwriteWithDagNode(DagNode *old) const {
+    (void) new(old) QuotedIdentifierDagNode(static_cast<QuotedIdentifierSymbol *>(symbol()), idIndex);
 }
 
-NA_DagNode*
-QuotedIdentifierTerm::makeDagNode() const
-{
-  return new QuotedIdentifierDagNode(static_cast<QuotedIdentifierSymbol*>(symbol()), idIndex);
+NA_DagNode *
+QuotedIdentifierTerm::makeDagNode() const {
+    return new QuotedIdentifierDagNode(static_cast<QuotedIdentifierSymbol *>(symbol()), idIndex);
 }

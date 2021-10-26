@@ -49,29 +49,26 @@
 #include "externalObjectManagerSymbol.hh"
 
 ExternalObjectManagerSymbol::ExternalObjectManagerSymbol(int id)
-  : FreeSymbol(id, 0)
-{
+        : FreeSymbol(id, 0) {
 }
 
 void
-ExternalObjectManagerSymbol::cleanUpManager(ObjectSystemRewritingContext& /* context */)
-{
-  //
-  //	Most derived classes won't need this functionality so we provide
-  //	a default function.
-  //
-  CantHappen("Shouldn't be called for this ExternalObjectManagerSymbol " << this);
+ExternalObjectManagerSymbol::cleanUpManager(ObjectSystemRewritingContext & /* context */) {
+    //
+    //	Most derived classes won't need this functionality so we provide
+    //	a default function.
+    //
+    CantHappen("Shouldn't be called for this ExternalObjectManagerSymbol " << this);
 }
 
 
 void
-ExternalObjectManagerSymbol::trivialReply(Symbol* replySymbol, 
-					  FreeDagNode* originalMessage,
-					  ObjectSystemRewritingContext& context)
-{
-  Vector<DagNode*> reply(2);
-  DagNode* target = originalMessage->getArgument(1);
-  reply[0] = target;
-  reply[1] = originalMessage->getArgument(0);
-  context.bufferMessage(target, replySymbol->makeDagNode(reply));
+ExternalObjectManagerSymbol::trivialReply(Symbol *replySymbol,
+                                          FreeDagNode *originalMessage,
+                                          ObjectSystemRewritingContext &context) {
+    Vector<DagNode *> reply(2);
+    DagNode *target = originalMessage->getArgument(1);
+    reply[0] = target;
+    reply[1] = originalMessage->getArgument(0);
+    context.bufferMessage(target, replySymbol->makeDagNode(reply));
 }
