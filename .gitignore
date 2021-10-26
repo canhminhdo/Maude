@@ -5,3 +5,5 @@ build/
 dist/
 *.~
 config.h
+autom4te.cache
+aclocal.m4
