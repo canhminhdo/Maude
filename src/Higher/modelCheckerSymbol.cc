@@ -292,3 +292,11 @@ ModelCheckerSymbol::SystemAutomaton::checkProposition(int stateNr, int propositi
     delete testContext;
     return result;
 }
+
+int ModelCheckerSymbol::SystemAutomaton::insertNewState(int systemStateNr, int propertyStateNr, int parent) {
+    return systemProductStates->insertNewState(systemStateNr, propertyStateNr, parent);
+}
+
+void ModelCheckerSymbol::SystemAutomaton::setAcceptedState(int stateNr) {
+    systemProductStates->setAcceptedState(stateNr);
+}

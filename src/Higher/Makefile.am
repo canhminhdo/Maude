@@ -20,7 +20,9 @@ libhigher_a_SOURCES = \
 	searchState.cc \
 	rewriteSequenceSearch.cc \
 	modelCheckerSymbol.cc \
+	modelCheckerSymbolExt.cc \
 	stateTransitionGraph.cc \
+	productStateTransitionGraph.cc \
 	rewriteConditionFragment.cc \
 	assignmentConditionFragment.cc \
 	sortTestConditionFragment.cc \
@@ -54,6 +56,7 @@ noinst_HEADERS = \
 	higher.hh \
 	matchSearchState.hh \
 	modelCheckerSymbol.hh \
+	modelCheckerSymbolExt.hh \
 	pattern.hh \
 	positionState.hh \
 	rewriteConditionFragment.hh \
@@ -64,6 +67,7 @@ noinst_HEADERS = \
 	searchState.hh \
 	sortTestConditionFragment.hh \
 	stateTransitionGraph.hh \
+	productStateTransitionGraph.hh \
 	temporalSymbol.hh \
 	unificationProblem.hh \
 	narrowingSearchState.hh \

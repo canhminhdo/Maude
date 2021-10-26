@@ -56,6 +56,8 @@ MACRO(Bubble, SymbolType::BUBBLE
 )
 MACRO(ModelCheckerSymbol, SymbolType::MODEL_CHECKER_SYMBOL
 )
+MACRO(ModelCheckerSymbolExt, SymbolType::MODEL_CHECKER_SYMBOL_EXT
+)
 MACRO(SatSolverSymbol, SymbolType::SAT_SOLVER_SYMBOL
 )
 MACRO(SuccSymbol, SymbolType::SUCC_SYMBOL

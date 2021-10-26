@@ -21,22 +21,23 @@
 */
 
 //
-//      Class for symbols for built in model checking.
+//      Class for symbols for extending built in model checking.
 //
-#ifndef _modelCheckerSymbol_hh_
-#define _modelCheckerSymbol_hh_
+#ifndef _modelCheckerSymbolExt_hh_
+#define _modelCheckerSymbolExt_hh_
 
 #include "temporalSymbol.hh"
 #include "cachedDag.hh"
 #include "modelChecker2.hh"
 #include "stateTransitionGraph.hh"
 #include "productStateTransitionGraph.hh"
+#include "modelCheckerSymbol.hh"
 
-class ModelCheckerSymbol : public TemporalSymbol {
-    NO_COPYING(ModelCheckerSymbol);
+class ModelCheckerSymbolExt : public ModelCheckerSymbol {
+    NO_COPYING(ModelCheckerSymbolExt);
 
 public:
-    ModelCheckerSymbol(int id);
+    ModelCheckerSymbolExt(int id);
 
     bool attachData(const Vector<Sort *> &opDeclaration,
                     const char *purpose,
@@ -60,52 +61,14 @@ public:
 
     bool eqRewrite(DagNode *subject, RewritingContext &context);
 
-    void postInterSymbolPass();
-
-    void reset();
-
-protected:
-    struct SystemAutomaton : public ModelChecker2::System {
-        int getNextState(int stateNr, int transitionNr);
-
-        bool checkProposition(int stateNr, int propositionIndex) const;
-
-        // generate all counterexamples
-        int insertNewState(int systemStateNr, int propertyStateNr, int parent);
-
-        void setAcceptedState(int stateNr);
-
-        DagNodeSet propositions;
-        Symbol *satisfiesSymbol;
-        RewritingContext *parentContext;
-        DagNode *trueTerm;
-        StateTransitionGraph *systemStates;
-        ProductStateTransitionGraph *systemProductStates;
-    };
-
-    void dump(const StateTransitionGraph &states, const list<int> &path);
-
-    DagNode *makeTransition(const StateTransitionGraph &states, int stateNr, int target);
-
-    DagNode *makeTransitionList(const StateTransitionGraph &states,
-                                const list<int> &path,
-                                int lastTarget);
-
-    DagNode *makeCounterexample(const StateTransitionGraph &states, const ModelChecker2 &mc);
-
-    Symbol *satisfiesSymbol;
+    DagNode *makeAllCounterexamples(const StateTransitionGraph &states, const ProductStateTransitionGraph &productStates);
+private:
     //
     //	Symbols needed for returning counterexamples.
     //
-    QuotedIdentifierSymbol *qidSymbol;
-    Symbol *unlabeledSymbol;
-    Symbol *deadlockSymbol;
-    Symbol *transitionSymbol;
-    Symbol *transitionListSymbol;
-    Symbol *nilTransitionListSymbol;
-    Symbol *counterexampleSymbol;
-
-    CachedDag trueTerm;
+    Symbol *empModelCheckResultListSymbol;
+    Symbol *modelCheckResultListSymbol;
+    Symbol *allCounterexampleSymbol;
 };
 
 #endif

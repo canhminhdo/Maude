@@ -43,6 +43,11 @@ public:
         virtual int getNextState(int stateNr, int transitionNr) = 0;
 
         virtual bool checkProposition(int stateNr, int propositionIndex) const = 0;
+
+        // find all counterexamples
+        virtual int insertNewState(int systemStateNr, int propertyStateNr, int parent) = 0;
+
+        virtual void setAcceptedState(int stateNr) = 0;
     };
 
     ModelChecker2(System &system, LogicFormula &property, int top);
@@ -52,6 +57,9 @@ public:
     const list<int> &getLeadIn() const;
 
     const list<int> &getCycle() const;
+
+    // find all counterexamples
+    void buildProductAutomata();
 
 private:
     struct StateSet {
@@ -71,6 +79,13 @@ private:
     bool dfs2SystemTransitions(int systemStateNr, int propertyStateNr);
 
     bool satisfiesPropositionalFormula(int systemStateNr, Bdd formula);
+
+    //
+    // To generate product automata
+    //
+    bool dfsPropertyTransitions(int stateNr, int systemStateNr, int propertyStateNr);
+
+    bool dfsSystemTransitions(int stateNr, int systemStateNr, int propertyStateNr);
 
     System &system;
     BuchiAutomaton2 propertyAutomaton;

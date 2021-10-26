@@ -62,6 +62,8 @@ class TemporalSymbol;
 
 class ModelCheckerSymbol;
 
+class ModelCheckerSymbolExt;
+
 class SatSolverSymbol;
 
 class UnificationProblem;
