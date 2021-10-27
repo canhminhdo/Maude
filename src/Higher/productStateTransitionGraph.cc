@@ -36,9 +36,6 @@
 //	core class definitions
 #include "productStateTransitionGraph.hh"
 
-StringTable ProductStateTransitionGraph::stringTable;
-NatSet ProductStateTransitionGraph::visited;
-
 ProductStateTransitionGraph::ProductStateTransitionGraph() {
 }
 
@@ -46,6 +43,13 @@ ProductStateTransitionGraph::~ProductStateTransitionGraph() {
     int nrStates = seen.length();
     for (int i = 0; i < nrStates; i++) {
         delete seen[i];
+    }
+    int nrComps = components.length();
+    for (int i = 0; i < nrComps; i ++) {
+        delete components[i];
+    }
+    for (list<CounterExample *>::iterator it = counterexamples.begin(); it != counterexamples.end(); ++it) {
+        delete (*it);
     }
 }
 
@@ -58,17 +62,12 @@ ProductStateTransitionGraph::getNextState(int stateNr, int index) {
     return NONE;
 }
 
-ProductStateTransitionGraph::ProductState::ProductState(int systemStateNr, int propertyStateNr, int parent)
-        : systemStateNr(systemStateNr),
+ProductStateTransitionGraph::ProductState::ProductState(int stateNr, int systemStateNr, int propertyStateNr, int parent)
+        : stateNr(stateNr),
+          systemStateNr(systemStateNr),
           propertyStateNr(propertyStateNr),
           parent(parent) {
-    string stateId = getStateId(systemStateNr, propertyStateNr);
-    const char *id = const_cast<char *>(stateId.c_str());
-    stateNr = encode(id);
     acceptedState = false;
-    #ifdef TDEBUG
-    cout << parent << " -> " << stateNr << " (" << systemStateNr << "," << propertyStateNr << ")" << endl;
-    #endif
 }
 
 int
@@ -96,7 +95,7 @@ ProductStateTransitionGraph::insertNewState(int systemStateNr, int propertyState
     int stateNr = encode(id);
     if (stateNr >= seen.length()) {
         Assert(stateNr == seen.length(), "new state number must equal to length of vector seen");
-        seen.append(new ProductState(systemStateNr, propertyStateNr, parent));
+        seen.append(new ProductState(stateNr, systemStateNr, propertyStateNr, parent));
     }
     if (parent != NONE) {
         ProductState *p = seen[parent];
@@ -132,33 +131,21 @@ void ProductStateTransitionGraph::dump(int stateNr, bool isDotFile = false) {
     }
 }
 
-void ProductStateTransitionGraph::sccAnalysis() {
+bool ProductStateTransitionGraph::sccAnalysis() {
     int nrStates = seen.length();
     if (nrStates == 0)
-        return;
+        return false;
     stateInfo.expandTo(nrStates);
-    for (int i = 0; i < nrStates; i ++)
+    for (int i = 0; i < nrStates; i ++) {
         stateInfo[i].traversalNumber = 0;
+        stateInfo[i].visited = false;
+    }
     traversalCount = 0;
+    acceptedComponentCount = 0;
     strongConnected(0);
     cout << "Total accepted states: " << acceptedStates.size() << endl;
-}
-
-bool ProductStateTransitionGraph::findAllCounterexamples() {
-    cout << "Generating all counterexamples ..." << endl;
-    dfs(0);
-    cout << "Total counterexamples is " << counterexamples.size() << endl;
-    return counterexamples.size() > 0;
-//    int count = 0;
-//    for(list<CounterExample *>::iterator cx = counterexamples.begin(); cx != counterexamples.end(); ++cx) {
-//        cout << "Counterexample " << ++count << ": " << endl;
-//        for(list<int>::iterator it = (*cx)->path.begin(); it != (*cx)->path.end(); ++it)
-//            cout << *it << endl;
-//        cout << endl;
-//        for(list<int>::iterator it = (*cx)->loop.begin(); it != (*cx)->loop.end(); ++it)
-//            cout << *it << endl;
-//        cout << endl;
-//    }
+    cout << "Total accepted SCCs: " << acceptedComponentCount << endl;
+    return acceptedComponentCount > 0;
 }
 
 int ProductStateTransitionGraph::strongConnected(int v) {
@@ -191,10 +178,13 @@ int ProductStateTransitionGraph::strongConnected(int v) {
             stateStack.pop();
             stateInfo[i].traversalNumber = INT_MAX;
             stateInfo[i].component = componentCount;
-            comp->circle.push_back(i);
+            comp->circle.push_front(i); // make the root (base) of the SCC is on the top list
             if (seen[i]->acceptedState)
                 isAccepted = true;
         } while (i != v);
+        if (comp->circle.size() > 1) {
+            cout << "The SCC contains " << comp->circle.size() << " states, accepted is " << isAccepted << endl;
+        }
         if (isAccepted) {
             if (comp->circle.size() == 1) {
                 for (int j = 0; j < seen[i]->nextStates.length(); j++) {
@@ -208,6 +198,7 @@ int ProductStateTransitionGraph::strongConnected(int v) {
                 cout << "SCC Accepted 2" << endl;
             }
             if (comp->accepted) {
+                ++acceptedComponentCount;
                 for(list<int>::iterator it = comp->circle.begin(); it != comp->circle.end(); ++it) {
                     acceptedStates.insert(*it);
                 }
@@ -218,18 +209,35 @@ int ProductStateTransitionGraph::strongConnected(int v) {
     return vLowLink;
 }
 
+void ProductStateTransitionGraph::findAllCounterexamples() {
+    dfs(0);
+    cout << "Total counterexamples is " << counterexamples.size() << endl;
+//    int count = 0;
+//    for(list<CounterExample *>::iterator cx = counterexamples.begin(); cx != counterexamples.end(); ++cx) {
+//        cout << "Counterexample " << ++count << ": " << endl;
+//        for(list<int>::iterator it = (*cx)->path.begin(); it != (*cx)->path.end(); ++it)
+//            cout << *it << endl;
+//        cout << endl;
+//        for(list<int>::iterator it = (*cx)->loop.begin(); it != (*cx)->loop.end(); ++it)
+//            cout << *it << endl;
+//        cout << endl;
+//    }
+}
+
 void ProductStateTransitionGraph::dfs(int v) {
     if (acceptedStates.contains(v)) {
         // a counterexample found
         handleCounterexample(v);
         return;
     }
+    stateInfo[v].visited = true;
     path.push_back(v);
     for(int i = 0; i < seen[v]->nextStates.length(); i ++) {
         int w = seen[v]->nextStates[i];
-        if (w != v)
+        if (!stateInfo[w].visited) // && w != v
             dfs(w);
     }
+    stateInfo[v].visited = false;
     path.pop_back();
 }
 
@@ -290,3 +298,16 @@ list<ProductStateTransitionGraph::CounterExample *> ProductStateTransitionGraph:
 ProductStateTransitionGraph::ComponentInfo::ComponentInfo() {
     accepted = false;
 }
+
+string
+ProductStateTransitionGraph::getStateId(int systemStateNr, int propertyStateNr) {
+    string stateId = to_string(systemStateNr) + "-" + to_string(propertyStateNr);
+    return stateId;
+}
+
+int
+ProductStateTransitionGraph::encode(const char *stateId) {
+    int stateNr = stringTable.encode(stateId);
+    return stateNr;
+}
+

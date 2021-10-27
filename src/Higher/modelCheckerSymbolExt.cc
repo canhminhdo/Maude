@@ -135,7 +135,6 @@ ModelCheckerSymbolExt::getTermAttachments(Vector<const char *> &purposes,
 
 bool
 ModelCheckerSymbolExt::eqRewrite(DagNode *subject, RewritingContext &context) {
-//    return ModelCheckerSymbol::eqRewrite(subject, context);
     Assert(this == subject->symbol(), "bad symbol");
     //
     //	Compute normalization of negated formula.
@@ -184,9 +183,10 @@ ModelCheckerSymbolExt::eqRewrite(DagNode *subject, RewritingContext &context) {
     mc.buildProductAutomata();
 //    system.systemProductStates->dump(0, true); // dump product automata
     // step 2: SCC analysis
-    system.systemProductStates->sccAnalysis();
+    bool result = system.systemProductStates->sccAnalysis();
     // step 3: find counterexamples
-    bool result = system.systemProductStates->findAllCounterexamples();
+    if (result)
+        system.systemProductStates->findAllCounterexamples();
 
     int nrSystemStates = system.systemStates->getNrStates();
     Verbose("ModelCheckerSymbol: Examined " << nrSystemStates <<
@@ -203,6 +203,7 @@ ModelCheckerSymbolExt::eqRewrite(DagNode *subject, RewritingContext &context) {
 
     context.addInCount(*sysContext);
     delete system.systemStates;  // deletes sysContext via ~StateTransitionGraph()
+    delete system.systemProductStates;  // deletes sysContext via ~ProductStateTransitionGraph()
 
     return context.builtInReplace(subject, resultDag);
 }

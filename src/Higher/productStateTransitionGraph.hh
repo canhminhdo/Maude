@@ -53,17 +53,19 @@ public:
 
     void setAcceptedState(int stateNr);
 
-    static int encode(const char *stateId);
+    int encode(const char *stateId);
+
+    string getStateId(int systemStateNr, int propertyStateNr);
 
     void dump(int stateNr, bool isDotFile);
 
-    void sccAnalysis();
+    bool sccAnalysis();
 
     int strongConnected(int v);
 
     void handleCounterexample(int stateNr);
 
-    bool findAllCounterexamples();
+    void findAllCounterexamples();
 
     list<CounterExample *> getAllCounterexamples() const;
 
@@ -73,7 +75,7 @@ public:
 
 private:
     struct ProductState {
-        ProductState(int systemStateNr, int propertyStateNr, int parent);
+        ProductState(int stateNr, int systemStateNr, int propertyStateNr, int parent);
 
         const int parent;
         const int systemStateNr;
@@ -83,16 +85,15 @@ private:
         bool acceptedState;
     };
 
-    static string getStateId(int systemStateNr, int propertyStateNr);
-
     Vector<ProductState *> seen;
-    static StringTable stringTable;
-    static NatSet visited;
+    StringTable stringTable;
+    NatSet visited;
 
     // SCC analysis
     struct StateInfo {
         int traversalNumber;	// DFS traversal number
         int component;		// number of the component we're in
+        bool visited;
     };
     struct ComponentInfo {
         ComponentInfo();
@@ -101,6 +102,7 @@ private:
     };
     stack<int> stateStack;
     int traversalCount;
+    int acceptedComponentCount;
     Vector<StateInfo> stateInfo;
     Vector<ComponentInfo *> components;
     NatSet acceptedStates;
@@ -108,17 +110,4 @@ private:
     list<CounterExample *> counterexamples;
     NatSet seenCounterExamples; // todo: should be implemented by hash table
 };
-
-inline string
-ProductStateTransitionGraph::getStateId(int systemStateNr, int propertyStateNr) {
-    string stateId = to_string(systemStateNr) + "-" + to_string(propertyStateNr);
-    return stateId;
-}
-
-inline int
-ProductStateTransitionGraph::encode(const char *stateId) {
-    int stateNr = stringTable.encode(stateId);
-    return stateNr;
-}
-
 #endif
