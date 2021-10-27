@@ -221,5 +221,7 @@ DagNode *ModelCheckerSymbolExt::makeAllCounterexamples(const StateTransitionGrap
         args[1] = makeTransitionList(states, cx->circle, junction);
         cx_args.append(counterexampleSymbol->makeDagNode(args));
     }
+    if (cx_args.length() == 1)
+        return cx_args[0];
     return modelCheckResultListSymbol->makeDagNode(cx_args);
 }
