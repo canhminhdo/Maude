@@ -216,7 +216,6 @@ DagNode *ModelCheckerSymbolExt::makeAllCounterexamples(const StateTransitionGrap
         ProductStateTransitionGraph::CounterExample *cx = *it;
         Vector<DagNode *> args(2);
         int junction = cx->circle.front();
-        cx->path.pop_front();
         args[0] = makeTransitionList(states, cx->path, junction);
         args[1] = makeTransitionList(states, cx->circle, junction);
         cx_args.append(counterexampleSymbol->makeDagNode(args));

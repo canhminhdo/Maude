@@ -128,6 +128,7 @@ StateTransitionGraph::getNextState(int stateNr, int index) {
                 nextState = seen.size();
                 hashCons2seen[hashConsIndex] = nextState;
                 seen.append(new State(hashConsIndex, stateNr));
+//                cout << "new state " << nextState << " -> " << r.first << endl;
                 DebugAdvisory("new state dag = " << r.first <<
                                                  " hashConsIndex = " << hashConsIndex <<
                                                  " collisionCounter = " << hashConsSet.collisionCounter);

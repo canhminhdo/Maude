@@ -143,8 +143,8 @@ bool ProductStateTransitionGraph::sccAnalysis() {
     traversalCount = 0;
     acceptedComponentCount = 0;
     strongConnected(0);
-    cout << "Total accepted states: " << acceptedStates.size() << endl;
-    cout << "Total accepted SCCs: " << acceptedComponentCount << endl;
+//    cout << "Total accepted states: " << acceptedStates.size() << endl;
+//    cout << "Total accepted SCCs: " << acceptedComponentCount << endl;
     return acceptedComponentCount > 0;
 }
 
@@ -189,13 +189,13 @@ int ProductStateTransitionGraph::strongConnected(int v) {
             if (comp->circle.size() == 1) {
                 for (int j = 0; j < seen[i]->nextStates.length(); j++) {
                     if (seen[i]->nextStates[j] == i) {
-                        cout << "SCC Accepted 1" << endl;
+//                        cout << "SCC Accepted 1" << endl;
                         comp->accepted = true;
                     }
                 }
             } else {
                 comp->accepted = true;
-                cout << "SCC Accepted 2" << endl;
+//                cout << "SCC Accepted 2" << endl;
             }
             if (comp->accepted) {
                 ++acceptedComponentCount;
@@ -211,7 +211,7 @@ int ProductStateTransitionGraph::strongConnected(int v) {
 
 void ProductStateTransitionGraph::findAllCounterexamples() {
     dfs(0);
-    cout << "Total counterexamples is " << counterexamples.size() << endl;
+//    cout << "Total counterexamples is " << counterexamples.size() << endl;
 //    int count = 0;
 //    for(list<CounterExample *>::iterator cx = counterexamples.begin(); cx != counterexamples.end(); ++cx) {
 //        cout << "Counterexample " << ++count << ": " << endl;
@@ -274,21 +274,14 @@ void ProductStateTransitionGraph::handleCounterexample(int stateNr) {
             base = s->systemStateNr;
         }
     }
-    int hashValue = 0;
-    for (list<int>::iterator it = cx->path.begin(); it != cx->path.end(); ++it) {
-        hashValue = hash(hashValue, *it);
-    }
-    for (list<int>::iterator it = cx->circle.begin(); it != cx->circle.end(); ++it) {
-        hashValue = hash(hashValue, *it);
-    }
-    if (!seenCounterExamples.contains(hashValue)) {
+    cx->path.pop_front(); // remove dummy state id 0
+    string seqId = getSeqId(cx);
+    const char *id = const_cast<char *>(seqId.c_str());
+    int seqNr = seqTable.encode(id);
+    if (seqNr >= counterexamples.size()) {
+        Assert(seqNr == counterexamples.size(), "new state sequence number must equal to length of counterexamples");
         counterexamples.push_back(cx);
-        seenCounterExamples.insert(hashValue);
     }
-}
-
-int ProductStateTransitionGraph::hash(int v1, int v2) {
-    return (v1 * v1) ^ (v1 >> 16) ^ v2;  // best function to date on empirical measurement;
 }
 
 list<ProductStateTransitionGraph::CounterExample *> ProductStateTransitionGraph::getAllCounterexamples() const {
@@ -305,9 +298,21 @@ ProductStateTransitionGraph::getStateId(int systemStateNr, int propertyStateNr) 
     return stateId;
 }
 
+string
+ProductStateTransitionGraph::getSeqId(CounterExample *cx) {
+    string stateId = "";
+    for (list<int>::iterator it = cx->path.begin(); it != cx->path.end(); ++it) {
+        stateId += "-" + to_string(*it);
+    }
+    for (list<int>::iterator it = cx->circle.begin(); it != cx->circle.end(); ++it) {
+        stateId += "-" + to_string(*it);
+    }
+    return stateId;
+}
+
 int
 ProductStateTransitionGraph::encode(const char *stateId) {
-    int stateNr = stringTable.encode(stateId);
+    int stateNr = stateTable.encode(stateId);
     return stateNr;
 }
 

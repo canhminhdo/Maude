@@ -57,6 +57,8 @@ public:
 
     string getStateId(int systemStateNr, int propertyStateNr);
 
+    string getSeqId(CounterExample *cx);
+
     void dump(int stateNr, bool isDotFile);
 
     bool sccAnalysis();
@@ -71,8 +73,6 @@ public:
 
     void dfs(int v);
 
-    int hash(int v1, int v2);
-
 private:
     struct ProductState {
         ProductState(int stateNr, int systemStateNr, int propertyStateNr, int parent);
@@ -86,7 +86,8 @@ private:
     };
 
     Vector<ProductState *> seen;
-    StringTable stringTable;
+    StringTable stateTable;
+    StringTable seqTable;
     NatSet visited;
 
     // SCC analysis
@@ -108,6 +109,5 @@ private:
     NatSet acceptedStates;
     list<int> path;
     list<CounterExample *> counterexamples;
-    NatSet seenCounterExamples; // todo: should be implemented by hash table
 };
 #endif
