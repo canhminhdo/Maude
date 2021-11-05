@@ -64,11 +64,10 @@ public:
     DagNode *makeAllCounterexamples(const StateTransitionGraph &states, const ProductStateTransitionGraph &productStates);
 private:
     //
-    //	Symbols needed for returning counterexamples.
+    //	Symbols needed for returning all counterexamples.
     //
     Symbol *empModelCheckResultListSymbol;
     Symbol *modelCheckResultListSymbol;
-    Symbol *allCounterexampleSymbol;
 };
 
 #endif

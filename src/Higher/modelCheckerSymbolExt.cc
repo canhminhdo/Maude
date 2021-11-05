@@ -67,7 +67,6 @@
 ModelCheckerSymbolExt::ModelCheckerSymbolExt(int id) : ModelCheckerSymbol(id) {
     empModelCheckResultListSymbol = 0;
     modelCheckResultListSymbol = 0;
-    allCounterexampleSymbol = 0;
 }
 
 bool
@@ -82,7 +81,6 @@ bool
 ModelCheckerSymbolExt::attachSymbol(const char *purpose, Symbol *symbol) {
     BIND_SYMBOL(purpose, symbol, empModelCheckResultListSymbol, Symbol * );
     BIND_SYMBOL(purpose, symbol, modelCheckResultListSymbol, Symbol * );
-    BIND_SYMBOL(purpose, symbol, allCounterexampleSymbol, Symbol * );
     return ModelCheckerSymbol::attachSymbol(purpose, symbol);
 }
 
@@ -104,7 +102,6 @@ ModelCheckerSymbolExt::copyAttachments(Symbol *original, SymbolMap *map) {
     COPY_SYMBOL(orig, counterexampleSymbol, map, Symbol * );
     COPY_SYMBOL(orig, empModelCheckResultListSymbol, map, Symbol * );
     COPY_SYMBOL(orig, modelCheckResultListSymbol, map, Symbol * );
-    COPY_SYMBOL(orig, allCounterexampleSymbol, map, Symbol * );
 
     COPY_TERM(orig, trueTerm, map);
     TemporalSymbol::copyAttachments(original, map);
@@ -123,7 +120,6 @@ ModelCheckerSymbolExt::getSymbolAttachments(Vector<const char *> &purposes,
                                             Vector<Symbol *> &symbols) {
     APPEND_SYMBOL(purposes, symbols, empModelCheckResultListSymbol);
     APPEND_SYMBOL(purposes, symbols, modelCheckResultListSymbol);
-    APPEND_SYMBOL(purposes, symbols, allCounterexampleSymbol);
     ModelCheckerSymbol::getSymbolAttachments(purposes, symbols);
 }
 
@@ -178,13 +174,9 @@ ModelCheckerSymbolExt::eqRewrite(DagNode *subject, RewritingContext &context) {
     system.systemStates = new StateTransitionGraph(sysContext);
     system.systemProductStates = new ProductStateTransitionGraph();
     ModelChecker2 mc(system, formula, top);
-    // get all counterexamples
-    // step 1: build product automata between property and system
-    mc.buildProductAutomata();
+    // find all counterexamples
+    bool result = mc.findCounterexamples();
 //    system.systemProductStates->dump(0, true); // dump product automata
-    // step 2: SCC analysis
-    bool result = system.systemProductStates->sccAnalysis();
-    // step 3: find counterexamples
     if (result)
         system.systemProductStates->findAllCounterexamples();
 

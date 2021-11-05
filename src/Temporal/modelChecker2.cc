@@ -41,54 +41,67 @@ ModelChecker2::ModelChecker2(System &system, LogicFormula &property, int top)
                                                     propertyAutomaton.getNrStates() << " states.");
 }
 
-void
-ModelChecker2::buildProductAutomata() {
+bool
+ModelChecker2::findCounterexamples() {
     intersectionStates.expandTo(1);
     const NatSet &initialStates = propertyAutomaton.getInitialStates();
     const NatSet::const_iterator e = initialStates.end();
-    int root = system.insertNewState(NONE, NONE, NONE);
+    bool isNewState = false;
+    int root = system.insertNewState(NONE, NONE, NONE, isNewState);
+    acceptedComponentCount = 0;
     for (NatSet::const_iterator i = initialStates.begin(); i != e; ++i) {
-        int stateNr = system.insertNewState(NONE, *i, root);
-        dfsPropertyTransitions(stateNr, 0, *i);
+        int stateNr = system.insertNewState(NONE, *i, root, isNewState);
+        sccAnalysis(stateNr, NONE, *i);
     }
+//    cout << "Number of accepted SCC is " << acceptedComponentCount << endl;
+    return acceptedComponentCount > 0;
 }
 
-bool
-ModelChecker2::dfsPropertyTransitions(int stateNr, int systemStateNr, int propertyStateNr) {
-    const BuchiAutomaton2::TransitionMap &tMap =
-            propertyAutomaton.getTransitions(propertyStateNr);
+void
+ModelChecker2::sccAnalysis(int stateNr, int systemStateNr, int propertyStateNr) {
+    system.pushState(stateNr);
+    const BuchiAutomaton2::TransitionMap &tMap = propertyAutomaton.getTransitions(propertyStateNr);
     BuchiAutomaton2::TransitionMap::const_iterator e = tMap.end();
     for (BuchiAutomaton2::TransitionMap::const_iterator i = tMap.begin(); i != e; ++i) {
-        //        cout << "checking (" << systemStateNr << "," << propertyStateNr << ") - " << i->first << "," << i->second << endl;
-        if (satisfiesPropositionalFormula(systemStateNr, i->second)) {
-            //            cout << "passed (" << systemStateNr << "," << propertyStateNr << ") - " << i->first << "," << i->second << endl;
-            int newPropertyStateNr = i->first;
-            // add new state (systemStateNr, newPropertyStateNr) derived from (stateNr->systemStateNr, propertyStateNr)
-            int newStateNr = system.insertNewState(systemStateNr, newPropertyStateNr, stateNr); // todo: if the same the state -> self-loop
-            if (propertyAutomaton.isAccepting(newPropertyStateNr)) {
-                system.setAcceptedState(newStateNr);
+        for (int j = 0;; j++) {
+            int nextSystemStateNr = getNextSystemStateNr(systemStateNr, j);
+            if (nextSystemStateNr == NONE) {
+                break;
             }
-            StateSet &s = intersectionStates[systemStateNr];
-            if (!(s.dfs1Seen.contains(newPropertyStateNr))) {
-                dfsSystemTransitions(newStateNr, systemStateNr, newPropertyStateNr);
+            if (satisfiesPropositionalFormula(nextSystemStateNr, i->second)) {
+                int newPropertyStateNr = i->first;
+                bool isNewState = false;
+                int newStateNr = system.insertNewState(nextSystemStateNr, newPropertyStateNr, stateNr, isNewState); // todo: if the same the state -> self-loop
+                if (isNewState) {
+                    if (propertyAutomaton.isAccepting(newPropertyStateNr)) {
+                        system.setAcceptedState(newStateNr);
+                    }
+                    sccAnalysis(newStateNr, nextSystemStateNr, newPropertyStateNr);
+                    system.updateLowLink(stateNr, newStateNr, true);
+                } else {
+                    system.updateLowLink(stateNr, newStateNr, false);
+                }
             }
         }
     }
-    return false;
+    bool acceptedSCC = system.generateSCC(stateNr);
+    if (acceptedSCC) {
+        acceptedComponentCount++;
+    }
 }
 
-bool
-ModelChecker2::dfsSystemTransitions(int stateNr, int systemStateNr, int propertyStateNr) {
-    intersectionStates[systemStateNr].dfs1Seen.insert(propertyStateNr);
-    for (int i = 0;; i++) {
-        int n = system.getNextState(systemStateNr, i);
-        if (n == NONE)
-            break;
-        if (n >= intersectionStates.length())
-            intersectionStates.expandTo(n + 1);
-        dfsPropertyTransitions(stateNr, n, propertyStateNr);
+int
+ModelChecker2::getNextSystemStateNr(int systemStateNr, int i) {
+    if (systemStateNr == NONE) {
+        return i == 0 ? 0 : NONE;
     }
-    return false;
+    int n = system.getNextState(systemStateNr, i);
+    if (n == NONE) {
+        return NONE;
+    }
+    if (n >= intersectionStates.length())
+        intersectionStates.expandTo(n + 1);
+    return n;
 }
 
 bool
@@ -218,3 +231,4 @@ ModelChecker2::satisfiesPropositionalFormula(int systemStateNr, Bdd formula) {
         }
     }
 }
+

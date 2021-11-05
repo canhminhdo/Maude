@@ -293,10 +293,27 @@ ModelCheckerSymbol::SystemAutomaton::checkProposition(int stateNr, int propositi
     return result;
 }
 
-int ModelCheckerSymbol::SystemAutomaton::insertNewState(int systemStateNr, int propertyStateNr, int parent) {
-    return systemProductStates->insertNewState(systemStateNr, propertyStateNr, parent);
+int
+ModelCheckerSymbol::SystemAutomaton::insertNewState(int systemStateNr, int propertyStateNr, int parent, bool &isNewState) {
+    return systemProductStates->insertNewState(systemStateNr, propertyStateNr, parent, isNewState);
 }
 
-void ModelCheckerSymbol::SystemAutomaton::setAcceptedState(int stateNr) {
+void
+ModelCheckerSymbol::SystemAutomaton::setAcceptedState(int stateNr) {
     systemProductStates->setAcceptedState(stateNr);
+}
+
+void
+ModelCheckerSymbol::SystemAutomaton::pushState(int v) {
+    systemProductStates->pushState(v);
+}
+
+void
+ModelCheckerSymbol::SystemAutomaton::updateLowLink(int v, int w, bool isNewState) {
+    systemProductStates->updateLowLink(v, w, isNewState);
+}
+
+bool
+ModelCheckerSymbol::SystemAutomaton::generateSCC(int v) {
+    return systemProductStates->generateSCC(v);
 }

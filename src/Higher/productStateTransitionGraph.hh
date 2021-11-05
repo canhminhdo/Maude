@@ -43,13 +43,7 @@ public:
         list<int> circle;
     };
 
-    int getNrStates() const;
-
-    int getNextState(int stateNr, int index);
-
-    int getStateParent(int stateNr) const;
-
-    int insertNewState(int systemStateNr, int propertyStateNr, int parent);
+    int insertNewState(int systemStateNr, int propertyStateNr, int parent, bool &isNewState);
 
     void setAcceptedState(int stateNr);
 
@@ -61,17 +55,25 @@ public:
 
     void dump(int stateNr, bool isDotFile);
 
-    bool sccAnalysis();
-
-    int strongConnected(int v);
-
     void handleCounterexample(int stateNr);
 
     void findAllCounterexamples();
 
     list<CounterExample *> getAllCounterexamples() const;
 
+    //
+    // Find all counterexamples
+    //
     void dfs(int v);
+
+    //
+    // SCC analysis on the fly
+    //
+    void pushState(int v);
+
+    void updateLowLink(int v, int w, bool isNewState);
+
+    bool generateSCC(int v);
 
 private:
     struct ProductState {
@@ -80,9 +82,16 @@ private:
         const int parent;
         const int systemStateNr;
         const int propertyStateNr;
-        int stateNr;
+        int stateNr; // The state number, also the DFS traversal number
         Vector<int> nextStates;
         bool acceptedState;
+
+        // SCC analysis by Tarjan algorithm
+        int lowLink;
+        bool onStack;
+        int component; // The number of the component we're in
+        // Find all counterexamples
+        bool visited;
     };
 
     Vector<ProductState *> seen;
@@ -91,21 +100,14 @@ private:
     NatSet visited;
 
     // SCC analysis
-    struct StateInfo {
-        int traversalNumber;	// DFS traversal number
-        int component;		// number of the component we're in
-        bool visited;
-    };
     struct ComponentInfo {
         ComponentInfo();
         bool accepted;
         list<int> circle;
     };
     stack<int> stateStack;
-    int traversalCount;
-    int acceptedComponentCount;
-    Vector<StateInfo> stateInfo;
     Vector<ComponentInfo *> components;
+    // Find all counterexamples
     NatSet acceptedStates;
     list<int> path;
     list<CounterExample *> counterexamples;

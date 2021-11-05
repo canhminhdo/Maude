@@ -70,10 +70,12 @@ protected:
 
         bool checkProposition(int stateNr, int propositionIndex) const;
 
-        // generate all counterexamples
-        int insertNewState(int systemStateNr, int propertyStateNr, int parent);
-
+        // Find all counterexamples
+        int insertNewState(int systemStateNr, int propertyStateNr, int parent, bool &isNewState);
         void setAcceptedState(int stateNr);
+        void pushState(int v);
+        void updateLowLink(int v, int w, bool isNewState);
+        bool generateSCC(int v);
 
         DagNodeSet propositions;
         Symbol *satisfiesSymbol;

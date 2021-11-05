@@ -44,10 +44,12 @@ public:
 
         virtual bool checkProposition(int stateNr, int propositionIndex) const = 0;
 
-        // find all counterexamples
-        virtual int insertNewState(int systemStateNr, int propertyStateNr, int parent) = 0;
-
+        // Find all counterexamples
+        virtual int insertNewState(int systemStateNr, int propertyStateNr, int parent, bool &isNewState) = 0;
         virtual void setAcceptedState(int stateNr) = 0;
+        virtual void pushState(int v) = 0;
+        virtual void updateLowLink(int v, int w, bool isNewState) = 0;
+        virtual bool generateSCC(int v) = 0;
     };
 
     ModelChecker2(System &system, LogicFormula &property, int top);
@@ -58,8 +60,8 @@ public:
 
     const list<int> &getCycle() const;
 
-    // find all counterexamples
-    void buildProductAutomata();
+    // Find all counterexamples
+    bool findCounterexamples();
 
 private:
     struct StateSet {
@@ -80,13 +82,6 @@ private:
 
     bool satisfiesPropositionalFormula(int systemStateNr, Bdd formula);
 
-    //
-    // To generate product automata
-    //
-    bool dfsPropertyTransitions(int stateNr, int systemStateNr, int propertyStateNr);
-
-    bool dfsSystemTransitions(int stateNr, int systemStateNr, int propertyStateNr);
-
     System &system;
     BuchiAutomaton2 propertyAutomaton;
     Vector<StateSet> intersectionStates;
@@ -97,6 +92,13 @@ private:
     int cyclePropertyStateNr;
     list<int> path;
     list<int> cycle;
+
+    //
+    // Find all counterexamples
+    //
+    void sccAnalysis(int stateNr, int systemStateNr, int propertyStateNr);
+    int getNextSystemStateNr(int systemStateNr, int i);
+    int acceptedComponentCount;
 };
 
 inline const list<int> &
