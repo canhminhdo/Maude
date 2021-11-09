@@ -75,7 +75,7 @@ protected:
         void setAcceptedState(int stateNr);
         void pushState(int v);
         void updateLowLink(int v, int w, bool isNewState);
-        bool generateSCC(int v);
+        bool generateSCC(int v, list<int> &path);
 
         DagNodeSet propositions;
         Symbol *satisfiesSymbol;

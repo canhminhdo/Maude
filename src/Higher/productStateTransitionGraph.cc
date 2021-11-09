@@ -145,7 +145,7 @@ ProductStateTransitionGraph::updateLowLink(int v, int w, bool isNewState) {
 }
 
 bool
-ProductStateTransitionGraph::generateSCC(int v) {
+ProductStateTransitionGraph::generateSCC(int v, list<int> &path) {
     bool isAcceptedSCC = false;
     ProductState *s = seen[v];
     if (s->stateNr == s->lowLink) {
@@ -189,6 +189,7 @@ ProductStateTransitionGraph::generateSCC(int v) {
                     seen[*it]->component = componentCount;
                 }
                 components.append(comp);
+                handleCounterexample(v, path);
             }
         }
     }
@@ -226,7 +227,7 @@ void
 ProductStateTransitionGraph::dfs(int v) {
     if (acceptedStates.contains(v)) {
         // a counterexample found
-        handleCounterexample(v);
+        handleCounterexample(v, path);
         return;
     }
     seen[v]->visited = true;
@@ -241,7 +242,7 @@ ProductStateTransitionGraph::dfs(int v) {
 }
 
 void
-ProductStateTransitionGraph::handleCounterexample(int stateNr) {
+ProductStateTransitionGraph::handleCounterexample(int stateNr, list<int> &path) {
     ProductState *s = seen[stateNr];
     ComponentInfo *ci = components[s->component];
     Assert(s->component != NONE, "Invalid component index");

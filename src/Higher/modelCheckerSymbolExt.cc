@@ -177,8 +177,8 @@ ModelCheckerSymbolExt::eqRewrite(DagNode *subject, RewritingContext &context) {
     // find all counterexamples
     bool result = mc.findCounterexamples();
 //    system.systemProductStates->dump(0, true); // dump product automata
-    if (result)
-        system.systemProductStates->findAllCounterexamples();
+//    if (result)
+//        system.systemProductStates->findAllCounterexamples();
 
     int nrSystemStates = system.systemStates->getNrStates();
     Verbose("ModelCheckerSymbol: Examined " << nrSystemStates <<

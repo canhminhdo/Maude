@@ -60,6 +60,7 @@ ModelChecker2::findCounterexamples() {
 void
 ModelChecker2::sccAnalysis(int stateNr, int systemStateNr, int propertyStateNr) {
     system.pushState(stateNr);
+    path.push_back(stateNr);
     const BuchiAutomaton2::TransitionMap &tMap = propertyAutomaton.getTransitions(propertyStateNr);
     BuchiAutomaton2::TransitionMap::const_iterator e = tMap.end();
     for (BuchiAutomaton2::TransitionMap::const_iterator i = tMap.begin(); i != e; ++i) {
@@ -84,7 +85,8 @@ ModelChecker2::sccAnalysis(int stateNr, int systemStateNr, int propertyStateNr) 
             }
         }
     }
-    bool acceptedSCC = system.generateSCC(stateNr);
+    bool acceptedSCC = system.generateSCC(stateNr, path);
+    path.pop_back();
     if (acceptedSCC) {
         acceptedComponentCount++;
     }

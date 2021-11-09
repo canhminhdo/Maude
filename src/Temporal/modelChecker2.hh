@@ -49,7 +49,7 @@ public:
         virtual void setAcceptedState(int stateNr) = 0;
         virtual void pushState(int v) = 0;
         virtual void updateLowLink(int v, int w, bool isNewState) = 0;
-        virtual bool generateSCC(int v) = 0;
+        virtual bool generateSCC(int v, list<int> &path) = 0;
     };
 
     ModelChecker2(System &system, LogicFormula &property, int top);

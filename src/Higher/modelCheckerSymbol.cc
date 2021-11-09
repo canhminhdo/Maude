@@ -314,6 +314,6 @@ ModelCheckerSymbol::SystemAutomaton::updateLowLink(int v, int w, bool isNewState
 }
 
 bool
-ModelCheckerSymbol::SystemAutomaton::generateSCC(int v) {
-    return systemProductStates->generateSCC(v);
+ModelCheckerSymbol::SystemAutomaton::generateSCC(int v, list<int> &path) {
+    return systemProductStates->generateSCC(v, path);
 }

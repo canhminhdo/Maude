@@ -55,7 +55,7 @@ public:
 
     void dump(int stateNr, bool isDotFile);
 
-    void handleCounterexample(int stateNr);
+    void handleCounterexample(int stateNr, list<int> &path);
 
     void findAllCounterexamples();
 
@@ -75,7 +75,7 @@ public:
 
     void updateLowLink(int v, int w, bool isNewState);
 
-    bool generateSCC(int v);
+    bool generateSCC(int v, list<int> &path);
 
 private:
     struct ProductState {
