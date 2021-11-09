@@ -59,6 +59,8 @@ public:
 
     void findAllCounterexamples();
 
+    void findAllCounterexampleStates();
+
     list<CounterExample *> getAllCounterexamples() const;
 
     //

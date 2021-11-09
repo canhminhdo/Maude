@@ -146,50 +146,64 @@ ProductStateTransitionGraph::updateLowLink(int v, int w, bool isNewState) {
 
 bool
 ProductStateTransitionGraph::generateSCC(int v) {
+    bool isAcceptedSCC = false;
     ProductState *s = seen[v];
     if (s->stateNr == s->lowLink) {
         // v is a root node; pop the stack and generate SCC
-        int componentCount = components.length();
         int w;
-        bool isAccepted = false;
-        ComponentInfo *comp = new ComponentInfo();
+        bool hasAcceptedState = false;
+        list<int> circle;
         do {
             w = stateStack.top();
             stateStack.pop();
             seen[w]->onStack = false;
-            seen[w]->component = componentCount;
-            comp->circle.push_front(w); // make the root (base) of the SCC is on the top list
+            circle.push_front(w); // make the root (base) of the SCC is on the top list
             if (seen[w]->acceptedState)
-                isAccepted = true;
+                hasAcceptedState = true;
         } while (w != v);
-        if (comp->circle.size() > 1) {
-            cout << "The SCC contains " << comp->circle.size() << " states, accepted is " << isAccepted << endl;
-            for(list<int>::iterator it = comp->circle.begin(); it != comp->circle.end(); ++it) {
+        if (circle.size() > 1) {
+            cout << "The SCC contains " << circle.size() << " states, accepted is " << hasAcceptedState << endl;
+            for(list<int>::iterator it = circle.begin(); it != circle.end(); ++it) {
                 cout << "stateNr is " << *it << endl;
             }
         }
-        if (isAccepted) {
-            if (comp->circle.size() == 1) {
+        if (hasAcceptedState) {
+            if (circle.size() == 1) {
                 for (int i = 0; i < seen[w]->nextStates.length(); i++) {
                     if (seen[w]->nextStates[i] == w) {
 //                        cout << "SCC Accepted 1: " << w << endl;
-                        comp->accepted = true;
+                        isAcceptedSCC = true;
                     }
                 }
             } else {
-                comp->accepted = true;
+                isAcceptedSCC = true;
 //                cout << "SCC Accepted 2" << endl;
             }
-            if (comp->accepted) {
-                for(list<int>::iterator it = comp->circle.begin(); it != comp->circle.end(); ++it) {
+            if (isAcceptedSCC) {
+                // Save accepted SCC only
+                int componentCount = components.length();
+                ComponentInfo *comp = new ComponentInfo();
+                for(list<int>::iterator it = circle.begin(); it != circle.end(); ++it) {
                     acceptedStates.insert(*it);
+                    comp->circle.push_back(*it);
+                    seen[*it]->component = componentCount;
                 }
+                components.append(comp);
             }
         }
-        components.append(comp);
-        return comp->accepted;
     }
-    return false;
+    return isAcceptedSCC;
+}
+
+void ProductStateTransitionGraph::findAllCounterexampleStates() {
+    for (int i = 0; i < components.length(); ++i) {
+        ComponentInfo *comp = components[i];
+        CounterExample *cx = new CounterExample();
+        for (list<int>::iterator it = comp->circle.begin(); it != comp->circle.end(); ++it) {
+            cx->circle.push_back(seen[*it]->systemStateNr);
+        }
+        counterexamples.push_back(cx);
+    }
 }
 
 void
@@ -222,7 +236,7 @@ ProductStateTransitionGraph::dfs(int v) {
         if (!seen[w]->visited)
             dfs(w);
     }
-    seen[v]->visited = false;
+//    seen[v]->visited = false;
     path.pop_back();
 }
 
@@ -230,6 +244,7 @@ void
 ProductStateTransitionGraph::handleCounterexample(int stateNr) {
     ProductState *s = seen[stateNr];
     ComponentInfo *ci = components[s->component];
+    Assert(s->component != NONE, "Invalid component index");
     // Build circle
     CounterExample *cx = new CounterExample();
     list<int> prefix;
