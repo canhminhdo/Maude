@@ -46,6 +46,8 @@ class StateTransitionGraph3;
 
 class StateTransitionGraph;
 
+class ProductStateTransitionGraph;
+
 class EqualityConditionFragment;
 
 class SortTestConditionFragment;
