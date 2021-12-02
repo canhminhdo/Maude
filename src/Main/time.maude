@@ -37,6 +37,12 @@ mod TIME is
   op [_,_,_,_] : String String Int Int -> TimeZoneInfo [ctor] .
   op timer : Nat -> Oid [ctor] .
 
+  op getTimeSinceEpoch : -> Nat [special (
+                                  id-hook TimeSymbol
+                            	  op-hook succSymbol			(s_ : Nat ~> NzNat))] .
+  op getTimeSinceEpoch : Nat -> Nat [special (
+                                    id-hook TimeSymbol
+                              	  op-hook succSymbol			(s_ : Nat ~> NzNat))] .
   op getTimeSinceEpoch : Oid Oid -> Msg [ctor msg format (b o)] .
   op gotTimeSinceEpoch : Oid Oid Nat -> Msg [ctor msg format (m o)] .
 

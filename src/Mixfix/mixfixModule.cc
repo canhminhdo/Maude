@@ -111,6 +111,7 @@
 #include "randomOpSymbol.hh"
 #include "matrixOpSymbol.hh"
 #include "counterSymbol.hh"
+#include "timeSymbol.hh"
 
 //	SMT class definitions
 #include "SMT_Info.hh"

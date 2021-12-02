@@ -259,4 +259,39 @@ fmod MODEL-CHECKER is
 		   (counterexample : TransitionList TransitionList ~> ModelCheckResult)
 	   term-hook trueTerm		(true)
 	 )] .
+
+    *** extending model checker
+    sort ModelCheckResultList .
+    subsort ModelCheckResult < ModelCheckResultList .
+    op emp : -> ModelCheckResultList [ctor] .
+    op _|_ : ModelCheckResultList ModelCheckResultList -> ModelCheckResultList [ctor assoc id: emp] .
+
+    op modelCheckAll : State Formula ~> ModelCheckResultList
+        [special (
+            id-hook ModelCheckerSymbolExt
+
+            op-hook trueSymbol           (True : ~> Formula)
+            op-hook falseSymbol		(False : ~> Formula)
+            op-hook notSymbol		(~_ : Formula ~> Formula)
+            op-hook nextSymbol		(O_ : Formula ~> Formula)
+            op-hook andSymbol		(_/\_ : Formula Formula ~> Formula)
+            op-hook orSymbol		(_\/_ : Formula Formula ~> Formula)
+            op-hook untilSymbol		(_U_ : Formula Formula ~> Formula)
+            op-hook releaseSymbol	(_R_ : Formula Formula ~> Formula)
+            op-hook satisfiesSymbol      (_|=_ : State Formula ~> Bool)
+            op-hook qidSymbol		(<Qids> : ~> Qid)
+            op-hook unlabeledSymbol	(unlabeled : ~> RuleName)
+            op-hook deadlockSymbol	(deadlock : ~> RuleName)
+            op-hook transitionSymbol	({_,_} : State RuleName ~> Transition)
+            op-hook transitionListSymbol
+                (__ : TransitionList TransitionList ~> TransitionList)
+            op-hook nilTransitionListSymbol	(nil : ~> TransitionList)
+            op-hook counterexampleSymbol
+                (counterexample : TransitionList TransitionList ~> ModelCheckResult)
+            term-hook trueTerm		(true)
+
+            op-hook modelCheckResultListSymbol
+               (_|_ : ModelCheckResultList ModelCheckResultList ~> ModelCheckResultList)
+            op-hook empModelCheckResultListSymbol (emp : ~> ModelCheckResultList)
+        )] .
 endfm

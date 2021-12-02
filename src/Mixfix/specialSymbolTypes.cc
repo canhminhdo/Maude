@@ -96,3 +96,5 @@ MACRO(ProcessManagerSymbol, SymbolType::PROCESS_MANAGER_SYMBOL
 )
 MACRO(TimeManagerSymbol, SymbolType::TIME_MANAGER_SYMBOL
 )
+MACRO(TimeSymbol, SymbolType::TIME_SYMBOL
+)

@@ -32,6 +32,7 @@ libbuiltIn_a_SOURCES = \
 	ACU_NumberOpSymbol.cc \
 	CUI_NumberOpSymbol.cc \
 	divisionSymbol.cc \
+	timeSymbol.cc \
 	randomOpSymbol.cc \
 	counterSymbol.cc \
 	matrixOpSymbol.cc \
@@ -61,6 +62,7 @@ noinst_HEADERS = \
 	stringSymbol.hh \
 	stringTerm.hh \
 	succSymbol.hh \
+	timeSymbol.hh \
 	randomOpSymbol.hh \
 	counterSymbol.hh \
 	matrixOpSymbol.hh \

@@ -58,6 +58,8 @@ class StringDagNode;
 
 class StringOpSymbol;
 
+class TimeSymbol;
+
 class RandomOpSymbol;
 
 class CounterSymbol;

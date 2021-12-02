@@ -21,53 +21,26 @@
 */
 
 //
-//      Class for timers.
+//      Class for TimeSymbol.
 //
-#ifndef _timer_hh_
-#define _timer_hh_
+#ifndef _timeSymbol_hh_
+#define _timeSymbol_hh_
 
-#include "timeStuff.hh"
-#include "gmpxx.h"
+#include "numberOpSymbol.hh"
 
-class Timer {
+class TimeSymbol : public NumberOpSymbol {
 public:
-    Timer(bool startRunning = false);
+    TimeSymbol(int id, int arity);
 
-    bool getTimes(Int64 &real, Int64 &virt, Int64 &prof) const;
+    bool attachData(const Vector<Sort *> &opDeclaration,
+                    const char *purpose,
+                    const Vector<const char *> &data);
 
-    bool isRunning() const;
+    void getDataAttachments(const Vector<Sort *> &opDeclaration,
+                            Vector<const char *> &purposes,
+                            Vector<Vector<const char *> > &data);
 
-    void start();
-
-    void stop();
-
-    static mpz_class getTimeSinceEpoch();
-
-private:
-    enum Constants {
-        CYCLE_LENGTH = 10000000  // length of timer cycle in seconds
-    };
-
-    static void startOsTimers();
-
-    static Int64 calculateMicroseconds(const itimerval &startTime,
-                                       const itimerval &stopTime);
-
-    static bool osTimersStarted;
-
-    Int64 realAcc;
-    Int64 virtAcc;
-    Int64 profAcc;
-    itimerval realStartTime;
-    itimerval virtStartTime;
-    itimerval profStartTime;
-    bool running;
-    bool valid;
+    bool eqRewrite(DagNode *subject, RewritingContext &context);
 };
-
-inline bool
-Timer::isRunning() const {
-    return running;
-}
 
 #endif

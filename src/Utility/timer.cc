@@ -129,3 +129,15 @@ Timer::getTimes(Int64 &real, Int64 &virt, Int64 &prof) const {
     }
     return false;
 }
+
+mpz_class
+Timer::getTimeSinceEpoch() {
+    timespec timeValue;
+    DebugSave(r, clock_gettime(CLOCK_REALTIME, &timeValue));
+    Assert(r == 0, "clock_gettime() failed: " << strerror(errno));
+
+    mpz_class nanoSeconds(timeValue.tv_sec);
+    nanoSeconds *= 1000000000;
+    nanoSeconds += timeValue.tv_nsec;
+    return nanoSeconds;
+}

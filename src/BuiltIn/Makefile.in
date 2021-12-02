@@ -127,6 +127,7 @@ am_libbuiltIn_a_OBJECTS = libbuiltIn_a-equalitySymbol.$(OBJEXT) \
 	libbuiltIn_a-ACU_NumberOpSymbol.$(OBJEXT) \
 	libbuiltIn_a-CUI_NumberOpSymbol.$(OBJEXT) \
 	libbuiltIn_a-divisionSymbol.$(OBJEXT) \
+	libbuiltIn_a-timeSymbol.$(OBJEXT) \
 	libbuiltIn_a-randomOpSymbol.$(OBJEXT) \
 	libbuiltIn_a-counterSymbol.$(OBJEXT) \
 	libbuiltIn_a-matrixOpSymbol.$(OBJEXT) \
@@ -169,7 +170,8 @@ am__depfiles_remade = ./$(DEPDIR)/libbuiltIn_a-ACU_NumberOpSymbol.Po \
 	./$(DEPDIR)/libbuiltIn_a-stringOpSymbol.Po \
 	./$(DEPDIR)/libbuiltIn_a-stringSymbol.Po \
 	./$(DEPDIR)/libbuiltIn_a-stringTerm.Po \
-	./$(DEPDIR)/libbuiltIn_a-succSymbol.Po
+	./$(DEPDIR)/libbuiltIn_a-succSymbol.Po \
+	./$(DEPDIR)/libbuiltIn_a-timeSymbol.Po
 am__mv = mv -f
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -359,6 +361,7 @@ libbuiltIn_a_SOURCES = \
 	ACU_NumberOpSymbol.cc \
 	CUI_NumberOpSymbol.cc \
 	divisionSymbol.cc \
+	timeSymbol.cc \
 	randomOpSymbol.cc \
 	counterSymbol.cc \
 	matrixOpSymbol.cc \
@@ -388,6 +391,7 @@ noinst_HEADERS = \
 	stringSymbol.hh \
 	stringTerm.hh \
 	succSymbol.hh \
+	timeSymbol.hh \
 	randomOpSymbol.hh \
 	counterSymbol.hh \
 	matrixOpSymbol.hh \
@@ -464,6 +468,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbuiltIn_a-stringSymbol.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbuiltIn_a-stringTerm.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbuiltIn_a-succSymbol.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbuiltIn_a-timeSymbol.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -723,6 +728,20 @@ libbuiltIn_a-divisionSymbol.obj: divisionSymbol.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbuiltIn_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbuiltIn_a-divisionSymbol.obj `if test -f 'divisionSymbol.cc'; then $(CYGPATH_W) 'divisionSymbol.cc'; else $(CYGPATH_W) '$(srcdir)/divisionSymbol.cc'; fi`
 
+libbuiltIn_a-timeSymbol.o: timeSymbol.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbuiltIn_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbuiltIn_a-timeSymbol.o -MD -MP -MF $(DEPDIR)/libbuiltIn_a-timeSymbol.Tpo -c -o libbuiltIn_a-timeSymbol.o `test -f 'timeSymbol.cc' || echo '$(srcdir)/'`timeSymbol.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libbuiltIn_a-timeSymbol.Tpo $(DEPDIR)/libbuiltIn_a-timeSymbol.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='timeSymbol.cc' object='libbuiltIn_a-timeSymbol.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbuiltIn_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbuiltIn_a-timeSymbol.o `test -f 'timeSymbol.cc' || echo '$(srcdir)/'`timeSymbol.cc
+
+libbuiltIn_a-timeSymbol.obj: timeSymbol.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbuiltIn_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbuiltIn_a-timeSymbol.obj -MD -MP -MF $(DEPDIR)/libbuiltIn_a-timeSymbol.Tpo -c -o libbuiltIn_a-timeSymbol.obj `if test -f 'timeSymbol.cc'; then $(CYGPATH_W) 'timeSymbol.cc'; else $(CYGPATH_W) '$(srcdir)/timeSymbol.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libbuiltIn_a-timeSymbol.Tpo $(DEPDIR)/libbuiltIn_a-timeSymbol.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='timeSymbol.cc' object='libbuiltIn_a-timeSymbol.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbuiltIn_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbuiltIn_a-timeSymbol.obj `if test -f 'timeSymbol.cc'; then $(CYGPATH_W) 'timeSymbol.cc'; else $(CYGPATH_W) '$(srcdir)/timeSymbol.cc'; fi`
+
 libbuiltIn_a-randomOpSymbol.o: randomOpSymbol.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbuiltIn_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbuiltIn_a-randomOpSymbol.o -MD -MP -MF $(DEPDIR)/libbuiltIn_a-randomOpSymbol.Tpo -c -o libbuiltIn_a-randomOpSymbol.o `test -f 'randomOpSymbol.cc' || echo '$(srcdir)/'`randomOpSymbol.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libbuiltIn_a-randomOpSymbol.Tpo $(DEPDIR)/libbuiltIn_a-randomOpSymbol.Po
@@ -938,6 +957,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/libbuiltIn_a-stringSymbol.Po
 	-rm -f ./$(DEPDIR)/libbuiltIn_a-stringTerm.Po
 	-rm -f ./$(DEPDIR)/libbuiltIn_a-succSymbol.Po
+	-rm -f ./$(DEPDIR)/libbuiltIn_a-timeSymbol.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -1005,6 +1025,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/libbuiltIn_a-stringSymbol.Po
 	-rm -f ./$(DEPDIR)/libbuiltIn_a-stringTerm.Po
 	-rm -f ./$(DEPDIR)/libbuiltIn_a-succSymbol.Po
+	-rm -f ./$(DEPDIR)/libbuiltIn_a-timeSymbol.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

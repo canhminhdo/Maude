@@ -174,6 +174,8 @@ MixfixModule::newFancySymbol(Token prefixName,
             return new ProcessManagerSymbol(name);
         case SymbolType::TIME_MANAGER_SYMBOL:
             return new TimeManagerSymbol(name);
+        case SymbolType::TIME_SYMBOL:
+            return new TimeSymbol(name, nrArgs);
     }
     //
     //	Handle regular symbols that have semantic attributes.
