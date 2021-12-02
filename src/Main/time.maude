@@ -40,9 +40,9 @@ mod TIME is
   op getTimeSinceEpoch : -> Nat [special (
                                   id-hook TimeSymbol
                             	  op-hook succSymbol			(s_ : Nat ~> NzNat))] .
-  op getTimeSinceEpoch : Nat -> Nat [special (
-                                    id-hook TimeSymbol
-                              	  op-hook succSymbol			(s_ : Nat ~> NzNat))] .
+  op getTimeSinceEpochAt : Nat -> Nat [special (
+                                  id-hook TimeSymbol
+                            	  op-hook succSymbol			(s_ : Nat ~> NzNat))] .
   op getTimeSinceEpoch : Oid Oid -> Msg [ctor msg format (b o)] .
   op gotTimeSinceEpoch : Oid Oid Nat -> Msg [ctor msg format (m o)] .
 
