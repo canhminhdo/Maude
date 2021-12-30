@@ -13,12 +13,13 @@ CFLAGS="-g -Wall -O3 -fno-stack-protector -fstrict-aliasing" \
 CXXFLAGS="-g -Wall -O3 -fno-stack-protector -fstrict-aliasing -std=c++11" \
 CPPFLAGS="-I/Users/Darwin64/include" \
 LDFLAGS="-L/Users/Darwin64/lib" \
+GMP_LIBS="/Users/Darwin64/lib/libgmpxx.a /Users/Darwin64/lib/libgmp.a" \
+--prefix="${CWD}/dist"
+
 # LIBSIGSEGV_LIB="/Users/Darwin64/lib/libsigsegv.a" \
 # BUDDY_LIB="/Users/Darwin64/lib/libbdd.a" \
 # YICES2_LIB="/Users/Darwin64/lib/libyices.a" \
 # TECLA_LIBS="/Users/Darwin64/lib/libtecla.a /Users/Darwin64/lib/libtecla_r.a -lcurses" \
-GMP_LIBS="/Users/Darwin64/lib/libgmpxx.a /Users/Darwin64/lib/libgmp.a" \
---prefix="${CWD}/dist"
 
 cp config.h "$CWD"
 

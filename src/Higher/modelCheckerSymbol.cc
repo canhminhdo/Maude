@@ -246,6 +246,7 @@ ModelCheckerSymbol::eqRewrite(DagNode *subject, RewritingContext &context) {
     //
     //	Do the model check using a ModelChecker2 object.
     //
+    system.systemProductStates = 0;
     system.satisfiesSymbol = satisfiesSymbol;
     system.parentContext = &context;
     system.trueTerm = trueTerm.getDag();
