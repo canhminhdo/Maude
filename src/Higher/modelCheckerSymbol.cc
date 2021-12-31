@@ -246,12 +246,12 @@ ModelCheckerSymbol::eqRewrite(DagNode *subject, RewritingContext &context) {
     //
     //	Do the model check using a ModelChecker2 object.
     //
-    system.systemProductStates = 0;
     system.satisfiesSymbol = satisfiesSymbol;
     system.parentContext = &context;
     system.trueTerm = trueTerm.getDag();
     RewritingContext *sysContext = context.makeSubcontext(d->getArgument(0));
     system.systemStates = new StateTransitionGraph(sysContext);
+    system.systemProductStates = 0;
     ModelChecker2 mc(system, formula, top);
     bool result = mc.findCounterexample();
     int nrSystemStates = system.systemStates->getNrStates();
@@ -269,6 +269,7 @@ ModelCheckerSymbol::eqRewrite(DagNode *subject, RewritingContext &context) {
                                 : trueTerm.getDag();
     context.addInCount(*sysContext);
     delete system.systemStates;  // deletes sysContext via ~StateTransitionGraph()
+    delete system.systemProductStates;  // deletes sysContext via ~ProductStateTransitionGraph()
     return context.builtInReplace(subject, resultDag);
 }
 
