@@ -27,6 +27,7 @@
 #define _productStateTransitionGraph_hh_
 
 #include <list>
+#include <stack>
 #include "stringTable.hh"
 #include "natSet.hh"
 
